@@ -34,7 +34,10 @@ static jclass g_functionClass;
 static jclass g_operClass;
 static jmethodID g_operConstructor;
 static jfieldID g_operTypeField;
-static jfieldID g_operValField;
+static jfieldID g_operObjectValField;
+static jfieldID g_operDoubleValField;
+static jfieldID g_operIntegerValField;
+static jfieldID g_operBooleanValField;
 static jmethodID g_executeMethod;
 
 // Clear JNI exception
@@ -272,10 +275,31 @@ bool StartupVM()
 		return false;
 	}
 
-	// Store reference to the Oper.val field
-	g_operValField = env->GetFieldID(g_operClass, "oval", "Ljava/lang/Object;");
-	if(g_operValField == NULL) {
-		SetLastError("Could not find Oper.val field");
+	// Store reference to the Oper.objectValue field
+	g_operObjectValField = env->GetFieldID(g_operClass, "objectValue", "Ljava/lang/Object;");
+	if(g_operObjectValField == NULL) {
+		SetLastError("Could not find Oper.objectValue field");
+		return false;
+	}
+
+	// Store reference to the Oper.doubleValue field
+	g_operDoubleValField = env->GetFieldID(g_operClass, "doubleValue", "D");
+	if(g_operDoubleValField == NULL) {
+		SetLastError("Could not find Oper.doubleValue field");
+		return false;
+	}
+
+	// Store reference to the Oper.integerValue field
+	g_operIntegerValField = env->GetFieldID(g_operClass, "integerValue", "I");
+	if(g_operIntegerValField == NULL) {
+		SetLastError("Could not find Oper.integerValue field");
+		return false;
+	}
+
+	// Store reference to the Oper.booleanValue field
+	g_operBooleanValField = env->GetFieldID(g_operClass, "booleanValue", "Z");
+	if(g_operBooleanValField == NULL) {
+		SetLastError("Could not find Oper.booleanValue field");
 		return false;
 	}
 
@@ -331,13 +355,15 @@ void Convert(JNIEnv* env, LPXLOPER px, jobject obj)
 	case xltypeBigData:
 		break;
 	case xltypeBool:
-
+		env->SetBooleanField(obj, g_operBooleanValField, px->val.boolean);
 		break;
 	case xltypeErr:
+		env->SetIntField(obj, g_operIntegerValField, px->val.err);
 		break;
 	case xltypeFlow:
 		break;
 	case xltypeInt:
+		env->SetIntField(obj, g_operIntegerValField, px->val.w);
 		break;
 	case xltypeMissing:
 		break;
@@ -346,6 +372,7 @@ void Convert(JNIEnv* env, LPXLOPER px, jobject obj)
 	case xltypeNil:
 		break;
 	case xltypeNum:
+		env->SetDoubleField(obj, g_operDoubleValField, px->val.num);
 		break;
 	case xltypeRef:
 		break;
@@ -355,7 +382,7 @@ void Convert(JNIEnv* env, LPXLOPER px, jobject obj)
 		{
 			char chars[MAX_PATH];
 			strncpy_s(chars, MAX_PATH, &px->val.str[1], px->val.str[0]);
-			env->SetObjectField(obj, g_operValField, env->NewStringUTF(chars));
+			env->SetObjectField(obj, g_operObjectValField, env->NewStringUTF(chars));
 		}
 		break;
 	}
@@ -364,18 +391,22 @@ void Convert(JNIEnv* env, LPXLOPER px, jobject obj)
 // Convert form Oper class to XLOPER struct
 void Convert(JNIEnv* env, jobject oper, LPXLOPER px)
 {
-	jint type = env->GetIntField(oper, g_operTypeField);
-	switch(type)
+	static jboolean iscopy = false;
+	px->xltype = env->GetIntField(oper, g_operTypeField);
+	switch(px->xltype)
 	{
 	case xltypeBigData:
 		break;
 	case xltypeBool:
+		px->val.boolean = env->GetBooleanField(oper, g_operBooleanValField);
 		break;
 	case xltypeErr:
+		px->val.err = env->GetIntField(oper, g_operIntegerValField);
 		break;
 	case xltypeFlow:
 		break;
 	case xltypeInt:
+		px->val.w = env->GetIntField(oper, g_operIntegerValField);
 		break;
 	case xltypeMissing:
 		break;
@@ -384,6 +415,7 @@ void Convert(JNIEnv* env, jobject oper, LPXLOPER px)
 	case xltypeNil:
 		break;
 	case xltypeNum:
+		px->val.num = env->GetDoubleField(oper, g_operDoubleValField);
 		break;
 	case xltypeRef:
 		break;
@@ -391,6 +423,7 @@ void Convert(JNIEnv* env, jobject oper, LPXLOPER px)
 		break;
 	case xltypeStr:
 		{
+			px->val.str = MakeExcelString(env->GetStringUTFChars((jstring)env->GetObjectField(oper, g_operObjectValField), &iscopy));
 		}
 		break;
 	}
@@ -547,24 +580,50 @@ return &result; \
 }
 */
 
-__declspec(dllexport) LPXLOPER WINAPI EA4JFunc1 ( LPXLOPER px, ... )
+__declspec(dllexport) LPXLOPER WINAPI EA4JFunc1 ( LPXLOPER px1, LPXLOPER px2, LPXLOPER px3 \
+	,LPXLOPER px4, LPXLOPER px5, LPXLOPER px6, LPXLOPER px7, LPXLOPER px8, LPXLOPER px9 \
+	,LPXLOPER px10, LPXLOPER px11, LPXLOPER px12, LPXLOPER px13, LPXLOPER px14, LPXLOPER px15 \
+	,LPXLOPER px16, LPXLOPER px17, LPXLOPER px18, LPXLOPER px19, LPXLOPER px20, LPXLOPER px21 \
+	,LPXLOPER px22, LPXLOPER px23, LPXLOPER px24, LPXLOPER px25, LPXLOPER px26, LPXLOPER px27\
+	,LPXLOPER px28, LPXLOPER px29, LPXLOPER px30 )
 {  
 	static XLOPER result;
 	static jobjectArray args = CreateArgArray();
 	result.xltype = xltypeErr;
 	JNIEnv* env = JNI::GetJNIEnv(); 
+	int i = 0;
+	Convert(env, px1, env->GetObjectArrayElement(args, i++));
+	Convert(env, px2, env->GetObjectArrayElement(args, i++));
+	Convert(env, px3, env->GetObjectArrayElement(args, i++));
+	Convert(env, px4, env->GetObjectArrayElement(args, i++));
+	Convert(env, px5, env->GetObjectArrayElement(args, i++));
+	Convert(env, px6, env->GetObjectArrayElement(args, i++));
+	Convert(env, px7, env->GetObjectArrayElement(args, i++));
+	Convert(env, px8, env->GetObjectArrayElement(args, i++));
+	Convert(env, px9, env->GetObjectArrayElement(args, i++));
+	Convert(env, px10, env->GetObjectArrayElement(args, i++));
+	Convert(env, px11, env->GetObjectArrayElement(args, i++));
+	Convert(env, px12, env->GetObjectArrayElement(args, i++));
+	Convert(env, px13, env->GetObjectArrayElement(args, i++));
+	Convert(env, px14, env->GetObjectArrayElement(args, i++));
+	Convert(env, px15, env->GetObjectArrayElement(args, i++));
+	Convert(env, px16, env->GetObjectArrayElement(args, i++));
+	Convert(env, px17, env->GetObjectArrayElement(args, i++));
+	Convert(env, px18, env->GetObjectArrayElement(args, i++));
+	Convert(env, px19, env->GetObjectArrayElement(args, i++));
+	Convert(env, px20, env->GetObjectArrayElement(args, i++));
+	Convert(env, px21, env->GetObjectArrayElement(args, i++));
+	Convert(env, px22, env->GetObjectArrayElement(args, i++));
+	Convert(env, px23, env->GetObjectArrayElement(args, i++));
+	Convert(env, px24, env->GetObjectArrayElement(args, i++));
+	Convert(env, px25, env->GetObjectArrayElement(args, i++));
+	Convert(env, px26, env->GetObjectArrayElement(args, i++));
+	Convert(env, px27, env->GetObjectArrayElement(args, i++));
+	Convert(env, px28, env->GetObjectArrayElement(args, i++));
+	Convert(env, px29, env->GetObjectArrayElement(args, i++));
+	Convert(env, px30, env->GetObjectArrayElement(args, i++));
 
-	va_list argList;
-	va_start(argList, px);
-	Convert(env, px, env->GetObjectArrayElement(args, 0));
-	LPXLOPER arg = NULL;
-	int i = 1;
-	while((arg = va_arg(args, LPXLOPER)) != NULL) {
-		Convert(env, arg, env->GetObjectArrayElement(args, i++));
-	}
-	va_end(argList);
-
-	jobject res = env->CallObjectMethod(g_functions[0], g_executeMethod); 
+	jobject res = env->CallObjectMethod(g_functions[0], g_executeMethod, args); 
 	ClearJavaException(env);
 	Convert(env, res, &result); 
 
