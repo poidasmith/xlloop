@@ -9,7 +9,6 @@
 *******************************************************************************/
 
 #include "XLObject.h"
-#include <map>
 
 static jclass g_XLObjectClass;
 static jfieldID g_XLObjectHandle;
@@ -17,85 +16,94 @@ static jfieldID g_XLObjectType;
 static std::map<int,jclass> g_XLTypeClassMap;
 static std::map<int,jmethodID> g_XLTypeConstructorMap;
 
-inline LPXLOPER GetXLoper(JNIEnv* env, jobject xlobj)
+inline LPXLOPER XLObject::GetXLoper(JNIEnv* env, jobject xlobj)
 {
 	return (LPXLOPER) env->GetLongField(xlobj, g_XLObjectHandle);
 }
 
-jobject CreateXLObject(JNIEnv* env, LPXLOPER xloper)
+jobject XLObject::CreateXLObject(JNIEnv* env, LPXLOPER xloper)
 {
 	jclass clazz = g_XLTypeClassMap[xloper->xltype & ~(xlbitXLFree | xlbitDLLFree)];
 	jmethodID constructor = g_XLTypeConstructorMap[xloper->xltype & ~(xlbitXLFree | xlbitDLLFree)];
 	return env->NewObject(clazz, constructor);
 }
 
-jint JNICALL XLArray_rows(JNIEnv* env, jobject self)
+jint JNICALL XLArray::rows(JNIEnv* env, jobject self)
 {
 	return GetXLoper(env, self)->val.array.rows;
 }
 
-jint JNICALL XLArray_columns(JNIEnv* env, jobject self)
+jint JNICALL XLArray::columns(JNIEnv* env, jobject self)
 {
 	return GetXLoper(env, self)->val.array.columns;
 }
 
-jobject JNICALL XLArray_get(JNIEnv* env, jobject self, jint row, jint column)
+jobject JNICALL XLArray::get(JNIEnv* env, jobject self, jint row, jint column)
 {
 	LPXLOPER xloper = GetXLoper(env, self);
 	return CreateXLObject(env, &xloper->val.array.lparray[row * xloper->val.array.columns + column]);
 }
 
-void JNICALL XLArray_set(JNIEnv* env, jobject self, jint row, jint column, jobject value)
+void JNICALL XLArray::set(JNIEnv* env, jobject self, jint row, jint column, jobject value)
 {
+	LPXLOPER lps = GetXLoper(env, self);
+	LPXLOPER lpv = GetXLoper(env, value);
+
+	// Sanity check
+	if(lps == lpv) {
+		return;
+	}
+
+
 }
 
-jboolean JNICALL XLBoolean_toBoolean(JNIEnv* env, jobject self)
+jboolean JNICALL XLBoolean::toBoolean(JNIEnv* env, jobject self)
 {
 	return GetXLoper(env, self)->val.boolean;
 }
 
-jint JNICALL XLError_toError(JNIEnv* env, jobject self)
+jint JNICALL XLError::toError(JNIEnv* env, jobject self)
 {
 	return GetXLoper(env, self)->val.err;
 }
 
-jint JNICALL XLInteger_toInteger(JNIEnv* env, jobject self)
+jint JNICALL XLInteger::toInteger(JNIEnv* env, jobject self)
 {
 	LPXLOPER xloper = GetXLoper(env, self);
 	return xloper->val.w;
 }
 
-jdouble JNICALL XLNumber_toDouble(JNIEnv* env, jobject self)
+jdouble JNICALL XLNumber::toDouble(JNIEnv* env, jobject self)
 {
 	return GetXLoper(env, self)->val.num;
 }
 
-jlong JNICALL XLReference_sheetID(JNIEnv* env, jobject self)
+jlong JNICALL XLReference::sheetID(JNIEnv* env, jobject self)
 {
 	return GetXLoper(env, self)->val.mref.idSheet;
 }
 
-jint JNICALL XLReference_rowFirst(JNIEnv* env, jobject self)
+jint JNICALL XLReference::rowFirst(JNIEnv* env, jobject self)
 {
 	return GetXLoper(env, self)->val.sref.ref.rwFirst;
 }
 
-jint JNICALL XLReference_rowLast(JNIEnv* env, jobject self)
+jint JNICALL XLReference::rowLast(JNIEnv* env, jobject self)
 {
 	return GetXLoper(env, self)->val.sref.ref.rwLast;
 }
 
-jint JNICALL XLReference_colFirst(JNIEnv* env, jobject self)
+jint JNICALL XLReference::colFirst(JNIEnv* env, jobject self)
 {
 	return GetXLoper(env, self)->val.sref.ref.colFirst;
 }
 
-jint JNICALL XLReference_colLast(JNIEnv* env, jobject self)
+jint JNICALL XLReference::colLast(JNIEnv* env, jobject self)
 {
 	return GetXLoper(env, self)->val.sref.ref.colLast;
 }
 
-jobject JNICALL XLReference_asArray(JNIEnv* env, jobject self)
+jobject JNICALL XLReference::asArray(JNIEnv* env, jobject self)
 {
 	LPXLOPER xArray = GetXLoper(env, self);
 	XLOPER xMulti, xTempMulti;
@@ -113,7 +121,7 @@ jobject JNICALL XLReference_asArray(JNIEnv* env, jobject self)
 	return CreateXLObject(env, &xMulti);
 }
 
-jstring JNICALL XLString_toString(JNIEnv* env, jobject self)
+jstring JNICALL XLString::toString(JNIEnv* env, jobject self)
 {
 	LPXLOPER px = GetXLoper(env, self);
 	char chars[MAX_PATH];
