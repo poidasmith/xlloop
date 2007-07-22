@@ -282,7 +282,11 @@ __declspec(dllexport) LPXLOPER WINAPI EA4JFunc##number (LPXLOPER px1, LPXLOPER p
 	args[27] = px28; \
 	args[28] = px29; \
 	args[29] = px30; \
-	return g_addin.GetFunction(number).Execute(30, args); \
+	int missingCount = 0; \
+	for(; missingCount < 30; missingCount++) { \
+		if(args[missingCount]->xltype == xltypeMissing) break; \
+	} \
+	return g_addin.GetFunction(number).Execute(missingCount, args); \
 } \
 
 DECLARE_EXCEL_FUNCTION(1)

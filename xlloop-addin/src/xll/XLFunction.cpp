@@ -100,6 +100,9 @@ LPXLOPER XLFunction::Execute(int argc, LPXLOPER argv[]) const
 		env->ExceptionDescribe();
 		env->ExceptionClear();
 		return &err;
+	} else if(res == NULL) {
+		err.xltype = xltypeMissing;
+		return &err;
 	} else {
 		return XLObject::GetXLoper(env, res);
 	}

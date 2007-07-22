@@ -26,7 +26,10 @@ jobject XLObject::CreateXLObject(JNIEnv* env, LPXLOPER xloper)
 {
 	jclass clazz = g_XLTypeClassMap[xloper->xltype & ~(xlbitXLFree | xlbitDLLFree)];
 	jmethodID constructor = g_XLTypeConstructorMap[xloper->xltype & ~(xlbitXLFree | xlbitDLLFree)];
-	return env->NewObject(clazz, constructor);
+	jobject obj = env->NewObject(clazz, constructor);
+	env->SetLongField(obj, g_XLObjectHandle, (jlong) xloper);
+	env->SetIntField(obj, g_XLObjectType, xloper->xltype);
+	return obj;
 }
 
 jint JNICALL XLArray::rows(JNIEnv* env, jobject self)
