@@ -18,7 +18,7 @@
 
 class XLObjectFactory {
 public:
-	static void RegisterNatives(JNIEnv* env);
+	static bool RegisterNatives(JNIEnv* env);
 
 private:
 	static jobject CreateArray(JNIEnv* env, jobject self, jint rows, jint columns);
@@ -26,9 +26,9 @@ private:
 	static jobject CreateDouble(JNIEnv* env, jobject self, jdouble value);
 	static jobject CreateError(JNIEnv* env, jobject self, jint value);
 	static jobject CreateInteger(JNIEnv* env, jobject self, jint value);
-	static jobject CreateReference(JNIEnv* env, jobject self, jint row, jint column);
-	static jobject CreateReference(JNIEnv* env, jobject self, jint rowFirst, jint rowLast, jint colFirst, jint colLast);
-	static jobject CreateReference(JNIEnv* env, jobject self, jint sheetId, jint rowFirst, jint rowLast, jint colFirst, jint colLast);
+	static jobject CreateReference1(JNIEnv* env, jobject self, jint row, jint column);
+	static jobject CreateReference2(JNIEnv* env, jobject self, jint rowFirst, jint rowLast, jint colFirst, jint colLast);
+	static jobject CreateReference3(JNIEnv* env, jobject self, jint sheetId, jint rowFirst, jint rowLast, jint colFirst, jint colLast);
 	static jobject CreateString(JNIEnv* env, jobject self, jstring str);
 };
 

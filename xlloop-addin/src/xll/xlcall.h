@@ -13,6 +13,9 @@
 **
 */
 
+#ifndef XLCALL_H
+#define XLCALL_H
+
 #ifdef __cplusplus
 extern "C" {
 #endif	/* __cplusplus */
@@ -963,3 +966,5 @@ int far pascal XLCallVer(void);
 #ifdef __cplusplus
 }			/* End of extern "C" { */
 #endif	/* __cplusplus */
+
+#endif // XLCALL_H

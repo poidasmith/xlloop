@@ -9,6 +9,7 @@
 *******************************************************************************/
 
 #include "XLObject.h"
+#include "../common/Log.h"
 
 static jclass g_XLObjectClass;
 static jfieldID g_XLObjectHandle;
@@ -54,7 +55,7 @@ void JNICALL XLArray::set(JNIEnv* env, jobject self, jint row, jint column, jobj
 		return;
 	}
 
-
+	
 }
 
 jboolean JNICALL XLBoolean::toBoolean(JNIEnv* env, jobject self)
@@ -129,10 +130,20 @@ jstring JNICALL XLString::toString(JNIEnv* env, jobject self)
 	return env->NewStringUTF(chars);
 }
 
-void XLObject::RegisterNatives(JNIEnv* env)
+bool XLObject::RegisterNatives(JNIEnv* env)
 {
 	g_XLObjectClass = env->FindClass("org/excel4j/XLObject");
+	if(g_XLObjectClass == NULL) {
+		Log::SetLastError("Could not find XLObject in classpath.");
+		return false;
+	}
+	
 	g_XLObjectHandle = env->GetFieldID(g_XLObjectClass, "handle", "L");
+	if(g_XLObjectHandle == NULL) {
+		Log::SetLastError("Could not find XLObject.handle field.");
+		return false;
+	}
+	
 	g_XLObjectType = env->GetFieldID(g_XLObjectClass, "xltype", "I");
 
 	// Build a map of xltype to wrapper class
@@ -150,6 +161,9 @@ void XLObject::RegisterNatives(JNIEnv* env)
 
 	// Grab the consructor method ids for the wrapper classes
 	for(std::map<int,jclass>::const_iterator i = g_XLTypeClassMap.begin(); i != g_XLTypeClassMap.end(); i++) {
+		if(i->second == NULL) {
+			return false;
+		}
 		g_XLTypeConstructorMap[i->first] = env->GetMethodID(i->second, "<init>", "()V");
 	}
 }

@@ -18,9 +18,10 @@
 
 class XLObject {
 public:
-	static void RegisterNatives(JNIEnv* env);
+	static bool RegisterNatives(JNIEnv* env);
 	static inline LPXLOPER GetXLoper(JNIEnv* env, jobject xlobj);
 	static jobject CreateXLObject(JNIEnv* env, LPXLOPER xloper);
+	static jobjectArray CreateXLObjectArray(JNIEnv* env, int size);
 };
 
 class XLArray : public XLObject {
