@@ -138,6 +138,11 @@ bool Initialize()
 		return result;
 	}
 
+	result = XLObject::RegisterNatives(env);
+	if(!result) {
+		return result;
+	}
+
 	result = g_addin.Load(env, iniparser_getstr(g_ini, ADDIN_CLASS));
 	if(!result) {
 		return result;
@@ -286,7 +291,7 @@ __declspec(dllexport) LPXLOPER WINAPI EA4JFunc##number (LPXLOPER px1, LPXLOPER p
 	for(; missingCount < 30; missingCount++) { \
 		if(args[missingCount]->xltype == xltypeMissing) break; \
 	} \
-	return g_addin.GetFunction(number).Execute(missingCount, args); \
+	return g_addin.GetFunction(number - 1).Execute(missingCount, args); \
 } \
 
 DECLARE_EXCEL_FUNCTION(1)

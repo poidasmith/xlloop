@@ -89,6 +89,19 @@ int JNICALL XLUtil::XLCallVerJ(JNIEnv* env, jobject self)
 	return val;
 }
 
+void JNICALL XLUtil::SetLastError(JNIEnv* env, jobject self, jstring str)
+{
+	if(str == NULL)
+		return;
+
+	jboolean iscopy = false;
+	if(env->ExceptionOccurred())
+		env->ExceptionClear();
+	const char* chars = env->GetStringUTFChars(str, &iscopy);
+	Log::SetLastError(chars);
+	env->ReleaseStringUTFChars(str, chars); 
+}
+
 bool XLUtil::RegisterNatives(JNIEnv *env)
 {
 	// Register excel native function
@@ -98,14 +111,17 @@ bool XLUtil::RegisterNatives(JNIEnv *env)
 		return false;
 	}
 	
-	JNINativeMethod nm[2];
+	JNINativeMethod nm[3];
 	nm[0].name = "Excel4";
 	nm[0].signature = "(ILorg/excel4j/XLObject;[Lorg/excel4j/XLObject;)I";
 	nm[0].fnPtr = XLUtil::Excel4J;
 	nm[1].name = "XLCallVer";
 	nm[1].signature = "()I";
 	nm[1].fnPtr = XLUtil::XLCallVerJ;
-	env->RegisterNatives(excelClass, nm, 2);
+	nm[2].name = "SetLastError";
+	nm[2].signature = "(Ljava/lang/String;)V";
+	nm[2].fnPtr = XLUtil::SetLastError;
+	env->RegisterNatives(excelClass, nm, 3);
 	
 	return true;
 }

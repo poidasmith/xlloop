@@ -30,6 +30,7 @@ public:
 private:
 	static int JNICALL Excel4J(JNIEnv* env, jobject self, int xlfn, jobject result, jobjectArray args);	
 	static int JNICALL XLCallVerJ(JNIEnv* env, jobject self);
+	static void JNICALL SetLastError(JNIEnv* env, jobject self, jstring error);
 };
 
 #endif // XLUTIL_H
