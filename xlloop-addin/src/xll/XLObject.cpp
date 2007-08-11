@@ -24,8 +24,8 @@ inline LPXLOPER XLObject::GetXLoper(JNIEnv* env, jobject xlobj)
 
 jobject XLObject::CreateXLObject(JNIEnv* env, LPXLOPER xloper)
 {
-	jclass clazz = g_XLTypeClassMap[xloper->xltype & ~(xlbitXLFree | xlbitDLLFree)];
-	jmethodID constructor = g_XLTypeConstructorMap[xloper->xltype & ~(xlbitXLFree | xlbitDLLFree)];
+	jclass clazz = g_XLTypeClassMap.find(xloper->xltype & ~(xlbitXLFree | xlbitDLLFree))->second;
+	jmethodID constructor = g_XLTypeConstructorMap.find(xloper->xltype & ~(xlbitXLFree | xlbitDLLFree))->second;
 	jobject obj = env->NewObject(clazz, constructor);
 	env->SetLongField(obj, g_XLObjectHandle, (jlong) xloper);
 	env->SetIntField(obj, g_XLObjectType, xloper->xltype);
@@ -58,7 +58,9 @@ void JNICALL XLArray::set(JNIEnv* env, jobject self, jint row, jint column, jobj
 		return;
 	}
 
-	
+	switch(lpv->xltype) {
+
+	}
 }
 
 jboolean JNICALL XLBoolean::toBoolean(JNIEnv* env, jobject self)
@@ -73,8 +75,7 @@ jint JNICALL XLError::toError(JNIEnv* env, jobject self)
 
 jint JNICALL XLInteger::toInteger(JNIEnv* env, jobject self)
 {
-	LPXLOPER xloper = GetXLoper(env, self);
-	return xloper->val.w;
+	return GetXLoper(env, self)->val.w;
 }
 
 jdouble JNICALL XLNumber::toDouble(JNIEnv* env, jobject self)
