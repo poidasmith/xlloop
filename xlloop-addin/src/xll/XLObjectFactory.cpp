@@ -140,11 +140,15 @@ jobject XLObjectFactory::CreateReference3(JNIEnv* env, jobject self, jint sheetI
 jobject XLObjectFactory::CreateString(JNIEnv* env, jobject self, jstring str)
 {
 	LPXLOPER val = CreateType(xltypeStr);
+	if(str == NULL) {
+		val->xltype = xltypeNil;
+		return XLObject::CreateXLObject(env, val);
+	}
 	jboolean iscopy = false;
 	const char* chars = env->GetStringUTFChars(str, &iscopy);
 	val->val.str = XLUtil::MakeExcelString(chars);
 	env->ReleaseStringUTFChars(str, chars); 
-	//val->xltype |= xlbitXLFree;
+	val->xltype |= xlbitXLFree;
 
 	return XLObject::CreateXLObject(env, val);
 }

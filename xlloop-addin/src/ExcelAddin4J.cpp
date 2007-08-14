@@ -226,7 +226,7 @@ __declspec(dllexport) LPXLOPER WINAPI xlAddInManagerInfo(LPXLOPER xAction)
 	Excel4(xlCoerce, &xIntAction, 2, xAction, &xIntType);
 
 	if(xIntAction.val.w == 1) {
-		xInfo.xltype = xltypeStr;
+		xInfo.xltype = xltypeStr | xlbitXLFree;
 		xInfo.val.str = XLUtil::MakeExcelString(g_addin.GetLongName().c_str());
 	} else {
 		xInfo.xltype = xltypeErr;

@@ -81,8 +81,13 @@ void JNICALL XLArray::set(JNIEnv* env, jobject self, jint row, jint column, jobj
 		return;
 	}
 
-	switch(lpv->xltype) {
+	int index = row * lps->val.array.columns + column;
+	lps->val.array.lparray[index].xltype = lpv->xltype;
 
+	switch(lpv->xltype & ~(xlbitXLFree | xlbitDLLFree)) {
+		case xltypeStr:
+			lps->val.array.lparray[index].val.str = lpv->val.str;
+			break;
 	}
 }
 
