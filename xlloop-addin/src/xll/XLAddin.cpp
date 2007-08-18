@@ -45,14 +45,14 @@ bool XLAddin::Load(JNIEnv* env, char* addinClassName)
 	}
 
 	// Call the getName method
-	const char* addinName = JNI::CallJavaStringMethod(env, addinClass, mAddinObj, "getName");
+	const char* addinName = JNI::CallStringMethod(env, addinClass, mAddinObj, "getName");
 	if(addinName == NULL) {
 		return false;
 	}
 	mName = addinName;
 
 	// Call the get long name method
-	const char* addinLongName = JNI::CallJavaStringMethod(env, addinClass, mAddinObj, "getLongName");
+	const char* addinLongName = JNI::CallStringMethod(env, addinClass, mAddinObj, "getLongName");
 	if(addinLongName == NULL) {
 		return false;
 	}

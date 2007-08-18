@@ -25,10 +25,12 @@ public:
 			  const char* shortcutText, const char* helpTopic, 
 			  const char* functionHelp, const char* argumentHelp);
 
+	static void CopyValue(LPXLOPER xloperSrc, LPXLOPER xloperDst);
+
 	static bool RegisterNatives(JNIEnv* env);
 
 private:
-	static int JNICALL Excel4J(JNIEnv* env, jobject self, int xlfn, jobject result, jobjectArray args);	
+	static jobject JNICALL Excel4J(JNIEnv* env, jobject self, int xlfn, jobjectArray args);	
 	static int JNICALL XLCallVerJ(JNIEnv* env, jobject self);
 	static void JNICALL SetLastError(JNIEnv* env, jobject self, jstring error);
 };

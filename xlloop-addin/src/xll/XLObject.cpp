@@ -10,7 +10,7 @@
 
 #include "XLObject.h"
 #include "../common/Log.h"
-#include <math.h>
+#include "../java/JNI.h"
 
 static jclass g_XLObjectClass;
 static jfieldID g_XLObjectHandle;
@@ -47,11 +47,8 @@ inline int GetIndex(WORD xltype)
 jobject XLObject::CreateXLObject(JNIEnv* env, LPXLOPER xloper)
 {
 	int index = GetIndex(xloper->xltype);
-	jclass clazz = g_XLTypeClassMap[index];
-	jmethodID constructor = g_XLTypeConstructorMap[index];
-	jobject obj = env->NewObject(clazz, constructor);
-	env->SetLongField(obj, g_XLObjectHandle, (jlong) xloper);
-	env->SetIntField(obj, g_XLObjectType, xloper->xltype);
+	jobject obj = env->NewObject(g_XLTypeClassMap[index], 
+		g_XLTypeConstructorMap[index], (jlong) xloper, xloper->xltype);
 	return obj;
 }
 
@@ -87,6 +84,15 @@ void JNICALL XLArray::set(JNIEnv* env, jobject self, jint row, jint column, jobj
 	switch(lpv->xltype & ~(xlbitXLFree | xlbitDLLFree)) {
 		case xltypeStr:
 			lps->val.array.lparray[index].val.str = lpv->val.str;
+			break;
+		case xltypeInt:
+			lps->val.array.lparray[index].val.w = lpv->val.w;
+			break;
+		case xltypeNum:
+			lps->val.array.lparray[index].val.num = lpv->val.num;
+			break;
+		case xltypeBool:
+			lps->val.array.lparray[index].val.boolean = lpv->val.boolean;
 			break;
 	}
 }
@@ -203,7 +209,7 @@ bool XLObject::RegisterNatives(JNIEnv* env)
 		if(g_XLTypeClassMap[i] == NULL) {
 			return false;
 		}
-		g_XLTypeConstructorMap[i] = env->GetMethodID(g_XLTypeClassMap[i], "<init>", "()V");
+		g_XLTypeConstructorMap[i] = env->GetMethodID(g_XLTypeClassMap[i], "<init>", "(JI)V");
 	}
 
 	// Register array methods
@@ -229,6 +235,11 @@ bool XLObject::RegisterNatives(JNIEnv* env)
 
 	env->RegisterNatives(clazz, arrayNatives, 4);
 
+	if(env->ExceptionCheck()) {
+		Log::SetLastError(JNI::GetExceptionMessage(env));
+		return false;
+	}
+
 	// Register boolean methods
 	JNINativeMethod boolNatives[1];
 	boolNatives[0].fnPtr = XLBoolean::toBoolean;
@@ -242,6 +253,11 @@ bool XLObject::RegisterNatives(JNIEnv* env)
 	}
 
 	env->RegisterNatives(clazz, boolNatives, 1);
+
+	if(env->ExceptionCheck()) {
+		Log::SetLastError(JNI::GetExceptionMessage(env));
+		return false;
+	}
 
 	// Register error methods
 	JNINativeMethod errorNatives[1];
@@ -257,6 +273,11 @@ bool XLObject::RegisterNatives(JNIEnv* env)
 
 	env->RegisterNatives(clazz, errorNatives, 1);
 
+	if(env->ExceptionCheck()) {
+		Log::SetLastError(JNI::GetExceptionMessage(env));
+		return false;
+	}
+
 	// Register integer methods
 	JNINativeMethod intNatives[1];
 	intNatives[0].fnPtr = XLInteger::toInteger;
@@ -270,6 +291,11 @@ bool XLObject::RegisterNatives(JNIEnv* env)
 	}
 
 	env->RegisterNatives(clazz, intNatives, 1);
+
+	if(env->ExceptionCheck()) {
+		Log::SetLastError(JNI::GetExceptionMessage(env));
+		return false;
+	}
 
 	// Register number methods
 	JNINativeMethod numNatives[1];
@@ -285,6 +311,11 @@ bool XLObject::RegisterNatives(JNIEnv* env)
 
 	env->RegisterNatives(clazz, numNatives, 1);
 
+	if(env->ExceptionCheck()) {
+		Log::SetLastError(JNI::GetExceptionMessage(env));
+		return false;
+	}
+
 	// Register string methods
 	JNINativeMethod strNatives[1];
 	strNatives[0].fnPtr = XLString::toString;
@@ -298,6 +329,11 @@ bool XLObject::RegisterNatives(JNIEnv* env)
 	}
 
 	env->RegisterNatives(clazz, strNatives, 1);
+
+	if(env->ExceptionCheck()) {
+		Log::SetLastError(JNI::GetExceptionMessage(env));
+		return false;
+	}
 
 	// Register reference methods
 	JNINativeMethod refNatives[6];
@@ -327,6 +363,11 @@ bool XLObject::RegisterNatives(JNIEnv* env)
 	}
 
 	env->RegisterNatives(clazz, refNatives, 6);
+
+	if(env->ExceptionCheck()) {
+		Log::SetLastError(JNI::GetExceptionMessage(env));
+		return false;
+	}
 
 	return true;
 	

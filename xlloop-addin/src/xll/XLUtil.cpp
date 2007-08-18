@@ -9,7 +9,9 @@
 *******************************************************************************/
 
 #include "XLUtil.h"
+#include "XLObject.h"
 #include "../common/Log.h"
+#include "../java/JNI.h"
 
 // Make an excel string
 LPSTR XLUtil::MakeExcelString(const char* string)
@@ -17,7 +19,7 @@ LPSTR XLUtil::MakeExcelString(const char* string)
 	if(string == NULL) return NULL;
 	size_t len = strlen(string);
 	char* temp = (char *) malloc(len + 2);
-	sprintf_s(temp, len + 2, " %s", string);
+	strcpy_s(temp + 1, len + 1, string);
 	temp[0] = (BYTE) len;
 	return temp;
 }
@@ -68,25 +70,36 @@ int XLUtil::RegisterFunction(LPXLOPER xllName,
 	return res;
 }
 
-int JNICALL XLUtil::Excel4J(JNIEnv* env, jobject self, int xlfn, jobject result, jobjectArray args)
+void XLUtil::CopyValue(LPXLOPER xloperSrc, LPXLOPER xloperDst)
 {
-	static XLOPER res;
+	memcpy(xloperDst, xloperSrc, sizeof(XLOPER));
+	xloperDst->xltype = (xloperSrc->xltype & ~(xlbitXLFree | xlbitDLLFree));
+}
+
+
+jobject JNICALL XLUtil::Excel4J(JNIEnv* env, jobject self, int xlfn, jobjectArray args)
+{
+	LPXLOPER res = new XLOPER;
+	res->xltype = xltypeNum;
 	int numArgs = env->GetArrayLength(args);
-	res.xltype = xltypeMissing;
-	XLOPER *operArgs = new XLOPER[numArgs];
+	XLOPER* operArgs = new XLOPER[numArgs];
 	for(int i = 0; i < numArgs; i++) {
-		//Convert(env, env->GetObjectArrayElement(args, i), &operArgs[i]);
+		jobject arg = env->GetObjectArrayElement(args, i);
+		CopyValue(XLObject::GetXLoper(env, arg), &operArgs[i]);
 	}
-	int fRes = Excel4v(xlfn, (LPXLOPER) &res, numArgs, (LPXLOPER*) operArgs);
-	//Convert(env, &res, result);
+	int fRes = Excel4v(xlfn, (LPXLOPER) res, numArgs, (LPXLOPER*) operArgs);
 	delete [] operArgs;
-	return fRes;
+	if(fRes) {
+		delete res;
+		// TODO return error code
+		return NULL;
+	}
+	return XLObject::CreateXLObject(env, res);
 }
 
 int JNICALL XLUtil::XLCallVerJ(JNIEnv* env, jobject self)
 {
-	int val = XLCallVer();
-	return val;
+	return XLCallVer();
 }
 
 void JNICALL XLUtil::SetLastError(JNIEnv* env, jobject self, jstring str)
@@ -113,7 +126,7 @@ bool XLUtil::RegisterNatives(JNIEnv *env)
 	
 	JNINativeMethod nm[3];
 	nm[0].name = "Excel4";
-	nm[0].signature = "(ILorg/excel4j/XLObject;[Lorg/excel4j/XLObject;)I";
+	nm[0].signature = "(I[Lorg/excel4j/XLObject;)Lorg/excel4j/XLObject;";
 	nm[0].fnPtr = XLUtil::Excel4J;
 	nm[1].name = "XLCallVer";
 	nm[1].signature = "()I";
@@ -122,6 +135,11 @@ bool XLUtil::RegisterNatives(JNIEnv *env)
 	nm[2].signature = "(Ljava/lang/String;)V";
 	nm[2].fnPtr = XLUtil::SetLastError;
 	env->RegisterNatives(excelClass, nm, 3);
+
+	if(env->ExceptionCheck()) {
+		Log::SetLastError(JNI::GetExceptionMessage(env));
+		return false;
+	}
 	
 	return true;
 }

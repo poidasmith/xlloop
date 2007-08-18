@@ -163,7 +163,7 @@ __declspec(dllexport) int WINAPI xlAutoOpen(void)
 	// Register function for retrieving error text
 	char errorFunction[MAX_PATH];
 	sprintf_s(errorFunction, MAX_PATH, "%s_GetLastError", g_modulename);
-	int res = XLUtil::RegisterFunction(&xDLL, "EA4JGetLastError", "R", errorFunction, 
+	int res = XLUtil::RegisterFunction(&xDLL, "EA4JGetLastError", "R!", errorFunction, 
 		NULL, "1", "Information", NULL, NULL, NULL, NULL);
 
 	// Fire up the VM
@@ -176,7 +176,8 @@ __declspec(dllexport) int WINAPI xlAutoOpen(void)
 		for(int i = 0; i < g_addin.GetNumFunctions(); i++) {
 			const XLFunction& func = g_addin.GetFunction(i);
 			sprintf_s(javaFunction, MAX_PATH, "EA4JFunc%d", (i + 1));
-			XLUtil::RegisterFunction(&xDLL, javaFunction, "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR",
+			const char* typeText = func.isVolatile() ? "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR!" : "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR";
+			XLUtil::RegisterFunction(&xDLL, javaFunction, typeText,
 				func.GetFunctionText(), func.GetArgumentText(), func.GetMacroType(),
 				func.GetCategory(), func.GetShortcutText(), func.GetHelpTopic(),
 				func.GetFunctionHelp(), func.GetArgumentHelp());

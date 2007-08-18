@@ -19,7 +19,7 @@
 class XLFunction {
 public:
 	XLFunction(jobject obj, jclass functionClass, jmethodID executeMethod, jclass objectClass) :
-	  mFuncObj(obj), mFunctionClass(functionClass), mExecuteMethod(executeMethod), mObjectClass(objectClass) {}
+	  mFuncObj(obj), mFunctionClass(functionClass), mExecuteMethod(executeMethod), mObjectClass(objectClass), mVolatile(false) {}
 	virtual ~XLFunction() {}
 
 	bool Initialize(JNIEnv* env);
@@ -62,6 +62,10 @@ public:
 		return mArgumentHelp.c_str();
 	}
 
+	bool isVolatile() const {
+		return mVolatile;
+	}
+
 	// Main execute method
 	LPXLOPER Execute(int argc, LPXLOPER argv[]) const;
 	
@@ -78,6 +82,7 @@ private:
 	std::string mHelpTopic;
 	std::string mFunctionHelp;
 	std::string mArgumentHelp;
+	bool mVolatile;
 };
 
 #endif // XLFUNCTION_H
