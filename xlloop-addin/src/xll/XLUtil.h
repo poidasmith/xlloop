@@ -27,7 +27,7 @@ public:
 
 	static void CopyValue(LPXLOPER xloperSrc, LPXLOPER xloperDst);
 
-	static bool RegisterNatives(JNIEnv* env);
+	static bool RegisterNatives(JNIEnv* env, const char* moduleName);
 
 	static void ThrowExcel4Exception(JNIEnv* env, int fRes);
 
@@ -35,6 +35,8 @@ private:
 	static jobject JNICALL Excel4J(JNIEnv* env, jobject self, int xlfn, jobjectArray args);	
 	static int JNICALL XLCallVerJ(JNIEnv* env, jobject self);
 	static void JNICALL SetLastError(JNIEnv* env, jobject self, jstring error);
+	static jstring JNICALL GetLastError(JNIEnv* env, jobject self);
+	static jstring JNICALL GetModuleName(JNIEnv* env, jobject self);
 };
 
 #endif // XLUTIL_H

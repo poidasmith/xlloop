@@ -128,7 +128,7 @@ bool Initialize()
 		return result;
 	}
 
-	result = XLUtil::RegisterNatives(env);
+	result = XLUtil::RegisterNatives(env, g_modulename);
 	if(!result) {
 		return result;
 	}

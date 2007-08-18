@@ -71,15 +71,30 @@ jobject JNICALL XLArray::get(JNIEnv* env, jobject self, jint row, jint column)
 
 void JNICALL XLArray::set(JNIEnv* env, jobject self, jint row, jint column, jobject value)
 {
+	if(self == NULL || value == NULL) {
+		return;
+	}
+
 	LPXLOPER lps = GetXLoper(env, self);
 	LPXLOPER lpv = GetXLoper(env, value);
+
+	if(lps == NULL) {
+		return;
+	}
 
 	// Sanity check
 	if(lps == lpv) {
 		return;
 	}
 
+
 	int index = row * lps->val.array.columns + column;
+
+	if(lpv == NULL) {
+		lps->val.array.lparray[index].xltype = xltypeNil;
+		return;
+	}
+
 	lps->val.array.lparray[index].xltype = lpv->xltype;
 
 	switch(lpv->xltype & ~(xlbitXLFree | xlbitDLLFree)) {
@@ -371,6 +386,5 @@ bool XLObject::RegisterNatives(JNIEnv* env)
 	}
 
 	return true;
-	
 }
 

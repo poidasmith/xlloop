@@ -13,6 +13,8 @@
 #include "../common/Log.h"
 #include "../java/JNI.h"
 
+static const char* g_moduleName = NULL;
+
 // Make an excel string
 LPSTR XLUtil::MakeExcelString(const char* string)
 {
@@ -139,8 +141,25 @@ void JNICALL XLUtil::SetLastError(JNIEnv* env, jobject self, jstring str)
 	env->ReleaseStringUTFChars(str, chars); 
 }
 
-bool XLUtil::RegisterNatives(JNIEnv *env)
+jstring JNICALL XLUtil::GetLastError(JNIEnv* env, jobject self)
 {
+	const char* err = Log::GetLastError();
+	if(err == NULL)
+		return NULL;
+	else
+		return env->NewStringUTF(err);
+}
+
+jstring JNICALL XLUtil::GetModuleName(JNIEnv* env, jobject self)
+{
+	return g_moduleName == NULL ? NULL : env->NewStringUTF(g_moduleName);
+}
+
+
+bool XLUtil::RegisterNatives(JNIEnv *env, const char* moduleName)
+{
+	g_moduleName = moduleName;
+
 	// Register excel native function
 	jclass excelClass = env->FindClass("org/excel4j/Excel");
 	if(excelClass == NULL) {
@@ -148,7 +167,7 @@ bool XLUtil::RegisterNatives(JNIEnv *env)
 		return false;
 	}
 	
-	JNINativeMethod nm[3];
+	JNINativeMethod nm[5];
 	nm[0].name = "Excel4";
 	nm[0].signature = "(I[Lorg/excel4j/XLObject;)Lorg/excel4j/XLObject;";
 	nm[0].fnPtr = XLUtil::Excel4J;
@@ -158,7 +177,13 @@ bool XLUtil::RegisterNatives(JNIEnv *env)
 	nm[2].name = "SetLastError";
 	nm[2].signature = "(Ljava/lang/String;)V";
 	nm[2].fnPtr = XLUtil::SetLastError;
-	env->RegisterNatives(excelClass, nm, 3);
+	nm[3].name = "GetLastError";
+	nm[3].signature = "()Ljava/lang/String;";
+	nm[3].fnPtr = XLUtil::GetLastError;
+	nm[4].name = "GetModuleName";
+	nm[4].signature = "()Ljava/lang/String;";
+	nm[4].fnPtr = XLUtil::GetLastError;
+	env->RegisterNatives(excelClass, nm, 5);
 
 	if(env->ExceptionCheck()) {
 		Log::SetLastError(JNI::GetExceptionMessage(env));

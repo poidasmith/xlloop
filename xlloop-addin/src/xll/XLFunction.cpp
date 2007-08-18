@@ -94,6 +94,10 @@ LPXLOPER XLFunction::Execute(int argc, LPXLOPER argv[]) const
 	err.xltype = xltypeErr;
 	err.val.err = xlerrNA;
 	JNIEnv* env = VM::GetJNIEnv();
+	if(env == NULL) {
+		return &err;
+	}
+
 	jobjectArray arr = env->NewObjectArray(argc, mObjectClass, NULL);
 	for(int i = 0; i < argc; i++) {
 		env->SetObjectArrayElement(arr, i, XLObject::CreateXLObject(env, argv[i]));
