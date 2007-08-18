@@ -9,6 +9,7 @@
 *******************************************************************************/
 
 #include "XLObject.h"
+#include "XLUtil.h"
 #include "../common/Log.h"
 #include "../java/JNI.h"
 
@@ -154,7 +155,7 @@ jobject JNICALL XLReference::asArray(JNIEnv* env, jobject self)
 			Excel4( xlCoerce, (LPXLOPER) xMulti, 2, (LPXLOPER) xArray,
 						(LPXLOPER) &xTempMulti ) )
 	{
-		// Throw uncalced exception
+		XLUtil::ThrowExcel4Exception(env, xlretUncalced); // Throw uncalced exception
 		free(xMulti);
 		return 0;
     }

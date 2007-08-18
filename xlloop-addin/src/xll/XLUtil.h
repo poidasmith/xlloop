@@ -29,6 +29,8 @@ public:
 
 	static bool RegisterNatives(JNIEnv* env);
 
+	static void ThrowExcel4Exception(JNIEnv* env, int fRes);
+
 private:
 	static jobject JNICALL Excel4J(JNIEnv* env, jobject self, int xlfn, jobjectArray args);	
 	static int JNICALL XLCallVerJ(JNIEnv* env, jobject self);

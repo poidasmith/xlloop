@@ -76,9 +76,33 @@ void XLUtil::CopyValue(LPXLOPER xloperSrc, LPXLOPER xloperDst)
 	xloperDst->xltype = (xloperSrc->xltype & ~(xlbitXLFree | xlbitDLLFree));
 }
 
+void XLUtil::ThrowExcel4Exception(JNIEnv* env, int fRes)
+{
+	jclass errcls = env->FindClass("org/excel4j/Excel4Exception");
+	if(errcls == NULL) {
+		Log::SetLastError("Could not find Excel4Exception class");
+		return;
+	}
+	jmethodID constr = env->GetMethodID(errcls, "<init>", "(I)V");
+	if(constr == NULL) {
+		Log::SetLastError("Could not find Excel4Exception constructor");
+		return;
+	}
+	jthrowable thr = (jthrowable) env->NewObject(errcls, constr, fRes);
+	if(thr == NULL) {
+		Log::SetLastError("Could not create Excel4Exception");
+		return;
+	}
+
+	env->Throw(thr);
+}
+
 
 jobject JNICALL XLUtil::Excel4J(JNIEnv* env, jobject self, int xlfn, jobjectArray args)
 {
+	if(self == NULL || args == NULL) 
+		return NULL;
+
 	LPXLOPER res = new XLOPER;
 	res->xltype = xltypeNum;
 	int numArgs = env->GetArrayLength(args);
@@ -91,7 +115,7 @@ jobject JNICALL XLUtil::Excel4J(JNIEnv* env, jobject self, int xlfn, jobjectArra
 	delete [] operArgs;
 	if(fRes) {
 		delete res;
-		// TODO return error code
+		ThrowExcel4Exception(env, fRes);
 		return NULL;
 	}
 	return XLObject::CreateXLObject(env, res);
