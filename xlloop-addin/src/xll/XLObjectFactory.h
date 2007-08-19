@@ -30,6 +30,7 @@ private:
 	static jobject CreateReference2(JNIEnv* env, jobject self, jint rowFirst, jint rowLast, jint colFirst, jint colLast);
 	static jobject CreateReference3(JNIEnv* env, jobject self, jint sheetId, jint rowFirst, jint rowLast, jint colFirst, jint colLast);
 	static jobject CreateString(JNIEnv* env, jobject self, jstring str);
+	static void Free(JNIEnv* env, jobject self, jobject xlobject);
 };
 
 #endif // XLOBJECT_FACTORY_H

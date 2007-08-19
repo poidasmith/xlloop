@@ -163,7 +163,7 @@ __declspec(dllexport) int WINAPI xlAutoOpen(void)
 	// Register function for retrieving error text
 	char errorFunction[MAX_PATH];
 	sprintf_s(errorFunction, MAX_PATH, "%s_GetLastError", g_modulename);
-	int res = XLUtil::RegisterFunction(&xDLL, "EA4JGetLastError", "R!", errorFunction, 
+	int res = XLUtil::RegisterFunction(&xDLL, "XLL4JGetLastError", "R!", errorFunction, 
 		NULL, "1", "Information", NULL, NULL, NULL, NULL);
 
 	// Fire up the VM
@@ -175,7 +175,7 @@ __declspec(dllexport) int WINAPI xlAutoOpen(void)
 		JNIEnv* env = VM::GetJNIEnv();
 		for(int i = 0; i < g_addin.GetNumFunctions(); i++) {
 			const XLFunction& func = g_addin.GetFunction(i);
-			sprintf_s(javaFunction, MAX_PATH, "EA4JFunc%d", (i + 1));
+			sprintf_s(javaFunction, MAX_PATH, "XLL4JFunc%d", (i + 1));
 			const char* typeText = func.isVolatile() ? "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR!" : "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR";
 			XLUtil::RegisterFunction(&xDLL, javaFunction, typeText,
 				func.GetFunctionText(), func.GetArgumentText(), func.GetMacroType(),
@@ -240,7 +240,7 @@ __declspec(dllexport) LPXLOPER WINAPI xlAddInManagerInfo(LPXLOPER xAction)
 	return (LPXLOPER) &xInfo;
 }
 
-__declspec(dllexport) LPXLOPER WINAPI EA4JGetLastError(LPXLOPER args)
+__declspec(dllexport) LPXLOPER WINAPI XLL4JGetLastError(LPXLOPER args)
 {
 	static XLOPER err;
 	static char errStr[MAX_PATH];
@@ -253,7 +253,7 @@ __declspec(dllexport) LPXLOPER WINAPI EA4JGetLastError(LPXLOPER args)
 }
 
 #define DECLARE_EXCEL_FUNCTION(number) \
-__declspec(dllexport) LPXLOPER WINAPI EA4JFunc##number (LPXLOPER px1, LPXLOPER px2, LPXLOPER px3 \
+__declspec(dllexport) LPXLOPER WINAPI XLL4JFunc##number (LPXLOPER px1, LPXLOPER px2, LPXLOPER px3 \
 	,LPXLOPER px4, LPXLOPER px5, LPXLOPER px6, LPXLOPER px7, LPXLOPER px8, LPXLOPER px9 \
 	,LPXLOPER px10, LPXLOPER px11, LPXLOPER px12, LPXLOPER px13, LPXLOPER px14, LPXLOPER px15 \
 	,LPXLOPER px16, LPXLOPER px17, LPXLOPER px18, LPXLOPER px19, LPXLOPER px20, LPXLOPER px21 \

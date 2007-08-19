@@ -20,6 +20,7 @@ LPSTR XLUtil::MakeExcelString(const char* string)
 {
 	if(string == NULL) return NULL;
 	size_t len = strlen(string);
+	if(len > 255) len = 255; // Excel strings are limited to 255 chars
 	char* temp = (char *) malloc(len + 2);
 	strcpy_s(temp + 1, len + 1, string);
 	temp[0] = (BYTE) len;
@@ -152,7 +153,10 @@ jstring JNICALL XLUtil::GetLastError(JNIEnv* env, jobject self)
 
 jstring JNICALL XLUtil::GetModuleName(JNIEnv* env, jobject self)
 {
-	return g_moduleName == NULL ? NULL : env->NewStringUTF(g_moduleName);
+	if(g_moduleName == NULL) 
+		return NULL;
+	else
+		return env->NewStringUTF(g_moduleName);
 }
 
 
@@ -182,7 +186,7 @@ bool XLUtil::RegisterNatives(JNIEnv *env, const char* moduleName)
 	nm[3].fnPtr = XLUtil::GetLastError;
 	nm[4].name = "GetModuleName";
 	nm[4].signature = "()Ljava/lang/String;";
-	nm[4].fnPtr = XLUtil::GetLastError;
+	nm[4].fnPtr = XLUtil::GetModuleName;
 	env->RegisterNatives(excelClass, nm, 5);
 
 	if(env->ExceptionCheck()) {

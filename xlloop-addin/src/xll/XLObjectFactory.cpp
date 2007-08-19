@@ -12,10 +12,11 @@
 #include "XLObject.h"
 #include "XLUtil.h"
 #include "../common/Log.h"
+#include "../java/JNI.h"
 
 bool XLObjectFactory::RegisterNatives(JNIEnv* env)
 {
-	JNINativeMethod natives[9];
+	JNINativeMethod natives[10];
 	natives[0].fnPtr = XLObjectFactory::CreateArray;
 	natives[0].name = "createArray";
 	natives[0].signature = "(II)Lorg/excel4j/object/XLArray;";
@@ -43,6 +44,9 @@ bool XLObjectFactory::RegisterNatives(JNIEnv* env)
 	natives[8].fnPtr = XLObjectFactory::CreateString;
 	natives[8].name = "createString";
 	natives[8].signature = "(Ljava/lang/String;)Lorg/excel4j/object/XLString;";
+	natives[9].fnPtr = XLObjectFactory::Free;
+	natives[9].name = "free";
+	natives[9].signature = "(Lorg/excel4j/XLObject;)V";
 
 	jclass clazz = env->FindClass("org/excel4j/XLObjectFactory");
 	if(clazz == NULL) {
@@ -50,7 +54,12 @@ bool XLObjectFactory::RegisterNatives(JNIEnv* env)
 		return false;
 	}
 
-	jint ret = env->RegisterNatives(clazz, natives, 9);
+	jint ret = env->RegisterNatives(clazz, natives, 10);
+
+	if(env->ExceptionCheck()) {
+		Log::SetLastError(JNI::GetExceptionMessage(env));
+		return false;
+	}
 
 	return true;
 }
@@ -65,6 +74,7 @@ inline LPXLOPER CreateType(int xltype)
 jobject XLObjectFactory::CreateArray(JNIEnv* env, jobject self, jint rows, jint columns)
 {
 	LPXLOPER val = CreateType(xltypeMulti);
+	val->xltype |= xlbitXLFree;
 	val->val.array.lparray = (LPXLOPER) malloc(sizeof(XLOPER) * rows * columns);
 	val->val.array.columns = columns;
 	val->val.array.rows = rows;
@@ -153,3 +163,25 @@ jobject XLObjectFactory::CreateString(JNIEnv* env, jobject self, jstring str)
 	return XLObject::CreateXLObject(env, val);
 }
 
+void XLObjectFactory::Free(JNIEnv* env, jobject self, jobject xlobject)
+{
+	if(xlobject == NULL)
+		return;
+
+	LPXLOPER lpv = XLObject::GetXLoper(env, xlobject);
+	if(lpv == NULL)
+		return;
+
+	switch(lpv->xltype & ~(xlbitXLFree | xlbitDLLFree)) {
+		case xltypeStr:
+			free(lpv->val.str);
+			lpv->val.str = NULL;
+			break;
+		case xltypeMulti:
+			free(lpv->val.array.lparray);
+			lpv->val.array.lparray = NULL;
+			break;
+	}
+
+	free(lpv);
+}
