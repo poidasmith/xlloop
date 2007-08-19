@@ -26,40 +26,40 @@ bool XLAddin::Load(JNIEnv* env, char* addinClassName)
 	}
 
 	// Create new instance of addin
-	jclass addinClass = env->FindClass(addinClassName);
-	if(addinClass == NULL) {
+	mAddinClass = env->FindClass(addinClassName);
+	if(mAddinClass == NULL) {
 		Log::SetLastError("addin class could not be found by VM");
 		return false;
 	}
 
-	jmethodID ctor = env->GetMethodID(addinClass, "<init>",  "()V");
+	jmethodID ctor = env->GetMethodID(mAddinClass, "<init>",  "()V");
 	if(ctor == NULL) {
 		Log::SetLastError("could not find default constructor on addin class");
 		return false;
 	}
 
-	mAddinObj = env->NewObject(addinClass, ctor);
+	mAddinObj = env->NewObject(mAddinClass, ctor);
 	if(mAddinObj == NULL) {
 		Log::SetLastError("could not create addin class");
 		return false;
 	}
 
 	// Call the getName method
-	const char* addinName = JNI::CallStringMethod(env, addinClass, mAddinObj, "getName");
+	const char* addinName = JNI::CallStringMethod(env, mAddinClass, mAddinObj, "getName");
 	if(addinName == NULL) {
 		return false;
 	}
 	mName = addinName;
 
 	// Call the get long name method
-	const char* addinLongName = JNI::CallStringMethod(env, addinClass, mAddinObj, "getLongName");
+	const char* addinLongName = JNI::CallStringMethod(env, mAddinClass, mAddinObj, "getLongName");
 	if(addinLongName == NULL) {
 		return false;
 	}
 	mLongName = addinLongName;
 
 	// Call the getFunctions method
-	jmethodID fmeth = env->GetMethodID(addinClass, "getFunctions", "()[Lorg/excel4j/Function;");
+	jmethodID fmeth = env->GetMethodID(mAddinClass, "getFunctions", "()[Lorg/excel4j/Function;");
 	if(fmeth == NULL) {
 		Log::SetLastError("could not find getFunctions method");
 		return false;
@@ -102,7 +102,52 @@ bool XLAddin::Load(JNIEnv* env, char* addinClassName)
 		}
 	}
 
+	// Call the open method
+	jmethodID openMethod = env->GetMethodID(mAddinClass, "open", "()V");
+	if(openMethod == NULL) {
+		Log::SetLastError("Could not find open method");
+		return false;
+	}
+
+	env->CallVoidMethod(mAddinObj, openMethod);
+	if(env->ExceptionCheck()) {
+		char* exmsg = JNI::GetExceptionMessage(env);
+		if(exmsg) 
+			Log::SetLastError("Error calling open method: %s", exmsg);
+		else
+			Log::SetLastError("Error calling open method");
+		return false;
+	}
+
 	// OK
 	mLoaded = true;
 	return true;
+}
+
+void XLAddin::Close()
+{
+	if(!mLoaded) {
+		return;
+	}
+
+	JNIEnv* env = VM::GetJNIEnv();
+	if(env == NULL) {
+		return;
+	}
+
+	// Call the close method
+	jmethodID closeMethod = env->GetMethodID(mAddinClass, "close", "()V");
+	if(closeMethod == NULL) {
+		Log::SetLastError("Could not find close method");
+		return;
+	}
+
+	env->CallVoidMethod(mAddinObj, closeMethod);
+	if(env->ExceptionCheck()) {
+		char* exmsg = JNI::GetExceptionMessage(env);
+		if(exmsg) 
+			Log::SetLastError("Error calling close method: %s", exmsg);
+		else
+			Log::SetLastError("Error calling close method");
+	}
 }

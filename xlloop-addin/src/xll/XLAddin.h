@@ -25,6 +25,8 @@ public:
 		return mLoaded;
 	}
 
+	void Close();
+
 	int GetNumFunctions() const {
 		return mFunctions.size();
 	}
@@ -46,6 +48,7 @@ private:
 	std::vector<XLFunction> mFunctions;
 	std::string mName;
 	std::string mLongName;
+	jclass mAddinClass;
 	jobject mAddinObj;
 };
 

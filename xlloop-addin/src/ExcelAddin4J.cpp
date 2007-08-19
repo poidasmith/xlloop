@@ -123,7 +123,7 @@ bool Initialize()
 	}
 
 	JNIEnv* env = VM::GetJNIEnv();
-	result = INI::RegisterNatives(env);
+	result = INI::RegisterNatives(env, true);
 	if(!result) {
 		return result;
 	}
@@ -193,6 +193,9 @@ __declspec(dllexport) int WINAPI xlAutoOpen(void)
 
 __declspec(dllexport) int WINAPI xlAutoClose(void)
 {
+	// Fire the close method on the addin
+	g_addin.Close();
+
 	// Destroy VM (note that this may block if there are non-daemon threads created in the VM)
 	VM::CleanupVM();
 
