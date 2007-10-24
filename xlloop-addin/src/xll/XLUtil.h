@@ -11,7 +11,7 @@
 #ifndef XLUTIL_H
 #define XLUTIL_H
 
-#include <windows.h>
+#include "../common/Runtime.h"
 #include <jni.h>
 #include "xlcall.h"
 

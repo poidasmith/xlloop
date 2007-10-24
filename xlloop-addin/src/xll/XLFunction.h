@@ -11,10 +11,9 @@
 #ifndef XLFUNCTION_H
 #define XLFUNCTION_H
 
-#include <windows.h>
+#include "../common/Runtime.h"
 #include "xlcall.h"
 #include <jni.h>
-#include <string>
 
 class XLFunction {
 public:
@@ -31,35 +30,35 @@ public:
 
 	// Function properties
 	const char* GetFunctionText() const {
-		return mFunctionText.c_str();
+		return mFunctionText;
 	}
 
 	const char* GetArgumentText() const {
-		return mArgumentText.c_str();
+		return mArgumentText;
 	}
 
 	const char* GetMacroType() const {
-		return mMacroType.c_str();
+		return mMacroType;
 	}
 
 	const char* GetCategory() const {
-		return mCategory.c_str();
+		return mCategory;
 	}
 
 	const char* GetShortcutText() const {
-		return mShortcutText.c_str();
+		return mShortcutText;
 	}
 
 	const char* GetHelpTopic() const {
-		return mHelpTopic.c_str();
+		return mHelpTopic;
 	}
 
 	const char* GetFunctionHelp() const {
-		return mFunctionHelp.c_str();
+		return mFunctionHelp;
 	}
 
 	const char* GetArgumentHelp() const {
-		return mArgumentHelp.c_str();
+		return mArgumentHelp;
 	}
 
 	bool isVolatile() const {
@@ -74,14 +73,14 @@ private:
 	jclass mFunctionClass;
 	jmethodID mExecuteMethod;
 	jclass mObjectClass;
-	std::string mFunctionText;
-	std::string mArgumentText;
-	std::string mMacroType;
-	std::string mCategory;
-	std::string mShortcutText;
-	std::string mHelpTopic;
-	std::string mFunctionHelp;
-	std::string mArgumentHelp;
+	char* mFunctionText;
+	char* mArgumentText;
+	char* mMacroType;
+	char* mCategory;
+	char* mShortcutText;
+	char* mHelpTopic;
+	char* mFunctionHelp;
+	char* mArgumentHelp;
 	bool mVolatile;
 };
 

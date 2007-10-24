@@ -11,8 +11,7 @@
 #ifndef XLOBJECT_H
 #define XLOBJECT_H
 
-#include <map>
-#include <windows.h>
+#include "../common/Runtime.h"
 #include <jni.h>
 #include "xlcall.h"
 

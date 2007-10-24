@@ -49,14 +49,14 @@ bool XLAddin::Load(JNIEnv* env, char* addinClassName)
 	if(addinName == NULL) {
 		return false;
 	}
-	mName = addinName;
+	mName = strdup(addinName);
 
 	// Call the get long name method
 	const char* addinLongName = JNI::CallStringMethod(env, mAddinClass, mAddinObj, "getLongName");
 	if(addinLongName == NULL) {
 		return false;
 	}
-	mLongName = addinLongName;
+	mLongName = strdup(addinLongName);
 
 	// Call the getFunctions method
 	jmethodID fmeth = env->GetMethodID(mAddinClass, "getFunctions", "()[Lorg/excel4j/Function;");
@@ -88,17 +88,20 @@ bool XLAddin::Load(JNIEnv* env, char* addinClassName)
 
 	// Add functions to our lookup table
 	if(functions != NULL) {
+		mFunctions = new XLFunction*[MAX_PATH];
+		mNumFunctions = 0;
 		jsize flen = env->GetArrayLength(functions);
 		for(int i = 0; i < flen; i++) {
 			jobject obj = env->GetObjectArrayElement(functions, i);
 			obj = env->NewGlobalRef(obj); // This is so the garbage collector doesn't destroy it
-			XLFunction func(obj, functionClass, executeMethod, objectClass);
-			bool init = func.Initialize(env);
+			XLFunction* func = new XLFunction(obj, functionClass, executeMethod, objectClass);
+			bool init = func->Initialize(env);
 			if(!init) {
-				mFunctions.clear();
+				delete [] mFunctions;
+				mNumFunctions = 0;
 				return false;
 			}
-			mFunctions.push_back(func);
+			mFunctions[mNumFunctions++] = func;
 		}
 	}
 

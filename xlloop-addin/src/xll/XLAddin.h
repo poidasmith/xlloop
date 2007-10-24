@@ -11,9 +11,9 @@
 #ifndef XLADDIN_H
 #define XLADDIN_H
 
+#include "../common/Runtime.h"
 #include "XLFunction.h"
 #include <jni.h>
-#include <vector>
 
 class XLAddin {
 public:
@@ -28,26 +28,27 @@ public:
 	void Close();
 
 	int GetNumFunctions() const {
-		return mFunctions.size();
+		return mNumFunctions;
 	}
 
 	const XLFunction& GetFunction(int index) const {
-		return mFunctions[index];
+		return *mFunctions[index];
 	}
 	
-	const std::string& GetName() const {
+	const char* GetName() const {
 		return mName;
 	}
 	
-	const std::string& GetLongName() const {
+	const char* GetLongName() const {
 		return mLongName;
 	}
 	
 private:
 	bool mLoaded;
-	std::vector<XLFunction> mFunctions;
-	std::string mName;
-	std::string mLongName;
+	int mNumFunctions;
+	XLFunction** mFunctions;
+	char* mName;
+	char* mLongName;
 	jclass mAddinClass;
 	jobject mAddinObj;
 };

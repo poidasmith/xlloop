@@ -14,8 +14,16 @@
 #include "../common/Log.h"
 #include "XLObject.h"
 #include "XLUtil.h"
-#include <vector>
-#include <string>
+
+char* StrConcat(char* lhs, char* rhs)
+{
+	if(lhs == NULL) return strdup(rhs);
+	int len = strlen(lhs) + strlen(rhs);
+	char* nu = (char *) malloc(len + 1);
+	strcpy(lhs, nu);
+	strcat(nu, rhs);
+	return nu;
+}
 
 bool XLFunction::Initialize(JNIEnv* env)
 {
@@ -27,25 +35,22 @@ bool XLFunction::Initialize(JNIEnv* env)
 	if(ft == NULL) {
 		return false;
 	}
-	mFunctionText = ft;
+	mFunctionText = strdup(ft);
 
 	const char* cat = JNI::CallStringMethod(env, mFunctionClass, mFuncObj, "getCategory");
 	if(cat == NULL) {
 		return false;
 	}
-	mCategory = cat;
+	mCategory = strdup(cat);
 
 	const char* ht = JNI::CallStringMethod(env, mFunctionClass, mFuncObj, "getHelpText");
 	if(ht == NULL) {
 		mFunctionHelp = "";
 	} else {
-		mFunctionHelp = ht;
+		mFunctionHelp = strdup(ht);
 	}
 
 	mVolatile = JNI::CallBooleanMethod(env, mFunctionClass, mFuncObj, "isVolatile");
-
-	std::vector<std::string> args;
-	std::vector<std::string> argHelps;
 
 	jclass argClass = env->FindClass("org/excel4j/Argument");
 	if(argClass == NULL) {
@@ -59,31 +64,39 @@ bool XLFunction::Initialize(JNIEnv* env)
 		return false;
 	}
 
+	mArgumentText = strdup("");
+	mArgumentHelp = strdup("");
+
 	jobjectArray arr = (jobjectArray) env->CallObjectMethod(mFuncObj, getArgsMethod);
 	if(arr == NULL) {
-		mArgumentText = "";
-		mArgumentHelp = "";
 		return true;
 	}
 
 	jsize arrSize = env->GetArrayLength(arr);
+	char** args = (char**) malloc(sizeof(char*) * arrSize);
+	char** argHelps = (char**) malloc(sizeof(char*) * arrSize);
 	for(int i = 0; i < arrSize; i++) {
-		const char* argName = JNI::CallStringMethod(env, argClass, env->GetObjectArrayElement(arr, i), "getName");
-		std::string argNameStr = argName == NULL ? "" : argName;
-		const char* argHelp = JNI::CallStringMethod(env, argClass, env->GetObjectArrayElement(arr, i), "getHelpText");
-		std::string argHelpStr = argHelp == NULL ? "" : argHelp;
-		args.push_back(argNameStr);
-		argHelps.push_back(argHelpStr);
+		char* argName = JNI::CallStringMethod(env, argClass, env->GetObjectArrayElement(arr, i), "getName");
+		char* argHelp = JNI::CallStringMethod(env, argClass, env->GetObjectArrayElement(arr, i), "getHelpText");
+		args[i] = argName;
+		argHelps[i] = argHelp;
 	}
 
-	for(int i = 0; i < args.size(); i++) {
+	for(int i = 0; i < arrSize; i++) {
 		if(i > 0) {
-			mArgumentText += ",";
-			mArgumentHelp += ",";
+			mArgumentText = StrConcat(mArgumentText, ",");
+			mArgumentHelp = StrConcat(mArgumentHelp, ",");
 		}
-		mArgumentText += args[i];
-		mArgumentHelp += argHelps[i];
+		mArgumentText = StrConcat(mArgumentText, args[i]);
+		mArgumentHelp = StrConcat(mArgumentHelp, argHelps[i]);
 	}
+
+	for(int i = 0; i < arrSize; i++) {
+		//free(args[i]);
+		//free(argHelps[i]);
+	}
+	free(args);
+	free(argHelps);
 
 	return true;
 }

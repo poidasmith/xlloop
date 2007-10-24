@@ -18,11 +18,8 @@
 #include "xll/XLObject.h"
 #include "xll/XLObjectFactory.h"
 #include "xll/XLAddin.h"
-#include <vector>
 #include <varargs.h>
 #include <jni.h>
-
-using namespace std;
 
 #define MAX_ARGS 30
 #define ADDIN_CLASS ":addin.class"
@@ -34,32 +31,19 @@ static HINSTANCE g_hinstance;
 static dictionary* g_ini = NULL;
 
 // These are used to provide a diagnosis of any error. Each module has a function [ModuleName]_GetLastError().
-static char g_modulename[MAX_PATH];
+static char* g_modulename;
 
 // The addin/function implementations
-static XLAddin g_addin;
+static XLAddin* g_addin;
+
+// A flag for initialisation
+static bool g_initialized = false;
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
 	if(fdwReason == DLL_PROCESS_ATTACH)
 	{
 		g_hinstance = hinstDLL;
-
-		// Store a reference to the module filename
-		char filename[MAX_PATH];
-		::GetModuleFileName(g_hinstance, filename, MAX_PATH);
-
-		// Now extract just the module name
-		char mname[MAX_PATH];
-		strcpy_s(mname, MAX_PATH, filename);
-		size_t len = strlen(mname);
-		mname[len - 4] = 0;
-		for(size_t i = len - 4; i >= 0; i--) {
-			if(mname[i] == '\\' || mname[i] == '/') {
-				strcpy_s(g_modulename, MAX_PATH, &mname[i+1]);
-				break;
-			}
-		}
 	}
 
 	if(fdwReason = DLL_PROCESS_DETACH)
@@ -67,6 +51,32 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 	}
 
 	return TRUE;
+}
+
+char* GetAddinName()
+{
+	if(!g_modulename) 
+	{
+		g_modulename = (char *) malloc(MAX_PATH);
+
+		// Store a reference to the module filename
+		char filename[MAX_PATH];
+		::GetModuleFileName(g_hinstance, filename, MAX_PATH);
+
+		// Now extract just the module name
+		char mname[MAX_PATH];
+		strcpy(mname, filename);
+		size_t len = strlen(mname);
+		mname[len - 4] = 0;
+		for(size_t i = len - 4; i >= 0; i--) {
+			if(mname[i] == '\\' || mname[i] == '/') {
+				strcpy(g_modulename, &mname[i+1]);
+				break;
+			}
+		}
+	}
+
+	return g_modulename;
 }
 
 bool StartupVM()
@@ -117,6 +127,8 @@ bool StartupVM()
 
 bool Initialize()
 {
+	if(g_initialized) return true;
+
 	bool result = StartupVM();
 	if(!result) {
 		return result;
@@ -128,7 +140,7 @@ bool Initialize()
 		return result;
 	}
 
-	result = XLUtil::RegisterNatives(env, g_modulename);
+	result = XLUtil::RegisterNatives(env, GetAddinName());
 	if(!result) {
 		return result;
 	}
@@ -143,12 +155,13 @@ bool Initialize()
 		return result;
 	}
 
-	result = g_addin.Load(env, iniparser_getstr(g_ini, ADDIN_CLASS));
+	g_addin = new XLAddin;
+	result = g_addin->Load(env, iniparser_getstr(g_ini, ADDIN_CLASS));
 	if(!result) {
 		return result;
 	}
 	
-	return true;
+	return g_initialized = true;
 }
 
 #ifdef __cplusplus
@@ -162,7 +175,7 @@ __declspec(dllexport) int WINAPI xlAutoOpen(void)
 
 	// Register function for retrieving error text
 	char errorFunction[MAX_PATH];
-	sprintf_s(errorFunction, MAX_PATH, "%s_GetLastError", g_modulename);
+	sprintf(errorFunction, "%s_GetLastError", GetAddinName());
 	int res = XLUtil::RegisterFunction(&xDLL, "XLL4JGetLastError", "R!", errorFunction, 
 		NULL, "1", "Information", NULL, NULL, NULL, NULL);
 
@@ -173,9 +186,9 @@ __declspec(dllexport) int WINAPI xlAutoOpen(void)
 	if(initRes) {
 		char javaFunction[MAX_PATH];
 		JNIEnv* env = VM::GetJNIEnv();
-		for(int i = 0; i < g_addin.GetNumFunctions(); i++) {
-			const XLFunction& func = g_addin.GetFunction(i);
-			sprintf_s(javaFunction, MAX_PATH, "XLL4JFunc%d", (i + 1));
+		for(int i = 0; i < g_addin->GetNumFunctions(); i++) {
+			const XLFunction& func = g_addin->GetFunction(i);
+			sprintf(javaFunction, "XLL4JFunc%d", (i + 1));
 			const char* typeText = func.isVolatile() ? "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR!" : "RRRRRRRRRRRRRRRRRRRRRRRRRRRRRRR";
 			XLUtil::RegisterFunction(&xDLL, javaFunction, typeText,
 				func.GetFunctionText(), func.GetArgumentText(), func.GetMacroType(),
@@ -194,7 +207,7 @@ __declspec(dllexport) int WINAPI xlAutoOpen(void)
 __declspec(dllexport) int WINAPI xlAutoClose(void)
 {
 	// Fire the close method on the addin
-	g_addin.Close();
+	g_addin->Close();
 
 	// Destroy VM (note that this may block if there are non-daemon threads created in the VM)
 	VM::CleanupVM();
@@ -226,16 +239,18 @@ __declspec(dllexport) LPXLOPER WINAPI xlAddInManagerInfo(LPXLOPER xAction)
 	static XLOPER xInfo, xIntAction, xIntType;
 	xIntType.xltype = xltypeInt;
 	xIntType.val.w = xltypeInt;
+	xInfo.xltype = xltypeErr;
+	xInfo.val.err = xlerrValue;
+
+	// Initialise VM if not already
+	bool init = Initialize();
 
 	Excel4(xlCoerce, &xIntAction, 2, xAction, &xIntType);
 
 	if(xIntAction.val.w == 1) {
 		xInfo.xltype = xltypeStr | xlbitXLFree;
-		xInfo.val.str = XLUtil::MakeExcelString(g_addin.GetLongName().c_str());
-	} else {
-		xInfo.xltype = xltypeErr;
-		xInfo.val.err = xlerrValue;
-	}
+		xInfo.val.str = XLUtil::MakeExcelString(init ? g_addin->GetLongName() : GetAddinName());
+	} 
 
 	return (LPXLOPER) &xInfo;
 }
@@ -245,7 +260,7 @@ __declspec(dllexport) LPXLOPER WINAPI XLL4JGetLastError(LPXLOPER args)
 	static XLOPER err;
 	static char errStr[MAX_PATH];
 	const char* error = Log::GetLastError();
-	sprintf_s(errStr, MAX_PATH, " %s", error != NULL ? error : "OK");
+	sprintf(errStr, " %s", error != NULL ? error : "OK");
 	errStr[0] = (BYTE) lstrlen(errStr+1);
 	err.xltype = xltypeStr;
 	err.val.str = errStr;
@@ -295,7 +310,7 @@ __declspec(dllexport) LPXLOPER WINAPI XLL4JFunc##number (LPXLOPER px1, LPXLOPER 
 	for(; missingCount < 30; missingCount++) { \
 		if(args[missingCount]->xltype == xltypeMissing) break; \
 	} \
-	return g_addin.GetFunction(number - 1).Execute(missingCount, args); \
+	return g_addin->GetFunction(number - 1).Execute(missingCount, args); \
 } \
 
 DECLARE_EXCEL_FUNCTION(1)

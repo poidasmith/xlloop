@@ -22,7 +22,7 @@ LPSTR XLUtil::MakeExcelString(const char* string)
 	size_t len = strlen(string);
 	if(len > 255) len = 255; // Excel strings are limited to 255 chars
 	char* temp = (char *) malloc(len + 2);
-	strcpy_s(temp + 1, len + 1, string);
+	strcpy(temp + 1, string);
 	temp[0] = (BYTE) len;
 	return temp;
 }
