@@ -74,7 +74,7 @@ inline LPXLOPER CreateType(int xltype)
 jobject XLObjectFactory::CreateArray(JNIEnv* env, jobject self, jint rows, jint columns)
 {
 	LPXLOPER val = CreateType(xltypeMulti);
-	val->xltype |= xlbitXLFree;
+	val->xltype |= xlbitDLLFree;
 	val->val.array.lparray = (LPXLOPER) malloc(sizeof(XLOPER) * rows * columns);
 	val->val.array.columns = columns;
 	val->val.array.rows = rows;
@@ -158,7 +158,7 @@ jobject XLObjectFactory::CreateString(JNIEnv* env, jobject self, jstring str)
 	const char* chars = env->GetStringUTFChars(str, &iscopy);
 	val->val.str = XLUtil::MakeExcelString(chars);
 	env->ReleaseStringUTFChars(str, chars); 
-	val->xltype |= xlbitXLFree;
+	val->xltype |= xlbitDLLFree;
 
 	return XLObject::CreateXLObject(env, val);
 }

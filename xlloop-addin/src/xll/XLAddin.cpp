@@ -45,18 +45,18 @@ bool XLAddin::Load(JNIEnv* env, char* addinClassName)
 	}
 
 	// Call the getName method
-	const char* addinName = JNI::CallStringMethod(env, mAddinClass, mAddinObj, "getName");
+	char* addinName = JNI::CallStringMethod(env, mAddinClass, mAddinObj, "getName");
 	if(addinName == NULL) {
 		return false;
 	}
-	mName = strdup(addinName);
+	mName = addinName;
 
 	// Call the get long name method
-	const char* addinLongName = JNI::CallStringMethod(env, mAddinClass, mAddinObj, "getLongName");
+	char* addinLongName = JNI::CallStringMethod(env, mAddinClass, mAddinObj, "getLongName");
 	if(addinLongName == NULL) {
 		return false;
 	}
-	mLongName = strdup(addinLongName);
+	mLongName = addinLongName;
 
 	// Call the getFunctions method
 	jmethodID fmeth = env->GetMethodID(mAddinClass, "getFunctions", "()[Lorg/excel4j/Function;");

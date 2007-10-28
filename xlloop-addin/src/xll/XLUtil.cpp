@@ -34,9 +34,9 @@ int XLUtil::RegisterFunction(LPXLOPER xllName,
 					  const char* shortcutText, const char* helpTopic, 
 					  const char* functionHelp, const char* argumentHelp)
 {
-	XLOPER args[10];
+	static XLOPER args[10];
 	for(int i = 0; i < 10; i++) {
-		args[i].xltype = xltypeStr | xlbitXLFree;
+		args[i].xltype = xltypeStr;
 	}
 	args[0].val.str = MakeExcelString(procedure);
 	args[1].val.str = MakeExcelString(typeText);
@@ -99,7 +99,6 @@ void XLUtil::ThrowExcel4Exception(JNIEnv* env, int fRes)
 
 	env->Throw(thr);
 }
-
 
 jobject JNICALL XLUtil::Excel4J(JNIEnv* env, jobject self, int xlfn, jobjectArray args)
 {

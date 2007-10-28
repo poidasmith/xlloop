@@ -182,7 +182,9 @@ jstring JNICALL XLString::toString(JNIEnv* env, jobject self)
 {
 	LPXLOPER px = GetXLoper(env, self);
 	char chars[MAX_PATH];
-	strncpy(chars, &px->val.str[1], px->val.str[0]);
+	int len = px->val.str[0];
+	memcpy(chars, &px->val.str[1], len);
+	chars[len] = 0;
 	return env->NewStringUTF(chars);
 }
 

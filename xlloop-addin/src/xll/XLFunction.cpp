@@ -20,7 +20,8 @@ char* StrConcat(char* lhs, char* rhs)
 	if(lhs == NULL) return strdup(rhs);
 	int len = strlen(lhs) + strlen(rhs);
 	char* nu = (char *) malloc(len + 1);
-	strcpy(lhs, nu);
+	nu[0] = 0;
+	strcpy(nu, lhs);
 	strcat(nu, rhs);
 	return nu;
 }
@@ -119,7 +120,7 @@ LPXLOPER XLFunction::Execute(int argc, LPXLOPER argv[]) const
 	if(env->ExceptionOccurred()) {
 		const char* exmsg = JNI::GetExceptionMessage(env);
 		if(exmsg) {
-			err.xltype = xltypeStr | xlbitXLFree;
+			err.xltype = xltypeStr | xlbitDLLFree;
 			err.val.str = XLUtil::MakeExcelString(exmsg);
 			env->ExceptionClear();
 		}

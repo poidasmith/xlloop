@@ -25,16 +25,16 @@
 #define ADDIN_CLASS ":addin.class"
 
 // The DLL instance
-static HINSTANCE g_hinstance;
+static HINSTANCE g_hinstance = NULL;
 
 // The INI file
 static dictionary* g_ini = NULL;
 
 // These are used to provide a diagnosis of any error. Each module has a function [ModuleName]_GetLastError().
-static char* g_modulename;
+static char* g_modulename = NULL;
 
 // The addin/function implementations
-static XLAddin* g_addin;
+static XLAddin* g_addin = NULL;
 
 // A flag for initialisation
 static bool g_initialized = false;
@@ -46,11 +46,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 		g_hinstance = hinstDLL;
 	}
 
-	if(fdwReason = DLL_PROCESS_DETACH)
-	{
-	}
-
-	return TRUE;
+	return 1;
 }
 
 char* GetAddinName()
@@ -161,7 +157,8 @@ bool Initialize()
 		return result;
 	}
 	
-	return g_initialized = true;
+	g_initialized = true;
+	return true;
 }
 
 #ifdef __cplusplus
@@ -207,10 +204,10 @@ __declspec(dllexport) int WINAPI xlAutoOpen(void)
 __declspec(dllexport) int WINAPI xlAutoClose(void)
 {
 	// Fire the close method on the addin
-	g_addin->Close();
+	if(g_addin) g_addin->Close();
 
 	// Destroy VM (note that this may block if there are non-daemon threads created in the VM)
-	VM::CleanupVM();
+	if(g_initialized) VM::CleanupVM();
 
 	return 1;
 }
@@ -248,7 +245,7 @@ __declspec(dllexport) LPXLOPER WINAPI xlAddInManagerInfo(LPXLOPER xAction)
 	Excel4(xlCoerce, &xIntAction, 2, xAction, &xIntType);
 
 	if(xIntAction.val.w == 1) {
-		xInfo.xltype = xltypeStr | xlbitXLFree;
+		xInfo.xltype = xltypeStr;
 		xInfo.val.str = XLUtil::MakeExcelString(init ? g_addin->GetLongName() : GetAddinName());
 	} 
 

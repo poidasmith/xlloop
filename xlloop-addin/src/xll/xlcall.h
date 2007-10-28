@@ -1,6 +1,6 @@
 /*
 **  Microsoft Excel Developer's Toolkit
-**  Version 5.0
+**  Version 8.0
 **
 **  File:           INCLUDE\XLCALL.H
 **  Description:    Header file for for Microsoft Excel callbacks
@@ -13,8 +13,8 @@
 **
 */
 
-#ifndef XLCALL_H
-#define XLCALL_H
+#ifndef XLCALL32_H
+#define XLCALL32_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -169,7 +169,7 @@ typedef struct xloper
 int far _cdecl Excel4(int xlfn, LPXLOPER operRes, int count,... ); 
 /* followed by count LPXLOPERs */
 
-int far pascal Excel4v(int xlfn, LPXLOPER operRes, int count, LPXLOPER far *opers);
+int far pascal Excel4v(int xlfn, LPXLOPER operRes, int count, LPXLOPER far opers[]);
 int far pascal XLCallVer(void);
 
 
@@ -576,6 +576,17 @@ int far pascal XLCallVer(void);
 #define xlfRoman 354
 #define xlfOpenDialog 355
 #define xlfSaveDialog 356
+#define xlfViewGet 357
+#define xlfGetPivotData 358
+#define xlfHyperlink 359
+#define xlfPhonetic 360
+#define xlfAverageA 361
+#define xlfMaxA 362
+#define xlfMinA 363
+#define xlfStDevPA 364
+#define xlfVarPA 365
+#define xlfStDevA 366
+#define xlfVarA 367
 
 /* Excel command numbers */
 #define xlcBeep (0 | xlCommand)
@@ -967,4 +978,4 @@ int far pascal XLCallVer(void);
 }			/* End of extern "C" { */
 #endif	/* __cplusplus */
 
-#endif // XLCALL_H
+#endif

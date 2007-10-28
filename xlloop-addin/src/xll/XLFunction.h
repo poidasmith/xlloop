@@ -12,8 +12,8 @@
 #define XLFUNCTION_H
 
 #include "../common/Runtime.h"
-#include "xlcall.h"
 #include <jni.h>
+#include "xlcall.h"
 
 class XLFunction {
 public:
