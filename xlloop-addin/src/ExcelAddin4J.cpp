@@ -107,7 +107,7 @@ bool StartupVM()
 	vmargs[vmargsCount] = NULL;
 
 	// Fire up the VM
-	int vmerr = VM::StartJavaVM(vmlibrary, vmargs, true);
+	int vmerr = VM::StartJavaVM(vmlibrary, vmargs, g_hinstance, true);
 	if(vmerr != 0) {
 		Log::SetLastError("VM could not be started (returned %d)", vmerr);
 		return false;
