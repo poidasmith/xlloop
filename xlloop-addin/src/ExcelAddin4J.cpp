@@ -46,6 +46,11 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 		g_hinstance = hinstDLL;
 	}
 
+	if(fdwReason == DLL_PROCESS_DETACH)
+	{
+		VM::CleanupVM();
+	}
+
 	return 1;
 }
 
