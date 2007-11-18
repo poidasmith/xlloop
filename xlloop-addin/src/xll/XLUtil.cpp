@@ -32,10 +32,11 @@ int XLUtil::RegisterFunction(LPXLOPER xllName,
 					  const char* procedure, const char* typeText, const char* functionText,
 					  const char* argumentText, const char* macroType, const char* category,
 					  const char* shortcutText, const char* helpTopic, 
-					  const char* functionHelp, const char* argumentHelp)
+					  const char* functionHelp, const char* argumentHelp, bool command)
 {
 	static XLOPER args[10];
 	for(int i = 0; i < 10; i++) {
+		args[i].val.str = NULL;
 		args[i].xltype = xltypeStr;
 	}
 	args[0].val.str = MakeExcelString(procedure);
@@ -45,9 +46,11 @@ int XLUtil::RegisterFunction(LPXLOPER xllName,
 	args[4].val.str = MakeExcelString(macroType);
 	args[5].val.str = MakeExcelString(category);
 	args[6].val.str = MakeExcelString(shortcutText);
-	args[7].val.str = MakeExcelString(helpTopic);
-	args[8].val.str = MakeExcelString(functionHelp);
-	args[9].val.str = MakeExcelString(argumentHelp);
+	if(!command) {
+		args[7].val.str = MakeExcelString(helpTopic);
+		args[8].val.str = MakeExcelString(functionHelp);
+		args[9].val.str = MakeExcelString(argumentHelp);
+	}
 
 	// Check types for NULL
 	for(int i = 0; i < 10; i++) {
@@ -55,13 +58,22 @@ int XLUtil::RegisterFunction(LPXLOPER xllName,
 			args[i].xltype = xltypeMissing;
 	}
 
-	int res = Excel4(xlfRegister, 0, 11, (LPXLOPER) xllName, (LPXLOPER) &args[0], 
-		(LPXLOPER) &args[1], (LPXLOPER) &args[2], (LPXLOPER) &args[3],
-		(LPXLOPER) &args[4], (LPXLOPER) &args[5], (LPXLOPER) &args[6], 
-		(LPXLOPER) &args[7], (LPXLOPER) &args[8], (LPXLOPER) &args[9]);
+	int res = 0;
+	if(!command) {
+		res = Excel4(xlfRegister, 0, 11, (LPXLOPER) xllName, (LPXLOPER) &args[0], 
+			(LPXLOPER) &args[1], (LPXLOPER) &args[2], (LPXLOPER) &args[3],
+			(LPXLOPER) &args[4], (LPXLOPER) &args[5], (LPXLOPER) &args[6], 
+			(LPXLOPER) &args[7], (LPXLOPER) &args[8], (LPXLOPER) &args[9]);
+	} else {
+		res = Excel4(xlfRegister, 0, 8, (LPXLOPER) xllName, (LPXLOPER) &args[0], 
+			(LPXLOPER) &args[1], (LPXLOPER) &args[2], (LPXLOPER) &args[3],
+			(LPXLOPER) &args[4], (LPXLOPER) &args[5], (LPXLOPER) &args[6]);
+	}
 
 	if(res != 0) {
-		Log::SetLastError("Could not register function: %s", functionText);
+		char temp[MAX_PATH];
+		sprintf(temp, "Failed to register %s\n", procedure);
+		OutputDebugStr(temp);
 	}
 
 	// Free strings
@@ -71,6 +83,15 @@ int XLUtil::RegisterFunction(LPXLOPER xllName,
 	}
 
 	return res;
+}
+
+int XLUtil::RegisterCommand(LPXLOPER xllName, 
+					  const char* procedure, const char* typeText, const char* functionText,
+					  const char* argumentText, const char* macroType, const char* category,
+					  const char* shortcutText)
+{
+	return RegisterFunction(xllName, procedure, typeText, functionText, argumentText, 
+		macroType, category, shortcutText, NULL, NULL, NULL, true);
 }
 
 void XLUtil::CopyValue(LPXLOPER xloperSrc, LPXLOPER xloperDst)

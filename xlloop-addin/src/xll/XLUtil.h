@@ -23,7 +23,13 @@ public:
 			  const char* procedure, const char* typeText, const char* functionText,
 			  const char* argumentText, const char* macroType, const char* category,
 			  const char* shortcutText, const char* helpTopic, 
-			  const char* functionHelp, const char* argumentHelp);
+			  const char* functionHelp, const char* argumentHelp,
+			  bool command = false);
+
+	static int RegisterCommand(LPXLOPER xllName, 
+					  const char* procedure, const char* typeText, const char* functionText,
+					  const char* argumentText, const char* macroType, const char* category,
+					  const char* shortcutText);
 
 	static void CopyValue(LPXLOPER xloperSrc, LPXLOPER xloperDst);
 
