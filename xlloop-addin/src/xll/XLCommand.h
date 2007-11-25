@@ -18,7 +18,10 @@
 class XLCommand {
 public:
 	XLCommand(jobject obj, jclass functionClass, jmethodID executeMethod, jclass objectClass) :
-	  mFuncObj(obj), mFunctionClass(functionClass), mExecuteMethod(executeMethod), mObjectClass(objectClass) {}
+	  mFuncObj(obj), 
+	  mFunctionClass(functionClass), 
+	  mExecuteMethod(executeMethod), 
+	  mObjectClass(objectClass) {}
 	virtual ~XLCommand() {}
 
 	bool Initialize(JNIEnv* env);
