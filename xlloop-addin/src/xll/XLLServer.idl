@@ -1,0 +1,35 @@
+
+import "wtypes.idl";
+
+[
+  uuid(05FE15B4-AB13-4064-A22A-1A816059B6AE),
+  version(1.0)
+]
+library LibXLLServer
+{
+	importlib("stdole32.tlb");
+	importlib("stdole.tlb"); 
+
+	[ 
+	  uuid(05FE15B4-AB13-4064-A22A-1A816059B6AD),
+	  oleautomation 
+	]
+	interface IXLLServer : IUnknown
+	{
+		[id(1)] HRESULT GetFunctionCount([out, retval] int* count);
+		[id(2)] HRESULT GetFunction([in] int index, [out, retval] SAFEARRAY(BSTR) info);
+		[id(3)] HRESULT GetCommandCount([out, retval] int* count);
+		[id(4)] HRESULT GetCommand([in] int index, [out, retval] SAFEARRAY(BSTR) info);
+		[id(5)] HRESULT ExecuteFunction([in] BSTR name, [in] SAFEARRAY(XLOPER) xlopers, [out, retval] XLOPER result);
+		[id(6)] HRESULT ExecuteCommand([in] BSTR name);
+	}
+
+	[ 
+	  uuid(05FE15B4-AB13-4064-A22A-1A816059B6AC),
+	  helpstring("XLL Server object") 
+	]
+	coclass XLLServer
+	{
+		[default] interface IJNIServer;
+	}
+}
