@@ -16,6 +16,13 @@ import "wtypes.idl";
 #define xlbitDLLFree     0x4000
 #define xltypeBigData    (xltypeStr | xltypeInt)
 
+#define xlflowHalt       1
+#define xlflowGoto       2
+#define xlflowRestart    8
+#define xlflowPause      16
+#define xlflowResume     64
+
+
 typedef struct xlref 
 {
     WORD rwFirst;
@@ -44,16 +51,10 @@ typedef struct mref
 
 typedef struct array
 {
-    struct wireXLOPER* lparray;
+    struct tagXLOPER* lparray;
     WORD rows;
     WORD columns;
 } wireArray;
-
-#define xlflowHalt       1
-#define xlflowGoto       2
-#define xlflowRestart    8
-#define xlflowPause      16
-#define xlflowResume     64
 
 typedef union _flowVal switch( BYTE xlflow ) u
 {
@@ -62,7 +63,7 @@ typedef union _flowVal switch( BYTE xlflow ) u
 	case xlflowGoto: DWORD idSheet;
 } flowVal;
 
-typedef struct flow
+typedef struct tagFlow
 {
 	flowVal flow;
     WORD rw;
