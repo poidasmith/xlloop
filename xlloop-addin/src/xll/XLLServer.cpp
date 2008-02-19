@@ -30,9 +30,18 @@ typedef jint (JNICALL *JNI_createJavaVM)(JavaVM **pvm, JNIEnv **env, void *args)
 
 class XLLServer : public COMBase<IXLLServer> {
 public:
-	XLLServer() : jvm(0), env(0), hModule(0) {}
+	XLLServer() : callback(0), jvm(0), env(0), hModule(0) {}
+	STDMETHOD Startup(IXLLCallback* callback, int* result);
+	STDMETHOD GetFunctionCount(int* count);
+	STDMETHOD GetFunction(int index, SAFEARRAY* info);
+	STDMETHOD GetCommandCount(int* count);
+	STDMETHOD GetCommand(int index, SAFEARRAY* info);
+	STDMETHOD ExecuteFunction(BSTR name, SAFEARRAY* args, wireXLOPER* result);
+	STDMETHOD ExecuteCommand(BSTR name);
+	STDMETHOD Shutdown(int* result);
 
 private:
+	IXLLCallback* callback;
 	JavaVM* jvm;
 	JNIEnv* env;
 	HMODULE hModule;
@@ -78,3 +87,42 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 	return 0;
 }
 
+STDMETHOD XLLServer::Startup(IXLLCallback* callback, int* result)
+{
+	return E_NOTIMPL;
+}
+
+STDMETHOD XLLServer::GetFunctionCount(int* count)
+{
+	return E_NOTIMPL;
+}
+
+STDMETHOD XLLServer::GetFunction(int index, SAFEARRAY* info)
+{
+	return E_NOTIMPL;
+}
+
+STDMETHOD XLLServer::GetCommandCount(int* count)
+{
+	return E_NOTIMPL;
+}
+
+STDMETHOD XLLServer::GetCommand(int index, SAFEARRAY* info)
+{
+	return E_NOTIMPL;
+}
+
+STDMETHOD XLLServer::ExecuteFunction(BSTR name, SAFEARRAY* args, wireXLOPER* result)
+{
+	return E_NOTIMPL;
+}
+
+STDMETHOD XLLServer::ExecuteCommand(BSTR name)
+{
+	return E_NOTIMPL;
+}
+
+STDMETHOD XLLServer::Shutdown(int* result)
+{
+	return E_NOTIMPL;
+}

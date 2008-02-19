@@ -1,5 +1,1 @@
-#ifdef DEBUG_TLB
-1 TYPELIB "XLLServer-Debug\XLLServer.tlb"
-#else
-1 TYPELIB "XLLServer-Release\XLLServer.tlb"
-#endif
+1 TYPELIB "XLLServer.tlb"

@@ -11,13 +11,13 @@ library LibXLLServer
 	importlib("stdole32.tlb");
 	importlib("stdole.tlb"); 
 
-	[uuid(05FE15B4-AB13-4064-A22A-1A816059B6A2)]
+	[uuid(05FE15B4-AB13-4064-A22A-1A816059B6A1)]
 	interface IXLLCallback : IDispatch
 	{
 		[id(1)] HRESULT Execute([in] SAFEARRAY(wireXLOPER) args, [out, retval] wireXLOPER* result);
 	};	
 	
-	[uuid(05FE15B4-AB13-4064-A22A-1A816059B6A3)]
+	[uuid(05FE15B4-AB13-4064-A22A-1A816059B6A2)]
 	interface IXLLServer : IUnknown
 	{
 		[id(1)] HRESULT Startup([in] IXLLCallback* callback, [out, retval] int* result);
@@ -30,7 +30,7 @@ library LibXLLServer
 		[id(8)] HRESULT Shutdown([out, retval] int* result);
 	}
 
-	[uuid(05FE15B4-AB13-4064-A22A-1A816059B6A4)]
+	[uuid(05FE15B4-AB13-4064-A22A-1A816059B6A3)]
 	coclass XLLServer
 	{
 		[default] interface IXLLServer;
