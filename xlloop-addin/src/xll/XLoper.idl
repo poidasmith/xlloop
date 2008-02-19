@@ -1,0 +1,97 @@
+
+import "wtypes.idl";
+
+#define xltypeNum        0x0001
+#define xltypeStr        0x0002
+#define xltypeBool       0x0004
+#define xltypeRef        0x0008
+#define xltypeErr        0x0010
+#define xltypeFlow       0x0020
+#define xltypeMulti      0x0040
+#define xltypeMissing    0x0080
+#define xltypeNil        0x0100
+#define xltypeSRef       0x0400
+#define xltypeInt        0x0800
+#define xlbitXLFree      0x1000
+#define xlbitDLLFree     0x4000
+#define xltypeBigData    (xltypeStr | xltypeInt)
+
+typedef struct xlref 
+{
+    WORD rwFirst;
+    WORD rwLast;
+    BYTE colFirst;
+    BYTE colLast;
+} wireXLREF;
+
+typedef struct sref
+{
+    WORD count;
+    wireXLREF _ref;
+} wireSREF;
+
+typedef struct xlmref 
+{
+    WORD count;
+    [size_is(count)] wireXLREF* reftbl;
+} wireXLMREF;
+
+typedef struct mref
+{
+    wireXLMREF* lpmref;
+    DWORD idSheet;
+} wireMREF;
+
+typedef struct array
+{
+    struct wireXLOPER* lparray;
+    WORD rows;
+    WORD columns;
+} wireArray;
+
+#define xlflowHalt       1
+#define xlflowGoto       2
+#define xlflowRestart    8
+#define xlflowPause      16
+#define xlflowResume     64
+
+typedef union _flowVal switch( BYTE xlflow ) u
+{
+	case xlflowRestart: short int level;
+	case xlflowPause: short int tbctrl;
+	case xlflowGoto: DWORD idSheet;
+} flowVal;
+
+typedef struct flow
+{
+	flowVal flow;
+    WORD rw;
+    BYTE col;
+    BYTE xlflow;
+} wireFlow;       
+
+typedef struct bigdata
+{
+	[size_is(cbData)] BYTE* lpbData;
+    long cbData;
+} wireBigdata;
+
+typedef union _xloperVal switch( WORD xlType ) u
+{
+	case xltypeNum: double num;
+	case xltypeStr: BSTR str;
+	case xltypeBool: WORD _bool;
+	case xltypeErr: WORD err;
+	case xltypeInt: int w;
+	case xltypeSRef: wireSREF sref;
+	case xltypeRef: wireMREF mref;
+	case xltypeMulti: wireArray array;
+	case xltypeFlow: wireFlow flow;
+	case xltypeBigData: wireBigdata bigdata;
+} xloperVal;
+
+typedef struct tagXLOPER
+{
+	xloperVal val;
+	WORD xlType;
+} wireXLOPER;
