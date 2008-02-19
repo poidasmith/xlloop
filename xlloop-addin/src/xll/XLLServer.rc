@@ -1,5 +1,5 @@
-#ifdef _DEBUG
-1 TYPELIB "JNIServer-Debug\JNIServer.tlb"
+#ifdef DEBUG_TLB
+1 TYPELIB "XLLServer-Debug\XLLServer.tlb"
 #else
-1 TYPELIB "JNIServer-Release\JNIServer.tlb"
+1 TYPELIB "XLLServer-Release\XLLServer.tlb"
 #endif

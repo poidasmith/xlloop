@@ -2,7 +2,7 @@
 import "wtypes.idl";
 
 [
-  uuid(05FE15B4-AB13-4064-A22A-1A816059B6AE),
+  uuid(05FE15B4-AB13-4064-A22A-1A816059B6A0),
   version(1.0)
 ]
 library LibXLLServer
@@ -10,26 +10,55 @@ library LibXLLServer
 	importlib("stdole32.tlb");
 	importlib("stdole.tlb"); 
 
-	[ 
-	  uuid(05FE15B4-AB13-4064-A22A-1A816059B6AD),
-	  oleautomation 
-	]
+	#define xltypeNum        0x0001
+	#define xltypeStr        0x0002
+	#define xltypeBool       0x0004
+	#define xltypeRef        0x0008
+	#define xltypeErr        0x0010
+	#define xltypeFlow       0x0020
+	#define xltypeMulti      0x0040
+	#define xltypeMissing    0x0080
+	#define xltypeNil        0x0100
+	#define xltypeSRef       0x0400
+	#define xltypeInt        0x0800
+	#define xlbitXLFree      0x1000
+	#define xlbitDLLFree     0x4000
+
+	typedef union _xloperVal switch( WORD xlType ) u
+	{
+		case xltypeNum: double num;
+		case xltypeStr: BSTR str;
+		case xltypeBool: WORD _bool;
+	} xloperVal;
+
+	typedef struct tagXLOPER
+	{
+		xloperVal val;
+		WORD xlType;
+	} XLOPER;
+
+	[uuid(05FE15B4-AB13-4064-A22A-1A816059B6A2)]
+	interface IXLLCallback : IDispatch
+	{
+		[id(1)] HRESULT Execute([in] SAFEARRAY(XLOPER) args, [out, retval] XLOPER* result);
+	};	
+	
+	[uuid(05FE15B4-AB13-4064-A22A-1A816059B6A3)]
 	interface IXLLServer : IUnknown
 	{
-		[id(1)] HRESULT GetFunctionCount([out, retval] int* count);
-		[id(2)] HRESULT GetFunction([in] int index, [out, retval] SAFEARRAY(BSTR) info);
-		[id(3)] HRESULT GetCommandCount([out, retval] int* count);
-		[id(4)] HRESULT GetCommand([in] int index, [out, retval] SAFEARRAY(BSTR) info);
-		[id(5)] HRESULT ExecuteFunction([in] BSTR name, [in] SAFEARRAY(XLOPER) xlopers, [out, retval] XLOPER result);
-		[id(6)] HRESULT ExecuteCommand([in] BSTR name);
+		[id(1)] HRESULT Startup([in] IXLLCallback* callback, [out, retval] int* result);
+		[id(2)] HRESULT GetFunctionCount([out, retval] int* count);
+		[id(3)] HRESULT GetFunction([in] int index, [out, retval] SAFEARRAY(BSTR) info);
+		[id(4)] HRESULT GetCommandCount([out, retval] int* count);
+		[id(5)] HRESULT GetCommand([in] int index, [out, retval] SAFEARRAY(BSTR) info);
+		[id(6)] HRESULT ExecuteFunction([in] BSTR name, [in] SAFEARRAY(XLOPER) args, [out, retval] XLOPER* result);
+		[id(7)] HRESULT ExecuteCommand([in] BSTR name);
+		[id(8)] HRESULT Shutdown([out, retval] int* result);
 	}
 
-	[ 
-	  uuid(05FE15B4-AB13-4064-A22A-1A816059B6AC),
-	  helpstring("XLL Server object") 
-	]
+	[uuid(05FE15B4-AB13-4064-A22A-1A816059B6A4)]
 	coclass XLLServer
 	{
-		[default] interface IJNIServer;
+		[default] interface IXLLServer;
 	}
 }
