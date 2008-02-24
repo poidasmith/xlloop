@@ -8,10 +8,9 @@
 *     Peter Smith
 *******************************************************************************/
 
-#include "JNIClient.h"
 #include "../common/COMHelper.h"
-#include "../../build/JNIServer_i.h"
-#include "../../build/JNIServer_i.c"
+#include "../../build/XLLServer_h.h"
+#include "../../build/XLLServer_i.c"
 #include <jni.h>
 
 struct COMJavaVM {

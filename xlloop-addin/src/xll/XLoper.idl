@@ -23,7 +23,7 @@ import "wtypes.idl";
 #define xlflowResume     64
 
 
-typedef struct xlref 
+typedef struct _xlref 
 {
     WORD rwFirst;
     WORD rwLast;
@@ -31,25 +31,25 @@ typedef struct xlref
     BYTE colLast;
 } wireXLREF;
 
-typedef struct sref
+typedef struct _sref
 {
     WORD count;
     wireXLREF _ref;
 } wireSREF;
 
-typedef struct xlmref 
+typedef struct _xlmref 
 {
     WORD count;
     [size_is(count)] wireXLREF* reftbl;
 } wireXLMREF;
 
-typedef struct mref
+typedef struct _mref
 {
     wireXLMREF* lpmref;
     DWORD idSheet;
 } wireMREF;
 
-typedef struct array
+typedef struct _array
 {
     struct tagXLOPER* lparray;
     WORD rows;

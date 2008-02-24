@@ -21,8 +21,7 @@
 #include <varargs.h>
 #include <jni.h>
 
-#define MAX_ARGS 30
-#define ADDIN_CLASS ":addin.class"
+
 
 // The DLL instance
 static HINSTANCE g_hinstance = NULL;
@@ -80,91 +79,6 @@ char* GetAddinName()
 	return g_modulename;
 }
 
-bool StartupVM()
-{
-	// Attempt to load the ini file for this module
-	g_ini = INI::LoadIniFile(g_hinstance);
-
-	if(g_ini == NULL) {
-		Log::SetLastError("Could not find module ini file");
-		return false;
-	}
-
-	// Attempt to find an appropriate java VM
-	char* vmlibrary = VM::FindJavaVMLibrary(g_ini);
-	if(!vmlibrary) {
-		Log::SetLastError("Could not find VM");
-		return false;
-	}
-
-	// Collect the VM args from the INI file
-	TCHAR *vmargs[MAX_PATH];
-	int vmargsCount = 0;
-	INI::GetNumberedKeysFromIni(g_ini, VM_ARG, vmargs, vmargsCount);
-
-	// Build up the classpath and add to vm args
-	Classpath::BuildClassPath(g_ini, vmargs, vmargsCount);
-
-	// Extract the specific VM args
-	VM::ExtractSpecificVMArgs(g_ini, vmargs, vmargsCount);
-
-	// Make sure there is a NULL at the end of the args
-	vmargs[vmargsCount] = NULL;
-
-	// Fire up the VM
-	int vmerr = VM::StartJavaVM(vmlibrary, vmargs, g_hinstance);
-	if(vmerr != 0) {
-		Log::SetLastError("VM could not be started (returned %d)", vmerr);
-		return false;
-	}
-
-	// Free vm args
-	for(int i = 0; i < vmargsCount; i++) {
-		free(vmargs[i]);
-	}
-
-	return true;
-}
-
-bool Initialize()
-{
-	if(g_initialized) return true;
-
-	bool result = StartupVM();
-	if(!result) {
-		return result;
-	}
-
-	JNIEnv* env = VM::GetJNIEnv();
-	result = INI::RegisterNatives(env, true);
-	if(!result) {
-		return result;
-	}
-
-	result = XLUtil::RegisterNatives(env, GetAddinName());
-	if(!result) {
-		return result;
-	}
-
-	result = XLObjectFactory::RegisterNatives(env);
-	if(!result) {
-		return result;
-	}
-
-	result = XLObject::RegisterNatives(env);
-	if(!result) {
-		return result;
-	}
-
-	g_addin = new XLAddin;
-	result = g_addin->Load(env, iniparser_getstr(g_ini, ADDIN_CLASS));
-	if(!result) {
-		return result;
-	}
-	
-	g_initialized = true;
-	return true;
-}
 
 #ifdef __cplusplus
 extern "C" {  

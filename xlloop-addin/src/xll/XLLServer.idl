@@ -25,8 +25,8 @@ library LibXLLServer
 		[id(3)] HRESULT GetFunction([in] int index, [out, retval] SAFEARRAY(BSTR) info);
 		[id(4)] HRESULT GetCommandCount([out, retval] int* count);
 		[id(5)] HRESULT GetCommand([in] int index, [out, retval] SAFEARRAY(BSTR) info);
-		[id(6)] HRESULT ExecuteFunction([in] BSTR name, [in] SAFEARRAY(wireXLOPER) args, [out, retval] wireXLOPER* result);
-		[id(7)] HRESULT ExecuteCommand([in] BSTR name);
+		[id(6)] HRESULT ExecuteFunction([in] int index, [in] SAFEARRAY(wireXLOPER) args, [out, retval] wireXLOPER* result);
+		[id(7)] HRESULT ExecuteCommand([in] int index, [in] SAFEARRAY(wireXLOPER) args, [out, retval] wireXLOPER* result);
 		[id(8)] HRESULT Shutdown([out, retval] int* result);
 	}
 
