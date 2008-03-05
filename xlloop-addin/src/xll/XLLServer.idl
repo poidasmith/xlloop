@@ -12,7 +12,7 @@ library LibXLLServer
 	importlib("stdole.tlb"); 
 
 	[uuid(05FE15B4-AB13-4064-A22A-1A816059B6A1)]
-	interface IXLLCallback : IDispatch
+	interface IXLLCallback : IUnknown
 	{
 		[id(1)] HRESULT Execute([in] SAFEARRAY(wireXLOPER) args, [out, retval] wireXLOPER* result);
 	};	

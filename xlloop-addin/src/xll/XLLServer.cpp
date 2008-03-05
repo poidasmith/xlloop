@@ -50,7 +50,7 @@ public:
 	STDMETHOD GetCommandCount(int* count);
 	STDMETHOD GetCommand(int index, SAFEARRAY* info);
 	STDMETHOD ExecuteFunction(BSTR name, SAFEARRAY* args, wireXLOPER* result);
-	STDMETHOD ExecuteCommand(BSTR name);
+	STDMETHOD ExecuteCommand(BSTR name, SAFEARRAY* args, wireXLOPER* result);
 	STDMETHOD Shutdown(int* result);
 
 private:
@@ -143,7 +143,7 @@ STDMETHOD XLLServer::ExecuteFunction(BSTR name, SAFEARRAY* args, wireXLOPER* res
 	return E_NOTIMPL;
 }
 
-STDMETHOD XLLServer::ExecuteCommand(BSTR name)
+STDMETHOD XLLServer::ExecuteCommand(BSTR name, SAFEARRAY* args, wireXLOPER* result)
 {
 	return E_NOTIMPL;
 }
