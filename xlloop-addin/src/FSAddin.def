@@ -1,0 +1,10 @@
+LIBRARY	"FSAddin"
+
+EXPORTS
+	xlAutoOpen
+	xlAutoClose
+	xlAutoRegister
+	xlAutoAdd
+	xlAutoRemove
+	xlAddInManagerInfo
+	FSExecute

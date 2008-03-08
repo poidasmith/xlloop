@@ -12,8 +12,11 @@
 #define XLUTIL_H
 
 #include "../common/Runtime.h"
-#include <jni.h>
 #include "xlcall.h"
+
+#ifndef XLUTIL_ONLY
+#include <jni.h>
+#endif
 
 class XLUtil {
 public:
@@ -33,8 +36,9 @@ public:
 
 	static void CopyValue(LPXLOPER xloperSrc, LPXLOPER xloperDst);
 
-	static bool RegisterNatives(JNIEnv* env, const char* moduleName);
+#ifndef XLUTIL_ONLY
 
+	static bool RegisterNatives(JNIEnv* env, const char* moduleName);
 	static void ThrowExcel4Exception(JNIEnv* env, int fRes);
 
 private:
@@ -43,6 +47,9 @@ private:
 	static void JNICALL SetLastError(JNIEnv* env, jobject self, jstring error);
 	static jstring JNICALL GetLastError(JNIEnv* env, jobject self);
 	static jstring JNICALL GetModuleName(JNIEnv* env, jobject self);
+
+#endif // XLUTIL_ONLY
+
 };
 
 #endif // XLUTIL_H

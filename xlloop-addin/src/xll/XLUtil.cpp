@@ -9,11 +9,14 @@
 *******************************************************************************/
 
 #include "XLUtil.h"
-#include "XLObject.h"
 #include "../common/Log.h"
+
+#ifndef XLUTIL_ONLY
 #include "../java/JNI.h"
+#include "XLObject.h"
 
 static const char* g_moduleName = NULL;
+#endif
 
 // Make an excel string
 LPSTR XLUtil::MakeExcelString(const char* string)
@@ -99,6 +102,8 @@ void XLUtil::CopyValue(LPXLOPER xloperSrc, LPXLOPER xloperDst)
 	memcpy(xloperDst, xloperSrc, sizeof(XLOPER));
 	xloperDst->xltype = (xloperSrc->xltype & ~(xlbitXLFree | xlbitDLLFree));
 }
+
+#ifndef XLUTIL_ONLY
 
 void XLUtil::ThrowExcel4Exception(JNIEnv* env, int fRes)
 {
@@ -216,4 +221,6 @@ bool XLUtil::RegisterNatives(JNIEnv *env, const char* moduleName)
 	
 	return true;
 }
+
+#endif // XLUTIL_ONLY
 
