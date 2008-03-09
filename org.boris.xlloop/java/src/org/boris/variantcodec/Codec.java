@@ -78,9 +78,6 @@ public class Codec {
             dr = decodeString(tr);
             tr.readUntil(endChar);
             break;
-        case '!':
-            dr = decodeError(tr);
-            tr.readUntil(endChar);
         default:
             dr = decodeNumber(firstChar, endChar, tr);
             break;
@@ -100,25 +97,6 @@ public class Codec {
         } else {
             return new VTLong(Long.parseLong(s));
         }
-    }
-
-    private static Variant decodeError(TokenReader tr) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        char c = 0;
-        while (c != '\"') {
-            c = (char) tr.read();
-            switch (c) {
-            case '\\':
-                sb.append((char) tr.read());
-                break;
-            case '!':
-                break;
-            default:
-                sb.append(c);
-                break;
-            }
-        }
-        return new VTError(sb.toString());
     }
 
     private static Variant decodeString(TokenReader tr) throws IOException {
@@ -155,9 +133,6 @@ public class Codec {
                 break;
             case '\"':
                 coll.add(decodeString(tr));
-                break;
-            case '!':
-                coll.add(decodeError(tr));
                 break;
             default:
                 endblock = false;

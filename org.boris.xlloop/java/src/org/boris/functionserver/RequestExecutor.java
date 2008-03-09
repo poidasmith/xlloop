@@ -21,6 +21,7 @@ public class RequestExecutor {
     public void connect() throws IOException {
         if (socket == null) {
             socket = new Socket(address, port);
+            protocol.initialise(socket);
         }
     }
 

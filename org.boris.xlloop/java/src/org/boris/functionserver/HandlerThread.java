@@ -6,6 +6,7 @@ import java.net.Socket;
 public class HandlerThread extends Thread {
     private Server server;
     private Socket socket;
+    private RequestProtocol protocol = new RequestProtocol();
 
     public HandlerThread(Server server, Socket socket) {
         this.server = server;
@@ -15,7 +16,7 @@ public class HandlerThread extends Thread {
     public void run() {
         while (!socket.isClosed()) {
             try {
-                server.handleRequest(socket);
+                server.handleRequest(protocol, socket);
             } catch (IOException e) {
                 e.printStackTrace();
                 break;

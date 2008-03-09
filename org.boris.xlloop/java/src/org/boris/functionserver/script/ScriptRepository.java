@@ -13,14 +13,7 @@ public class ScriptRepository {
         return null;
     }
 
-    public ScriptHelp getHelp(String name) {
+    public String[] getScriptNames() {
         return null;
-    }
-
-    public EditableScript checkout(String name) {
-        return null;
-    }
-
-    public void commit(String name, EditableScript script) {
     }
 }

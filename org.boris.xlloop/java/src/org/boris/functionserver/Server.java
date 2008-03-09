@@ -1,6 +1,7 @@
 package org.boris.functionserver;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
@@ -13,7 +14,6 @@ import org.boris.variantcodec.Variant;
 
 public class Server {
     private Map<String, RequestHandler> handlers = new HashMap();
-    private RequestProtocol protocol = new RequestProtocol();
 
     public static void main(String[] args) throws Exception {
         ServerSocket ss = new ServerSocket(5454);
@@ -22,6 +22,11 @@ public class Server {
 
         while (true) {
             Socket s = ss.accept();
+            // Only accept sockets from same machine for now
+            if (s.getInetAddress() == null ||
+                    !s.getInetAddress().equals(InetAddress.getLocalHost())) {
+                s.close();
+            }
             HandlerThread h = new HandlerThread(server, s);
             h.start();
         }
@@ -31,14 +36,15 @@ public class Server {
         handlers.put("Echo", new EchoHandler());
     }
 
-    void handleRequest(Socket socket) throws IOException {
+    void handleRequest(RequestProtocol protocol, Socket socket)
+            throws IOException {
         try {
             String msg = protocol.receive(socket);
             if (msg == null) {
                 return;
             }
-            System.out.println(protocol.getLastType());
-            System.out.println(msg);
+            // System.out.println(protocol.getLastType());
+            // System.out.println(msg);
             if (protocol.hasError()) {
                 throw new IOException("Protocol error: " + msg);
             }
