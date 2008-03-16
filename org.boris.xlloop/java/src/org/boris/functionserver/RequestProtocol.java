@@ -12,21 +12,23 @@ import java.io.StringWriter;
 import java.net.Socket;
 import java.net.SocketException;
 
-import org.boris.variantcodec.Codec;
+import org.boris.variantcodec.StringCodec;
 import org.boris.variantcodec.Variant;
 
 public class RequestProtocol {
     public static final String TYPE_OK = "Ok";
     public static final String TYPE_ERROR = "Error";
-    private String lastType;
+    public static final boolean DEBUG = false;
+    protected String lastType;
 
     public void initialise(Socket socket) throws SocketException {
         socket.setKeepAlive(true);
+        socket.setPerformancePreferences(0,1,0);
     }
 
     public void send(Socket socket, String type, Variant data)
             throws IOException {
-        send(socket, type, Codec.encodeDefault(data));
+        send(socket, type, StringCodec.encodeDefault(data));
     }
 
     public void sendQuietly(Socket socket, Exception error) {
@@ -62,32 +64,54 @@ public class RequestProtocol {
         lastType = type;
         OutputStream out = socket.getOutputStream();
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(out));
-        bw.write(type);
-        bw.newLine();
-        bw.write(Integer.toString(data.length()));
-        bw.newLine();
-        bw.write(data);
-        bw.write(0); // delimiter
-        bw.flush();
+        if(DEBUG) {
+            StringBuilder sb = new StringBuilder();
+            sb.append(type);
+            sb.append("\n");
+            sb.append(Integer.toString(data.length()));
+            sb.append("\n");
+            sb.append(data);
+            System.out.println(sb.toString());
+            bw.write(sb.toString());
+            bw.write(0); // delimiter
+            bw.flush();
+        } else {
+            bw.write(type);
+            bw.newLine();
+            bw.write(Integer.toString(data.length()));
+            bw.newLine();
+            bw.write(data);
+            bw.write(0); // delimiter
+            bw.flush();
+        }
     }
 
-    public String receive(Socket socket) throws IOException {
+    public Variant receive(Socket socket) throws IOException {
         if (socket.isClosed()) {
             return null;
         }
         InputStream str = socket.getInputStream();
         BufferedReader br = new BufferedReader(new InputStreamReader(str));
         lastType = br.readLine();
+        if(DEBUG) {
+            System.out.println(lastType);
+        }
         if (lastType == null) {
             socket.close();
             return null;
         }
         int size = Integer.parseInt(br.readLine());
+        if(DEBUG) {
+            System.out.println(size);
+        }
         char[] buf = new char[size];
         br.read(buf);
         while (br.read() != 0)
             ; // read until delimiter
-        return new String(buf);
+        if(DEBUG) {
+            System.out.println(new String(buf));
+        }
+        return StringCodec.decode(new String(buf));
     }
 
     public String getLastType() {

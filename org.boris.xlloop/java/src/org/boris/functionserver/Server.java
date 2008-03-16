@@ -1,14 +1,12 @@
 package org.boris.functionserver;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.boris.functionserver.handler.EchoHandler;
-import org.boris.variantcodec.Codec;
 import org.boris.variantcodec.VTStruct;
 import org.boris.variantcodec.Variant;
 
@@ -23,9 +21,13 @@ public class Server {
         while (true) {
             Socket s = ss.accept();
             // Only accept sockets from same machine for now
+            /*
             if (s.getInetAddress() == null ||
                     !s.getInetAddress().equals(InetAddress.getLocalHost())) {
                 s.close();
+            }*/
+            if(RequestProtocol.DEBUG) {
+                System.out.println("Connection received");
             }
             HandlerThread h = new HandlerThread(server, s);
             h.start();
@@ -39,7 +41,7 @@ public class Server {
     void handleRequest(RequestProtocol protocol, Socket socket)
             throws IOException {
         try {
-            String msg = protocol.receive(socket);
+            Variant msg = protocol.receive(socket);
             if (msg == null) {
                 return;
             }
@@ -53,7 +55,7 @@ public class Server {
             if (handler == null) {
                 throw new RequestException("No handler found for: " + type);
             }
-            VTStruct args = (VTStruct) Codec.decode(msg);
+            VTStruct args = (VTStruct) msg;
             Variant res = handler.execute(args);
             protocol.send(socket, RequestProtocol.TYPE_OK, res);
         } catch (RequestException e) {

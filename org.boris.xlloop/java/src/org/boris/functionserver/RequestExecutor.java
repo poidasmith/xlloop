@@ -4,14 +4,14 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 
-import org.boris.variantcodec.Codec;
+import org.boris.variantcodec.VTString;
 import org.boris.variantcodec.Variant;
 
 public class RequestExecutor {
     private Socket socket;
     private InetAddress address;
     private int port;
-    private RequestProtocol protocol = new RequestProtocol();
+    private RequestProtocol protocol = new BinaryRequestProtocol();
 
     public RequestExecutor(InetAddress add, int port) {
         this.address = add;
@@ -33,11 +33,11 @@ public class RequestExecutor {
             IOException {
         connect();
         protocol.send(socket, request.getType(), request.getArgs());
-        String msg = protocol.receive(socket);
+        Variant msg = protocol.receive(socket);
         if (protocol.hasError()) {
-            throw new RequestException(msg);
+            throw new RequestException(((VTString)msg).get());
         }
 
-        return Codec.decode(msg);
+        return msg;
     }
 }
