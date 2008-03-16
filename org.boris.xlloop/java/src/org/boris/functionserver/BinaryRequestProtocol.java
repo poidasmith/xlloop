@@ -29,7 +29,10 @@ public class BinaryRequestProtocol extends RequestProtocol {
     
     public Variant receive(Socket socket) throws IOException {
         InputStream is = new BufferedInputStream(socket.getInputStream());
-        lastType = ((VTString) BinaryCodec.decode(is)).get();
+        VTString t = (VTString) BinaryCodec.decode(is);
+        if(t == null) 
+            return null;
+        lastType = t.get();
         return BinaryCodec.decode(is); 
     }
 }

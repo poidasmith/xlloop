@@ -19,18 +19,7 @@ public class Server {
         server.initialise();
 
         while (true) {
-            Socket s = ss.accept();
-            // Only accept sockets from same machine for now
-            /*
-            if (s.getInetAddress() == null ||
-                    !s.getInetAddress().equals(InetAddress.getLocalHost())) {
-                s.close();
-            }*/
-            if(RequestProtocol.DEBUG) {
-                System.out.println("Connection received");
-            }
-            HandlerThread h = new HandlerThread(server, s);
-            h.start();
+            new HandlerThread(server, ss.accept()).start();
         }
     }
 
@@ -45,8 +34,6 @@ public class Server {
             if (msg == null) {
                 return;
             }
-            // System.out.println(protocol.getLastType());
-            // System.out.println(msg);
             if (protocol.hasError()) {
                 throw new IOException("Protocol error: " + msg);
             }
