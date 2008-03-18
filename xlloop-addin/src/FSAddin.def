@@ -8,3 +8,4 @@ EXPORTS
 	xlAutoRemove
 	xlAddInManagerInfo
 	FSExecute
+	FSExecuteVol

@@ -49,7 +49,7 @@ __declspec(dllexport) int WINAPI xlAutoOpen(void)
 		NULL, "1", "General", NULL, NULL, NULL, NULL);
 
 	// Register execute function (volatile version)
-	res = XLUtil::RegisterFunction(&xDLL, "FSExecute", "RRRRR!", "FSV", 
+	res = XLUtil::RegisterFunction(&xDLL, "FSExecuteVol", "RRRRR!", "FSV", 
 		NULL, "1", "General", NULL, NULL, NULL, NULL);
 
 	// Free the XLL filename
@@ -107,6 +107,26 @@ __declspec(dllexport) LPXLOPER WINAPI xlAddInManagerInfo(LPXLOPER xAction)
 	return (LPXLOPER) &xInfo;
 }
 
+Variant* ConvertX(LPXLOPER x);
+Variant* ConvertXArray(LPXLOPER x)
+{
+	int rows = x->val.array.rows;
+	int cols = x->val.array.columns;
+	if(rows == 1 && cols == 1) {
+		return ConvertX(&x->val.array.lparray[0]);
+	}
+	VTCollection* colr = new VTCollection;
+	for(int i = 0; i < rows; i++) {
+		VTCollection* colc = new VTCollection;
+		for(int j = 0; j < cols; j++) {
+			colc->add(ConvertX(&x->val.array.lparray[i * cols + j]));
+		}
+		colr->add(colc);
+	}
+
+	return colr;
+}
+
 Variant* ConvertX(LPXLOPER x)
 {
 	if(x == NULL) return NULL;
@@ -116,27 +136,48 @@ Variant* ConvertX(LPXLOPER x)
 	case xltypeBigData: 
 		return NULL;
 	case xltypeBool: 
-		return NULL;
+		return new VTLong(x->val.boolean);
 	case xltypeErr: 
 		return NULL;
 	case xltypeFlow: 
 		return NULL;
 	case xltypeInt: 
-		return NULL;
+		return new VTLong(x->val.w);
 	case xltypeMissing: 
 		return NULL;
 	case xltypeMulti: 
-		return NULL;
+		return ConvertXArray(x);
 	case xltypeNil: 
 		return NULL;
 	case xltypeNum: 
-		return NULL;
+		return new VTDouble(x->val.num);
 	case xltypeRef: 
-		return NULL;
 	case xltypeSRef: 
+		{
+			LPXLOPER xMulti = (LPXLOPER) malloc(sizeof(XLOPER));
+			XLOPER xTempMulti;
+			xTempMulti.xltype = xltypeInt;
+			xTempMulti.val.w = xltypeMulti;
+
+			if ( xlretUncalced ==
+					Excel4( xlCoerce, (LPXLOPER) xMulti, 2, (LPXLOPER) x,
+								(LPXLOPER) &xTempMulti ) )
+			{
+				free(xMulti);
+				return 0;
+			}
+
+			return ConvertXArray(xMulti);
+		}
 		return NULL;
 	case xltypeStr: 
-		return new VTString(x->val.str);
+		{
+			char chars[MAX_PATH];
+			int len = x->val.str[0];
+			memcpy(chars, &x->val.str[1], len);
+			chars[len] = 0;
+			return new VTString(chars);
+		}
 	}
 
 	return NULL;
@@ -145,23 +186,53 @@ Variant* ConvertX(LPXLOPER x)
 LPXLOPER ConvertV(Variant* v)
 {
 	if(v == NULL) return NULL;
-	LPXLOPER xl = new XLOPER;
-	xl->xltype = xltypeErr | xlbitXLFree;
-	xl->val.str = "#Unknown Error";
-
+	LPXLOPER xl = (LPXLOPER) malloc(sizeof(XLOPER));
+	xl->xltype = xltypeStr | xlbitXLFree;
+	xl->val.str = " #Unknown Error";
 
 	switch(v->getType()) {
 	case VSTRUCT:
 		break;
 	case VCOLLECTION:
+		{
+			VTCollection* coll = (VTCollection*) v;
+			int rows = coll->size();
+			Variant* v0 = coll->get(0);
+			if(v0->getType() != VCOLLECTION) {
+				return NULL;
+			}
+			int cols = ((VTCollection*)v0)->size();
+			xl->val.array.rows = rows;
+			xl->val.array.columns = cols;
+			xl->val.array.lparray = (LPXLOPER) malloc(sizeof(XLOPER) * rows * cols);
+			for(int i = 0; i < rows; i++) {
+				Variant* vi = coll->get(i);
+				if(vi == NULL || v->getType() != VCOLLECTION) {
+					free (xl->val.array.lparray);
+					return NULL;
+				}
+				VTCollection* vci = (VTCollection*) vi;
+				int csize = vci->size();
+				for(int j = 0; j < csize; j++) {
+					LPXLOPER pxl = ConvertV(vci->get(j));
+					memcpy(&(xl->val.array.lparray[rows * i + j]), pxl, sizeof(XLOPER));
+				}
+			}
+			xl->xltype = xltypeMulti | xlbitXLFree;
+			return xl;
+		}
 		break;
 	case VSTRING:
 		xl->xltype = xltypeStr | xlbitXLFree;
-		xl->val.str = _strdup(((VTString*)v)->get());
+		xl->val.str = XLUtil::MakeExcelString(((VTString*)v)->get());
 		break;
 	case VDOUBLE:
+		xl->xltype = xltypeNum | xlbitXLFree;
+		xl->val.num = ((VTDouble*)v)->get();
 		break;
 	case VLONG:
+		xl->xltype = xltypeNum | xlbitXLFree;
+		xl->val.num = ((VTLong*)v)->get();
 		break;
 	}
 
@@ -172,21 +243,39 @@ __declspec(dllexport) LPXLOPER WINAPI FSExecute(LPXLOPER name, LPXLOPER v0, LPXL
 {
 	if(g_protocol == NULL) {
 		g_protocol = new Protocol("localhost", 5454);
-		g_protocol->connect();
+	}
+
+	if(g_protocol->connect()) {
+		static XLOPER err;
+		err.xltype = xltypeStr;
+		err.val.str = " #Could not connect to server  ";
+		return &err;
 	}
 
 	VTStruct* args = new VTStruct;
 	args->add("name", ConvertX(name));
 	VTCollection* coll = new VTCollection;
-	coll->add(ConvertX(v0));
-	coll->add(ConvertX(v1));
-	coll->add(ConvertX(v2));
+	Variant* vv0 = ConvertX(v0); if(vv0) coll->add(vv0);
+	Variant* vv1 = ConvertX(v1); if(vv1) coll->add(vv1);
+	Variant* vv2 = ConvertX(v2); if(vv2) coll->add(vv2);
 	args->add("args", coll);
 	Variant* res = g_protocol->execute("Exec", args);
+	if(!g_protocol->isConnected()) {
+		static XLOPER err;
+		err.xltype = xltypeStr;
+		err.val.str = " #Could not connect to server  ";
+		return &err;
+	}
 	LPXLOPER xres = ConvertV(res);
 	delete args;
 	delete res;
+
 	return xres;
+}
+
+__declspec(dllexport) LPXLOPER WINAPI FSExecuteVol(LPXLOPER name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2)
+{
+	return FSExecute(name, v0, v1, v2);
 }
 
 #ifdef __cplusplus
