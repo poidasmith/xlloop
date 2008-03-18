@@ -49,7 +49,7 @@ __declspec(dllexport) int WINAPI xlAutoOpen(void)
 		NULL, "1", "General", NULL, NULL, NULL, NULL);
 
 	// Register execute function (volatile version)
-	res = XLUtil::RegisterFunction(&xDLL, "FSExecuteVol", "RRRRR!", "FSV", 
+	res = XLUtil::RegisterFunction(&xDLL, "FSExecuteVolatile", "RRRRR!", "FSV", 
 		NULL, "1", "General", NULL, NULL, NULL, NULL);
 
 	// Free the XLL filename
@@ -208,7 +208,7 @@ LPXLOPER ConvertV(Variant* v)
 			for(int i = 0; i < rows; i++) {
 				Variant* vi = coll->get(i);
 				if(vi == NULL || v->getType() != VCOLLECTION) {
-					free (xl->val.array.lparray);
+					free(xl->val.array.lparray);
 					return NULL;
 				}
 				VTCollection* vci = (VTCollection*) vi;
@@ -216,6 +216,7 @@ LPXLOPER ConvertV(Variant* v)
 				for(int j = 0; j < csize; j++) {
 					LPXLOPER pxl = ConvertV(vci->get(j));
 					memcpy(&(xl->val.array.lparray[rows * i + j]), pxl, sizeof(XLOPER));
+					free(pxl);
 				}
 			}
 			xl->xltype = xltypeMulti | xlbitXLFree;
@@ -273,7 +274,7 @@ __declspec(dllexport) LPXLOPER WINAPI FSExecute(LPXLOPER name, LPXLOPER v0, LPXL
 	return xres;
 }
 
-__declspec(dllexport) LPXLOPER WINAPI FSExecuteVol(LPXLOPER name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2)
+__declspec(dllexport) LPXLOPER WINAPI FSExecuteVolatile(LPXLOPER name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2)
 {
 	return FSExecute(name, v0, v1, v2);
 }
