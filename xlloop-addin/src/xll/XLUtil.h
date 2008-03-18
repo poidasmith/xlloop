@@ -14,7 +14,7 @@
 #include "../common/Runtime.h"
 #include "xlcall.h"
 
-#ifndef XLUTIL_ONLY
+#ifndef NO_JAVA
 #include <jni.h>
 #endif
 
@@ -36,7 +36,7 @@ public:
 
 	static void CopyValue(LPXLOPER xloperSrc, LPXLOPER xloperDst);
 
-#ifndef XLUTIL_ONLY
+#ifndef NO_JAVA
 
 	static bool RegisterNatives(JNIEnv* env, const char* moduleName);
 	static void ThrowExcel4Exception(JNIEnv* env, int fRes);
@@ -48,7 +48,7 @@ private:
 	static jstring JNICALL GetLastError(JNIEnv* env, jobject self);
 	static jstring JNICALL GetModuleName(JNIEnv* env, jobject self);
 
-#endif // XLUTIL_ONLY
+#endif // NO_JAVA
 
 };
 

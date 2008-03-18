@@ -11,7 +11,7 @@
 #include "XLUtil.h"
 #include "../common/Log.h"
 
-#ifndef XLUTIL_ONLY
+#ifndef NO_JAVA
 #include "../java/JNI.h"
 #include "XLObject.h"
 
@@ -74,9 +74,7 @@ int XLUtil::RegisterFunction(LPXLOPER xllName,
 	}
 
 	if(res != 0) {
-		char temp[MAX_PATH];
-		sprintf(temp, "Failed to register %s\n", procedure);
-		OutputDebugStr(temp);
+		Log::Error("Failed to register %s\n", procedure);
 	}
 
 	// Free strings
@@ -103,7 +101,7 @@ void XLUtil::CopyValue(LPXLOPER xloperSrc, LPXLOPER xloperDst)
 	xloperDst->xltype = (xloperSrc->xltype & ~(xlbitXLFree | xlbitDLLFree));
 }
 
-#ifndef XLUTIL_ONLY
+#ifndef NO_JAVA
 
 void XLUtil::ThrowExcel4Exception(JNIEnv* env, int fRes)
 {

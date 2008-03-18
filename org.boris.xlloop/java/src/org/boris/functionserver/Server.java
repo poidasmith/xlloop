@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.boris.functionserver.handler.EchoHandler;
+import org.boris.functionserver.handler.ExecuteHandler;
 import org.boris.variantcodec.VTStruct;
 import org.boris.variantcodec.Variant;
 
@@ -25,6 +26,7 @@ public class Server {
 
     private void initialise() {
         handlers.put("Echo", new EchoHandler());
+        handlers.put("Exec", new ExecuteHandler());
     }
 
     void handleRequest(RequestProtocol protocol, Socket socket)
