@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 
+import org.boris.functionserver.protocol.BinaryRequestProtocol;
 import org.boris.variantcodec.VTString;
 import org.boris.variantcodec.Variant;
 

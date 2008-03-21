@@ -3,12 +3,14 @@ package org.boris.functionserver;
 import java.io.IOException;
 import java.net.Socket;
 
+import org.boris.functionserver.protocol.BinaryRequestProtocol;
+
 public class HandlerThread extends Thread {
-    private Server server;
+    private FunctionServer server;
     private Socket socket;
     private RequestProtocol protocol = new BinaryRequestProtocol();
 
-    public HandlerThread(Server server, Socket socket) {
+    public HandlerThread(FunctionServer server, Socket socket) {
         this.server = server;
         this.socket = socket;
     }
@@ -19,7 +21,7 @@ public class HandlerThread extends Thread {
             try {
                 server.handleRequest(protocol, socket);
             } catch (IOException e) {
-                e.printStackTrace();
+                System.err.println(e.getMessage());
                 break;
             }
         }

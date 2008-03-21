@@ -6,27 +6,44 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.boris.functionserver.handler.EchoHandler;
-import org.boris.functionserver.handler.ExecuteHandler;
 import org.boris.variantcodec.VTStruct;
 import org.boris.variantcodec.Variant;
 
-public class Server {
-    private Map<String, RequestHandler> handlers = new HashMap();
+public class FunctionServer 
+{
+    private Map<String, RequestHandler> reqHandlers = new HashMap();
+    private Map<String, FunctionHandler> funcHandlers = new HashMap();
+    private int port;
 
-    public static void main(String[] args) throws Exception {
-        ServerSocket ss = new ServerSocket(5454);
-        Server server = new Server();
-        server.initialise();
+    public FunctionServer(int port) {
+        this.port = port;
+    }
+    
+    public void run() throws IOException {
+        ServerSocket ss = new ServerSocket(port);
 
         while (true) {
-            new HandlerThread(server, ss.accept()).start();
+            new HandlerThread(this, ss.accept()).start();
         }
     }
+    
+    public void addRequestHandler(String name, RequestHandler handler) {
+        reqHandlers.put(name, handler);
+    }
+    
+    public void removeRequestHandler(String name) {
+        reqHandlers.remove(name);
+    }
+    
+    public void addFunctionHandler(String name, FunctionHandler handler) {
+        funcHandlers.put(name, handler);
+    }
+    
+    public void removeFunctionHandler(String name) {
+        funcHandlers.remove(name);
+    }
 
-    private void initialise() {
-        handlers.put("Echo", new EchoHandler());
-        handlers.put("Exec", new ExecuteHandler());
+    void handleFunction(RequestProtocol protocol, Socket socket) throws IOException {
     }
 
     void handleRequest(RequestProtocol protocol, Socket socket)
@@ -40,7 +57,7 @@ public class Server {
                 throw new IOException("Protocol error: " + msg);
             }
             String type = protocol.getLastType();
-            RequestHandler handler = handlers.get(type);
+            RequestHandler handler = reqHandlers.get(type);
             if (handler == null) {
                 throw new RequestException("No handler found for: " + type);
             }

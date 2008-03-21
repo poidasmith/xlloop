@@ -26,10 +26,10 @@ static Protocol* g_protocol = NULL;
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
-	if(fdwReason == DLL_PROCESS_ATTACH)
-	{
+	if(fdwReason == DLL_PROCESS_ATTACH) {
 		g_hinstance = hinstDLL;
 		g_ini = INI::LoadIniFile(hinstDLL);
+		Log::Init(hinstDLL, iniparser_getstr(g_ini, LOG_FILE), iniparser_getstr(g_ini, LOG_LEVEL));
 	}
 
 	return 1;
@@ -89,6 +89,10 @@ __declspec(dllexport) int WINAPI xlAutoRemove(void)
 	return 1;
 }
 
+__declspec(dllexport) void WINAPI xlAutoFree(LPXLOPER px)
+{
+}
+
 __declspec(dllexport) LPXLOPER WINAPI xlAddInManagerInfo(LPXLOPER xAction)
 {
 	static XLOPER xInfo, xIntAction, xIntType;
@@ -108,7 +112,8 @@ __declspec(dllexport) LPXLOPER WINAPI xlAddInManagerInfo(LPXLOPER xAction)
 }
 
 Variant* ConvertX(LPXLOPER x);
-Variant* ConvertXArray(LPXLOPER x)
+
+Variant* ConvertXArray(LPXLOPER x, bool freex = false)
 {
 	int rows = x->val.array.rows;
 	int cols = x->val.array.columns;
@@ -116,13 +121,18 @@ Variant* ConvertXArray(LPXLOPER x)
 		return ConvertX(&x->val.array.lparray[0]);
 	}
 
-	VTCollection* colr = new VTCollection;
+	VTCollection* colr = new VTCollection();
 	for(int i = 0; i < rows; i++) {
-		VTCollection* colc = new VTCollection;
+		VTCollection* colc = new VTCollection();
 		for(int j = 0; j < cols; j++) {
-			colc->add(ConvertX(&(x->val.array.lparray[i * cols + j])));
+			Variant* v = ConvertX(&(x->val.array.lparray[i * cols + j]));
+			colc->add(v);
 		}
 		colr->add(colc);
+	}
+
+	if(freex) {
+		Excel4(xlFree, 0, 1, x);
 	}
 
 	return colr;
@@ -145,7 +155,7 @@ Variant* ConvertX(LPXLOPER x)
 	case xltypeInt: 
 		return new VTLong(x->val.w);
 	case xltypeMissing: 
-		return NULL;
+		return new VTNull();
 	case xltypeMulti: 
 		return ConvertXArray(x);
 	case xltypeNil: 
@@ -155,22 +165,14 @@ Variant* ConvertX(LPXLOPER x)
 	case xltypeRef: 
 	case xltypeSRef: 
 		{
-			LPXLOPER xMulti = (LPXLOPER) malloc(sizeof(XLOPER));
+			XLOPER xMulti;
 			XLOPER xTempMulti;
 			xTempMulti.xltype = xltypeInt;
 			xTempMulti.val.w = xltypeMulti;
 
-			if ( xlretUncalced ==
-					Excel4( xlCoerce, (LPXLOPER) xMulti, 2, (LPXLOPER) x,
-								(LPXLOPER) &xTempMulti ) )
-			{
-				free(xMulti);
-				return NULL;
+			if(Excel4( xlCoerce, (LPXLOPER) &xMulti, 2, (LPXLOPER)x, (LPXLOPER)&xTempMulti ) != xlretUncalced) {
+				return ConvertXArray(&xMulti, true);
 			}
-
-			Variant* v = ConvertXArray(xMulti);
-			free(x);
-			return v;
 		}
 	case xltypeStr: 
 		{
@@ -185,12 +187,10 @@ Variant* ConvertX(LPXLOPER x)
 	return NULL;
 }
 
-LPXLOPER ConvertV(const Variant* v)
+LPXLOPER ConvertV(const Variant* v, LPXLOPER xl = NULL)
 {
 	if(v == NULL) return NULL;
-	LPXLOPER xl = (LPXLOPER) malloc(sizeof(XLOPER));
-	xl->xltype = xltypeStr | xlbitXLFree;
-	xl->val.str = " #Unknown Error";
+	if(xl == NULL) xl = (LPXLOPER) malloc(sizeof(XLOPER));
 
 	switch(v->getType()) {
 	case VSTRUCT:
@@ -205,11 +205,11 @@ LPXLOPER ConvertV(const Variant* v)
 				const Variant* vi = struc->getValue(i);
 				xl->val.array.lparray[rows * i].xltype = xltypeStr;
 				xl->val.array.lparray[rows * i].val.str = XLUtil::MakeExcelString(key);
-				LPXLOPER pxl = ConvertV(vi);
-				memcpy(&(xl->val.array.lparray[2 * i + 1]), pxl, sizeof(XLOPER));
-				free(pxl);
+				XLOPER txl;
+				ConvertV(vi, (LPXLOPER) &txl);
+				memcpy(&(xl->val.array.lparray[2 * i + 1]), (LPXLOPER) &txl, sizeof(XLOPER));
 			}
-			xl->xltype = xltypeMulti | xlbitXLFree;
+			xl->xltype = xltypeMulti;
 		}
 		break;
 	case VCOLLECTION:
@@ -235,26 +235,35 @@ LPXLOPER ConvertV(const Variant* v)
 				int csize = vci->size();
 				for(int j = 0; j < csize; j++) {
 					LPXLOPER pxl = ConvertV(vci->get(j));
-					memcpy(&(xl->val.array.lparray[rows * i + j]), pxl, sizeof(XLOPER));
+					memcpy((LPXLOPER) &(xl->val.array.lparray[cols * i + j]), (LPXLOPER) pxl, sizeof(XLOPER));
 					free(pxl);
 				}
 			}
-			xl->xltype = xltypeMulti | xlbitXLFree;
+			xl->xltype = xltypeMulti;
 		}
 		break;
 	case VSTRING:
-		xl->xltype = xltypeStr | xlbitXLFree;
+		xl->xltype = xltypeStr;
 		xl->val.str = XLUtil::MakeExcelString(((VTString*)v)->get());
 		break;
 	case VDOUBLE:
-		xl->xltype = xltypeNum | xlbitXLFree;
+		xl->xltype = xltypeNum;
 		xl->val.num = ((VTDouble*)v)->get();
 		break;
 	case VLONG:
-		xl->xltype = xltypeNum | xlbitXLFree;
+		xl->xltype = xltypeNum;
 		xl->val.num = ((VTLong*)v)->get();
 		break;
+	case VNULL:
+		xl->xltype = xltypeMissing;
+		break;
+	default:
+		xl->xltype = xltypeStr;
+		xl->val.str = " #Unknown Error";
+		break;
 	}
+
+	xl->xltype |= xlbitXLFree;
 
 	return xl;
 }

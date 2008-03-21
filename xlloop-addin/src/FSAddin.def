@@ -6,6 +6,7 @@ EXPORTS
 	xlAutoRegister
 	xlAutoAdd
 	xlAutoRemove
+	xlAutoFree
 	xlAddInManagerInfo
 	FSExecute
 	FSExecuteVolatile
