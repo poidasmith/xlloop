@@ -3,69 +3,85 @@ package org.boris.functionserver;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.Map;
 
+import org.boris.variantcodec.VTCollection;
 import org.boris.variantcodec.VTStruct;
 import org.boris.variantcodec.Variant;
 
 public class FunctionServer 
 {
-    private Map<String, RequestHandler> reqHandlers = new HashMap();
-    private Map<String, FunctionHandler> funcHandlers = new HashMap();
     private int port;
+    private FunctionHandler fHandler;
+    private RequestHandler rHandler;
 
     public FunctionServer(int port) {
         this.port = port;
+    }
+    
+    public FunctionServer(int port, FunctionHandler f, RequestHandler r) {
+        this.port = port;
+        this.fHandler = f;
+        this.rHandler = r;
+    }
+    
+    public void setFunctionHandler(FunctionHandler h) {
+        this.fHandler = h;
+    }
+    
+    public void setRequestHandler(RequestHandler h) { 
+        this.rHandler = h;
     }
     
     public void run() throws IOException {
         ServerSocket ss = new ServerSocket(port);
 
         while (true) {
-            new HandlerThread(this, ss.accept()).start();
+            new HandlerThread(ss.accept()).start();
         }
     }
     
-    public void addRequestHandler(String name, RequestHandler handler) {
-        reqHandlers.put(name, handler);
-    }
-    
-    public void removeRequestHandler(String name) {
-        reqHandlers.remove(name);
-    }
-    
-    public void addFunctionHandler(String name, FunctionHandler handler) {
-        funcHandlers.put(name, handler);
-    }
-    
-    public void removeFunctionHandler(String name) {
-        funcHandlers.remove(name);
-    }
+    private class HandlerThread extends Thread {
+        private Socket socket;
+        private RequestProtocol protocol = new BinaryRequestProtocol();
 
-    void handleFunction(RequestProtocol protocol, Socket socket) throws IOException {
-    }
-
-    void handleRequest(RequestProtocol protocol, Socket socket)
-            throws IOException {
-        try {
-            Variant msg = protocol.receive(socket);
-            if (msg == null) {
-                return;
+        public HandlerThread(Socket socket) {
+            this.socket = socket;
+        }
+        
+        public void run() {
+            socket.setPerformancePreferences(0, 1, 0);
+            while (!socket.isClosed()) {
+                try {
+                    Variant msg = protocol.receive(socket);
+                    if (msg == null) {
+                        throw new IOException("Protocol error: " + msg);
+                    }
+                    
+                    Variant res = null;
+                    switch(protocol.getLastType()) {
+                    case RequestProtocol.REQ_TYPE_GENERIC:
+                        res = rHandler.execute(protocol.getLastName(), (VTStruct) msg);
+                        break;
+                    case RequestProtocol.REQ_TYPE_FUNCTION:
+                        res = fHandler.execute(protocol.getLastName(), (VTCollection) msg);
+                        break;
+                    default:
+                        throw new IOException("Unexpected protocol type: " + protocol.getLastType());
+                    }
+                                       
+                    protocol.send(socket, RequestProtocol.TYPE_OK, res);
+                } catch (RequestException e) {
+                    try {
+                        protocol.send(socket, e);
+                    } catch (IOException ex) {
+                        System.err.println(e.getMessage());
+                        break;
+                    }
+                } catch (Exception e) {
+                    System.err.println(e.getMessage());
+                    break;
+                }
             }
-            if (protocol.hasError()) {
-                throw new IOException("Protocol error: " + msg);
-            }
-            String type = protocol.getLastType();
-            RequestHandler handler = reqHandlers.get(type);
-            if (handler == null) {
-                throw new RequestException("No handler found for: " + type);
-            }
-            VTStruct args = (VTStruct) msg;
-            Variant res = handler.execute(args);
-            protocol.send(socket, RequestProtocol.TYPE_OK, res);
-        } catch (RequestException e) {
-            protocol.send(socket, e);
         }
     }
 }

@@ -3,7 +3,7 @@ package org.boris.functionserver;
 import org.boris.variantcodec.VTCollection;
 import org.boris.variantcodec.Variant;
 
-public interface FunctionHandler 
+public interface Function 
 {
-    Variant execute(String name, VTCollection args) throws RequestException;
+    Variant execute(VTCollection args) throws RequestException;
 }

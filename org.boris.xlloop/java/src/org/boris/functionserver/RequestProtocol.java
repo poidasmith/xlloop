@@ -15,18 +15,22 @@ public interface RequestProtocol {
     
     public static final boolean DEBUG = false;
 
-    public abstract void initialise(Socket socket) throws SocketException;
+    public void initialise(Socket socket) throws SocketException;
 
-    public abstract void send(Socket socket, String type, Variant data) throws IOException;
+    public void send(Socket socket, String name, Variant data) throws IOException;
 
-    public abstract void send(Socket socket, Exception error) throws IOException;
+    public void send(Socket socket, int type, String name, Variant data) throws IOException;
 
-    public abstract void send(Socket socket, String type, String data) throws IOException;
+    public void send(Socket socket, Exception error) throws IOException;
 
-    public abstract Variant receive(Socket socket) throws IOException;
+    public void send(Socket socket, String type, String data) throws IOException;
 
-    public abstract String getLastType();
+    public Variant receive(Socket socket) throws IOException;
 
-    public abstract boolean hasError();
+    public int getLastType(); 
+    
+    public String getLastName();
+
+    public boolean hasError();
 
 }

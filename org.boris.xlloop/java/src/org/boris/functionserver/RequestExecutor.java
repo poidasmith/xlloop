@@ -4,8 +4,9 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 
-import org.boris.functionserver.protocol.BinaryRequestProtocol;
+import org.boris.variantcodec.VTCollection;
 import org.boris.variantcodec.VTString;
+import org.boris.variantcodec.VTStruct;
 import org.boris.variantcodec.Variant;
 
 public class RequestExecutor {
@@ -30,13 +31,22 @@ public class RequestExecutor {
         socket.close();
     }
 
-    public Variant execute(Request request) throws RequestException,
-            IOException {
+    public Variant execute(String name, VTCollection args) throws RequestException, IOException {
         connect();
-        protocol.send(socket, request.getType(), request.getArgs());
+        protocol.send(socket, RequestProtocol.REQ_TYPE_FUNCTION, name, args);
+        return receive();
+    }
+
+    public Variant execute(String name, VTStruct args) throws RequestException, IOException {
+        connect();
+        protocol.send(socket, name, args);
+        return receive();
+    }
+
+    private Variant receive() throws RequestException, IOException {
         Variant msg = protocol.receive(socket);
         if (protocol.hasError()) {
-            throw new RequestException(((VTString)msg).get());
+            throw new RequestException(((VTString) msg).get());
         }
 
         return msg;
