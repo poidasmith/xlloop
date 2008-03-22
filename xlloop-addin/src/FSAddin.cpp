@@ -25,6 +25,10 @@ static dictionary* g_ini = NULL;
 // The protocol manager
 static Protocol* g_protocol = NULL;
 
+// INI keys
+#define FS_HOSTNAME ":hostname"
+#define FS_PORT ":port"
+
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
 	if(fdwReason == DLL_PROCESS_ATTACH) {
@@ -38,6 +42,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 		Log::Init(hinstDLL, iniparser_getstr(g_ini, LOG_FILE), iniparser_getstr(g_ini, LOG_LEVEL));
 	}
 
+	// OK
 	return 1;
 }
 
@@ -51,11 +56,11 @@ __declspec(dllexport) int WINAPI xlAutoOpen(void)
 	Excel4(xlGetName, &xDLL, 0);
 
 	// Register execute function
-	int res = XLUtil::RegisterFunction(&xDLL, "FSExecute", "RCPPP", "FS", 
+	int res = XLUtil::RegisterFunction(&xDLL, "FSExecute", "RCPPPPPPPPPP", "FS", 
 		NULL, "1", "General", NULL, NULL, NULL, NULL);
 
 	// Register execute function (volatile version)
-	res = XLUtil::RegisterFunction(&xDLL, "FSExecuteVolatile", "RCPPP!", "FSV", 
+	res = XLUtil::RegisterFunction(&xDLL, "FSExecuteVolatile", "RCPPPPPPPPPP!", "FSV", 
 		NULL, "1", "General", NULL, NULL, NULL, NULL);
 
 	// Free the XLL filename
@@ -113,17 +118,21 @@ __declspec(dllexport) LPXLOPER WINAPI xlAddInManagerInfo(LPXLOPER xAction)
 
 	if(xIntAction.val.w == 1) {
 		xInfo.xltype = xltypeStr | xlbitXLFree;
-		xInfo.val.str = XLUtil::MakeExcelString("Function Server v0.0.1");
+		xInfo.val.str = " Function Server v0.0.1";
 	} 
 
 	return (LPXLOPER) &xInfo;
 }
 
-__declspec(dllexport) LPXLOPER WINAPI FSExecute(char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2)
+__declspec(dllexport) LPXLOPER WINAPI FSExecute(char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, LPXLOPER v4, 
+												LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, LPXLOPER v9)
 {
 	// Create our protocol manager
 	if(g_protocol == NULL) {
-		g_protocol = new Protocol("localhost", 5454);
+		char* hostname = iniparser_getstr(g_ini, FS_HOSTNAME);
+		char* port = iniparser_getstr(g_ini, FS_PORT);
+		g_protocol = new Protocol(hostname == NULL ? "localhost" : hostname, 
+			port == NULL ? 5454 : atoi(port));
 	}
 
 	// Attempt connection
@@ -136,12 +145,16 @@ __declspec(dllexport) LPXLOPER WINAPI FSExecute(char* name, LPXLOPER v0, LPXLOPE
 
 	// Convert the args
 	VTCollection* coll = new VTCollection;
-	while(true) {
-		Variant* vv0 = XLConverter::ConvertX(v0, false); if(vv0) coll->add(vv0); else break;
-		Variant* vv1 = XLConverter::ConvertX(v1, false); if(vv1) coll->add(vv1); else break;
-		Variant* vv2 = XLConverter::ConvertX(v2, false); if(vv2) coll->add(vv2); else break;
-		break;
-	}
+	coll->add(XLConverter::ConvertX(v0));
+	coll->add(XLConverter::ConvertX(v1));
+	coll->add(XLConverter::ConvertX(v2));
+	coll->add(XLConverter::ConvertX(v3));
+	coll->add(XLConverter::ConvertX(v4));
+	coll->add(XLConverter::ConvertX(v5));
+	coll->add(XLConverter::ConvertX(v6));
+	coll->add(XLConverter::ConvertX(v7));
+	coll->add(XLConverter::ConvertX(v8));
+	coll->add(XLConverter::ConvertX(v9));
 
 	// Exec function
 	Variant* res = g_protocol->execFunction(name, coll);
@@ -162,9 +175,12 @@ __declspec(dllexport) LPXLOPER WINAPI FSExecute(char* name, LPXLOPER v0, LPXLOPE
 	return xres;
 }
 
-__declspec(dllexport) LPXLOPER WINAPI FSExecuteVolatile(char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2)
+__declspec(dllexport) LPXLOPER WINAPI FSExecuteVolatile(char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, 
+														LPXLOPER v4, LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, 
+														LPXLOPER v9)
 {
-	return FSExecute(name, v0, v1, v2);
+	// Just call off to main function (as this should have the same behaviour only volatile)
+	return FSExecute(name, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9);
 }
 
 #ifdef __cplusplus

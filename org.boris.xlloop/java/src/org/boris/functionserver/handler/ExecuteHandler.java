@@ -6,7 +6,7 @@ import org.boris.variantcodec.VTCollection;
 import org.boris.variantcodec.VTStruct;
 import org.boris.variantcodec.Variant;
 
-public class ExecuteHandler extends RequestHandler {
+public class ExecuteHandler implements RequestHandler {
 
     public Variant execute(VTStruct args) throws RequestException {
         String function = args.getString("name");
