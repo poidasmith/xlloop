@@ -28,6 +28,10 @@ static Protocol* g_protocol = NULL;
 // INI keys
 #define FS_HOSTNAME ":hostname"
 #define FS_PORT ":port"
+#define FS_ADDIN_NAME ":addin.name"
+#define FS_FUNCTION_NAME ":function.name"
+#define FS_INCLUDE_VOLATILE ":include.volatile"
+#define FS_FUNCTION_NAME_VOLATILE ":function.name.volatile"
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
@@ -56,12 +60,23 @@ __declspec(dllexport) int WINAPI xlAutoOpen(void)
 	Excel4(xlGetName, &xDLL, 0);
 
 	// Register execute function
-	int res = XLUtil::RegisterFunction(&xDLL, "FSExecute", "RCPPPPPPPPPP", "FS", 
+	char* fsName = iniparser_getstr(g_ini, FS_FUNCTION_NAME);
+	if(fsName == NULL) {
+		fsName = "FS";
+	}
+	int res = XLUtil::RegisterFunction(&xDLL, "FSExecute", "RCPPPPPPPPPP", fsName, 
 		NULL, "1", "General", NULL, NULL, NULL, NULL);
 
-	// Register execute function (volatile version)
-	res = XLUtil::RegisterFunction(&xDLL, "FSExecuteVolatile", "RCPPPPPPPPPP!", "FSV", 
-		NULL, "1", "General", NULL, NULL, NULL, NULL);
+	// Register execute function (volatile version (if requested))
+	char* inclVol = iniparser_getstr(g_ini, FS_INCLUDE_VOLATILE);
+	if(inclVol != NULL && strcmp(inclVol, "true") == 0) {
+		char* fsvName = iniparser_getstr(g_ini, FS_FUNCTION_NAME_VOLATILE);
+		if(fsvName == NULL) {
+			fsvName = "FSV";
+		}
+		res = XLUtil::RegisterFunction(&xDLL, "FSExecuteVolatile", "RCPPPPPPPPPP!", fsvName, 
+			NULL, "1", "General", NULL, NULL, NULL, NULL);
+	}
 
 	// Free the XLL filename
 	Excel4(xlFree, 0, 1, (LPXLOPER) &xDLL);
@@ -116,9 +131,16 @@ __declspec(dllexport) LPXLOPER WINAPI xlAddInManagerInfo(LPXLOPER xAction)
 
 	Excel4(xlCoerce, &xIntAction, 2, xAction, &xIntType);
 
+	// Set addin name
 	if(xIntAction.val.w == 1) {
 		xInfo.xltype = xltypeStr | xlbitXLFree;
-		xInfo.val.str = " Function Server v0.0.1";
+		char* addinName = iniparser_getstr(g_ini, FS_ADDIN_NAME);
+		if(addinName == NULL) {
+			addinName = XLUtil::MakeExcelString("Function Server v0.0.1");
+		} else {
+			addinName = XLUtil::MakeExcelString(addinName);
+		}
+		xInfo.val.str = addinName;
 	} 
 
 	return (LPXLOPER) &xInfo;
@@ -157,7 +179,8 @@ __declspec(dllexport) LPXLOPER WINAPI FSExecute(char* name, LPXLOPER v0, LPXLOPE
 	coll->add(XLConverter::ConvertX(v9));
 
 	// Exec function
-	Variant* res = g_protocol->execFunction(name, coll);
+	Variant* res = g_protocol->executeFunction(name, coll);
+	delete coll;
 
 	// Check for error
 	if(!g_protocol->isConnected()) {

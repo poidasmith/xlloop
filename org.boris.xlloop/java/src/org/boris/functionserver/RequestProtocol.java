@@ -6,7 +6,8 @@ import java.net.SocketException;
 
 import org.boris.variantcodec.Variant;
 
-public interface RequestProtocol {
+public interface RequestProtocol 
+{
     public static final int REQ_TYPE_GENERIC = 0;
     public static final int REQ_TYPE_FUNCTION = 1; // Used for excel function
     
@@ -32,5 +33,4 @@ public interface RequestProtocol {
     public String getLastName();
 
     public boolean hasError();
-
 }

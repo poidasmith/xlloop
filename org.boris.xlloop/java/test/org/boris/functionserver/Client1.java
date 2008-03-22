@@ -2,7 +2,7 @@ package org.boris.functionserver;
 
 import java.net.InetAddress;
 
-import org.boris.functionserver.request.EchoRequest;
+import org.boris.variantcodec.VTStruct;
 import org.boris.variantcodec.Variant;
 
 public class Client1 {
@@ -11,27 +11,27 @@ public class Client1 {
                 5454);
 
         long t0 = System.currentTimeMillis();
-        for (int i = 0; i < 10000; i++) {
-            EchoRequest er = new EchoRequest();
-            er.addArg("asdf", 1);
-            er.addArg("num", i);
-            er.addArg("num2", i);
-            er.addArg("num3", i);
-            er.addArg("num4", i);
-            er.addArg("num5", i);
-            er.addArg("num6", i);
-            er.addArg("num7", i);
-            er.addArg("num8", i);
-            er.addArg("num9", i);
-            er.addArg("num23", i);
-            er.addArg("num24", i);
-            er.addArg("num25", i);
-            er.addArg("num26", i);
-            er.addArg("num27", i);
-            er.addArg("num28", i);
-            er.addArg("num29", i);
-            Variant v = re.execute(er);
-            // System.out.println(v);
+        for (int i = 0; i < 10; i++) {
+            VTStruct er = new VTStruct();
+            er.add("asdf", 1);
+            er.add("num", i);
+            er.add("num2", i);
+            er.add("num3", i);
+            er.add("num4", i);
+            er.add("num5", i);
+            er.add("num6", i);
+            er.add("num7", i);
+            er.add("num8", i);
+            er.add("num9", i);
+            er.add("num23", i);
+            er.add("num24", i);
+            er.add("num25", i);
+            er.add("num26", i);
+            er.add("num27", i);
+            er.add("num28", i);
+            er.add("num29", i);
+            Variant v = re.execute("Echo", er);
+            System.out.println(v);
         }
         System.out.println(System.currentTimeMillis() - t0);
 
