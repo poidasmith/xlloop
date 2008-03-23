@@ -79,6 +79,10 @@ public class FunctionServer
                     }
                 } catch (Exception e) {
                     System.err.println(e.getMessage());
+                    try {
+                        socket.close();
+                    } catch (IOException ex) {
+                    }
                     break;
                 }
             }
