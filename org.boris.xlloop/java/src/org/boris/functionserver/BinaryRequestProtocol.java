@@ -69,8 +69,8 @@ public class BinaryRequestProtocol implements RequestProtocol {
         PrintWriter pw = new PrintWriter(sw);
         error.printStackTrace(pw);
         sb.append(error.getMessage());
-        sb.append("\r\n");
-        sb.append(sw.toString().replaceAll("\n", "\r\n"));
+        //sb.append("\n");
+        //sb.append(sw.toString().replaceAll("\r\n", "\n"));
         String s = sb.toString();
         send(socket, TYPE_ERROR, s);
     }

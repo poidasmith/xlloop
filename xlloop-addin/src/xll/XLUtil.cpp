@@ -23,9 +23,9 @@ LPSTR XLUtil::MakeExcelString(const char* string)
 {
 	if(string == NULL) return NULL;
 	size_t len = strlen(string);
-	if(len > 254) len = 254; // Excel strings are limited to 255 chars
+	if(len > 255) len = 255; // Excel strings are limited to 255 chars
 	char* temp = (char *) malloc(len + 2);
-	strcpy(temp + 1, string);
+	memcpy(temp + 1, string, len);
 	temp[0] = (BYTE) len;
 	return temp;
 }
