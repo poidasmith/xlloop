@@ -9,6 +9,7 @@ import java.util.Set;
 import org.boris.functionserver.Function;
 import org.boris.functionserver.FunctionHandler;
 import org.boris.functionserver.RequestException;
+import org.boris.functionserver.RequestProtocol;
 import org.boris.functionserver.util.VariantObjectConverter;
 import org.boris.variantcodec.VTCollection;
 import org.boris.variantcodec.Variant;
@@ -66,7 +67,7 @@ public class ReflectFunctionHandler implements FunctionHandler {
     }
 
     public Variant execute(String name, VTCollection args) throws RequestException {
-        System.out.println(name + args);
+        if(RequestProtocol.DEBUG) System.out.println(name + args);
         Function f = methods.get(name);
         if (f == null) {
             throw new RequestException("#Unknown method: " + name);

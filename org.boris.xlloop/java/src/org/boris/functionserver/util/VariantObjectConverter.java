@@ -282,7 +282,7 @@ public class VariantObjectConverter {
             } else if (Boolean.class.equals(hint) || boolean.class.equals(hint)) {
                 return new Boolean(((VTDouble)obj).booleanValue());
             } else {
-                return new Double(((VTDouble)obj).longValue());
+                return new Double(((VTDouble)obj).doubleValue());
             }
         } else if(obj instanceof VTCollection) {
             return convertArray((VTCollection) obj, hint);
