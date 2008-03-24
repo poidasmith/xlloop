@@ -26,7 +26,7 @@
             	<li>Fast binary protocol (overhead approx. one 10th of a millisecond).
             	<li>Extensible server framework.
             	<li>Reflection-based function adaptor for extremely quick deployment of java methods.
-            	<li>Bean scripting framework adaptor so functions can be written in any BSF-supported language (still work in progress).
+            	<li>Bean scripting framework adaptor so functions can be written in any BSF-supported language.
             	<li>Functions can be dynamically added to excel without restart.
             	</ul> 
             	XLLoop consists of two main components:
@@ -110,6 +110,46 @@ public class ServerTest
 		</div>
 
 		<div class="section">
+			<div class="section-title">Bean Scripting Framework Support</div>
+			<div class="section-content">
+			The following example shows a server that exposes all scripts within a directory (and sub directories) as
+			functions:
+<pre>
+package org.boris.functionserver;
+
+import java.io.File;
+
+import org.boris.functionserver.reflect.ReflectFunctionHandler;
+import org.boris.functionserver.script.ScriptRepository;
+import org.boris.functionserver.util.CompositeFunctionHandler;
+
+public class ServerTest 
+{
+    public static void main(String[] args) throws Exception {
+        FunctionServer fs = new FunctionServer(5600);
+        ReflectFunctionHandler rfh = new ReflectFunctionHandler();
+        ScriptRepository srep = new ScriptRepository(new File("functions"), "Script.");
+        rfh.addMethods("Math.", Math.class);
+        CompositeFunctionHandler cfh = new CompositeFunctionHandler();
+        cfh.add(rfh);
+        cfh.add(srep);
+        fs.setFunctionHandler(cfh);
+        fs.run();
+    }
+}
+</pre>
+	An example script called "mult.js", written in javascript simply multiplies the two numbers entered:
+<pre>
+args[0] * args[1];
+</pre>
+	This can be called from Excel with the configuration above as follows:
+<pre>
+=FS("Script.mult", 45.3, 23)
+</pre>
+			</div>
+		</div>
+
+		<div class="section">
 			<div class="section-title">Useful Code</div>
 			<div class="section-content">
 				A C++ std::iostream implementation for windows socket can be found <a href="tcpstream.html">here</a>.
@@ -119,6 +159,11 @@ public class ServerTest
 		<div class="section">
 			<div class="section-title">Change History</div>
 			<div class="section-content">
+				V0.0.2
+				<ul>
+					<li>Added support for BSF scripting.</li>
+					<li>Bug fixes.</li>
+				</ul>
 				V0.0.1
 				<ul>
 					<li>Initial version.</li>

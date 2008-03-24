@@ -3,7 +3,7 @@
 	<property name="release.dir" value="F:/Development/Releases/"/>
 	<property name="src.dir" value="F:\eclipse\workspace\WinRun4J"/>
 	<property name="release.name" value="xlloop"/>
-	<property name="release.version" value="0.0.1"/>
+	<property name="release.version" value="0.0.2"/>
 	<property name="deploy.dir" value="${release.dir}/${release.name}-${release.version}/xlloop"/>
 	
 	<target name="build">
@@ -14,10 +14,16 @@
 		<mkdir dir="${deploy.dir}/src"/>
 		<mkdir dir="build"/>
 		<javac debug="off" srcdir="../org.boris.variantcodec/java/src" destdir="build">
-			<classpath path="build"/>
+			<classpath>
+				<pathelement location="build"/>
+				<pathelement location="java/ext_jars/bsf.jar"/>
+			</classpath>
 		</javac>
 		<javac debug="off" srcdir="java/src" destdir="build">
-			<classpath path="build"/>
+			<classpath>
+				<pathelement location="build"/>
+				<pathelement location="java/ext_jars/bsf.jar"/>
+			</classpath>
 		</javac>
 		<jar destfile="${deploy.dir}/bin/xlloop.jar">
 			<fileset dir="build">
