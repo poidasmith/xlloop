@@ -1,6 +1,5 @@
 package org.boris.functionserver.script;
 
-import org.apache.bsf.BSFException;
 import org.apache.bsf.BSFManager;
 import org.boris.functionserver.Function;
 import org.boris.functionserver.RequestException;
@@ -31,7 +30,7 @@ public class Script implements Function {
             manager.declareBean("args", a, Object[].class);
             Object res = manager.eval(lang, name, 1, 1, source);
             return converter.createFrom(res);
-        } catch (BSFException e) {
+        } catch (Throwable e) {
             throw new RequestException(e);
         }
     }
