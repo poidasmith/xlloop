@@ -21,6 +21,7 @@ public class FileSystemWatcher {
                 FileSystemWatcher.this.run();
             }
         });
+        thread.setDaemon(true);
         thread.setName("FileSystemWatcher:" + baseDir.getName());
         this.baseDir = baseDir;
         this.callback = callback;
