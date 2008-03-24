@@ -267,15 +267,13 @@ public class VariantObjectConverter {
                 return obj.toString();
             } else if (Integer.class.equals(hint) || int.class.equals(hint)) {
                 return new Integer(((VTLong)obj).intValue());
-            } else if (Long.class.equals(hint) || long.class.equals(hint)) {
-                return new Long(((VTLong)obj).longValue());
             } else if (Boolean.class.equals(hint) || boolean.class.equals(hint)) {
                 return new Boolean(((VTLong)obj).booleanValue());
+            } else {
+                return new Long(((VTLong)obj).longValue());
             }
         } else if(obj instanceof VTDouble) {
-            if (Double.class.equals(hint) || double.class.equals(hint)) {
-                return new Double(((VTDouble)obj).longValue());
-            } else if(String.class.equals(hint)) {
+            if(String.class.equals(hint)) {
                 return obj.toString();
             } else if (Integer.class.equals(hint) || int.class.equals(hint)) {
                 return new Integer(((VTDouble)obj).intValue());
@@ -283,6 +281,8 @@ public class VariantObjectConverter {
                 return new Long(((VTDouble)obj).longValue());
             } else if (Boolean.class.equals(hint) || boolean.class.equals(hint)) {
                 return new Boolean(((VTDouble)obj).booleanValue());
+            } else {
+                return new Double(((VTDouble)obj).longValue());
             }
         } else if(obj instanceof VTCollection) {
             return convertArray((VTCollection) obj, hint);
