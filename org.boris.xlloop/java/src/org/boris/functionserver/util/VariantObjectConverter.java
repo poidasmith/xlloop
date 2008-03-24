@@ -234,6 +234,8 @@ public class VariantObjectConverter {
             }
 
             return array;
+        } else if (obj instanceof Variant) {
+            return (Variant) obj;
         } else if (obj != null) {
             return new VTString(registry.put(obj));
         } else {

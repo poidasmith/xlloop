@@ -29,4 +29,8 @@ public class FunctionMap implements FunctionHandler
         }
         return f.execute(args);
     }
+
+    public boolean hasFunction(String name) {
+        return functions.containsKey(name);
+    }
 }

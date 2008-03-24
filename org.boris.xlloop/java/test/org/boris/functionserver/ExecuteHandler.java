@@ -19,4 +19,8 @@ public class ExecuteHandler implements FunctionHandler {
         return s;
     }
 
+    public boolean hasFunction(String name) {
+        return true;
+    }
+
 }

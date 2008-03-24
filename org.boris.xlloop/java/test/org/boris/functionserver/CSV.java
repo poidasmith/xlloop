@@ -1,5 +1,7 @@
 package org.boris.functionserver;
 
+import org.boris.variantcodec.VTStruct;
+
 public class CSV {
     public static Object[][] toArray(String name) {
         Object[][] val = { 
@@ -13,5 +15,16 @@ public class CSV {
                 {name, other},
                 {"Method", "Overload"}};
         return val;
+    }
+    
+    public static double sum(double a, double b) {
+        return a + b;
+    }
+    
+    public static VTStruct mapTest() {
+        VTStruct s = new VTStruct();
+        s.add("test", 2);
+        s.add("hello", 3);
+        return s;
     }
 }

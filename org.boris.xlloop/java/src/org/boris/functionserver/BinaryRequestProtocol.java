@@ -5,8 +5,6 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.Socket;
 import java.net.SocketException;
 
@@ -64,15 +62,7 @@ public class BinaryRequestProtocol implements RequestProtocol {
     }
 
     public void send(Socket socket, Exception error) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        StringWriter sw = new StringWriter();
-        PrintWriter pw = new PrintWriter(sw);
-        error.printStackTrace(pw);
-        sb.append(error.getMessage());
-        //sb.append("\n");
-        //sb.append(sw.toString().replaceAll("\r\n", "\n"));
-        String s = sb.toString();
-        send(socket, TYPE_ERROR, s);
+        send(socket, TYPE_ERROR, error.getMessage());
     }
 
     public int getLastType() {
