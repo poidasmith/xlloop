@@ -2,7 +2,6 @@
 <html>
     <head>
         <title>XLLoop - OOP Framework Addin for Excel</title>
-        <link rel="shortcut icon" href="favicon.ico" type="image/vnd.microsoft.icon">
         <link rel="stylesheet" href="style.css" type="text/css" />
         <meta name="description" content="OOP Framework for Java"/>
         <meta name="keywords" content="java, excel, addin, xll, xloper"/>
@@ -17,19 +16,116 @@
     </div>
     
     <div class="content">
+
         <div class="section">
             <div class="section-title">About</div>
             <div class="section-content">
             	XLLoop is a framework for implementing a warehouse of excel functions out of 
-            	process. 
-            	<br/><br/>
-            	It consists of two main components:
+            	process and has the following features:
+            	<ul>
+            	<li>Fast binary protocol (overhead approx. one 10th of a millisecond).
+            	<li>Extensible server framework.
+            	<li>Reflection-based function adaptor for extremely quick deployment of java methods.
+            	<li>Bean scripting framework adaptor so functions can be written in any BSF-supported language (still work in progress).
+            	<li>Functions can be dynamically added to excel without restart.
+            	</ul> 
+            	XLLoop consists of two main components:
             	<ul>
             	<li>An excel addin implementation (xll written in c++).
             	<li>A server and framework (written in java).
-            	</il>
+            	</ul>
+            	The addin and server communicate via a simple socket-based protocol, sending and
+            	receiving (binary) serialised xl objects (called xlopers).
             </div>
         </div>
+        
+		<div class="section">
+			<div class="section-title">Download</div>
+			<div class="section-content">
+				The latest <a href="https://sourceforge.net/project/showfiles.php?group_id=222420">download</a> is available from the Project Page.
+			</div>
+		</div>
+		
+		<div class="section">
+			<div class="section-title">Usage</div>
+			<div class="section-content">
+			An example of a very simple server that exposes the methods in the java.lang.Math class:
+<pre>
+package org.boris.functionserver;
+
+import org.boris.functionserver.reflect.ReflectFunctionHandler;
+
+public class ServerTest 
+{
+    public static void main(String[] args) throws Exception {
+        FunctionServer fs = new FunctionServer(5454);
+        ReflectFunctionHandler rfh = new ReflectFunctionHandler();
+        rfh.addMethods("Math.", Math.class);
+        fs.setFunctionHandler(rfh);
+        fs.run();
+    }
+}
+</pre>
+			This will expose all the java.lang.Math functions inside excel. Excel usage is as follows:
+<pre>
+=FS("Math.random")
+=FS("Math.sin", 3.14)
+=FS("Math.pow", 2, 4.45)
+</pre>
+			The addin can be customized using an INI file with the same name as the addin. Eg. (FSAddin.ini). The INI file can accept the following settings:<br/><br/>
+				<table>
+					<tr><th>Key</th><th>Description</th></tr>
+					<tr>
+						<td>hostname</td>
+						<td>This is the hostname of the server that the addin will connect to (default is localhost)</td>
+					</tr>
+					<tr>
+						<td>port</td>
+						<td>This is the port that the addin will connect to (default is 5454).</td>
+					</tr>
+					<tr>
+						<td>addin.name</td>
+						<td>This is the name that will appear in the Excel addin manager window (default is "Function Server " + version).</td>
+					</tr>
+					<tr>
+						<td>function.name</td>
+						<td>This is the name of the function that will be registered in excel (default is "FS").</td>
+					</tr>
+					<tr>
+						<td>include.volatile</td>
+						<td>This is a switch to include a volatile version of the "FS" function.</td>
+					</tr>
+					<tr>
+						<td>function.name.volatile</td>
+						<td>This is the name of the volatile version of the function (default is "FSV").</td>
+					</tr>
+				</table>						
+		</div>
+
+		<div class="section">
+			<div class="section-title">Javadoc</div>
+			<div class="section-content">
+				The javadoc for the server framework can be found <a href="/javadoc/index.html">here</a>.
+			</div>
+		</div>
+
+		<div class="section">
+			<div class="section-title">Useful Code</div>
+			<div class="section-content">
+				A C++ std::iostream implementation for windows socket can be found <a href="tcpstream.html">here</a>.
+			</div>
+		</div>
+		
+		<div class="section">
+			<div class="section-title">Change History</div>
+			<div class="section-content">
+				V0.0.1
+				<ul>
+					<li>Initial version.</li>
+					<li>BSF integration not working yet.</li>
+				</ul>
+			</div>
+		</div>		
     </div>
     
     <div id="footer">
