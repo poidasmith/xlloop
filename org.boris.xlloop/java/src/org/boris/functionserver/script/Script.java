@@ -7,7 +7,8 @@ import org.boris.functionserver.util.VariantObjectConverter;
 import org.boris.variantcodec.VTCollection;
 import org.boris.variantcodec.Variant;
 
-public class Script implements Function {
+public class Script implements Function 
+{
     private VariantObjectConverter converter = new VariantObjectConverter();
     private String lang;
     private String source;
@@ -26,7 +27,7 @@ public class Script implements Function {
         }
         try {
             Object[] a = converter.convert(args, hints);
-            BSFManager manager = ScriptFactory.getManager();
+            BSFManager manager = new BSFManager();
             manager.declareBean("args", a, Object[].class);
             Object res = manager.eval(lang, name, 1, 1, source);
             return converter.createFrom(res);
