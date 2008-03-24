@@ -1,1 +1,1 @@
-print("HelloWord");
+args[0] + args[1];

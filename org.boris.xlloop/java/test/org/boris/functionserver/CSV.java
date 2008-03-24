@@ -21,6 +21,10 @@ public class CSV {
         return a + b;
     }
     
+    public static double echo(double v) {
+        return v;
+    }
+    
     public static VTStruct mapTest() {
         VTStruct s = new VTStruct();
         s.add("test", 2);

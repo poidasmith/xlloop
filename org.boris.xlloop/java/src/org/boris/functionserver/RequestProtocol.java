@@ -14,7 +14,7 @@ public interface RequestProtocol
     public static final String TYPE_OK = "Ok";
     public static final String TYPE_ERROR = "Error";
     
-    public static final boolean DEBUG = false;
+    public static final boolean DEBUG = true;
 
     public void initialise(Socket socket) throws SocketException;
 
