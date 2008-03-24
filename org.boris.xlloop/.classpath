@@ -5,6 +5,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="java/ext_jars/js.jar" sourcepath="java/ext_jars/js-src.zip"/>
 	<classpathentry kind="lib" path="java/ext_jars/bsf.jar" sourcepath="java/ext_jars/bsf-src.zip"/>
+	<classpathentry kind="lib" path="java/ext_jars/commons-logging-1.1.1.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.boris.winrun4j"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.boris.variantcodec"/>
 	<classpathentry kind="output" path="bin"/>

@@ -10,13 +10,11 @@ import org.boris.variantcodec.Variant;
 
 public class Script implements Function {
     private VariantObjectConverter converter = new VariantObjectConverter();
-    private BSFManager manager;
     private String lang;
     private String source;
     private String name;
 
-    public Script(BSFManager manager, String lang, String source, String name) {
-        this.manager = manager;
+    public Script(String lang, String source, String name) {
         this.lang = lang;
         this.source = source;
         this.name = name;
@@ -29,6 +27,7 @@ public class Script implements Function {
         }
         try {
             Object[] a = converter.convert(args, hints);
+            BSFManager manager = ScriptFactory.getManager();
             manager.declareBean("args", a, Object[].class);
             Object res = manager.eval(lang, name, 1, 1, source);
             return converter.createFrom(res);

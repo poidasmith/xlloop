@@ -77,7 +77,7 @@ public class FunctionServer
                         System.err.println(e.getMessage());
                         break;
                     }
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     System.err.println(e.getMessage());
                     try {
                         socket.close();
