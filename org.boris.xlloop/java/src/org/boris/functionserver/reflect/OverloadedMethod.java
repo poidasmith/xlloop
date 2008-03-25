@@ -1,6 +1,7 @@
 package org.boris.functionserver.reflect;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.boris.functionserver.Function;
@@ -11,7 +12,7 @@ import org.boris.variantcodec.Variant;
 
 public class OverloadedMethod implements Function 
 {
-    private List<InstanceMethod> methods = new ArrayList();
+    private List methods = new ArrayList();
 
     public void add(InstanceMethod m) {
         this.methods.add(m);
@@ -24,7 +25,8 @@ public class OverloadedMethod implements Function
                 break;
             }
         }
-        for(InstanceMethod m : methods) {
+        for(Iterator i = methods.iterator(); i.hasNext(); ) {
+            InstanceMethod m = (InstanceMethod) i.next();
             if(m.matchesArgs(args, lastArg)) {
                 return m.execute(args);
             }

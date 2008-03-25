@@ -3,6 +3,7 @@ package org.boris.functionserver.util;
 import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,8 +13,8 @@ public class FileSystemWatcher {
     private int pauseMillis = 60000; // one minute
     private Callback callback;
     private Thread thread;
-    private Map<File, Set<File>> files = new HashMap();
-    private Map<File, Long> fileModificationTimes = new HashMap();
+    private Map files = new HashMap();
+    private Map fileModificationTimes = new HashMap();
 
     public FileSystemWatcher(File baseDir, Callback callback) {
         this.thread = new Thread(new Runnable() {
@@ -50,27 +51,29 @@ public class FileSystemWatcher {
     }
 
     private void searchDir(File dir) {
-        Set<File> fileSet = files.get(dir);
+        Set fileSet = (Set) files.get(dir);
         if (fileSet == null) {
             fileSet = new HashSet();
             files.put(dir, fileSet);
         }
-        Set<File> fileCopy = new HashSet(fileSet);
+        Set fileCopy = new HashSet(fileSet);
         File[] flist = dir.listFiles();
-        for (File f : flist) {
+        if(flist == null) return;
+        for (int i = 0; i < flist.length; i++) {
+            File f = flist[i];
             if (f.isDirectory()) {
                 searchDir(f);
             } else {
                 if (!fileSet.contains(f)) {
                     callback.fileAdded(f);
-                    fileModificationTimes.put(f, f.lastModified());
+                    fileModificationTimes.put(f, new Long(f.lastModified()));
                     fileSet.add(f);
                     continue;
                 } else {
                     fileCopy.remove(f);
-                    Long mod = fileModificationTimes.get(f);
+                    Long mod = (Long) fileModificationTimes.get(f);
                     if (mod != null && mod.longValue() != f.lastModified()) {
-                        fileModificationTimes.put(f, f.lastModified());
+                        fileModificationTimes.put(f, new Long(f.lastModified()));
                         callback.fileChanged(f);
                         continue;
                     }
@@ -79,7 +82,8 @@ public class FileSystemWatcher {
         }
 
         // Now look for removed files
-        for (File f : fileCopy) {
+        for (Iterator i = fileCopy.iterator(); i.hasNext(); ) {
+            File f = (File) i.next();
             callback.fileRemoved(f);
             fileSet.remove(f);
         }

@@ -15,10 +15,10 @@ import org.boris.variantcodec.VTCollection;
 import org.boris.variantcodec.Variant;
 
 public class ReflectFunctionHandler implements FunctionHandler {
-    private Map<String, Function> methods = new HashMap();
+    private Map methods = new HashMap();
     private VariantObjectConverter converter = new VariantObjectConverter();
 
-    public Set<String> getFunctionList() {
+    public Set getFunctionList() {
         return methods.keySet();
     }
     
@@ -27,7 +27,7 @@ public class ReflectFunctionHandler implements FunctionHandler {
     }
 
     public void addMethod(String name, Object instance, Method m) {
-        Function f = methods.get(name);
+        Function f = (Function) methods.get(name);
         if (f instanceof InstanceMethod) {
             OverloadedMethod om = new OverloadedMethod();
             om.add((InstanceMethod) f);
@@ -68,7 +68,7 @@ public class ReflectFunctionHandler implements FunctionHandler {
 
     public Variant execute(String name, VTCollection args) throws RequestException {
         if(RequestProtocol.DEBUG) System.out.println(name + args);
-        Function f = methods.get(name);
+        Function f = (Function) methods.get(name);
         if (f == null) {
             throw new RequestException("#Unknown method: " + name);
         }

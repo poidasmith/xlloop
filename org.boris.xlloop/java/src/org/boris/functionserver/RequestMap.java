@@ -8,7 +8,7 @@ import org.boris.variantcodec.Variant;
 
 public class RequestMap implements RequestHandler 
 {
-    private Map<String, Request> requests = new HashMap();
+    private Map requests = new HashMap();
     
     public void add(String name, Request r) {
         this.requests.put(name, r);
@@ -23,7 +23,7 @@ public class RequestMap implements RequestHandler
     }
     
     public Variant execute(String name, VTStruct args) throws RequestException {
-        Request r = requests.get(name);
+        Request r = (Request) requests.get(name);
         if(r == null) {
             throw new RequestException("Unknown request: " + name);
         }

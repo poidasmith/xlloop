@@ -42,7 +42,7 @@ class InstanceMethod implements Function
         } catch (IllegalAccessException e) {
             throw new RequestException(e);
         } catch (InvocationTargetException e) {
-            throw new RequestException(e);
+            throw new RequestException(e.getTargetException());
         }
     }
 }

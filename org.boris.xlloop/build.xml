@@ -3,23 +3,24 @@
 	<property name="release.dir" value="F:/Development/Releases/"/>
 	<property name="src.dir" value="F:\eclipse\workspace\WinRun4J"/>
 	<property name="release.name" value="xlloop"/>
-	<property name="release.version" value="0.0.2"/>
+	<property name="release.version" value="0.0.3"/>
 	<property name="deploy.dir" value="${release.dir}/${release.name}-${release.version}/xlloop"/>
 	
 	<target name="build">
 		<mkdir dir="${deploy.dir}"/>
 		<mkdir dir="${deploy.dir}/bin"/>
+		<copy todir="${deploy.dir}/bin" file="java/ext_jars/bsf.jar"/>
 		<copy todir="${deploy.dir}/bin" file="${src.dir}/build/FSAddin-Release/FSAddin.xll"/>
 		<copy todir="${deploy.dir}" file="${src.dir}/cpl-v10.html"/>
 		<mkdir dir="${deploy.dir}/src"/>
 		<mkdir dir="build"/>
-		<javac debug="off" srcdir="../org.boris.variantcodec/java/src" destdir="build">
+		<javac debug="off" srcdir="../org.boris.variantcodec/java/src" destdir="build" source="1.4">
 			<classpath>
 				<pathelement location="build"/>
 				<pathelement location="java/ext_jars/bsf.jar"/>
 			</classpath>
 		</javac>
-		<javac debug="off" srcdir="java/src" destdir="build">
+		<javac debug="off" srcdir="java/src" destdir="build" source="1.4">
 			<classpath>
 				<pathelement location="build"/>
 				<pathelement location="java/ext_jars/bsf.jar"/>
@@ -56,7 +57,7 @@
 			</fileset>
 		</zip>
 		<delete dir="${release.dir}/${release.name}-${release.version}"/>
-		<!-- <mkdir dir="F:/Development/xlloop-javadoc"/>
-		<javadoc sourcepath="java/src" packagenames="*" destdir="F:/Development/xlloop-javadoc"/> -->
+		<mkdir dir="F:/Development/xlloop-javadoc"/>
+		<javadoc sourcepath="java/src" packagenames="*" destdir="F:/Development/xlloop-javadoc"/>
 	</target>
 </project>

@@ -101,7 +101,7 @@ public class VariantObjectConverter {
             VTCollection array = new VTCollection();
             for(int i = 0; i < arr.length; i++) {
                 VTCollection r = new VTCollection();
-                r.add(arr[i]);
+                r.add(arr[i].doubleValue());
                 array.add(r);
             }
 
@@ -113,7 +113,7 @@ public class VariantObjectConverter {
             for (int i = 0; i < arr.length; i++) {
                 VTCollection r = new VTCollection();
                 for (int j = 0; j < arr[0].length && j < arr[i].length; j++) {
-                    r.add(arr[i][j]);
+                    r.add(arr[i][j].doubleValue());
                 }
                 array.add(r);
             }
@@ -147,7 +147,7 @@ public class VariantObjectConverter {
             VTCollection array = new VTCollection();
             for(int i = 0; i < arr.length; i++) {
                 VTCollection r = new VTCollection();
-                r.add(arr[i]);
+                r.add(arr[i].intValue());
                 array.add(r);
             }
 
@@ -159,7 +159,7 @@ public class VariantObjectConverter {
             for (int i = 0; i < arr.length; i++) {
                 VTCollection r = new VTCollection();
                 for (int j = 0; j < arr[0].length && j < arr[i].length; j++) {
-                    r.add(arr[i][j]);
+                    r.add(arr[i][j].intValue());
                 }
                 array.add(r);
             }
@@ -193,7 +193,7 @@ public class VariantObjectConverter {
             VTCollection array = new VTCollection();
             for(int i = 0; i < arr.length; i++) {
                 VTCollection r = new VTCollection();
-                r.add(arr[i]);
+                r.add(arr[i].booleanValue());
                 array.add(r);
             }
 
@@ -205,7 +205,7 @@ public class VariantObjectConverter {
             for (int i = 0; i < arr.length; i++) {
                 VTCollection r = new VTCollection();
                 for (int j = 0; j < arr[0].length && j < arr[i].length; j++) {
-                    r.add(arr[i][j]);
+                    r.add(arr[i][j].booleanValue());
                 }
                 array.add(r);
             }
@@ -320,7 +320,7 @@ public class VariantObjectConverter {
             double[] darr = new double[height * width];
 
             for (int i = 0; i < darr.length; i++) {
-                darr[i] = arr.getCollection(i / width).getDouble(i % width);
+                darr[i] = arr.getCollection(i / width).getDouble(i % width).doubleValue();
             }
 
             val = darr;
@@ -329,7 +329,7 @@ public class VariantObjectConverter {
 
             for (int i = 0; i < height; i++) {
                 for (int j = 0; j < width; j++) {
-                    darr[i][j] = arr.getCollection(i).getDouble(j);
+                    darr[i][j] = arr.getCollection(i).getDouble(j).doubleValue();
                 }
             }
 
@@ -374,7 +374,7 @@ public class VariantObjectConverter {
             Integer[] darr = new Integer[height * width];
 
             for (int i = 0; i < darr.length; i++) {
-                darr[i] = arr.getCollection(i / width).getLong(i % width).intValue();
+                darr[i] = new Integer(arr.getCollection(i / width).getLong(i % width).intValue());
             }
 
             val = darr;
@@ -383,7 +383,7 @@ public class VariantObjectConverter {
 
             for (int i = 0; i < height; i++) {
                 for (int j = 0; j < width; j++) {
-                    darr[i][j] = arr.getCollection(i).getLong(j).intValue();
+                    darr[i][j] = new Integer(arr.getCollection(i).getLong(j).intValue());
                 }
             }
 

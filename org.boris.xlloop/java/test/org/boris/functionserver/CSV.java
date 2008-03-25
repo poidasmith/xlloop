@@ -12,7 +12,7 @@ public class CSV {
 
     public static Object[][] toArray(String name, boolean other) {
         Object[][] val = { 
-                {name, other},
+                {name, new Boolean(other)},
                 {"Method", "Overload"}};
         return val;
     }

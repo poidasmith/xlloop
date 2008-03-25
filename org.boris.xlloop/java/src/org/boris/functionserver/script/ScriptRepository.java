@@ -14,7 +14,7 @@ import org.boris.variantcodec.Variant;
 public class ScriptRepository implements Callback, FunctionHandler {
     private File baseDir;
     private FileSystemWatcher watcher;
-    private Map<String, Script> scripts = new HashMap();
+    private Map scripts = new HashMap();
     private String namespace;
 
     public ScriptRepository(File baseDir, String namespace) {
@@ -29,7 +29,7 @@ public class ScriptRepository implements Callback, FunctionHandler {
     }
 
     public Script get(String name) {
-        return scripts.get(name);
+        return (Script) scripts.get(name);
     }
 
     public void fileAdded(File f) {
@@ -76,7 +76,7 @@ public class ScriptRepository implements Callback, FunctionHandler {
     }
 
     public Variant execute(String name, VTCollection args) throws RequestException {
-        Script s = scripts.get(name);
+        Script s = (Script) scripts.get(name);
         if(s == null) {
             throw new RequestException("#Unknown script: " + name);
         }
