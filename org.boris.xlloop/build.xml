@@ -26,7 +26,7 @@
 				<pathelement location="java/ext_jars/bsf.jar"/>
 			</classpath>
 		</javac>
-		<jar destfile="${deploy.dir}/bin/xlloop.jar">
+		<jar destfile="${deploy.dir}/bin/xlloop-${release.version}.jar">
 			<fileset dir="build">
 				<include name="**/*.class"/>
 			</fileset>
@@ -42,6 +42,7 @@
 		<delete dir="build"/>
 		<jar destfile="${deploy.dir}/src/xlloop-cppsrc.zip">
 			<fileset dir="${src.dir}">
+				<include name="**/FSAddin.def"/>
 				<include name="**/*.cpp"/>
 				<include name="**/*.h"/>
 				<include name="**/*.vcproj"/>
