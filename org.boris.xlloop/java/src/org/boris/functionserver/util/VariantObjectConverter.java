@@ -304,7 +304,155 @@ public class VariantObjectConverter {
     }
 
     private Object convertVector(VTCollection arr, Class hint) {
-        return null;
+        int length = arr.size();
+        Object val = null;
+
+        if (Integer.class.equals(hint) || int.class.equals(hint)) {
+            val = new Integer(arr.getLong(0).intValue());
+        } else if (Double.class.equals(hint) || double.class.equals(hint)) {
+            val = arr.getDouble(0);
+        } else if (String.class.equals(hint)) {
+            val = arr.getString(0);
+        } else if (double[].class.equals(hint)) {
+            double[] darr = new double[length];
+
+            for (int i = 0; i < darr.length; i++) {
+                Double d = arr.getDouble(i);
+                if (d != null) {
+                    darr[i] = d.doubleValue();
+                }
+            }
+
+            val = darr;
+        } else if (double[][].class.equals(hint)) {
+            double[][] darr = new double[length][1];
+
+            for (int i = 0; i < length; i++) {
+                Double d = arr.getDouble(i);
+                if (d != null) {
+                    darr[i][0] = d.doubleValue();
+                }
+            }
+
+            val = darr;
+        } else if (Double[].class.equals(hint)) {
+            Double[] darr = new Double[length];
+
+            for (int i = 0; i < darr.length; i++) {
+                darr[i] = arr.getDouble(i);
+            }
+
+            val = darr;
+        } else if (Double[][].class.equals(hint)) {
+            Double[][] darr = new Double[length][1];
+
+            for (int i = 0; i < length; i++) {
+                darr[i][0] = arr.getDouble(i);
+            }
+
+            val = darr;
+        } else if (int[].class.equals(hint)) {
+            int[] darr = new int[length];
+
+            for (int i = 0; i < darr.length; i++) {
+                darr[i] = arr.getLong(i).intValue();
+            }
+
+            val = darr;
+        } else if (int[][].class.equals(hint)) {
+            int[][] darr = new int[length][1];
+
+            for (int i = 0; i < length; i++) {
+                darr[i][0] = arr.getLong(i).intValue();
+            }
+
+            val = darr;
+        } else if (Integer[].class.equals(hint)) {
+            Integer[] darr = new Integer[length];
+
+            for (int i = 0; i < darr.length; i++) {
+                darr[i] = new Integer(arr.getLong(i).intValue());
+            }
+
+            val = darr;
+        } else if (Integer[][].class.equals(hint)) {
+            Integer[][] darr = new Integer[length][1];
+
+            for (int i = 0; i < length; i++) {
+                darr[i][0] = new Integer(arr.getLong(i).intValue());
+            }
+
+            val = darr;
+        } else if (boolean[].class.equals(hint)) {
+            boolean[] darr = new boolean[length];
+
+            for (int i = 0; i < darr.length; i++) {
+                darr[i] = arr.getLong(i).intValue() == 1;
+            }
+
+            val = darr;
+        } else if (boolean[][].class.equals(hint)) {
+            boolean[][] darr = new boolean[length][1];
+
+            for (int i = 0; i < length; i++) {
+                darr[i][0] = arr.getLong(i).intValue() == 1;
+            }
+
+            val = darr;
+        } else if (Boolean[].class.equals(hint)) {
+            Boolean[] darr = new Boolean[length];
+
+            for (int i = 0; i < darr.length; i++) {
+                darr[i] = new Boolean(arr.getLong(i).intValue() == 1);
+            }
+
+            val = darr;
+        } else if (Boolean[][].class.equals(hint)) {
+            Boolean[][] darr = new Boolean[length][1];
+
+            for (int i = 0; i < length; i++) {
+                darr[i][0] = new Boolean(arr.getLong(i).intValue() == 1);
+            }
+
+            val = darr;
+        } else if (String[].class.equals(hint)) {
+            String[] darr = new String[length];
+
+            for (int i = 0; i < darr.length; i++) {
+                darr[i] = arr.getString(i);
+            }
+
+            val = darr;
+        } else if (String[][].class.equals(hint)) {
+            String[][] darr = new String[length][1];
+
+            for (int i = 0; i < length; i++) {
+                darr[i][0] = arr.getString(i);
+            }
+
+            val = darr;
+        } else if (Object[].class.equals(hint)) {
+            Object[] darr = new Object[length];
+
+            for (int i = 0; i < darr.length; i++) {
+                darr[i] = createFrom(arr.get(i), Object.class);
+            }
+
+            val = darr;
+        } else if (Object[][].class.equals(hint)) {
+            Object[][] darr = new Object[length][1];
+
+            for (int i = 0; i < length; i++) {
+                darr[i][0] = createFrom(arr.get(i), Object.class);
+            }
+
+            val = darr;
+        } else {
+            String str = arr.getCollection(0).getString(0);
+            val = registry.get(str);
+        }
+
+        return val;
     }
 
     /**
