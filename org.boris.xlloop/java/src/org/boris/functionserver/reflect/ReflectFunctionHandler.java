@@ -9,7 +9,6 @@ import java.util.Set;
 import org.boris.functionserver.Function;
 import org.boris.functionserver.FunctionHandler;
 import org.boris.functionserver.RequestException;
-import org.boris.functionserver.RequestProtocol;
 import org.boris.functionserver.util.VariantObjectConverter;
 import org.boris.variantcodec.VTCollection;
 import org.boris.variantcodec.Variant;
@@ -21,7 +20,7 @@ public class ReflectFunctionHandler implements FunctionHandler {
     public Set getFunctionList() {
         return methods.keySet();
     }
-    
+
     public void addMethod(Object instance, Method m) {
         addMethod(m.getName(), instance, m);
     }
@@ -34,7 +33,8 @@ public class ReflectFunctionHandler implements FunctionHandler {
             om.add(new InstanceMethod(instance, m, converter));
             methods.put(name, om);
         } else if (f instanceof OverloadedMethod) {
-            ((OverloadedMethod) f).add(new InstanceMethod(instance, m, converter));
+            ((OverloadedMethod) f).add(new InstanceMethod(instance, m,
+                    converter));
         } else {
             methods.put(name, new InstanceMethod(instance, m, converter));
         }
@@ -56,7 +56,8 @@ public class ReflectFunctionHandler implements FunctionHandler {
     public void addMethods(String namespace, Object instance) {
         Method[] m = instance.getClass().getMethods();
         for (int i = 0; i < m.length; i++) {
-            if ((instance == null && Modifier.isStatic(m[i].getModifiers())) || instance != null) {
+            if ((instance == null && Modifier.isStatic(m[i].getModifiers())) ||
+                    instance != null) {
                 if (namespace == null) {
                     addMethod(instance, m[i]);
                 } else {
@@ -66,8 +67,8 @@ public class ReflectFunctionHandler implements FunctionHandler {
         }
     }
 
-    public Variant execute(String name, VTCollection args) throws RequestException {
-        if(RequestProtocol.DEBUG) System.out.println(name + args);
+    public Variant execute(String name, VTCollection args)
+            throws RequestException {
         Function f = (Function) methods.get(name);
         if (f == null) {
             throw new RequestException("#Unknown method: " + name);
