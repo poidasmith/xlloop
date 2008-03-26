@@ -136,7 +136,7 @@ __declspec(dllexport) LPXLOPER WINAPI xlAddInManagerInfo(LPXLOPER xAction)
 		xInfo.xltype = xltypeStr | xlbitXLFree;
 		char* addinName = iniparser_getstr(g_ini, FS_ADDIN_NAME);
 		if(addinName == NULL) {
-			addinName = XLUtil::MakeExcelString("Function Server v0.0.1");
+			addinName = XLUtil::MakeExcelString("Function Server v0.0.3");
 		} else {
 			addinName = XLUtil::MakeExcelString(addinName);
 		}
