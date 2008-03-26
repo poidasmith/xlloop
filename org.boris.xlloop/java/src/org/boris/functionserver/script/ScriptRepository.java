@@ -24,6 +24,10 @@ public class ScriptRepository implements Callback, FunctionHandler {
         watcher.start();
     }
 
+    public void setWatcherPauseMillis(int millis) {
+        watcher.setPauseMillis(millis);
+    }
+
     public void stop() {
         watcher.shutdown();
     }
@@ -38,7 +42,7 @@ public class ScriptRepository implements Callback, FunctionHandler {
 
     public void fileChanged(File f) {
         String n = toName(f);
-        if(n == null) {
+        if (n == null) {
             return;
         }
         System.out.println("Adding script: " + n);
@@ -59,14 +63,14 @@ public class ScriptRepository implements Callback, FunctionHandler {
         fs = fs.substring(s.length() + 1);
         String ext = f.getName();
         int doti = ext.indexOf('.');
-        
+
         if (doti != -1) {
             doti = ext.length() - doti;
             fs = fs.substring(0, fs.length() - doti);
         } else {
             return null; // We reject files without an extension.
         }
-        
+
         fs = fs.replaceAll("\\\\", ".");
         if (namespace != null) {
             fs = namespace + fs;
@@ -75,9 +79,10 @@ public class ScriptRepository implements Callback, FunctionHandler {
         return fs;
     }
 
-    public Variant execute(String name, VTCollection args) throws RequestException {
+    public Variant execute(String name, VTCollection args)
+            throws RequestException {
         Script s = (Script) scripts.get(name);
-        if(s == null) {
+        if (s == null) {
             throw new RequestException("#Unknown script: " + name);
         }
         return s.execute(args);
