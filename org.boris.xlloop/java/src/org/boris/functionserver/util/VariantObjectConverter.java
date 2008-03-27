@@ -308,9 +308,19 @@ public class VariantObjectConverter {
         Object val = null;
 
         if (Integer.class.equals(hint) || int.class.equals(hint)) {
-            val = new Integer(arr.getLong(0).intValue());
+            Long l = length > 0 ? arr.getLong(0) : null;
+            if (l == null) {
+                val = new Integer(0);
+            } else {
+                val = new Integer(l.intValue());
+            }
         } else if (Double.class.equals(hint) || double.class.equals(hint)) {
-            val = arr.getDouble(0);
+            Double d = length > 0 ? arr.getDouble(0) : null;
+            if (d == null) {
+                val = new Double(0);
+            } else {
+                val = d;
+            }
         } else if (String.class.equals(hint)) {
             val = arr.getString(0);
         } else if (double[].class.equals(hint)) {

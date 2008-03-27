@@ -13,18 +13,21 @@ import org.boris.variantcodec.VTLong;
 import org.boris.variantcodec.VTString;
 import org.boris.variantcodec.Variant;
 
-public class BinaryRequestProtocol implements RequestProtocol {
+public class BinaryRequestProtocol implements RequestProtocol
+{
     private int lastType;
     private String lastName;
 
-    public void send(Socket socket, String type, Variant data) throws IOException {
+    public void send(Socket socket, String type, Variant data)
+            throws IOException {
         OutputStream os = new BufferedOutputStream(socket.getOutputStream());
         BinaryCodec.encode(new VTString(type), os);
         BinaryCodec.encode(data, os);
         os.flush();
     }
 
-    public void send(Socket socket, String type, String data) throws IOException {
+    public void send(Socket socket, String type, String data)
+            throws IOException {
         OutputStream os = new BufferedOutputStream(socket.getOutputStream());
         BinaryCodec.encode(new VTString(type), os);
         BinaryCodec.encode(new VTString(data), os);
@@ -35,10 +38,10 @@ public class BinaryRequestProtocol implements RequestProtocol {
         InputStream is = new BufferedInputStream(socket.getInputStream());
         Variant v = BinaryCodec.decode(is);
         VTString t = null;
-        if(v instanceof VTLong) {
-            lastType = ((VTLong)v).intValue();
+        if (v instanceof VTLong) {
+            lastType = ((VTLong) v).intValue();
             t = (VTString) BinaryCodec.decode(is);
-        } else if(v instanceof VTString) {
+        } else if (v instanceof VTString) {
             lastType = REQ_TYPE_GENERIC;
             t = (VTString) v;
         }
@@ -69,7 +72,8 @@ public class BinaryRequestProtocol implements RequestProtocol {
         return lastType;
     }
 
-    public void send(Socket socket, int type, String name, Variant data) throws IOException {
+    public void send(Socket socket, int type, String name, Variant data)
+            throws IOException {
         OutputStream os = new BufferedOutputStream(socket.getOutputStream());
         BinaryCodec.encode(new VTLong(type), os);
         BinaryCodec.encode(new VTString(name), os);

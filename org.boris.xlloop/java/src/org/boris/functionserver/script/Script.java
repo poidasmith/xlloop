@@ -7,7 +7,7 @@ import org.boris.functionserver.util.VariantObjectConverter;
 import org.boris.variantcodec.VTCollection;
 import org.boris.variantcodec.Variant;
 
-public class Script implements Function 
+public class Script implements Function
 {
     private VariantObjectConverter converter = new VariantObjectConverter();
     private String lang;
@@ -22,7 +22,7 @@ public class Script implements Function
 
     public Variant execute(VTCollection args) throws RequestException {
         Class[] hints = new Class[args.size()];
-        for(int i = 0; i < hints.length; i++) {
+        for (int i = 0; i < hints.length; i++) {
             hints[i] = Object[][].class;
         }
         try {
@@ -35,5 +35,4 @@ public class Script implements Function
             throw new RequestException(e);
         }
     }
-
 }

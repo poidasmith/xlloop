@@ -8,7 +8,8 @@ import org.boris.variantcodec.VTCollection;
 import org.boris.variantcodec.VTStruct;
 import org.boris.variantcodec.Variant;
 
-public class FunctionServer {
+public class FunctionServer
+{
     private int port;
     private FunctionHandler fHandler;
     private RequestHandler rHandler;
@@ -43,7 +44,8 @@ public class FunctionServer {
         }
     }
 
-    private class HandlerThread extends Thread {
+    private class HandlerThread extends Thread
+    {
         private Socket socket;
         private RequestProtocol protocol = new BinaryRequestProtocol();
 

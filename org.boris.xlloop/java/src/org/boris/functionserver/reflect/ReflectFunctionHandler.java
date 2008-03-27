@@ -13,7 +13,8 @@ import org.boris.functionserver.util.VariantObjectConverter;
 import org.boris.variantcodec.VTCollection;
 import org.boris.variantcodec.Variant;
 
-public class ReflectFunctionHandler implements FunctionHandler {
+public class ReflectFunctionHandler implements FunctionHandler
+{
     private Map methods = new HashMap();
     private VariantObjectConverter converter = new VariantObjectConverter();
 

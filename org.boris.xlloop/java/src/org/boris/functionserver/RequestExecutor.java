@@ -9,7 +9,8 @@ import org.boris.variantcodec.VTString;
 import org.boris.variantcodec.VTStruct;
 import org.boris.variantcodec.Variant;
 
-public class RequestExecutor {
+public class RequestExecutor
+{
     private Socket socket;
     private InetAddress address;
     private int port;
@@ -31,13 +32,15 @@ public class RequestExecutor {
         socket.close();
     }
 
-    public Variant execute(String name, VTCollection args) throws RequestException, IOException {
+    public Variant execute(String name, VTCollection args)
+            throws RequestException, IOException {
         connect();
         protocol.send(socket, RequestProtocol.REQ_TYPE_FUNCTION, name, args);
         return receive();
     }
 
-    public Variant execute(String name, VTStruct args) throws RequestException, IOException {
+    public Variant execute(String name, VTStruct args) throws RequestException,
+            IOException {
         connect();
         protocol.send(socket, name, args);
         return receive();

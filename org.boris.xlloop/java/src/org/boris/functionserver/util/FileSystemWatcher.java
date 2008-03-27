@@ -7,7 +7,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class FileSystemWatcher {
+public class FileSystemWatcher
+{
     private File baseDir;
     private boolean isStopped;
     private int pauseMillis = 60000; // one minute
@@ -58,7 +59,8 @@ public class FileSystemWatcher {
         }
         Set fileCopy = new HashSet(fileSet);
         File[] flist = dir.listFiles();
-        if(flist == null) return;
+        if (flist == null)
+            return;
         for (int i = 0; i < flist.length; i++) {
             File f = flist[i];
             if (f.isDirectory()) {
@@ -73,7 +75,8 @@ public class FileSystemWatcher {
                     fileCopy.remove(f);
                     Long mod = (Long) fileModificationTimes.get(f);
                     if (mod != null && mod.longValue() != f.lastModified()) {
-                        fileModificationTimes.put(f, new Long(f.lastModified()));
+                        fileModificationTimes
+                                .put(f, new Long(f.lastModified()));
                         callback.fileChanged(f);
                         continue;
                     }
@@ -82,14 +85,15 @@ public class FileSystemWatcher {
         }
 
         // Now look for removed files
-        for (Iterator i = fileCopy.iterator(); i.hasNext(); ) {
+        for (Iterator i = fileCopy.iterator(); i.hasNext();) {
             File f = (File) i.next();
             callback.fileRemoved(f);
             fileSet.remove(f);
         }
     }
 
-    public interface Callback {
+    public interface Callback
+    {
         void fileAdded(File f);
 
         void fileChanged(File f);
