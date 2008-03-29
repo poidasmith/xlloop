@@ -13,6 +13,7 @@ public class FunctionServer
     private int port;
     private FunctionHandler fHandler;
     private RequestHandler rHandler;
+    private ServerSocket socket;
 
     public FunctionServer() {
         this(5454);
@@ -35,12 +36,16 @@ public class FunctionServer
     public void setRequestHandler(RequestHandler h) {
         this.rHandler = h;
     }
+    
+    public void stop() throws IOException {
+        socket.close();
+    }
 
     public void run() throws IOException {
-        ServerSocket ss = new ServerSocket(port);
+        socket = new ServerSocket(port);
 
         while (true) {
-            new HandlerThread(ss.accept()).start();
+            new HandlerThread(socket.accept()).start();
         }
     }
 
