@@ -1,5 +1,9 @@
 package org.boris.functionserver.util;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import org.boris.variantcodec.VTCollection;
 import org.boris.variantcodec.VTDouble;
 import org.boris.variantcodec.VTLong;
@@ -12,6 +16,9 @@ import org.boris.variantcodec.Variant;
  * Used to map arguments to objects.
  */
 public class VariantObjectConverter {
+    public static final Integer IZERO = new Integer(0);
+    public static final Double DZERO = new Double(0);
+    public static final Long LZERO = new Long(0);
     private ObjectRegistry registry = new ObjectRegistry();
 
     /**
@@ -52,9 +59,7 @@ public class VariantObjectConverter {
             String[] arr = (String[]) obj;
             VTCollection array = new VTCollection();
             for (int i = 0; i < arr.length; i++) {
-                VTCollection r = new VTCollection();
-                r.add(arr[i]);
-                array.add(r);
+                array.add(arr[i]);
             }
 
             return array;
@@ -75,9 +80,7 @@ public class VariantObjectConverter {
             double[] arr = (double[]) obj;
             VTCollection array = new VTCollection();
             for (int i = 0; i < arr.length; i++) {
-                VTCollection r = new VTCollection();
-                r.add(arr[i]);
-                array.add(r);
+                array.add(arr[i]);
             }
 
             return array;
@@ -98,9 +101,7 @@ public class VariantObjectConverter {
             Double[] arr = (Double[]) obj;
             VTCollection array = new VTCollection();
             for (int i = 0; i < arr.length; i++) {
-                VTCollection r = new VTCollection();
-                r.add(arr[i].doubleValue());
-                array.add(r);
+                array.add(arr[i]);
             }
 
             return array;
@@ -111,7 +112,7 @@ public class VariantObjectConverter {
             for (int i = 0; i < arr.length; i++) {
                 VTCollection r = new VTCollection();
                 for (int j = 0; j < arr[0].length && j < arr[i].length; j++) {
-                    r.add(arr[i][j].doubleValue());
+                    r.add(arr[i][j]);
                 }
                 array.add(r);
             }
@@ -121,9 +122,7 @@ public class VariantObjectConverter {
             int[] arr = (int[]) obj;
             VTCollection array = new VTCollection();
             for (int i = 0; i < arr.length; i++) {
-                VTCollection r = new VTCollection();
-                r.add(arr[i]);
-                array.add(r);
+                array.add(arr[i]);
             }
 
             return array;
@@ -144,9 +143,7 @@ public class VariantObjectConverter {
             Integer[] arr = (Integer[]) obj;
             VTCollection array = new VTCollection();
             for (int i = 0; i < arr.length; i++) {
-                VTCollection r = new VTCollection();
-                r.add(arr[i].intValue());
-                array.add(r);
+                array.add(arr[i]);
             }
 
             return array;
@@ -157,7 +154,7 @@ public class VariantObjectConverter {
             for (int i = 0; i < arr.length; i++) {
                 VTCollection r = new VTCollection();
                 for (int j = 0; j < arr[0].length && j < arr[i].length; j++) {
-                    r.add(arr[i][j].intValue());
+                    r.add(arr[i][j]);
                 }
                 array.add(r);
             }
@@ -167,9 +164,7 @@ public class VariantObjectConverter {
             boolean[] arr = (boolean[]) obj;
             VTCollection array = new VTCollection();
             for (int i = 0; i < arr.length; i++) {
-                VTCollection r = new VTCollection();
-                r.add(arr[i]);
-                array.add(r);
+                array.add(arr[i]);
             }
 
             return array;
@@ -190,9 +185,7 @@ public class VariantObjectConverter {
             Boolean[] arr = (Boolean[]) obj;
             VTCollection array = new VTCollection();
             for (int i = 0; i < arr.length; i++) {
-                VTCollection r = new VTCollection();
-                r.add(arr[i].booleanValue());
-                array.add(r);
+                array.add(arr[i]);
             }
 
             return array;
@@ -203,7 +196,7 @@ public class VariantObjectConverter {
             for (int i = 0; i < arr.length; i++) {
                 VTCollection r = new VTCollection();
                 for (int j = 0; j < arr[0].length && j < arr[i].length; j++) {
-                    r.add(arr[i][j].booleanValue());
+                    r.add(arr[i][j]);
                 }
                 array.add(r);
             }
@@ -226,9 +219,7 @@ public class VariantObjectConverter {
             Object[] arr = (Object[]) obj;
             VTCollection array = new VTCollection();
             for (int i = 0; i < arr.length; i++) {
-                VTCollection r = new VTCollection();
-                r.add(createFrom(arr[i]));
-                array.add(r);
+                array.add(createFrom(arr[i]));
             }
 
             return array;
@@ -251,12 +242,16 @@ public class VariantObjectConverter {
      */
     public Object createFrom(Variant obj, Class hint) {
         if (obj instanceof VTString) {
-            String str = obj.toString();
-            Object val = registry.get(str);
-            if (val != null) {
-                return val;
+            if(VTString.class.equals(hint)) {
+                return obj;
             } else {
-                return str;
+                String str = obj.toString();
+                Object val = registry.get(str);
+                if (val != null) {
+                    return val;
+                } else {
+                    return str;
+                }
             }
         } else if (obj instanceof VTLong) {
             if (Double.class.equals(hint) || double.class.equals(hint)) {
@@ -285,18 +280,26 @@ public class VariantObjectConverter {
         } else if (obj instanceof VTCollection) {
             return convertArray((VTCollection) obj, hint);
         } else if (obj instanceof VTStruct) {
-            // TODO
-        } else if (obj instanceof VTNull) {
+            VTStruct st = (VTStruct) obj;
+            Map m = new HashMap();
+            for(Iterator i = st.getKeys().iterator(); i.hasNext(); ) {
+                String s = (String) i.next();
+                m.put(s, createFrom(st.getValue(s), hint));
+            }
+            return m;
+        } else if (obj instanceof VTNull || obj == null) {
             if (String.class.equals(hint)) {
                 return "";
-            } else if (Integer.class.equals(hint) || int.class.equals(hint)) {
-                return new Integer(0);
-            } else if (Long.class.equals(hint) || long.class.equals(hint)) {
-                return new Long(0);
-            } else if (Boolean.class.equals(hint) || boolean.class.equals(hint)) {
-                return new Boolean(false);
+            } else if (int.class.equals(hint)) {
+                return IZERO;
+            } else if (long.class.equals(hint)) {
+                return LZERO;
+            } else if (boolean.class.equals(hint)) {
+                return Boolean.FALSE;
+            } else if (double.class.equals(hint)) {
+                return DZERO;
             } else {
-                return new Double(0);
+                return null;
             }
         }
 
@@ -307,22 +310,19 @@ public class VariantObjectConverter {
         int length = arr.size();
         Object val = null;
 
-        if (Integer.class.equals(hint) || int.class.equals(hint)) {
+        if (Integer.class.equals(hint)) {
             Long l = length > 0 ? arr.getLong(0) : null;
-            if (l == null) {
-                val = new Integer(0);
-            } else {
-                val = new Integer(l.intValue());
-            }
-        } else if (Double.class.equals(hint) || double.class.equals(hint)) {
+            return l == null ? null : new Integer(l.intValue());
+        } else if (int.class.equals(hint)) {
+            Long l = length > 0 ? arr.getLong(0) : null;
+            return l == null ? IZERO : new Integer(l.intValue());
+        } else if (Double.class.equals(hint)) {
+            return length > 0 ? arr.getDouble(0) : null;
+        } else if (double.class.equals(hint)) {
             Double d = length > 0 ? arr.getDouble(0) : null;
-            if (d == null) {
-                val = new Double(0);
-            } else {
-                val = d;
-            }
+            return d == null ? DZERO : d;
         } else if (String.class.equals(hint)) {
-            val = arr.getString(0);
+            return length > 0 ? arr.getString(0) : null;
         } else if (double[].class.equals(hint)) {
             double[] darr = new double[length];
 
@@ -365,7 +365,10 @@ public class VariantObjectConverter {
             int[] darr = new int[length];
 
             for (int i = 0; i < darr.length; i++) {
-                darr[i] = arr.getLong(i).intValue();
+                Long l = arr.getLong(i);
+                if(l != null) {
+                    darr[i] = arr.getLong(i).intValue();
+                }
             }
 
             val = darr;
@@ -373,7 +376,10 @@ public class VariantObjectConverter {
             int[][] darr = new int[length][1];
 
             for (int i = 0; i < length; i++) {
-                darr[i][0] = arr.getLong(i).intValue();
+                Long l = arr.getLong(i);
+                if(l != null) {
+                    darr[i][0] = l.intValue();
+                }
             }
 
             val = darr;
@@ -381,7 +387,10 @@ public class VariantObjectConverter {
             Integer[] darr = new Integer[length];
 
             for (int i = 0; i < darr.length; i++) {
-                darr[i] = new Integer(arr.getLong(i).intValue());
+                Long l = arr.getLong(i);
+                if(l != null) {
+                    darr[i] = new Integer(l.intValue());
+                }
             }
 
             val = darr;
@@ -389,7 +398,10 @@ public class VariantObjectConverter {
             Integer[][] darr = new Integer[length][1];
 
             for (int i = 0; i < length; i++) {
-                darr[i][0] = new Integer(arr.getLong(i).intValue());
+                Long l = arr.getLong(i);
+                if(l != null) {
+                    darr[i][0] = new Integer(l.intValue());
+                }
             }
 
             val = darr;
@@ -397,7 +409,10 @@ public class VariantObjectConverter {
             boolean[] darr = new boolean[length];
 
             for (int i = 0; i < darr.length; i++) {
-                darr[i] = arr.getLong(i).intValue() == 1;
+                Long l = arr.getLong(i);
+                if(l != null) {
+                    darr[i] = l.intValue() == 1;
+                }
             }
 
             val = darr;
@@ -405,7 +420,10 @@ public class VariantObjectConverter {
             boolean[][] darr = new boolean[length][1];
 
             for (int i = 0; i < length; i++) {
-                darr[i][0] = arr.getLong(i).intValue() == 1;
+                Long l = arr.getLong(i);
+                if(l != null) {
+                    darr[i][0] = l.intValue() == 1;
+                }
             }
 
             val = darr;
@@ -413,7 +431,10 @@ public class VariantObjectConverter {
             Boolean[] darr = new Boolean[length];
 
             for (int i = 0; i < darr.length; i++) {
-                darr[i] = new Boolean(arr.getLong(i).intValue() == 1);
+                Long l = arr.getLong(i);
+                if(l != null) {
+                    darr[i] = new Boolean(l.intValue() == 1);
+                }
             }
 
             val = darr;
@@ -421,7 +442,10 @@ public class VariantObjectConverter {
             Boolean[][] darr = new Boolean[length][1];
 
             for (int i = 0; i < length; i++) {
-                darr[i][0] = new Boolean(arr.getLong(i).intValue() == 1);
+                Long l = arr.getLong(i);
+                if(l != null) {
+                    darr[i][0] = new Boolean(l.intValue() == 1);
+                }
             }
 
             val = darr;
