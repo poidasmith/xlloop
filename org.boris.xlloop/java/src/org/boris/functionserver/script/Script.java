@@ -23,7 +23,17 @@ public class Script implements Function
     public Variant execute(VTCollection args) throws RequestException {
         Class[] hints = new Class[args.size()];
         for (int i = 0; i < hints.length; i++) {
-            hints[i] = Object[][].class;
+            Variant v = args.get(i);
+            if(v instanceof VTCollection) {
+                VTCollection c = (VTCollection) v;
+                if(c.size() > 0 && c.get(0) instanceof VTCollection) {
+                    hints[i] = Object[][].class;
+                } else {
+                    hints[i] = Object[].class;
+                }
+            } else {
+                hints[i] = Object.class;
+            }
         }
         try {
             Object[] a = converter.convert(args, hints);
