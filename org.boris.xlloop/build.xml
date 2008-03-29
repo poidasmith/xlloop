@@ -63,7 +63,11 @@
 			</fileset>
 		</zip>
 		<delete dir="${release.dir}/${release.name}-${release.version}"/>
-		<!-- <mkdir dir="c:/Development/xlloop-javadoc"/>
-		<javadoc sourcepath="java/src" packagenames="*" destdir="c:/Development/xlloop-javadoc"/> -->
+		<delete dir="${release.dir}/xlloop-javadoc"/>
+		<mkdir dir="${release.dir}/xlloop-javadoc"/>
+		<javadoc packagenames="*" destdir="${release.dir}/xlloop-javadoc">
+			<fileset dir="java/src" includes="**"/>
+			<fileset dir="../org.boris.variantcodec/java/src" includes="**"/>
+		</javadoc>
 	</target>
 </project>
