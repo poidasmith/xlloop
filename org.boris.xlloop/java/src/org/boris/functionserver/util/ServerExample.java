@@ -8,9 +8,9 @@ public class ServerExample {
         FunctionServer fs = new FunctionServer();
         ReflectFunctionHandler rfh = new ReflectFunctionHandler();
         rfh.addMethods("Math.", Math.class);
-        CompositeFunctionHandler cfh = new CompositeFunctionHandler();
-        cfh.add(rfh);
-        fs.setFunctionHandler(cfh);
+        DebugFunctionHandler dfh = new DebugFunctionHandler(rfh);
+        fs.setFunctionHandler(dfh);
+        System.out.println("Listening on port 5454...");
         fs.run();
     }
 }
