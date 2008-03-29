@@ -1,19 +1,11 @@
 package org.boris.functionserver.script;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.Reader;
 
-import org.apache.bsf.BSFException;
-import org.apache.bsf.BSFManager;
-import org.boris.functionserver.util.IO;
+import org.boris.functionserver.Function;
 
-public class ScriptFactory 
+public interface ScriptFactory 
 {
-    public static Script create(File f) throws BSFException, IOException {
-        String lang = BSFManager.getLangFromFilename(f.getName());
-        String source = IO.toString(f);
-        String name = f.getName();
-        
-        return new Script(lang, source, name);
-    }
+    public Function create(Reader r) throws IOException;
 }

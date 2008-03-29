@@ -7,14 +7,14 @@ import org.boris.functionserver.util.VariantObjectConverter;
 import org.boris.variantcodec.VTCollection;
 import org.boris.variantcodec.Variant;
 
-public class Script implements Function
+public class BSFScript implements Function
 {
     private VariantObjectConverter converter = new VariantObjectConverter();
     private String lang;
     private String source;
     private String name;
 
-    public Script(String lang, String source, String name) {
+    public BSFScript(String lang, String source, String name) {
         this.lang = lang;
         this.source = source;
         this.name = name;
