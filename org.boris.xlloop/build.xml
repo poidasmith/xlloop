@@ -1,7 +1,7 @@
 <project name="XLLoop" default="build">
 	
-	<property name="release.dir" value="C:/Development/Releases/"/>
-	<property name="src.dir" value="C:\eclipse\workspace\WinRun4J"/>
+	<property name="release.dir" value="F:/Development/Releases/"/>
+	<property name="src.dir" value="F:\eclipse\workspace\WinRun4J"/>
 	<property name="release.name" value="xlloop"/>
 	<property name="release.version" value="0.0.4"/>
 	<property name="deploy.dir" value="${release.dir}/${release.name}-${release.version}/xlloop"/>
@@ -9,7 +9,7 @@
 	<target name="build">
 		<mkdir dir="${deploy.dir}"/>
 		<mkdir dir="${deploy.dir}/bin"/>
-		<copy todir="${deploy.dir}/bin" file="java/ext_jars/bsf.jar"/>
+		<!-- <copy todir="${deploy.dir}/bin" file="java/ext_jars/bsf.jar"/> -->
 		<copy tofile="${deploy.dir}/bin/xlloop-${release.version}.xll" file="${src.dir}/build/FSAddin-Release/FSAddin.xll"/>
 		<copy todir="${deploy.dir}" file="${src.dir}/cpl-v10.html"/>
 		<mkdir dir="${deploy.dir}/src"/>
@@ -40,15 +40,8 @@
 			</fileset>
 		</jar>
 		<delete dir="build"/>
-		<mkdir dir="${deploy.dir}/example"/>
-		<mkdir dir="${deploy.dir}/example/functions"/>
-		<copy todir="${deploy.dir}/example">
+		<copy todir="${deploy.dir}/bin">
 			<fileset dir="example">
-				<include name="**"/>
-			</fileset>
-		</copy>
-		<copy todir="${deploy.dir}/example/functions">
-			<fileset dir="functions">
 				<include name="**"/>
 			</fileset>
 		</copy>
