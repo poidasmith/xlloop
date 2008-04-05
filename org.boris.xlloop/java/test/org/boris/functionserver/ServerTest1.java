@@ -25,11 +25,7 @@ public class ServerTest1 {
         RequestMap rh = new RequestMap();
         rh.add("GetFunctions", new Request() {
             public Variant execute(VTStruct args) throws RequestException {
-                VTCollection functions = new VTCollection();
-                VTStruct random = new VTStruct();
-                random.add("functionName", "Math.random");
-                functions.add(random);
-                return functions;
+                return new VTCollection().add(new VTStruct().add("functionName", "Math.random"));
             }});
         fs.setRequestHandler(rh);
         fs.run();
