@@ -3,6 +3,7 @@ package org.boris.functionserver.reflect;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,6 +12,7 @@ import org.boris.functionserver.FunctionHandler;
 import org.boris.functionserver.RequestException;
 import org.boris.functionserver.util.VariantObjectConverter;
 import org.boris.variantcodec.VTCollection;
+import org.boris.variantcodec.VTStruct;
 import org.boris.variantcodec.Variant;
 
 public class ReflectFunctionHandler implements FunctionHandler
@@ -79,5 +81,16 @@ public class ReflectFunctionHandler implements FunctionHandler
 
     public boolean hasFunction(String name) {
         return methods.containsKey(name);
+    }
+    
+    public VTCollection getFunctions() {
+        VTCollection functions = new VTCollection();
+        for(Iterator i = methods.keySet().iterator(); i.hasNext();) {
+            String key = (String) i.next();
+            VTStruct s = new VTStruct();
+            s.add("functionName", key);
+            functions.add(s);
+        }
+        return functions;
     }
 }

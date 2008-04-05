@@ -29,4 +29,8 @@ public class RequestMap implements RequestHandler
         }
         return r.execute(args);
     }
+
+    public boolean hasRequest(String name) {
+        return requests.containsKey(name);
+    }
 }

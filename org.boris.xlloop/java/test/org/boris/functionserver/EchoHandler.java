@@ -10,4 +10,8 @@ public class EchoHandler implements RequestHandler {
         args.add("count", ++count);
         return args;
     }
+
+    public boolean hasRequest(String name) {
+        return true;
+    }
 }

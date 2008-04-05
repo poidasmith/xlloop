@@ -3,12 +3,10 @@ package org.boris.functionserver;
 import java.io.File;
 
 import org.boris.functionserver.reflect.ReflectFunctionHandler;
+import org.boris.functionserver.reflect.ReflectRequestHandler;
 import org.boris.functionserver.script.ScriptRepository;
 import org.boris.functionserver.util.CompositeFunctionHandler;
 import org.boris.functionserver.util.DebugFunctionHandler;
-import org.boris.variantcodec.VTCollection;
-import org.boris.variantcodec.VTStruct;
-import org.boris.variantcodec.Variant;
 
 public class ServerTest1 {
     public static void main(String[] args) throws Exception {
@@ -22,12 +20,7 @@ public class ServerTest1 {
         cfh.add(rfh);
         cfh.add(srep);
         fs.setFunctionHandler(new DebugFunctionHandler(cfh));
-        RequestMap rh = new RequestMap();
-        rh.add("GetFunctions", new Request() {
-            public Variant execute(VTStruct args) throws RequestException {
-                return new VTCollection().add(new VTStruct().add("functionName", "Math.random"));
-            }});
-        fs.setRequestHandler(rh);
+        fs.setRequestHandler(new ReflectRequestHandler(rfh));
         fs.run();
     }
 }
