@@ -28,8 +28,6 @@ public class ServerTest1 {
                 VTCollection functions = new VTCollection();
                 VTStruct random = new VTStruct();
                 random.add("functionName", "Math.random");
-                random.add("functionText", "Math_random");
-                random.add("isVolatile", true);
                 functions.add(random);
                 return functions;
             }});
