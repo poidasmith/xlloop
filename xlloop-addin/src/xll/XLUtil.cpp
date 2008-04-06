@@ -30,6 +30,19 @@ LPSTR XLUtil::MakeExcelString(const char* string)
 	return temp;
 }
 
+LPXLOPER XLUtil::MakeExcelString2(const char* string)
+{
+	LPXLOPER xl = new XLOPER;
+	if(string == NULL) {
+		xl->xltype = xltypeMissing;
+	} else {
+		xl->xltype = xltypeStr;
+		xl->val.str = MakeExcelString(string);
+	}
+
+	return xl;
+}
+
 // A helper function used to register a function
 int XLUtil::RegisterFunction(LPXLOPER xllName, 
 					  const char* procedure, const char* typeText, const char* functionText,

@@ -117,20 +117,50 @@ __declspec(dllexport) int WINAPI xlAutoOpen(void)
 						const char* shortcutText = str->getString("shortcutText");
 						const char* helpTopic = str->getString("helpTopic");
 						const char* functionHelp = str->getString("functionHelp");
-						const char* argumentHelp = str->getString("argumentHelp");
+						VTCollection* argumentHelp = str->getCollection("argumentHelp");
 						bool isVolatile = str->getBoolean("isVolatile");
 						if(functionName != NULL) {
 							char tmp[MAX_PATH];
 							sprintf(tmp, "FS%d", findex);
-							XLUtil::RegisterFunction(&xDLL, tmp, isVolatile ? "PPPPPPPPPPP!" : "PPPPPPPPPPP", 
-								functionText == NULL ? functionName : functionText, argumentText, macroType,
-								category, shortcutText, helpTopic, functionHelp, argumentHelp);
-							g_functionNames.push_back(functionName);
-							findex++;
+							std::vector<const char*> argHelp;
+							if(argumentHelp != NULL) {
+								for(int j = 0; j < argumentHelp->size(); j++) {
+									argHelp.push_back(argumentHelp->getString(j));
+								}
+								argHelp.push_back("");
+							}
+							int size = 10 + argHelp.size();
+							static LPXLOPER input[20];
+							input[0] = (LPXLOPER FAR) &xDLL;
+							input[1] = (LPXLOPER FAR) XLUtil::MakeExcelString2(tmp);
+							input[2] = (LPXLOPER FAR) XLUtil::MakeExcelString2(isVolatile ? "PPPPPPPPPPP!" : "PPPPPPPPPPP");
+							input[3] = (LPXLOPER FAR) XLUtil::MakeExcelString2(functionText == NULL ? functionName : functionText);
+							input[4] = (LPXLOPER FAR) XLUtil::MakeExcelString2(argumentText);
+							input[5] = (LPXLOPER FAR) XLUtil::MakeExcelString2(macroType);
+							input[6] = (LPXLOPER FAR) XLUtil::MakeExcelString2(category);
+							input[7] = (LPXLOPER FAR) XLUtil::MakeExcelString2(shortcutText);
+							input[8] = (LPXLOPER FAR) XLUtil::MakeExcelString2(helpTopic);
+							input[9] = (LPXLOPER FAR) XLUtil::MakeExcelString2(functionHelp);
+							for(int j = 0; j < argHelp.size(); j++) {
+								input[10 + j] = (LPXLOPER FAR) XLUtil::MakeExcelString2(argHelp[j]);
+							}
+							int res = Excel4v(xlfRegister, 0, size, (LPXLOPER FAR*) input);
+
+							for(int j = 1; j < size; j++) {
+								if(input[j]->xltype == xltypeStr && input[j]->val.str != NULL) {
+									free(input[j]->val.str);
+								}
+								delete input[j];
+							}
+							if(res == 0) {
+								g_functionNames.push_back(functionName);
+								findex++;
+							}
 						}
 					}
 				}
 			}
+			if(v != NULL) delete v;
 		}
 	}
 
@@ -192,7 +222,7 @@ __declspec(dllexport) LPXLOPER WINAPI xlAddInManagerInfo(LPXLOPER xAction)
 		xInfo.xltype = xltypeStr | xlbitXLFree;
 		char* addinName = iniparser_getstr(g_ini, FS_ADDIN_NAME);
 		if(addinName == NULL) {
-			addinName = XLUtil::MakeExcelString("XLLoop v0.0.4");
+			addinName = XLUtil::MakeExcelString("XLLoop v0.0.5");
 		} else {
 			addinName = XLUtil::MakeExcelString(addinName);
 		}
@@ -202,7 +232,7 @@ __declspec(dllexport) LPXLOPER WINAPI xlAddInManagerInfo(LPXLOPER xAction)
 	return (LPXLOPER) &xInfo;
 }
 
-__declspec(dllexport) LPXLOPER WINAPI FSExecute(char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, LPXLOPER v4, 
+__declspec(dllexport) LPXLOPER WINAPI FSExecute(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, LPXLOPER v4, 
 												LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, LPXLOPER v9)
 {
 	// Attempt connection
@@ -246,7 +276,7 @@ __declspec(dllexport) LPXLOPER WINAPI FSExecute(char* name, LPXLOPER v0, LPXLOPE
 	return xres;
 }
 
-__declspec(dllexport) LPXLOPER WINAPI FSExecuteVolatile(char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, 
+__declspec(dllexport) LPXLOPER WINAPI FSExecuteVolatile(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, 
 														LPXLOPER v4, LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, 
 														LPXLOPER v9)
 {
@@ -254,46 +284,25 @@ __declspec(dllexport) LPXLOPER WINAPI FSExecuteVolatile(char* name, LPXLOPER v0,
 	return FSExecute(name, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9);
 }
 
+LPXLOPER WINAPI FSExecuteNumber(int number, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, 
+								LPXLOPER v4, LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, 
+								LPXLOPER v9)
+{
+	if(g_functionNames.size() < number) {
+		static XLOPER err;
+		err.xltype = xltypeStr; 
+		err.val.str = "\020#Unknown function";
+		return &err;
+	}
+	return FSExecute(g_functionNames[number].c_str(), v0, v1, v2, v3, v4, v5, v6, v7, v8, v9);
+}
+
 #define DECLARE_EXCEL_FUNCTION(number) \
 __declspec(dllexport) LPXLOPER WINAPI FS##number (LPXLOPER v0, LPXLOPER v1, LPXLOPER v2 \
 	,LPXLOPER v3, LPXLOPER v4, LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8 \
 	,LPXLOPER v9) \
 { \
-	if(!InitProtocol()) { \
-		static XLOPER err; \
-		err.xltype = xltypeStr; \
-		err.val.str = " #Could not connect to server  "; \
-		return &err; \
-	} \
-	if(g_functionNames.size() < number) { \
-		static XLOPER err; \
-		err.xltype = xltypeStr; \
-		err.val.str = " #Unknown function             "; \
-		return &err; \
-	} \
-	VTCollection* coll = new VTCollection; \
-	coll->add(XLConverter::ConvertX(v0)); \
-	coll->add(XLConverter::ConvertX(v1)); \
-	coll->add(XLConverter::ConvertX(v2)); \
-	coll->add(XLConverter::ConvertX(v3)); \
-	coll->add(XLConverter::ConvertX(v4)); \
-	coll->add(XLConverter::ConvertX(v5)); \
-	coll->add(XLConverter::ConvertX(v6)); \
-	coll->add(XLConverter::ConvertX(v7)); \
-	coll->add(XLConverter::ConvertX(v8)); \
-	coll->add(XLConverter::ConvertX(v9)); \
-	Variant* res = g_protocol->executeFunction(g_functionNames[number].c_str(), coll); \
-	delete coll; \
-	if(!g_protocol->isConnected()) { \
-		delete res; \
-		static XLOPER err; \
-		err.xltype = xltypeStr; \
-		err.val.str = " #Could not connect to server  "; \
-		return &err; \
-	} \
-	LPXLOPER xres = XLConverter::ConvertV(res); \
-	delete res; \
-	return xres; \
+	return FSExecuteNumber(number, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9); \
 } \
 
 DECLARE_EXCEL_FUNCTION(0)

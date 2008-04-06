@@ -21,6 +21,7 @@
 class XLUtil {
 public:
 	static LPSTR MakeExcelString(const char* string);
+	static LPXLOPER MakeExcelString2(const char* string);
 
 	static int RegisterFunction(LPXLOPER xllName, 
 			  const char* procedure, const char* typeText, const char* functionText,
