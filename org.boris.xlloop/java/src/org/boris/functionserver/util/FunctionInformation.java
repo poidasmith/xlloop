@@ -38,6 +38,14 @@ public class FunctionInformation
         this.macroType = macroType;
     }
 
+    public void setShortcutText(String shortcutText) {
+        this.shortcutText = shortcutText;
+    }
+
+    public void setHelpTopic(String helpTopic) {
+        this.helpTopic = helpTopic;
+    }
+
     public void addArgument(String name, String help) {
         this.arguments.add(name);
         this.argumentHelp.add(help);
@@ -65,15 +73,7 @@ public class FunctionInformation
                 c.add((String) argumentHelp.get(i));
             }
             s.add("argumentHelp", c);
-        }
+        } 
         return s;
-    }
-
-    public void setShortcutText(String shortcutText) {
-        this.shortcutText = shortcutText;
-    }
-
-    public void setHelpTopic(String helpTopic) {
-        this.helpTopic = helpTopic;
     }
 }

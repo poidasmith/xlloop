@@ -11,12 +11,14 @@ import org.boris.variantcodec.Variant;
 
 class InstanceMethod implements Function
 {
-    private Object instance;
-    private Method method;
-    private VariantObjectConverter converter;
-    private Class[] args;
+    Class clazz;
+    Object instance;
+    Method method;
+    VariantObjectConverter converter;
+    Class[] args;
     
-    public InstanceMethod(Object instance, Method method, VariantObjectConverter converter) {
+    public InstanceMethod(Class clazz, Object instance, Method method, VariantObjectConverter converter) {
+        this.clazz = clazz;
         this.instance = instance;
         this.method = method;
         this.converter = converter;

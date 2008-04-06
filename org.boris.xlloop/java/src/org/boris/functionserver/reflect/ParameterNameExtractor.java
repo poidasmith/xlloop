@@ -18,7 +18,7 @@ public class ParameterNameExtractor {
     private ConstantInfo[] constants;
     private int[] interfaces;
     private FieldInfo[] fields;
-    private MethodInfo[] methods;
+    private MethodInfo[] methods = new MethodInfo[0];
     private Attribute[] attributes;
 
     public ParameterNameExtractor(Class clazz) {
@@ -26,7 +26,6 @@ public class ParameterNameExtractor {
         try {
             parse();
         } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
     

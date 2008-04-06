@@ -10,9 +10,9 @@ import java.util.Set;
 import org.boris.functionserver.Function;
 import org.boris.functionserver.FunctionHandler;
 import org.boris.functionserver.RequestException;
+import org.boris.functionserver.util.FunctionInformation;
 import org.boris.functionserver.util.VariantObjectConverter;
 import org.boris.variantcodec.VTCollection;
-import org.boris.variantcodec.VTStruct;
 import org.boris.variantcodec.Variant;
 
 public class ReflectFunctionHandler implements FunctionHandler
@@ -25,21 +25,22 @@ public class ReflectFunctionHandler implements FunctionHandler
     }
 
     public void addMethod(Object instance, Method m) {
-        addMethod(m.getName(), instance, m);
+        addMethod(m.getName(), instance.getClass(), instance, m);
     }
 
-    public void addMethod(String name, Object instance, Method m) {
+    public void addMethod(String name, Class c, Object instance, Method m) {
+        if(!m.getDeclaringClass().equals(c)) return;
         Function f = (Function) methods.get(name);
         if (f instanceof InstanceMethod) {
             OverloadedMethod om = new OverloadedMethod();
             om.add((InstanceMethod) f);
-            om.add(new InstanceMethod(instance, m, converter));
+            om.add(new InstanceMethod(c, instance, m, converter));
             methods.put(name, om);
         } else if (f instanceof OverloadedMethod) {
-            ((OverloadedMethod) f).add(new InstanceMethod(instance, m,
+            ((OverloadedMethod) f).add(new InstanceMethod(c, instance, m,
                     converter));
         } else {
-            methods.put(name, new InstanceMethod(instance, m, converter));
+            methods.put(name, new InstanceMethod(c, instance, m, converter));
         }
     }
 
@@ -50,7 +51,7 @@ public class ReflectFunctionHandler implements FunctionHandler
                 if (namespace == null) {
                     addMethod(null, m[i]);
                 } else {
-                    addMethod(namespace + m[i].getName(), null, m[i]);
+                    addMethod(namespace + m[i].getName(), c, null, m[i]);
                 }
             }
         }
@@ -64,7 +65,7 @@ public class ReflectFunctionHandler implements FunctionHandler
                 if (namespace == null) {
                     addMethod(instance, m[i]);
                 } else {
-                    addMethod(namespace + m[i].getName(), instance, m[i]);
+                    addMethod(namespace + m[i].getName(), instance.getClass(), instance, m[i]);
                 }
             }
         }
@@ -87,10 +88,23 @@ public class ReflectFunctionHandler implements FunctionHandler
         VTCollection functions = new VTCollection();
         for(Iterator i = methods.keySet().iterator(); i.hasNext();) {
             String key = (String) i.next();
-            VTStruct s = new VTStruct();
-            s.add("functionName", key);
-            functions.add(s);
+            Function f = (Function) methods.get(key);
+            FunctionInformation fi = new FunctionInformation(key);
+            if(f instanceof InstanceMethod) {
+                try {
+                    InstanceMethod im = (InstanceMethod) f;
+                    ParameterNameExtractor pne = new ParameterNameExtractor(im.clazz);
+                    String[] names = pne.getParameterNames(im.method);
+                    for(int j = 0; j < names.length; j++) {
+                        fi.addArgument(names[j], im.args[j].getName());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            functions.add(fi.encode());
         }
+        System.out.println(functions);
         return functions;
     }
 }
