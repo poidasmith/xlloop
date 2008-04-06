@@ -96,7 +96,19 @@ public class ReflectFunctionHandler implements FunctionHandler
                     ParameterNameExtractor pne = new ParameterNameExtractor(im.clazz);
                     String[] names = pne.getParameterNames(im.method);
                     for(int j = 0; j < names.length; j++) {
-                        fi.addArgument(names[j], im.args[j].getName());
+                        fi.addArgument(names[j], im.args[j].getSimpleName());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else if(f instanceof OverloadedMethod) {
+                try {
+                    OverloadedMethod om = (OverloadedMethod) f;
+                    InstanceMethod im = om.getFirstMethod();
+                    ParameterNameExtractor pne = new ParameterNameExtractor(im.clazz);
+                    String[] names = pne.getParameterNames(im.method);
+                    for(int j = 0; j < names.length; j++) {
+                        fi.addArgument(names[j], im.args[j].getSimpleName());
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

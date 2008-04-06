@@ -34,4 +34,8 @@ public class OverloadedMethod implements Function
 
         throw new RequestException("#Invalid args");
     }
+
+    public InstanceMethod getFirstMethod() {
+        return (InstanceMethod) methods.get(0);
+    }
 }
