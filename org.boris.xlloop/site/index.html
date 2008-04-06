@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
     <head>
-        <title>XLLoop - OOP Framework Addin for Excel</title>
+        <title>XLLoop - Excel Functions in Java, Javascript, Ruby, Python</title>
         <link rel="stylesheet" href="style.css" type="text/css" />
         <meta name="description" content="OOP Framework for Java"/>
         <meta name="keywords" content="java, excel, addin, xll, xloper"/>
@@ -12,7 +12,7 @@
 
     <div id="heading">
         <div class="title">XLLoop</div>
-        <div class="subtitle">OOP Framework Addin for Excel</div>
+        <div class="subtitle">Excel Functions in Java, Javascript, Ruby, Python</div>
     </div>
     
     <div class="content">
@@ -23,11 +23,12 @@
             	XLLoop is a framework for implementing a warehouse of excel functions out of 
             	process and has the following features:
             	<ul>
-            	<li>Fast binary protocol (overhead approx. one 10th of a millisecond).
             	<li>Extensible server framework.
             	<li>Reflection-based function adaptor for extremely quick deployment of java methods.
-            	<li>Bean scripting framework adaptor so functions can be written in any BSF-supported language.
+            	<li>Bean scripting framework adaptor so functions can be written in any BSF-supported language (eg. Ruby, Python, Javascript).
+            	<li>Functions can be registered as excel functions (with help information).
             	<li>Functions can be dynamically added to excel without restart.
+            	<li>Fast binary protocol.
             	</ul> 
             	XLLoop consists of two main components:
             	<ul>
@@ -55,15 +56,16 @@
 <pre>
 package org.boris.functionserver;
 
-import org.boris.functionserver.reflect.ReflectFunctionHandler;
+import org.boris.functionserver.reflect.*;
 
 public class ServerTest 
 {
     public static void main(String[] args) throws Exception {
-        FunctionServer fs = new FunctionServer(5454);
+        FunctionServer fs = new FunctionServer();
         ReflectFunctionHandler rfh = new ReflectFunctionHandler();
         rfh.addMethods("Math.", Math.class);
         fs.setFunctionHandler(rfh);
+        fs.setRequestHandler(new ReflectRequestHandler(rfh));
         fs.run();
     }
 }
@@ -71,10 +73,15 @@ public class ServerTest
 			This will expose all the java.lang.Math functions inside excel. Excel usage is as follows:
 <pre>
 =FS("Math.random")
+=Math.random()
+
 =FS("Math.sin", 3.14)
+=Math.sin(3.14)
+
 =FS("Math.pow", 2, 4.45)
+=Math.pow(2, 4.45)
 </pre>
-			The addin can be customized using an INI file with the same name as the addin. Eg. (FSAddin.ini). The INI file can accept the following settings:<br/><br/>
+			The addin can be customized using an INI file with the same name as the addin. Eg. (xlloop.ini). The INI file can accept the following settings:<br/><br/>
 				<table>
 					<tr><th>Key</th><th>Description</th></tr>
 					<tr>
@@ -87,7 +94,7 @@ public class ServerTest
 					</tr>
 					<tr>
 						<td>addin.name</td>
-						<td>This is the name that will appear in the Excel addin manager window (default is "Function Server " + version).</td>
+						<td>This is the name that will appear in the Excel addin manager window (default is "XLLoop " + version).</td>
 					</tr>
 					<tr>
 						<td>function.name</td>
@@ -100,6 +107,10 @@ public class ServerTest
 					<tr>
 						<td>function.name.volatile</td>
 						<td>This is the name of the volatile version of the function (default is "FSV").</td>
+					</tr>
+					<tr>
+						<td>disable.function.list</td>
+						<td>Set this to "true" to switch off static excel function registration.</td>
 					</tr>
 				</table>						
 		</div>
@@ -128,7 +139,7 @@ import org.boris.functionserver.util.CompositeFunctionHandler;
 public class ServerTest 
 {
     public static void main(String[] args) throws Exception {
-        FunctionServer fs = new FunctionServer(5600);
+        FunctionServer fs = new FunctionServer();
         ReflectFunctionHandler rfh = new ReflectFunctionHandler();
         ScriptRepository srep = new ScriptRepository(new File("functions"), "Script.");
         rfh.addMethods("Math.", Math.class);
@@ -161,6 +172,16 @@ args[0] * args[1];
 		<div class="section">
 			<div class="section-title">Change History</div>
 			<div class="section-content">
+				V0.0.5
+				<ul>
+					<li>Added ability to register functions as excel functions.</li>
+				</ul>
+				V0.0.4
+				<ul>
+					<li>Improved marshalling of arrays and vectors.</li>
+					<li>Added example server.</li>
+					<li>Bug fixes.</li>
+				</ul>
 				V0.0.3
 				<ul>
 					<li>Java source changed to 1.4 compatibility.</li>
