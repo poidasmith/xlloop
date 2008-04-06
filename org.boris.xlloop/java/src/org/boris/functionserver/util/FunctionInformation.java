@@ -13,6 +13,8 @@ public class FunctionInformation
     private String functionHelp;
     private String category;
     private String macroType;
+    private String shortcutText;
+    private String helpTopic;
     private List arguments = new ArrayList();
     private List argumentHelp = new ArrayList();
 
@@ -52,6 +54,10 @@ public class FunctionInformation
             s.add("category", category);
         if (macroType != null)
             s.add("macroType", macroType);
+        if (shortcutText != null)
+            s.add("shortcutText", shortcutText);
+        if (helpTopic != null)
+            s.add("helpTopic", helpTopic);
         if (arguments.size() > 0) {
             s.add("argumentText", CSV.toCSV((String[]) arguments.toArray(new String[0])));
             VTCollection c = new VTCollection();
@@ -61,5 +67,13 @@ public class FunctionInformation
             s.add("argumentHelp", c);
         }
         return s;
+    }
+
+    public void setShortcutText(String shortcutText) {
+        this.shortcutText = shortcutText;
+    }
+
+    public void setHelpTopic(String helpTopic) {
+        this.helpTopic = helpTopic;
     }
 }
