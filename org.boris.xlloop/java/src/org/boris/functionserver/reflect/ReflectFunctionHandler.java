@@ -2,6 +2,7 @@ package org.boris.functionserver.reflect;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -84,8 +85,8 @@ public class ReflectFunctionHandler implements FunctionHandler
         return methods.containsKey(name);
     }
     
-    public VTCollection getFunctions() {
-        VTCollection functions = new VTCollection();
+    public FunctionInformation[] getFunctions() {
+        ArrayList functions = new ArrayList();
         for(Iterator i = methods.keySet().iterator(); i.hasNext();) {
             String key = (String) i.next();
             Function f = (Function) methods.get(key);
@@ -99,7 +100,6 @@ public class ReflectFunctionHandler implements FunctionHandler
                         fi.addArgument(names[j], im.args[j].getSimpleName());
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
                 }
             } else if(f instanceof OverloadedMethod) {
                 try {
@@ -111,12 +111,10 @@ public class ReflectFunctionHandler implements FunctionHandler
                         fi.addArgument(names[j], im.args[j].getSimpleName());
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
                 }
             }
-            functions.add(fi.encode());
+            functions.add(fi);
         }
-        System.out.println(functions);
-        return functions;
+        return (FunctionInformation[]) functions.toArray(new FunctionInformation[0]);
     }
 }
