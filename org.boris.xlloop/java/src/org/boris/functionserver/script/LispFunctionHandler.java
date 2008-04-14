@@ -1,6 +1,8 @@
 package org.boris.functionserver.script;
 
 import java.io.EOFException;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -8,6 +10,7 @@ import java.util.Iterator;
 import org.boris.functionserver.FunctionHandler;
 import org.boris.functionserver.RequestException;
 import org.boris.functionserver.util.FunctionInformation;
+import org.boris.functionserver.util.IO;
 import org.boris.functionserver.util.ObjectRegistry;
 import org.boris.variantcodec.VTCollection;
 import org.boris.variantcodec.VTDouble;
@@ -58,6 +61,29 @@ public class LispFunctionHandler implements FunctionHandler
         fi.addArgument("args", "The arguments...");
         fi.setFunctionHelp("Evaluates a list of arguments as a lisp expression");
         return fi;
+    }
+    
+    /**
+     * Eval scripts in a directory tree.
+     * 
+     * @param f
+     * @param recurse
+     */
+    public void eval(File f, boolean recurse) {
+        if(f == null) return;
+        if(f.isDirectory() && recurse) {
+            File[] fs = f.listFiles();
+            for(int i = 0; i < fs.length; i++) {
+                eval(fs[i], recurse);
+            }
+        } else if(f.isFile() && f.getName().endsWith(".lisp")) {
+            try {
+                String s = IO.toString(f);
+                jatha.eval(s);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private LispValue makeList(VTCollection args, int size) throws EOFException {
