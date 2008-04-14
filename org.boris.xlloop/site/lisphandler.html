@@ -1,0 +1,98 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+    <head>
+        <title>XLLoop - An Example Lisp Function Handler</title>
+        <link rel="shortcut icon" href="favicon.ico" type="image/vnd.microsoft.icon">
+        <link rel="stylesheet" href="style.css" type="text/css" />
+        <meta name="description" content="Excel Addin Framework for Java"/>
+        <meta name="keywords" content="java, excel, addin, xll, xloper"/>
+        <meta http-equiv="pragma" content="no-cache"/>    
+    </head>
+
+    <body>
+
+    <div id="heading">
+        <div class="title">XLLoop</div>
+        <div class="subtitle">An Example Lisp Function Handler</div>
+    </div>
+    
+    <div class="content">
+        <div class="section">
+            <div class="section-title">About</div>
+            <div class="section-content">
+            Included in the download is a function handler for evaluating lisp expressions from Excel. It has the following features:
+            <ul>
+            <li>Uses the open source lisp implementation <a href="http://jatha.sourceforge.net">Jatha</a>.
+            <li>Evaluate an lisp expression with the result being returned in excel form (eg. arrays, string, doubles).
+            <li>Dynamically add functions to the lisp environment (using defun).
+            <li>The server can evaluate a directory of lisp expressions on startup to customise the lisp environment. 
+            </ul> 
+			</div>
+		</div>
+
+        <div class="section">
+            <div class="section-title">Excel Example</div>
+            The following shows an example of creating a new function called "sum-list", which sums the
+            contents of a vector. <br/><br/>
+            The first screenshot shows the evaluation of a "defun" statement. The return value is a handle to a function.<br/>
+            <img src="lisp1.jpg"/>
+            <br/></br/><br/>
+            The second screenshot shows the use of the "sum-list" function to sum the contents of a range.<br/>
+            <img src="lisp2.jpg"/>
+            <br/></br/><br/>
+            The third screenshot shows the result.<br/>
+            <img src="lisp3.jpg"/>
+            <div class="section-content">
+			</div>
+		</div>
+		            
+        <div class="section">
+            <div class="section-title">Server Code</div>
+            <div class="section-content">
+            The following code snippet shows how to create a server for the lisp function handler:
+<pre>
+package org.boris.xlloop;
+
+import java.io.File;
+
+import org.boris.xlloop.script.LispFunctionHandler;
+import org.boris.xlloop.util.*;
+
+public class LispTest1 
+{
+    public static void main(String[] args) throws Exception {
+        // Create a new function server on default port
+        FunctionServer fs = new FunctionServer();
+        
+        // Create our lisp function handler
+        LispFunctionHandler lfh = new LispFunctionHandler();
+
+        // Evaluate any lisp files in this directory (and sub-dirs)
+        lfh.eval(new File("functions"), true); 
+        
+        // Expose a function called "Eval" for the lisp handler
+        FunctionInformationRequestHandler firh = new FunctionInformationRequestHandler();
+        firh.add(lfh.getInformation()); 
+
+        // Set the function handler
+        fs.setFunctionHandler(new DebugFunctionHandler(lfh));
+        
+        // Set the request handler (for the function information)
+        fs.setRequestHandler(new DebugRequestHandler(firh));
+        
+        // Run the engine
+        fs.run();
+    }
+}
+</pre>
+            </div>
+        </div>
+    </div>
+    
+    <div id="footer">
+        <p>
+            <a href="http://sourceforge.net"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=195634&amp;type=1" width="88" height="31" border="0" alt="SourceForge.net Logo" /></a>
+        </p>
+    </div>
+</body>
+</html>

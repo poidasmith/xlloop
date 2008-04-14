@@ -26,6 +26,7 @@
             	<li>Extensible server framework.
             	<li>Reflection-based function adaptor for extremely quick deployment of java methods.
             	<li>Bean scripting framework adaptor so functions can be written in any BSF-supported language (eg. Ruby, Python, Javascript).
+            	<li>Lisp Function Handler for evaluating Lisp expressions on the fly.
             	<li>Functions can be registered as excel functions (with help information).
             	<li>Functions can be dynamically added to excel without restart.
             	<li>Fast binary protocol.
@@ -123,6 +124,13 @@ public class ServerTest
 		</div>
 
 		<div class="section">
+			<div class="section-title">Lisp Example</div>
+			<div class="section-content">
+				The following page shows an <a href="lisphandler.html">example lisp function handler.</a>.
+			</div>
+		</div>
+
+		<div class="section">
 			<div class="section-title">Bean Scripting Framework Support</div>
 			<div class="section-content">
 			The following example shows a server that exposes all scripts within a directory (and sub directories) as
@@ -158,6 +166,7 @@ args[0] * args[1];
 	This can be called from Excel with the configuration above as follows:
 <pre>
 =FS("Script.mult", 45.3, 23)
+=Script.mult(45.3, 23)
 </pre>
 			</div>
 		</div>
@@ -172,9 +181,15 @@ args[0] * args[1];
 		<div class="section">
 			<div class="section-title">Change History</div>
 			<div class="section-content">
+				V0.0.6
+				<ul>
+					<li>Added lisp function handler example.</li>
+					<li>Bug fix for returning empty collections.</li>
+					<li>Refactoring package names to "xlloop" structure.</li>
+				</ul>
 				V0.0.5
 				<ul>
-					<li>Added ability to register functions as excel functions.</li>
+					<li>Added ability to register functions as real excel functions (with associated help text).</li>
 				</ul>
 				V0.0.4
 				<ul>
