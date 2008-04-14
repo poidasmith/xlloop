@@ -48,7 +48,7 @@
 		</copy>
 		<jar destfile="${deploy.dir}/src/xlloop-cppsrc.zip">
 			<fileset dir="${src.dir}">
-				<include name="**/FSAddin.def"/>
+				<include name="**/*.def"/>
 				<include name="**/*.cpp"/>
 				<include name="**/*.h"/>
 				<include name="**/*.vcproj"/>
