@@ -13,8 +13,8 @@
 #include "common/VTCodec.h"
 #include "xll/XLUtil.h"
 #include "xll/xlcall.h"
-#include "functionserver/Protocol.h"
-#include "functionserver/XLConverter.h"
+#include "xll/Protocol.h"
+#include "xll/XLConverter.h"
 
 // The DLL instance
 static HINSTANCE g_hinstance = NULL;
@@ -222,7 +222,7 @@ __declspec(dllexport) LPXLOPER WINAPI xlAddInManagerInfo(LPXLOPER xAction)
 		xInfo.xltype = xltypeStr | xlbitXLFree;
 		char* addinName = iniparser_getstr(g_ini, FS_ADDIN_NAME);
 		if(addinName == NULL) {
-			addinName = XLUtil::MakeExcelString("XLLoop v0.0.5");
+			addinName = XLUtil::MakeExcelString("XLLoop v0.0.6");
 		} else {
 			addinName = XLUtil::MakeExcelString(addinName);
 		}

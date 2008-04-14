@@ -8,25 +8,20 @@
  *     Peter Smith
  *******************************************************************************/
 
-#ifndef XLMENU_H
-#define XLMENU_H
+#ifndef XL_CONVERTER_H
+#define XL_CONVERTER_H
 
 #include "../common/Runtime.h"
-#include <jni.h>
-#include "xlcall.h"
+#include "../xll/xlcall.h"
+#include "../common/VTCodec.h"
 
-class XLMenu {
+class XLConverter {
 public:
-	XLMenu(jobject obj, jclass functionClass, jclass objectClass) :
-	  mFuncObj(obj), mFunctionClass(functionClass), mObjectClass(objectClass) {}
-	virtual ~XLMenu() {}
-
-	bool Initialize(JNIEnv* env);
+	static Variant* ConvertX(LPXLOPER x, bool missingToNull = true);
+	static LPXLOPER ConvertV(const Variant* v, LPXLOPER xl = NULL);
 
 private:
-	jobject mFuncObj;
-	jclass mFunctionClass;
-	jclass mObjectClass;
+	static Variant* ConvertXArray(LPXLOPER x, bool freex = false);
 };
 
-#endif // XLMENU_H
+#endif // XL_CONVERTER_H

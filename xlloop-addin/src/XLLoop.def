@@ -1,4 +1,4 @@
-LIBRARY	"FSAddin"
+LIBRARY	"XLLoop"
 
 EXPORTS
 	xlAutoOpen
