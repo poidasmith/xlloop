@@ -44,4 +44,15 @@ public class IO
             w.close();
         }
     }
+
+    public static String getExtension(File f) {
+        if (f == null)
+            return null;
+        String n = f.getName();
+        int idx = n.lastIndexOf('.');
+        if (idx == -1) {
+            return null;
+        }
+        return n.substring(idx + 1);
+    }
 }

@@ -56,10 +56,16 @@ public class ScriptRepository implements Callback, FunctionHandler {
         if (n == null) {
             return;
         }
-        System.out.println("Adding script: " + n);
         try {
-            scripts.put(n, create(f));
+            Function fn = create(f);
+            if(fn != null) {
+                System.out.println("Adding script: " + n);
+                scripts.put(n, fn);
+            } else {
+                System.out.println("Unrecognized: " + f.getName());
+            }
         } catch (Exception e) {
+            System.err.println("Error processing: " + f);
             e.printStackTrace();
         }
     }
@@ -104,15 +110,25 @@ public class ScriptRepository implements Callback, FunctionHandler {
     }
     
     public Function create(File f) throws BSFException, IOException {
-        String lang = BSFManager.getLangFromFilename(f.getName());
+        String lang = null; 
+        try {
+            lang = BSFManager.getLangFromFilename(f.getName());
+        } catch (Exception e) {
+        }
+        boolean bsf = lang != null;
+        if(lang == null) {
+            lang = IO.getExtension(f);
+        }
         ScriptFactory factory = (ScriptFactory) factories.get(lang);
         if(factory != null) {
             return factory.create(new FileReader(f));
-        } else {
+        } else if(bsf) {
             String source = IO.toString(f);
             String name = f.getName();
             
             return new BSFScript(lang, source, name);
         }
+        
+        return null;
     }
 }

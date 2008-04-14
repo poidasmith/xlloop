@@ -16,6 +16,7 @@ public class ServerTest1 {
         FunctionServer fs = new FunctionServer();
         ReflectFunctionHandler rfh = new ReflectFunctionHandler();
         LispFunctionHandler lfh = new LispFunctionHandler();
+        lfh.eval(new File("functions"), true); // evaluate any lisp files
         ScriptRepository srep = new ScriptRepository(new File("functions"),
                 "Script.");
         rfh.addMethods("Math.", Math.class);
