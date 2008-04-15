@@ -14,14 +14,22 @@ import org.boris.xlloop.reflect.ReflectFunctionHandler;
 
 public class ServerExample {
     public static void main(String[] args) throws Exception {
+        // Create function server on the default port
         FunctionServer fs = new FunctionServer();
+        
+        // Create a reflection function handler and add the Math methods
         ReflectFunctionHandler rfh = new ReflectFunctionHandler();
         rfh.addMethods("Math.", Math.class);
-        DebugFunctionHandler dfh = new DebugFunctionHandler(rfh);
-        fs.setFunctionHandler(dfh);
+        
+        // Create a function information handler to register our functions
         FunctionInformationRequestHandler firh = new FunctionInformationRequestHandler();
         firh.add(rfh.getFunctions());
+
+        // Set the handlers
         fs.setRequestHandler(new DebugRequestHandler(firh));
+        fs.setFunctionHandler(new DebugFunctionHandler(rfh));
+        
+        // Run the engine
         System.out.println("Listening on port 5454...");
         fs.run();
     }
