@@ -82,4 +82,35 @@ public class CSV
 
         return null;
     }    
+
+
+    /**
+     * Read a CSV from a file or URL.
+     *
+     * @param url.
+     *
+     * @return String[][] (as the csv array).
+     */
+    public String[][] ReadEx(String url, String delim, Boolean hasQuotes)
+        throws Exception {
+        BufferedReader br = CSV.openUrl(url);
+
+        if (br == null) {
+            return new String[][] {
+                { "Could not open: " + url }
+            };
+        }
+
+        ArrayList lines = new ArrayList();
+        String line = null;
+
+        while ((line = br.readLine()) != null) {
+            lines.add(CSV.parseLine(line, (delim != null) ? delim.charAt(0) : ',',
+                    (hasQuotes != null) ? hasQuotes.booleanValue() : true));
+        }
+
+        br.close();
+
+        return (String[][]) lines.toArray(new String[][] {  });
+    }
 }

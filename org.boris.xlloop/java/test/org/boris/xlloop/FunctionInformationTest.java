@@ -1,6 +1,6 @@
 package org.boris.xlloop;
 
-import org.boris.xlloop.util.FunctionInformation;
+import org.boris.xlloop.handler.FunctionInformation;
 
 public class FunctionInformationTest
 {

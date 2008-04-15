@@ -25,7 +25,7 @@ import org.boris.variantcodec.VTStruct;
 import org.boris.variantcodec.Variant;
 import org.boris.xlloop.FunctionHandler;
 import org.boris.xlloop.RequestException;
-import org.boris.xlloop.util.FunctionInformation;
+import org.boris.xlloop.handler.FunctionInformation;
 import org.boris.xlloop.util.IO;
 import org.boris.xlloop.util.ObjectRegistry;
 import org.jatha.Jatha;

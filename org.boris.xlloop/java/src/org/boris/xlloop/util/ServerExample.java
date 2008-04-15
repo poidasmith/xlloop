@@ -10,6 +10,9 @@
 package org.boris.xlloop.util;
 
 import org.boris.xlloop.FunctionServer;
+import org.boris.xlloop.handler.DebugFunctionHandler;
+import org.boris.xlloop.handler.DebugRequestHandler;
+import org.boris.xlloop.handler.FunctionInformationRequestHandler;
 import org.boris.xlloop.reflect.ReflectFunctionHandler;
 
 public class ServerExample {

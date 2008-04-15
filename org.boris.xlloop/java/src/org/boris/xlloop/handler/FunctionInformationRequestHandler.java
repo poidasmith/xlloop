@@ -7,7 +7,7 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.xlloop.util;
+package org.boris.xlloop.handler;
 
 import java.util.ArrayList;
 import java.util.Arrays;

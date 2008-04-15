@@ -2,10 +2,10 @@ package org.boris.xlloop;
 
 import java.io.File;
 
+import org.boris.xlloop.handler.DebugFunctionHandler;
+import org.boris.xlloop.handler.DebugRequestHandler;
+import org.boris.xlloop.handler.FunctionInformationRequestHandler;
 import org.boris.xlloop.script.LispFunctionHandler;
-import org.boris.xlloop.util.DebugFunctionHandler;
-import org.boris.xlloop.util.DebugRequestHandler;
-import org.boris.xlloop.util.FunctionInformationRequestHandler;
 
 public class LispTest1 {
     public static void main(String[] args) throws Exception {

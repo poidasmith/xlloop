@@ -2,15 +2,15 @@ package org.boris.xlloop;
 
 import java.io.File;
 
+import org.boris.xlloop.handler.CompositeFunctionHandler;
+import org.boris.xlloop.handler.CompositeRequestHandler;
+import org.boris.xlloop.handler.DebugFunctionHandler;
+import org.boris.xlloop.handler.DebugRequestHandler;
+import org.boris.xlloop.handler.FunctionInformationRequestHandler;
 import org.boris.xlloop.reflect.Reflect;
 import org.boris.xlloop.reflect.ReflectFunctionHandler;
 import org.boris.xlloop.script.LispFunctionHandler;
 import org.boris.xlloop.script.ScriptRepository;
-import org.boris.xlloop.util.CompositeFunctionHandler;
-import org.boris.xlloop.util.CompositeRequestHandler;
-import org.boris.xlloop.util.DebugFunctionHandler;
-import org.boris.xlloop.util.DebugRequestHandler;
-import org.boris.xlloop.util.FunctionInformationRequestHandler;
 
 public class ServerTest1 {
     public static void main(String[] args) throws Exception {

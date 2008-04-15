@@ -22,7 +22,7 @@ import org.boris.variantcodec.Variant;
 import org.boris.xlloop.Function;
 import org.boris.xlloop.FunctionHandler;
 import org.boris.xlloop.RequestException;
-import org.boris.xlloop.util.FunctionInformation;
+import org.boris.xlloop.handler.FunctionInformation;
 import org.boris.xlloop.util.VariantObjectConverter;
 
 public class ReflectFunctionHandler implements FunctionHandler

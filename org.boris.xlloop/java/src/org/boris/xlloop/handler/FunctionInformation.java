@@ -7,13 +7,14 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.xlloop.util;
+package org.boris.xlloop.handler;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.boris.variantcodec.VTCollection;
 import org.boris.variantcodec.VTStruct;
+import org.boris.xlloop.util.CSV;
 
 public class FunctionInformation
 {

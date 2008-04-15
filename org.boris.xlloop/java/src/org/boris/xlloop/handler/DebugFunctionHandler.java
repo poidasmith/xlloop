@@ -7,7 +7,7 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.xlloop.util;
+package org.boris.xlloop.handler;
 
 import org.boris.variantcodec.VTCollection;
 import org.boris.variantcodec.Variant;
