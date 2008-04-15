@@ -29,6 +29,7 @@ public class ReflectFunctionHandler implements FunctionHandler
 {
     private Map methods = new HashMap();
     private VariantObjectConverter converter = new VariantObjectConverter();
+    private Map information = new HashMap();
 
     public Set getFunctionList() {
         return methods.keySet();
@@ -38,6 +39,10 @@ public class ReflectFunctionHandler implements FunctionHandler
         addMethod(m.getName(), instance.getClass(), instance, m);
     }
 
+    public void addInformation(String name, FunctionInformation fi) {
+        information.put(name, fi);
+    }
+    
     public void addMethod(String name, Class c, Object instance, Method m) {
         if(!m.getDeclaringClass().equals(c)) return;
         Function f = (Function) methods.get(name);
@@ -98,8 +103,13 @@ public class ReflectFunctionHandler implements FunctionHandler
         ArrayList functions = new ArrayList();
         for(Iterator i = methods.keySet().iterator(); i.hasNext();) {
             String key = (String) i.next();
+            FunctionInformation fi = (FunctionInformation) information.get(key);
+            if(fi != null) {
+                functions.add(fi);
+                continue;
+            }
             Function f = (Function) methods.get(key);
-            FunctionInformation fi = new FunctionInformation(key);
+            fi = new FunctionInformation(key);
             if(f instanceof InstanceMethod) {
                 try {
                     InstanceMethod im = (InstanceMethod) f;

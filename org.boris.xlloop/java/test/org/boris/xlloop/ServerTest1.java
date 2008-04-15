@@ -2,7 +2,7 @@ package org.boris.xlloop;
 
 import java.io.File;
 
-import org.boris.xlloop.FunctionServer;
+import org.boris.xlloop.reflect.Reflect;
 import org.boris.xlloop.reflect.ReflectFunctionHandler;
 import org.boris.xlloop.script.LispFunctionHandler;
 import org.boris.xlloop.script.ScriptRepository;
@@ -21,6 +21,7 @@ public class ServerTest1 {
         ScriptRepository srep = new ScriptRepository(new File("functions"),
                 "Script.");
         rfh.addMethods("Math.", Math.class);
+        rfh.addMethods("Reflect.", Reflect.class);
         rfh.addMethods("CSV.", CSV.class);
         rfh.addMethods("Math.", CompoundMathFunctions.class);
         CompositeFunctionHandler cfh = new CompositeFunctionHandler();
