@@ -2,6 +2,7 @@
 <html>
     <head>
         <title>XLLoop - Excel Functions in Java, Javascript, Ruby, Python</title>
+		<link rel="shortcut icon" href="favicon.ico" type="image/vnd.microsoft.icon"/>
         <link rel="stylesheet" href="style.css" type="text/css" />
         <meta name="description" content="OOP Framework for Java"/>
         <meta name="keywords" content="java, excel, addin, xll, xloper"/>
@@ -11,7 +12,7 @@
     <body>
 
     <div id="heading">
-        <div class="title">XLLoop</div>
+        <div class="title"><img src="logo.gif"/>XLLoop</div>
         <div class="subtitle">Excel Functions in Java, Javascript, Ruby, Python</div>
     </div>
     
@@ -55,18 +56,30 @@
 			<div class="section-content">
 			An example of a very simple server that exposes the methods in the java.lang.Math class:
 <pre>
-package org.boris.functionserver;
+package org.boris.xlloop.util;
 
-import org.boris.functionserver.reflect.*;
+import org.boris.xlloop.FunctionServer;
+import org.boris.xlloop.reflect.ReflectFunctionHandler;
 
-public class ServerTest 
-{
+public class ServerExample {
     public static void main(String[] args) throws Exception {
+        // Create function server on the default port
         FunctionServer fs = new FunctionServer();
+        
+        // Create a reflection function handler and add the Math methods
         ReflectFunctionHandler rfh = new ReflectFunctionHandler();
         rfh.addMethods("Math.", Math.class);
-        fs.setFunctionHandler(rfh);
-        fs.setRequestHandler(new ReflectRequestHandler(rfh));
+        
+        // Create a function information handler to register our functions
+        FunctionInformationRequestHandler firh = new FunctionInformationRequestHandler();
+        firh.add(rfh.getFunctions());
+
+        // Set the handlers
+        fs.setRequestHandler(new DebugRequestHandler(firh));
+        fs.setFunctionHandler(new DebugFunctionHandler(rfh));
+        
+        // Run the engine
+        System.out.println("Listening on port 5454...");
         fs.run();
     }
 }
@@ -126,7 +139,7 @@ public class ServerTest
 		<div class="section">
 			<div class="section-title">Lisp Example</div>
 			<div class="section-content">
-				The following page shows an <a href="lisphandler.html">example lisp function handler.</a>.
+				The following page shows an <a href="lisphandler.html">example lisp function handler</a>.
 			</div>
 		</div>
 
