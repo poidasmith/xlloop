@@ -18,6 +18,9 @@ import org.boris.variantcodec.VTString;
 import org.boris.variantcodec.VTStruct;
 import org.boris.variantcodec.Variant;
 
+/**
+ * A client for the request handler server.
+ */
 public class RequestExecutor
 {
     private Socket socket;
