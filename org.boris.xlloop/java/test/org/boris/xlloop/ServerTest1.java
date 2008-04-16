@@ -32,6 +32,7 @@ public class ServerTest1 {
         FunctionInformationRequestHandler firh = new FunctionInformationRequestHandler();
         firh.add(rfh.getFunctions());
         firh.add(lfh.getInformation());
+        firh.add(srep); // add script repository as a function provider
         crh.add(firh);
         fs.setFunctionHandler(new DebugFunctionHandler(cfh));
         fs.setRequestHandler(new DebugRequestHandler(crh));

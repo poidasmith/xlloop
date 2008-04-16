@@ -11,7 +11,9 @@ package org.boris.xlloop.handler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.boris.variantcodec.VTCollection;
 import org.boris.variantcodec.VTStruct;
@@ -22,6 +24,7 @@ import org.boris.xlloop.RequestHandler;
 public class FunctionInformationRequestHandler implements RequestHandler
 {
     private ArrayList functions = new ArrayList();
+    private Set functionProviders = new HashSet();
     
     public void add(FunctionInformation fi) {
         functions.add(fi);
@@ -31,11 +34,24 @@ public class FunctionInformationRequestHandler implements RequestHandler
         functions.addAll(Arrays.asList(fis));
     }
     
+    public void add(FunctionProvider prov) {
+        functionProviders.add(prov);
+    }
+    
     public Variant execute(String name, VTStruct args) throws RequestException {
         VTCollection c = new VTCollection();
         for(Iterator i = functions.iterator(); i.hasNext(); ) {
             FunctionInformation fi = (FunctionInformation) i.next();
             c.add(fi.encode());
+        }
+        for(Iterator i = functionProviders.iterator(); i.hasNext(); ){
+            FunctionProvider fp = (FunctionProvider) i.next();
+            FunctionInformation[] fis = fp.getFunctions();
+            if(fis != null) {
+                for(int j = 0; j < fis.length; j++) {
+                    c.add(fis[j].encode());
+                }
+            }
         }
         return c;
     }

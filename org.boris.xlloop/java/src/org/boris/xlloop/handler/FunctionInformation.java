@@ -19,10 +19,8 @@ import org.boris.xlloop.util.CSV;
 public class FunctionInformation
 {
     private String functionName;
-    private String functionText;
     private String functionHelp;
     private String category;
-    private String macroType;
     private String shortcutText;
     private String helpTopic;
     private List arguments = new ArrayList();
@@ -32,20 +30,12 @@ public class FunctionInformation
         this.functionName = name;
     }
 
-    public void setFunctionText(String functionText) {
-        this.functionText = functionText;
-    }
-
     public void setFunctionHelp(String functionHelp) {
         this.functionHelp = functionHelp;
     }
 
     public void setCategory(String category) {
         this.category = category;
-    }
-
-    public void setMacroType(String macroType) {
-        this.macroType = macroType;
     }
 
     public void setShortcutText(String shortcutText) {
@@ -64,14 +54,10 @@ public class FunctionInformation
     public VTStruct encode() {
         VTStruct s = new VTStruct();
         s.add("functionName", functionName);
-        if (functionText != null)
-            s.add("functionText", functionText);
         if (functionHelp != null)
             s.add("functionHelp", functionHelp);
         if (category != null)
             s.add("category", category);
-        if (macroType != null)
-            s.add("macroType", macroType);
         if (shortcutText != null)
             s.add("shortcutText", shortcutText);
         if (helpTopic != null)
@@ -85,5 +71,20 @@ public class FunctionInformation
             s.add("argumentHelp", c);
         } 
         return s;
+    }
+    
+    // Note that this format is slightly different than the encoded format
+    public static FunctionInformation decode(VTStruct struct) {
+        FunctionInformation fi = new FunctionInformation(struct.getString("functionName"));
+        fi.setFunctionHelp(struct.getString("functionHelp"));
+        fi.setCategory(struct.getString("category"));
+        VTCollection coll = struct.getCollection("arguments");
+        if(coll != null) {
+            for(int i = 0; i < coll.size(); i++) {
+                VTStruct s = coll.getStruct(i);
+                fi.addArgument(s.getString("name"), s.getString("help"));
+            }
+        }
+        return fi;
     }
 }

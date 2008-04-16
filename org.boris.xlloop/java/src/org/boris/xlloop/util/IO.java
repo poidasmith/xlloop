@@ -64,4 +64,14 @@ public class IO
         }
         return n.substring(idx + 1);
     }
+    
+    public static String removeExtension(File f) {
+        if(f == null)
+            return null;
+        String n = f.getName();
+        int idx = n.lastIndexOf('.');
+        if(idx == -1)
+            return n;
+        return n.substring(0, idx);
+    }
 }

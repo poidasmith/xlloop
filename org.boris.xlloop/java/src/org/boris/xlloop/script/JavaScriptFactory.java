@@ -45,7 +45,11 @@ public class JavaScriptFactory implements ScriptFactory
             ScriptableObject so = ctx.initStandardObjects();
             Scriptable argsObj = ctx.newArray(so, oargs);
             so.defineProperty("args", argsObj, ScriptableObject.DONTENUM);
-            return converter.createFrom(script.exec(ctx, so));
+            try {
+                return converter.createFrom(script.exec(ctx, so));
+            } catch (Throwable t) {
+                throw new RequestException(t.getMessage());
+            }
         }
     }
 }
