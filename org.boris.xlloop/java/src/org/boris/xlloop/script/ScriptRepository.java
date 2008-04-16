@@ -37,6 +37,12 @@ public class ScriptRepository implements Callback, FunctionHandler {
         this.baseDir = baseDir;
         this.watcher = new FileSystemWatcher(baseDir, this);
         this.namespace = namespace;
+        
+        // Add our specific factories
+        JavaScriptFactory jsf = new JavaScriptFactory();
+        factories.put("javascript", jsf);
+        factories.put("js", jsf);
+        
         watcher.start();
     }
     

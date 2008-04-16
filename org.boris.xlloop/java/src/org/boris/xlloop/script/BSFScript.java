@@ -29,7 +29,7 @@ public class BSFScript implements Function
         this.name = name;
     }
 
-    public Variant execute(VTCollection args) throws RequestException {
+    public static Class[] createArgHints(VTCollection args) {
         Class[] hints = new Class[args.size()];
         for (int i = 0; i < hints.length; i++) {
             Variant v = args.get(i);
@@ -44,8 +44,12 @@ public class BSFScript implements Function
                 hints[i] = Object.class;
             }
         }
+        return hints;
+    }
+    
+    public Variant execute(VTCollection args) throws RequestException {
         try {
-            Object[] a = converter.convert(args, hints);
+            Object[] a = converter.convert(args, createArgHints(args));
             BSFManager manager = new BSFManager();
             manager.declareBean("args", a, Object[].class);
             Object res = manager.eval(lang, name, 1, 1, source);
