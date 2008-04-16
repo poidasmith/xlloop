@@ -24,6 +24,7 @@ public class ServerExample {
         ReflectFunctionHandler rfh = new ReflectFunctionHandler();
         rfh.addMethods("Math.", Math.class);
         rfh.addMethods("Math.", Maths.class);
+        rfh.addMethods("CSV.", CSV.class);
         
         // Create a function information handler to register our functions
         FunctionInformationRequestHandler firh = new FunctionInformationRequestHandler();
