@@ -8,7 +8,7 @@ import org.boris.xlloop.util.CSV;
 public class ParameterNameExtractorTest
 {
     public static void main(String[] args) throws Exception {
-        Class clazz = Math.class;
+        Class clazz = CSV.class;
         ParameterNameExtractor pne = new ParameterNameExtractor(clazz);
         Method[] m = clazz.getMethods();
         for(int i = 0; i < m.length; i++) {

@@ -23,6 +23,7 @@ public class ServerExample {
         // Create a reflection function handler and add the Math methods
         ReflectFunctionHandler rfh = new ReflectFunctionHandler();
         rfh.addMethods("Math.", Math.class);
+        rfh.addMethods("Math.", Maths.class);
         
         // Create a function information handler to register our functions
         FunctionInformationRequestHandler firh = new FunctionInformationRequestHandler();

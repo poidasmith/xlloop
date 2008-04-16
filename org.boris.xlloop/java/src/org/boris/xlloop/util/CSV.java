@@ -91,7 +91,7 @@ public class CSV
      *
      * @return String[][] (as the csv array).
      */
-    public String[][] ReadEx(String url, String delim, Boolean hasQuotes)
+    public String[][] readEx(String url, String delim, Boolean hasQuotes)
         throws Exception {
         BufferedReader br = CSV.openUrl(url);
 

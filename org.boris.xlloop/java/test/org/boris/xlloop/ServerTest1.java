@@ -12,6 +12,7 @@ import org.boris.xlloop.reflect.ReflectFunctionHandler;
 import org.boris.xlloop.script.LispFunctionHandler;
 import org.boris.xlloop.script.ScriptRepository;
 import org.boris.xlloop.util.CSV;
+import org.boris.xlloop.util.Maths;
 
 public class ServerTest1 {
     public static void main(String[] args) throws Exception {
@@ -22,10 +23,10 @@ public class ServerTest1 {
         ScriptRepository srep = new ScriptRepository(new File("functions"),
                 "Script.");
         rfh.addMethods("Math.", Math.class);
+        rfh.addMethods("Math.", Maths.class);
         rfh.addMethods("Reflect.", Reflect.class);
         rfh.addMethods("CSV.", CSV.class);
         rfh.addMethods("Test.", Test.class);
-        rfh.addMethods("Math.", CompoundMathFunctions.class);
         CompositeFunctionHandler cfh = new CompositeFunctionHandler();
         cfh.add(rfh);
         cfh.add(srep);
