@@ -13,6 +13,7 @@ import org.boris.xlloop.FunctionServer;
 import org.boris.xlloop.handler.DebugFunctionHandler;
 import org.boris.xlloop.handler.DebugRequestHandler;
 import org.boris.xlloop.handler.FunctionInformationRequestHandler;
+import org.boris.xlloop.reflect.Reflect;
 import org.boris.xlloop.reflect.ReflectFunctionHandler;
 
 public class ServerExample {
@@ -25,6 +26,7 @@ public class ServerExample {
         rfh.addMethods("Math.", Math.class);
         rfh.addMethods("Math.", Maths.class);
         rfh.addMethods("CSV.", CSV.class);
+        rfh.addMethods("Reflect.", Reflect.class);
         
         // Create a function information handler to register our functions
         FunctionInformationRequestHandler firh = new FunctionInformationRequestHandler();
