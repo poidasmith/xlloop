@@ -23,8 +23,6 @@ public interface RequestProtocol
     public static final String TYPE_OK = "Ok";
     public static final String TYPE_ERROR = "Error";
     
-    public static final boolean DEBUG = false;
-
     public void initialise(Socket socket) throws SocketException;
 
     public void send(Socket socket, String name, Variant data) throws IOException;
