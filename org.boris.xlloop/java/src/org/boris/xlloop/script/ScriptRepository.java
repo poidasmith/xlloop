@@ -88,7 +88,9 @@ public class ScriptRepository implements Callback, FunctionHandler, FunctionProv
                 // Attempt to load information for this script
                 loadInformation(n, f);
             } else {
-                System.out.println("Unrecognized: " + f.getName());
+                if(!f.getName().endsWith(".vc")) {
+                    System.out.println("Unrecognized: " + f.getName());
+                }
             }
         } catch (Exception e) {
             System.err.println("Error processing: " + f);
