@@ -36,6 +36,8 @@ static std::vector<std::string> g_functionNames;
 #define FS_INCLUDE_VOLATILE ":include.volatile"
 #define FS_FUNCTION_NAME_VOLATILE ":function.name.volatile"
 #define FS_DISABLE_FUNCTION_LIST ":disable.function.list"
+#define FS_REFRESH_FUNCTION_NAME ":refresh.function.name"
+#define FS_REFRESH_FUNCTION_CATEGORY ":refresh.function.category"
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
@@ -78,6 +80,16 @@ void RegisterFunctions()
 
 	Excel4(xlGetName, &xDLL, 0);
 
+	// Need to remove any functions that exist already
+	if(g_functionNames.size() > 0) {
+		for(int i = 0; i < g_functionNames.size(); i++) {
+			LPXLOPER px = XLUtil::MakeExcelString2(g_functionNames[i].c_str());
+			Excel4(xlfUnregister, 0, 1, (LPXLOPER) px);
+			free(px->val.str);
+			free(px);
+		}
+	}
+
 	VTStruct nill;
 	Variant* v = g_protocol->executeGeneric("GetFunctions", &nill);
 	VTCollection* functions = NULL;
@@ -90,7 +102,6 @@ void RegisterFunctions()
 				const char* functionName = str->getString("functionName");
 				const char* functionText = str->getString("functionText");
 				const char* argumentText = str->getString("argumentText");
-				const char* macroType = str->getString("macroType");
 				const char* category = str->getString("category");
 				const char* shortcutText = str->getString("shortcutText");
 				const char* helpTopic = str->getString("helpTopic");
@@ -114,7 +125,7 @@ void RegisterFunctions()
 					input[2] = (LPXLOPER FAR) XLUtil::MakeExcelString2(isVolatile ? "PPPPPPPPPPP!" : "PPPPPPPPPPP");
 					input[3] = (LPXLOPER FAR) XLUtil::MakeExcelString2(functionText == NULL ? functionName : functionText);
 					input[4] = (LPXLOPER FAR) XLUtil::MakeExcelString2(argumentText);
-					input[5] = (LPXLOPER FAR) XLUtil::MakeExcelString2(macroType);
+					input[5] = (LPXLOPER FAR) XLUtil::MakeExcelString2("1");
 					input[6] = (LPXLOPER FAR) XLUtil::MakeExcelString2(category);
 					input[7] = (LPXLOPER FAR) XLUtil::MakeExcelString2(shortcutText);
 					input[8] = (LPXLOPER FAR) XLUtil::MakeExcelString2(helpTopic);
@@ -179,8 +190,13 @@ __declspec(dllexport) int WINAPI xlAutoOpen(void)
 		RegisterFunctions();
 	}
 
-	// Register a command for refreshing the function list
-	int cres = XLUtil::RegisterCommand(&xDLL, "FSRefreshFunctionList", "A", "RefreshFunctions", "", "2", "XLLoop Add-In", "x");
+	// Register a function for refreshing the function list
+	const char* refreshFunctionName = iniparser_getstr(g_ini, FS_REFRESH_FUNCTION_NAME);
+	const char* refreshFunctionCategory = iniparser_getstr(g_ini, FS_REFRESH_FUNCTION_CATEGORY);
+	XLUtil::RegisterFunction(&xDLL, "FSRefreshFunctionList", "A", 
+		refreshFunctionName == NULL ? "XLLoop.refreshFunctions" : refreshFunctionName, 
+		"", "1", refreshFunctionCategory == NULL ? "XLLoop" : refreshFunctionCategory, 0, 0, 0, 0);
+
 
 	// Free the XLL filename
 	Excel4(xlFree, 0, 1, (LPXLOPER) &xDLL);
