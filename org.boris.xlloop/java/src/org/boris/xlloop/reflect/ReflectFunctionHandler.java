@@ -23,9 +23,10 @@ import org.boris.xlloop.Function;
 import org.boris.xlloop.FunctionHandler;
 import org.boris.xlloop.RequestException;
 import org.boris.xlloop.handler.FunctionInformation;
+import org.boris.xlloop.handler.FunctionProvider;
 import org.boris.xlloop.util.VariantObjectConverter;
 
-public class ReflectFunctionHandler implements FunctionHandler
+public class ReflectFunctionHandler implements FunctionHandler, FunctionProvider
 {
     private Map methods = new HashMap();
     private VariantObjectConverter converter = new VariantObjectConverter();

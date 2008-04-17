@@ -10,7 +10,6 @@ EXPORTS
 	xlAddInManagerInfo
 	FSExecute
 	FSExecuteVolatile
-	FSRefreshFunctionList
 	FS0
 	FS1
 	FS2

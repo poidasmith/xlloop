@@ -1,0 +1,14 @@
+0.0.7
+- added help text to scripts
+- added CSV functions to example
+- added reflection functions to example
+- added javascript handler that compiles scripts
+
+
+
+TODO
+? add better ruby and python script handling
+? add webservice handler
+
+* add refresh function list command to xll (can't be done i think)
+* could add function to refresh function list?

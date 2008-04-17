@@ -36,8 +36,6 @@ static std::vector<std::string> g_functionNames;
 #define FS_INCLUDE_VOLATILE ":include.volatile"
 #define FS_FUNCTION_NAME_VOLATILE ":function.name.volatile"
 #define FS_DISABLE_FUNCTION_LIST ":disable.function.list"
-#define FS_REFRESH_FUNCTION_NAME ":refresh.function.name"
-#define FS_REFRESH_FUNCTION_CATEGORY ":refresh.function.category"
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
@@ -79,16 +77,6 @@ void RegisterFunctions()
 	}
 
 	Excel4(xlGetName, &xDLL, 0);
-
-	// Need to remove any functions that exist already
-	if(g_functionNames.size() > 0) {
-		for(int i = 0; i < g_functionNames.size(); i++) {
-			LPXLOPER px = XLUtil::MakeExcelString2(g_functionNames[i].c_str());
-			Excel4(xlfUnregister, 0, 1, (LPXLOPER) px);
-			free(px->val.str);
-			free(px);
-		}
-	}
 
 	VTStruct nill;
 	Variant* v = g_protocol->executeGeneric("GetFunctions", &nill);
@@ -139,7 +127,7 @@ void RegisterFunctions()
 						if(input[j]->xltype == xltypeStr && input[j]->val.str != NULL) {
 							free(input[j]->val.str);
 						}
-						delete input[j];
+						free(input[j]);
 					}
 					if(res == 0) {
 						g_functionNames.push_back(functionName);
@@ -189,14 +177,6 @@ __declspec(dllexport) int WINAPI xlAutoOpen(void)
 	if(disableFunctionList == NULL || strcmp(disableFunctionList, "true")) {
 		RegisterFunctions();
 	}
-
-	// Register a function for refreshing the function list
-	const char* refreshFunctionName = iniparser_getstr(g_ini, FS_REFRESH_FUNCTION_NAME);
-	const char* refreshFunctionCategory = iniparser_getstr(g_ini, FS_REFRESH_FUNCTION_CATEGORY);
-	XLUtil::RegisterFunction(&xDLL, "FSRefreshFunctionList", "A", 
-		refreshFunctionName == NULL ? "XLLoop.refreshFunctions" : refreshFunctionName, 
-		"", "1", refreshFunctionCategory == NULL ? "XLLoop" : refreshFunctionCategory, 0, 0, 0, 0);
-
 
 	// Free the XLL filename
 	Excel4(xlFree, 0, 1, (LPXLOPER) &xDLL);
@@ -264,12 +244,6 @@ __declspec(dllexport) LPXLOPER WINAPI xlAddInManagerInfo(LPXLOPER xAction)
 	} 
 
 	return (LPXLOPER) &xInfo;
-}
-
-__declspec(dllexport) int WINAPI FSRefreshFunctionList() 
-{
-	RegisterFunctions();
-	return 1;
 }
 
 __declspec(dllexport) LPXLOPER WINAPI FSExecute(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, LPXLOPER v4, 
