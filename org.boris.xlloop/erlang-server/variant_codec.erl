@@ -74,7 +74,7 @@ decode_int(Bin) ->
 decode_null(Bin) ->
 	{undefined, Bin}.
 
-encode(Value) -> list_to_binary(lists:flatten(encode(Value, []))).
+encode(Value) -> list_to_binary(encode(Value, [])).
 	
 encode(Value, Acc) when is_tuple(Value) ->
 	{Type, Val} = Value,

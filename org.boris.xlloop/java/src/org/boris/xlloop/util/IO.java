@@ -10,6 +10,7 @@
 package org.boris.xlloop.util;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -73,5 +74,13 @@ public class IO
         if(idx == -1)
             return n;
         return n.substring(0, idx);
+    }
+
+    public static byte[] toBytes(File file) throws IOException {
+        byte[] b = new byte[(int) file.length()];
+        FileInputStream fis = new FileInputStream(file);
+        fis.read(b);
+        fis.close();
+        return b;
     }
 }
