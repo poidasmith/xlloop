@@ -116,7 +116,7 @@ encode_double(Value, Acc) ->
 	
 encode_long(Value, Acc) ->
 	WithType = Acc ++ [?LONG],
-	[WithType|binary_to_list(<<Value:64>>)].
+	WithType ++ binary_to_list(<<Value:64>>).
 
 encode_null(_Value, Acc) ->
 	Acc ++ [?NULL].
