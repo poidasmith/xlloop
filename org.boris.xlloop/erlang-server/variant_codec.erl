@@ -108,14 +108,14 @@ encode_collection(Value, Acc) ->
 encode_string(Value, Acc) ->
 	WithType = Acc ++ [?STRING],
 	WithLen = encode_int(length(Value), WithType),
-	[WithLen|Value].
+	WithLen ++ Value.
 
 encode_double(Value, Acc) ->
 	WithType = Acc ++ [?DOUBLE],
-	[WithType|binary_to_list(<<Value:64/float>>)].
+	WithType ++ binary_to_list(<<Value:64/float>>).
 	
 encode_long(Value, Acc) ->
-	WithType = Acc ++ [?DOUBLE],
+	WithType = Acc ++ [?LONG],
 	[WithType|binary_to_list(<<Value:64>>)].
 
 encode_null(_Value, Acc) ->
