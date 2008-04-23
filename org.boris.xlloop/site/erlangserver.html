@@ -54,12 +54,12 @@ start() ->
 stop() ->
 	server_example_pid ! stop.
 
-request(_Name, _Args) ->
+request(Name, _Args) ->
 	{collection, []}.
 	
 function(Name, Args) ->
 	case Name of
-		{string, "Sum"} -> sum_list(Args);
+		{string, "Erl.Sum"} -> sum_list(Args);
 		_ -> {string, "Hello World!"}
 	end.
 		
@@ -76,18 +76,88 @@ sum_list(Args) ->
 			{double, lists:foldl(Fun, 0, L)};
 		_ -> {double, 0}
 	end.
-</pre>
+				
+		</pre>
 This creates a new server (a socket listening on port 5454). The main function is "function". This is 
-called whenever excel invokes a function. Included is a function called "Sum". This is invoked from
+called whenever excel invokes a function. Included is a function called "Erl.Sum". This is invoked from
 excel by:
 <pre>
-=FS("Sum", [range])
+=FS("Erl.Sum", [range])
 </pre>
 
             <div class="section-content">
             </div>
         </div>
 
+    </div>
+
+    <div class="section">
+        <div class="section-title">Server With Function Registration</div>
+        <div class="section-content">
+        The code below expands on the server example above and implements a "GetFunctions" request
+        handler, which causes the function "Erl.Sum" to be registered in excel as a standalone
+        function:
+
+<pre>
+-module(server_example).
+-export([start/0, stop/0, request/2, function/2]).
+-behaviour(xlloop_server).
+-define(PORT, 5454).
+
+start() ->
+	Pid = xlloop_server:start(?PORT, ?MODULE),
+	register(server_example_pid, Pid).
+	
+stop() ->
+	server_example_pid ! stop.
+
+request(Name, _Args) ->
+	case Name of
+		{string, "GetFunctions"} ->
+		    % This part is used to register excel functions 
+		    %  (not strictly necessary but more user friendly)
+			{collection, [{struct, [
+				{{string, "functionName"}, {string, "Erl.Sum"}}, 
+				{{string, "functionHelp"}, {string, "Sums a range"}},
+				{{string, "category"}, {string, "Maths"}},
+				{{string, "argumentText"}, {string, "Range"}},
+				{{string, "argumentHelp"}, {collection, [
+					{string, "The range to sum"}
+				]}}]}]};
+		_ -> {collection, []}
+	end.
+	
+function(Name, Args) ->
+	case Name of
+		{string, "Erl.Sum"} -> sum_list(Args);
+		_ -> {string, "Hello World!"}
+	end.
+		
+sum_list(Args) ->
+	{collection, [First|_Rest]} = Args,
+	case First of
+		{collection, L} ->
+			Fun = fun(Elem, AccIn) ->
+				case Elem of
+					{double, D} -> AccIn + D;
+					_ -> AccIn
+				end
+			end,
+			{double, lists:foldl(Fun, 0, L)};
+		_ -> {double, 0}
+	end.
+				
+		</pre>
+        This can now be called in excel as follows:
+<pre>
+=Erl.Sum([range])
+
+As well as the generic function
+
+=FS("Erl.Sum", [range])
+</pre>
+        
+        </div>
     </div>
 
     <div id="footer">

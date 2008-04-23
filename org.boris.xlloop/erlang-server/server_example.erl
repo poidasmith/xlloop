@@ -10,12 +10,25 @@ start() ->
 stop() ->
 	server_example_pid ! stop.
 
-request(_Name, _Args) ->
-	{collection, []}.
+request(Name, _Args) ->
+	case Name of
+	    % This part is used to register proper excel functions (not strictly necessary
+	    %  but more user friendly 
+		{string, "GetFunctions"} ->
+			{collection, [{struct, [
+				{{string, "functionName"}, {string, "Erl.Sum"}}, % The function name in excel
+				{{string, "functionHelp"}, {string, "Sums a range"}},
+				{{string, "category"}, {string, "Maths"}},
+				{{string, "argumentText"}, {string, "Range"}},
+				{{string, "argumentHelp"}, {collection, [
+					{string, "The range to sum"}
+				]}}]}]};
+		_ -> {collection, []}
+	end.
 	
 function(Name, Args) ->
 	case Name of
-		{string, "Sum"} -> sum_list(Args);
+		{string, "Erl.Sum"} -> sum_list(Args);
 		_ -> {string, "Hello World!"}
 	end.
 		
