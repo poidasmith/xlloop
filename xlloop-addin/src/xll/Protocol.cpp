@@ -179,7 +179,7 @@ Variant* Protocol::receive()
 	tcpbuf b(conn);
 	tcpstream s(&b);
 	Variant* t = VTBinaryCodec::decode(s);
-	if(t == NULL)
+	if(t == NULL || t->getType() != VSTRING)
 		return NULL;
 	lastType = ((VTString *)t)->get();
 	Variant* res = VTBinaryCodec::decode(s);

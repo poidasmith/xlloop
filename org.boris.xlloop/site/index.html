@@ -24,7 +24,8 @@
             	XLLoop is a framework for implementing a warehouse of excel functions out of 
             	process and has the following features:
             	<ul>
-            	<li>Extensible server framework.</li>
+            	<li>Extensible <b>Java</b> server framework.</li>
+            	<li>Extensible <b>Erlang</b> server framework.</li>
             	<li>Reflection-based function adaptor for extremely quick deployment of java methods.</li>
             	<li>Bean scripting framework adaptor so functions can be written in any BSF-supported language (eg. Ruby, Python, Javascript).</li>
             	<li>Lisp Function Handler for evaluating Lisp expressions on the fly.</li>
@@ -35,7 +36,7 @@
             	XLLoop consists of two main components:
             	<ul>
             	<li>An excel addin implementation (xll written in c++).</li>
-            	<li>A server and framework (written in java).</li>
+            	<li>A server and framework written in java (and another written in <a href="erlangserver.html">erlang</a>).</li>
             	</ul>
             	The addin and server communicate via a simple socket-based protocol, sending and
             	receiving (binary) serialised xl objects (called xlopers).

@@ -3,7 +3,7 @@
 	<property name="release.dir" value="F:/Development/Releases/"/>
 	<property name="src.dir" value="F:\eclipse\workspace\WinRun4J"/>
 	<property name="release.name" value="xlloop"/>
-	<property name="release.version" value="0.0.6"/>
+	<property name="release.version" value="0.0.7"/>
 	<property name="deploy.dir" value="${release.dir}/${release.name}-${release.version}/xlloop"/>
 	
 	<target name="build">
@@ -25,6 +25,7 @@
 				<pathelement location="build"/>
 				<pathelement location="java/ext_jars/bsf.jar"/>
 				<pathelement location="java/ext_jars/jatha-2.8.jar"/>
+				<pathelement location="java/ext_jars/js.jar"/>
 			</classpath>
 		</javac>
 		<jar destfile="${deploy.dir}/bin/xlloop-${release.version}.jar">
@@ -44,6 +45,9 @@
 		<copy todir="${deploy.dir}/bin">
 			<fileset dir="example">
 				<include name="**"/>
+			</fileset>
+			<fileset dir="erlang-server">
+				<include name="**/*.erl"/>
 			</fileset>
 		</copy>
 		<jar destfile="${deploy.dir}/src/xlloop-cppsrc.zip">

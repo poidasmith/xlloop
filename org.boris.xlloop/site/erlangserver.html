@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+    <head>
+        <title>XLLoop - An Erlang Function Server</title>
+        <link rel="shortcut icon" href="favicon.ico" type="image/vnd.microsoft.icon"/>
+        <link rel="stylesheet" href="style.css" type="text/css" />
+        <meta name="description" content="Excel Addin Framework for Java"/>
+        <meta name="keywords" content="java, excel, addin, xll, xloper"/>
+        <meta http-equiv="pragma" content="no-cache"/>    
+    </head>
+
+    <body>
+
+    <div id="heading">
+        <div class="title"><img src="logo.gif"/>XLLoop</div>
+        <div class="subtitle">An Erlang Function Server</div>
+    </div>
+    
+    <div class="content">
+        <div class="section">
+            <div class="section-title">About</div>
+            <div class="section-content">
+            Included in the download is an erlang implementation of the xlloop server process. 
+            
+            <br/><br/></br>
+            For more information on Erlang you can try:
+            <ul>
+            <li><a href="http://www.erlang.org">Erlang.org</a> for downloads and reference material</li>
+            <li><a href="http://trapexit.org">Trapexit.org</a> for cookbooks, wiki etc..</a>
+            </ul>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Usage</div>
+            <div class="section-content">
+            The erlang server implementation consists of three files:
+            <ul>
+            <li><b>variant_codec.erl</b> - this is responsible for marshalling the excel objects.</li>
+            <li><b>xlloop_server.erl</b> - this is the server framework that dispatches requests/function calls to your server implementation.</li>
+            <li><b>server_example.erl</b> - an example server implementation</li>
+            </ul>
+            The code listing for the example server is as follows:
+<pre>
+-module(server_example).
+-export([start/0, stop/0, request/2, function/2]).
+-behaviour(xlloop_server).
+-define(PORT, 5454).
+
+start() ->
+	Pid = xlloop_server:start(?PORT, ?MODULE),
+	register(server_example_pid, Pid).
+	
+stop() ->
+	server_example_pid ! stop.
+
+request(_Name, _Args) ->
+	{collection, []}.
+	
+function(Name, Args) ->
+	case Name of
+		{string, "Sum"} -> sum_list(Args);
+		_ -> {string, "Hello World!"}
+	end.
+		
+sum_list(Args) ->
+	{collection, [First|_Rest]} = Args,
+	case First of
+		{collection, L} ->
+			Fun = fun(Elem, AccIn) ->
+				case Elem of
+					{double, D} -> AccIn + D;
+					_ -> AccIn
+				end
+			end,
+			{double, lists:foldl(Fun, 0, L)};
+		_ -> {double, 0}
+	end.
+</pre>
+This creates a new server (a socket listening on port 5454). The main function is "function". This is 
+called whenever excel invokes a function. Included is a function called "Sum". This is invoked from
+excel by:
+<pre>
+=FS("Sum", [range])
+</pre>
+
+            <div class="section-content">
+            </div>
+        </div>
+
+    </div>
+
+    <div id="footer">
+        <p>
+            <a href="http://sourceforge.net"><img src="http://sflogo.sourceforge.net/sflogo.php?group_id=195634&amp;type=1" width="88" height="31" border="0" alt="SourceForge.net Logo" /></a>
+        </p>
+    </div>
+</body>
+</html>
