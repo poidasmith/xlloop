@@ -20,8 +20,8 @@ function(Name, Args) ->
 	end.
 		
 sum_list(Args) ->
-	{collection, [A|_Rest]} = Args,
-	case A of
+	{collection, [First|_Rest]} = Args,
+	case First of
 		{collection, L} ->
 			Fun = fun(Elem, AccIn) ->
 				case Elem of
