@@ -13,6 +13,24 @@ stop() ->
 request(_Name, _Args) ->
 	{collection, []}.
 	
-function(_Name, _Args) ->
-	{string, "Hello World!"}.
-	
+function(Name, Args) ->
+	case Name of
+		{string, "Sum"} -> sum_list(Args);
+		_ -> {string, "Hello World!"}
+	end.
+		
+sum_list(Args) ->
+	{collection, [A|_Rest]} = Args,
+	case A of
+		{collection, L} ->
+			Fun = fun(Elem, AccIn) ->
+				case Elem of
+					{double, D} -> AccIn + D;
+					_ -> AccIn
+				end
+			end,
+			{double, lists:foldl(Fun, 0, L)};
+		_ -> {double, 0}
+	end.
+				
+		
