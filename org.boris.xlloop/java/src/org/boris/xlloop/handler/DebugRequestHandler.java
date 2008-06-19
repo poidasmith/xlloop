@@ -9,7 +9,7 @@
  *******************************************************************************/
 package org.boris.xlloop.handler;
 
-import org.boris.variantcodec.VTStruct;
+import org.boris.variantcodec.VTMap;
 import org.boris.variantcodec.Variant;
 import org.boris.xlloop.RequestException;
 import org.boris.xlloop.RequestHandler;
@@ -22,7 +22,7 @@ public class DebugRequestHandler implements RequestHandler
         this.handler = handler;
     }
 
-    public Variant execute(String name, VTStruct args) throws RequestException {
+    public Variant execute(String name, VTMap args) throws RequestException {
         System.out.println(name);
         System.out.println(args);
         Variant v = handler.execute(name, args);

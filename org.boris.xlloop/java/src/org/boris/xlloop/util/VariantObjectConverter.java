@@ -18,7 +18,7 @@ import org.boris.variantcodec.VTDouble;
 import org.boris.variantcodec.VTLong;
 import org.boris.variantcodec.VTNull;
 import org.boris.variantcodec.VTString;
-import org.boris.variantcodec.VTStruct;
+import org.boris.variantcodec.VTMap;
 import org.boris.variantcodec.Variant;
 
 /**
@@ -288,8 +288,8 @@ public class VariantObjectConverter {
             }
         } else if (obj instanceof VTCollection) {
             return convertArray((VTCollection) obj, hint);
-        } else if (obj instanceof VTStruct) {
-            VTStruct st = (VTStruct) obj;
+        } else if (obj instanceof VTMap) {
+            VTMap st = (VTMap) obj;
             Map m = new HashMap();
             for(Iterator i = st.getKeys().iterator(); i.hasNext(); ) {
                 String s = (String) i.next();

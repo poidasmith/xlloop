@@ -16,7 +16,7 @@ import java.io.FileOutputStream;
 import org.boris.variantcodec.BinaryCodec;
 import org.boris.variantcodec.HexDump;
 import org.boris.variantcodec.VTCollection;
-import org.boris.variantcodec.VTStruct;
+import org.boris.variantcodec.VTMap;
 import org.boris.xlloop.util.IO;
 
 public class BinCodec1
@@ -27,7 +27,7 @@ public class BinCodec1
     }
     
     public static void file1() throws Exception {
-        VTStruct fcall = new VTStruct();
+        VTMap fcall = new VTMap();
         fcall.add("name", "FTest");
         VTCollection ar = new VTCollection();
         fcall.add("args", ar);

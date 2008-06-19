@@ -15,7 +15,7 @@ import java.net.Socket;
 
 import org.boris.variantcodec.VTCollection;
 import org.boris.variantcodec.VTString;
-import org.boris.variantcodec.VTStruct;
+import org.boris.variantcodec.VTMap;
 import org.boris.variantcodec.Variant;
 
 /**
@@ -51,7 +51,7 @@ public class RequestExecutor
         return receive();
     }
 
-    public Variant execute(String name, VTStruct args) throws RequestException,
+    public Variant execute(String name, VTMap args) throws RequestException,
             IOException {
         connect();
         protocol.send(socket, name, args);

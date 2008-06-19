@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.boris.variantcodec.VTStruct;
+import org.boris.variantcodec.VTMap;
 import org.boris.variantcodec.Variant;
 import org.boris.xlloop.RequestException;
 import org.boris.xlloop.RequestHandler;
@@ -26,7 +26,7 @@ public class CompositeRequestHandler implements RequestHandler
         handlers.add(handler);
     }
     
-    public Variant execute(String name, VTStruct args) throws RequestException {
+    public Variant execute(String name, VTMap args) throws RequestException {
         for (Iterator i = handlers.iterator(); i.hasNext();) {
             RequestHandler h = (RequestHandler) i.next();
             if (h.hasRequest(name)) {

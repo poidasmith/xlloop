@@ -12,7 +12,7 @@ package org.boris.xlloop;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.boris.variantcodec.VTStruct;
+import org.boris.variantcodec.VTMap;
 import org.boris.variantcodec.Variant;
 
 public class RequestMap implements RequestHandler
@@ -31,7 +31,7 @@ public class RequestMap implements RequestHandler
         this.requests.clear();
     }
 
-    public Variant execute(String name, VTStruct args) throws RequestException {
+    public Variant execute(String name, VTMap args) throws RequestException {
         Request r = (Request) requests.get(name);
         if (r == null) {
             throw new RequestException("Unknown request: " + name);

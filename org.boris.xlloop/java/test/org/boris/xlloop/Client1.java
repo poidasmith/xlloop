@@ -2,7 +2,7 @@ package org.boris.xlloop;
 
 import java.net.InetAddress;
 
-import org.boris.variantcodec.VTStruct;
+import org.boris.variantcodec.VTMap;
 import org.boris.variantcodec.Variant;
 import org.boris.xlloop.RequestExecutor;
 
@@ -13,7 +13,7 @@ public class Client1 {
 
         long t0 = System.currentTimeMillis();
         for (int i = 0; i < 10; i++) {
-            VTStruct er = new VTStruct();
+            VTMap er = new VTMap();
             er.add("asdf", 1);
             er.add("num", i);
             er.add("num2", i);

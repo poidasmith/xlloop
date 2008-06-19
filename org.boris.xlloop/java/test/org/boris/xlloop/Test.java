@@ -1,6 +1,6 @@
 package org.boris.xlloop;
 
-import org.boris.variantcodec.VTStruct;
+import org.boris.variantcodec.VTMap;
 
 public class Test {
     public static Object[][] toArray(String name) {
@@ -42,8 +42,8 @@ public class Test {
         return v;
     }
 
-    public static VTStruct mapTest() {
-        VTStruct s = new VTStruct();
+    public static VTMap mapTest() {
+        VTMap s = new VTMap();
         s.add("test", 2);
         s.add("hello", 3);
         return s;

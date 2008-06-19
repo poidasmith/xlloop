@@ -16,7 +16,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.boris.variantcodec.VTCollection;
-import org.boris.variantcodec.VTStruct;
+import org.boris.variantcodec.VTMap;
 import org.boris.variantcodec.Variant;
 import org.boris.xlloop.RequestException;
 import org.boris.xlloop.RequestHandler;
@@ -38,7 +38,7 @@ public class FunctionInformationRequestHandler implements RequestHandler
         functionProviders.add(prov);
     }
     
-    public Variant execute(String name, VTStruct args) throws RequestException {
+    public Variant execute(String name, VTMap args) throws RequestException {
         VTCollection c = new VTCollection();
         for(Iterator i = functions.iterator(); i.hasNext(); ) {
             FunctionInformation fi = (FunctionInformation) i.next();

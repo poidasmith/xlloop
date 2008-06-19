@@ -21,7 +21,7 @@ import org.boris.variantcodec.VTDouble;
 import org.boris.variantcodec.VTLong;
 import org.boris.variantcodec.VTNull;
 import org.boris.variantcodec.VTString;
-import org.boris.variantcodec.VTStruct;
+import org.boris.variantcodec.VTMap;
 import org.boris.variantcodec.Variant;
 import org.boris.xlloop.FunctionHandler;
 import org.boris.xlloop.RequestException;
@@ -133,8 +133,8 @@ public class LispFunctionHandler implements FunctionHandler
             return jatha.makeReal(((VTDouble) value).doubleValue());
         } else if (value instanceof VTCollection) {
             return makeList((VTCollection) value, findSize((VTCollection) value));
-        } else if (value instanceof VTStruct) {
-            VTStruct s = (VTStruct) value;
+        } else if (value instanceof VTMap) {
+            VTMap s = (VTMap) value;
             StandardLispHashTable t = new StandardLispHashTable(jatha);
             for (Iterator i = s.getKeys().iterator(); i.hasNext(); ) {
                 String str = (String) i.next();

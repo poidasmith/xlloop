@@ -14,7 +14,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import org.boris.variantcodec.VTCollection;
-import org.boris.variantcodec.VTStruct;
+import org.boris.variantcodec.VTMap;
 import org.boris.variantcodec.Variant;
 
 public class FunctionServer
@@ -80,7 +80,7 @@ public class FunctionServer
                     switch (protocol.getLastType()) {
                     case RequestProtocol.REQ_TYPE_GENERIC:
                         res = rHandler.execute(protocol.getLastName(),
-                                (VTStruct) msg);
+                                (VTMap) msg);
                         break;
                     case RequestProtocol.REQ_TYPE_FUNCTION:
                         res = fHandler.execute(protocol.getLastName(),

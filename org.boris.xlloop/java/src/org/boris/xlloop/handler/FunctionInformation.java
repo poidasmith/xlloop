@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.boris.variantcodec.VTCollection;
-import org.boris.variantcodec.VTStruct;
+import org.boris.variantcodec.VTMap;
 import org.boris.xlloop.util.CSV;
 
 public class FunctionInformation
@@ -51,8 +51,8 @@ public class FunctionInformation
         this.argumentHelp.add(help);
     }
 
-    public VTStruct encode() {
-        VTStruct s = new VTStruct();
+    public VTMap encode() {
+        VTMap s = new VTMap();
         s.add("functionName", functionName);
         if (functionHelp != null)
             s.add("functionHelp", functionHelp);
@@ -74,14 +74,14 @@ public class FunctionInformation
     }
     
     // Note that this format is slightly different than the encoded format
-    public static FunctionInformation decode(VTStruct struct) {
+    public static FunctionInformation decode(VTMap struct) {
         FunctionInformation fi = new FunctionInformation(struct.getString("functionName"));
         fi.setFunctionHelp(struct.getString("functionHelp"));
         fi.setCategory(struct.getString("category"));
         VTCollection coll = struct.getCollection("arguments");
         if(coll != null) {
             for(int i = 0; i < coll.size(); i++) {
-                VTStruct s = coll.getStruct(i);
+                VTMap s = coll.getStruct(i);
                 fi.addArgument(s.getString("name"), s.getString("help"));
             }
         }

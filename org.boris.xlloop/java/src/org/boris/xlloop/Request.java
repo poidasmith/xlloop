@@ -9,10 +9,10 @@
  *******************************************************************************/
 package org.boris.xlloop;
 
-import org.boris.variantcodec.VTStruct;
+import org.boris.variantcodec.VTMap;
 import org.boris.variantcodec.Variant;
 
 public interface Request 
 {
-    Variant execute(VTStruct args) throws RequestException;
+    Variant execute(VTMap args) throws RequestException;
 }
