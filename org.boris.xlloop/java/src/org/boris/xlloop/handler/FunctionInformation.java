@@ -16,8 +16,7 @@ import org.boris.variantcodec.VTCollection;
 import org.boris.variantcodec.VTMap;
 import org.boris.xlloop.util.CSV;
 
-public class FunctionInformation
-{
+public class FunctionInformation {
     private String functionName;
     private String functionHelp;
     private String category;
@@ -63,25 +62,27 @@ public class FunctionInformation
         if (helpTopic != null)
             s.add("helpTopic", helpTopic);
         if (arguments.size() > 0) {
-            s.add("argumentText", CSV.toCSV((String[]) arguments.toArray(new String[0])));
+            s.add("argumentText", CSV.toCSV((String[]) arguments
+                    .toArray(new String[0])));
             VTCollection c = new VTCollection();
             for (int i = 0; i < argumentHelp.size(); i++) {
                 c.add((String) argumentHelp.get(i));
             }
             s.add("argumentHelp", c);
-        } 
+        }
         return s;
     }
-    
+
     // Note that this format is slightly different than the encoded format
-    public static FunctionInformation decode(VTMap struct) {
-        FunctionInformation fi = new FunctionInformation(struct.getString("functionName"));
-        fi.setFunctionHelp(struct.getString("functionHelp"));
-        fi.setCategory(struct.getString("category"));
-        VTCollection coll = struct.getCollection("arguments");
-        if(coll != null) {
-            for(int i = 0; i < coll.size(); i++) {
-                VTMap s = coll.getStruct(i);
+    public static FunctionInformation decode(VTMap map) {
+        FunctionInformation fi = new FunctionInformation(map
+                .getString("functionName"));
+        fi.setFunctionHelp(map.getString("functionHelp"));
+        fi.setCategory(map.getString("category"));
+        VTCollection coll = map.getCollection("arguments");
+        if (coll != null) {
+            for (int i = 0; i < coll.size(); i++) {
+                VTMap s = coll.getMap(i);
                 fi.addArgument(s.getString("name"), s.getString("help"));
             }
         }

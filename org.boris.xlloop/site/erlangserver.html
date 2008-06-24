@@ -116,7 +116,7 @@ request(Name, _Args) ->
 		{string, "GetFunctions"} ->
 		    % This part is used to register excel functions 
 		    %  (not strictly necessary but more user friendly)
-			{collection, [{struct, [
+			{collection, [{map, [
 				{{string, "functionName"}, {string, "Erl.Sum"}}, 
 				{{string, "functionHelp"}, {string, "Sums a range"}},
 				{{string, "category"}, {string, "Maths"}},
