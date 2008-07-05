@@ -13,10 +13,10 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 
-import org.boris.variantcodec.VTCollection;
-import org.boris.variantcodec.VTString;
-import org.boris.variantcodec.VTMap;
-import org.boris.variantcodec.Variant;
+import org.boris.variant.VTCollection;
+import org.boris.variant.VTMap;
+import org.boris.variant.VTString;
+import org.boris.variant.Variant;
 
 /**
  * A client for the request handler server.

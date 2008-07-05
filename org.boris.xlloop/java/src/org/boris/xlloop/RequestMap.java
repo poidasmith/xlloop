@@ -12,8 +12,8 @@ package org.boris.xlloop;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.boris.variantcodec.VTMap;
-import org.boris.variantcodec.Variant;
+import org.boris.variant.VTMap;
+import org.boris.variant.Variant;
 
 public class RequestMap implements RequestHandler
 {

@@ -12,8 +12,8 @@ package org.boris.xlloop.handler;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.boris.variantcodec.VTCollection;
-import org.boris.variantcodec.VTMap;
+import org.boris.variant.VTCollection;
+import org.boris.variant.VTMap;
 import org.boris.xlloop.util.CSV;
 
 public class FunctionInformation {

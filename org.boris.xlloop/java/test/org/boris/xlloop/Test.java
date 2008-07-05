@@ -1,6 +1,6 @@
 package org.boris.xlloop;
 
-import org.boris.variantcodec.VTMap;
+import org.boris.variant.VTMap;
 
 public class Test {
     public static Object[][] toArray(String name) {

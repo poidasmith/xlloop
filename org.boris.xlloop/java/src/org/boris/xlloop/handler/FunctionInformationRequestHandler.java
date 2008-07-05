@@ -15,9 +15,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.boris.variantcodec.VTCollection;
-import org.boris.variantcodec.VTMap;
-import org.boris.variantcodec.Variant;
+import org.boris.variant.VTCollection;
+import org.boris.variant.VTMap;
+import org.boris.variant.Variant;
 import org.boris.xlloop.RequestException;
 import org.boris.xlloop.RequestHandler;
 

@@ -17,8 +17,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.boris.variantcodec.VTCollection;
-import org.boris.variantcodec.Variant;
+import org.boris.variant.VTCollection;
+import org.boris.variant.Variant;
 import org.boris.xlloop.Function;
 import org.boris.xlloop.FunctionHandler;
 import org.boris.xlloop.RequestException;

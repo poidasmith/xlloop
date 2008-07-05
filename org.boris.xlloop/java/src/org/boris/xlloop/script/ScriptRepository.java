@@ -20,10 +20,10 @@ import java.util.Map;
 
 import org.apache.bsf.BSFException;
 import org.apache.bsf.BSFManager;
-import org.boris.variantcodec.CCodec;
-import org.boris.variantcodec.VTCollection;
-import org.boris.variantcodec.VTMap;
-import org.boris.variantcodec.Variant;
+import org.boris.variant.VTCollection;
+import org.boris.variant.VTMap;
+import org.boris.variant.Variant;
+import org.boris.variant.codec.CCodec;
 import org.boris.xlloop.Function;
 import org.boris.xlloop.FunctionHandler;
 import org.boris.xlloop.RequestException;

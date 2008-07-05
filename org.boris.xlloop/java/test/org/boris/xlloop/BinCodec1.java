@@ -13,10 +13,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
-import org.boris.variantcodec.BinaryCodec;
-import org.boris.variantcodec.HexDump;
-import org.boris.variantcodec.VTCollection;
-import org.boris.variantcodec.VTMap;
+import org.boris.variant.VTCollection;
+import org.boris.variant.VTMap;
+import org.boris.variant.codec.BinaryCodec;
+import org.boris.variant.util.HexDump;
 import org.boris.xlloop.util.IO;
 
 public class BinCodec1

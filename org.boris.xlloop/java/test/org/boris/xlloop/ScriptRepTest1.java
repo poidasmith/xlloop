@@ -2,8 +2,8 @@ package org.boris.xlloop;
 
 import java.io.File;
 
-import org.boris.variantcodec.VTCollection;
-import org.boris.variantcodec.Variant;
+import org.boris.variant.VTCollection;
+import org.boris.variant.Variant;
 import org.boris.xlloop.script.ScriptRepository;
 
 public class ScriptRepTest1 {

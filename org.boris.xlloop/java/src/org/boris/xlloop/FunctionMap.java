@@ -12,8 +12,8 @@ package org.boris.xlloop;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.boris.variantcodec.VTCollection;
-import org.boris.variantcodec.Variant;
+import org.boris.variant.VTCollection;
+import org.boris.variant.Variant;
 
 public class FunctionMap implements FunctionHandler 
 {

@@ -9,8 +9,8 @@
  *******************************************************************************/
 package org.boris.xlloop;
 
-import org.boris.variantcodec.VTMap;
-import org.boris.variantcodec.Variant;
+import org.boris.variant.VTMap;
+import org.boris.variant.Variant;
 
 public interface RequestHandler 
 {

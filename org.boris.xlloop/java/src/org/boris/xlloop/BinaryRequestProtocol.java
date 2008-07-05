@@ -17,10 +17,10 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 
-import org.boris.variantcodec.BinaryCodec;
-import org.boris.variantcodec.VTLong;
-import org.boris.variantcodec.VTString;
-import org.boris.variantcodec.Variant;
+import org.boris.variant.VTLong;
+import org.boris.variant.VTString;
+import org.boris.variant.Variant;
+import org.boris.variant.codec.BinaryCodec;
 
 public class BinaryRequestProtocol implements RequestProtocol
 {

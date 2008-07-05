@@ -13,8 +13,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.boris.variantcodec.VTCollection;
-import org.boris.variantcodec.Variant;
+import org.boris.variant.VTCollection;
+import org.boris.variant.Variant;
 import org.boris.xlloop.FunctionHandler;
 import org.boris.xlloop.RequestException;
 

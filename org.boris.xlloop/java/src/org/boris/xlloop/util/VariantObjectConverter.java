@@ -13,13 +13,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.boris.variantcodec.VTCollection;
-import org.boris.variantcodec.VTDouble;
-import org.boris.variantcodec.VTLong;
-import org.boris.variantcodec.VTNull;
-import org.boris.variantcodec.VTString;
-import org.boris.variantcodec.VTMap;
-import org.boris.variantcodec.Variant;
+import org.boris.variant.VTCollection;
+import org.boris.variant.VTDouble;
+import org.boris.variant.VTLong;
+import org.boris.variant.VTMap;
+import org.boris.variant.VTNull;
+import org.boris.variant.VTString;
+import org.boris.variant.Variant;
 
 /**
  * Used to map arguments to objects.

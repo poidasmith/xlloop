@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
 
-import org.boris.variantcodec.Variant;
+import org.boris.variant.Variant;
 
 public interface RequestProtocol 
 {

@@ -2,8 +2,8 @@ package org.boris.xlloop;
 
 import java.net.InetAddress;
 
-import org.boris.variantcodec.VTMap;
-import org.boris.variantcodec.Variant;
+import org.boris.variant.VTMap;
+import org.boris.variant.Variant;
 import org.boris.xlloop.RequestExecutor;
 
 public class Client1 {

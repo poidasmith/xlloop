@@ -10,8 +10,8 @@
 package org.boris.xlloop.script;
 
 import org.apache.bsf.BSFManager;
-import org.boris.variantcodec.VTCollection;
-import org.boris.variantcodec.Variant;
+import org.boris.variant.VTCollection;
+import org.boris.variant.Variant;
 import org.boris.xlloop.Function;
 import org.boris.xlloop.RequestException;
 import org.boris.xlloop.util.VariantObjectConverter;

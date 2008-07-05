@@ -1,8 +1,8 @@
 package org.boris.xlloop;
 
-import org.boris.variantcodec.VTCollection;
-import org.boris.variantcodec.VTMap;
-import org.boris.variantcodec.Variant;
+import org.boris.variant.VTCollection;
+import org.boris.variant.VTMap;
+import org.boris.variant.Variant;
 import org.boris.xlloop.FunctionHandler;
 import org.boris.xlloop.RequestException;
 

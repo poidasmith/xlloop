@@ -9,8 +9,8 @@
  *******************************************************************************/
 package org.boris.xlloop.handler;
 
-import org.boris.variantcodec.VTMap;
-import org.boris.variantcodec.Variant;
+import org.boris.variant.VTMap;
+import org.boris.variant.Variant;
 import org.boris.xlloop.RequestException;
 import org.boris.xlloop.RequestHandler;
 

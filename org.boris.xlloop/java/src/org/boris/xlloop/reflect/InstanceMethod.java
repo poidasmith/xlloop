@@ -12,8 +12,8 @@ package org.boris.xlloop.reflect;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.boris.variantcodec.VTCollection;
-import org.boris.variantcodec.Variant;
+import org.boris.variant.VTCollection;
+import org.boris.variant.Variant;
 import org.boris.xlloop.Function;
 import org.boris.xlloop.RequestException;
 import org.boris.xlloop.util.VariantObjectConverter;
