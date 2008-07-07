@@ -13,8 +13,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.boris.variant.VTBoolean;
 import org.boris.variant.VTCollection;
 import org.boris.variant.VTDouble;
+import org.boris.variant.VTFloat;
+import org.boris.variant.VTInteger;
 import org.boris.variant.VTLong;
 import org.boris.variant.VTMap;
 import org.boris.variant.VTNull;
@@ -24,7 +27,8 @@ import org.boris.variant.Variant;
 /**
  * Used to map arguments to objects.
  */
-public class VariantObjectConverter {
+public class VariantObjectConverter
+{
     public static final Integer IZERO = new Integer(0);
     public static final Double DZERO = new Double(0);
     public static final Long LZERO = new Long(0);
@@ -58,12 +62,14 @@ public class VariantObjectConverter {
     public Variant createFrom(Object obj) {
         if (obj instanceof String) {
             return new VTString((String) obj);
+        } else if (obj instanceof Boolean) {
+            return new VTBoolean(((Boolean) obj).booleanValue());
         } else if (obj instanceof Integer) {
-            return new VTLong(((Integer) obj).intValue());
+            return new VTInteger(((Integer) obj).intValue());
+        } else if (obj instanceof Float) {
+            return new VTFloat(((Float) obj).floatValue());
         } else if (obj instanceof Double) {
             return new VTDouble(((Double) obj).doubleValue());
-        } else if (obj instanceof Boolean) {
-            return new VTLong(((Boolean) obj).booleanValue());
         } else if (obj instanceof String[]) {
             String[] arr = (String[]) obj;
             VTCollection array = new VTCollection();
@@ -251,7 +257,7 @@ public class VariantObjectConverter {
      */
     public Object createFrom(Variant obj, Class hint) {
         if (obj instanceof VTString) {
-            if(VTString.class.equals(hint)) {
+            if (VTString.class.equals(hint)) {
                 return obj;
             } else {
                 String str = obj.toString();
@@ -291,7 +297,7 @@ public class VariantObjectConverter {
         } else if (obj instanceof VTMap) {
             VTMap st = (VTMap) obj;
             Map m = new HashMap();
-            for(Iterator i = st.getKeys().iterator(); i.hasNext(); ) {
+            for (Iterator i = st.getKeys().iterator(); i.hasNext();) {
                 String s = (String) i.next();
                 m.put(s, createFrom(st.getValue(s), hint));
             }
@@ -375,7 +381,7 @@ public class VariantObjectConverter {
 
             for (int i = 0; i < darr.length; i++) {
                 Long l = arr.getLong(i);
-                if(l != null) {
+                if (l != null) {
                     darr[i] = arr.getLong(i).intValue();
                 }
             }
@@ -386,7 +392,7 @@ public class VariantObjectConverter {
 
             for (int i = 0; i < length; i++) {
                 Long l = arr.getLong(i);
-                if(l != null) {
+                if (l != null) {
                     darr[i][0] = l.intValue();
                 }
             }
@@ -397,7 +403,7 @@ public class VariantObjectConverter {
 
             for (int i = 0; i < darr.length; i++) {
                 Long l = arr.getLong(i);
-                if(l != null) {
+                if (l != null) {
                     darr[i] = new Integer(l.intValue());
                 }
             }
@@ -408,7 +414,7 @@ public class VariantObjectConverter {
 
             for (int i = 0; i < length; i++) {
                 Long l = arr.getLong(i);
-                if(l != null) {
+                if (l != null) {
                     darr[i][0] = new Integer(l.intValue());
                 }
             }
@@ -419,7 +425,7 @@ public class VariantObjectConverter {
 
             for (int i = 0; i < darr.length; i++) {
                 Long l = arr.getLong(i);
-                if(l != null) {
+                if (l != null) {
                     darr[i] = l.intValue() == 1;
                 }
             }
@@ -430,7 +436,7 @@ public class VariantObjectConverter {
 
             for (int i = 0; i < length; i++) {
                 Long l = arr.getLong(i);
-                if(l != null) {
+                if (l != null) {
                     darr[i][0] = l.intValue() == 1;
                 }
             }
@@ -441,7 +447,7 @@ public class VariantObjectConverter {
 
             for (int i = 0; i < darr.length; i++) {
                 Long l = arr.getLong(i);
-                if(l != null) {
+                if (l != null) {
                     darr[i] = new Boolean(l.intValue() == 1);
                 }
             }
@@ -452,7 +458,7 @@ public class VariantObjectConverter {
 
             for (int i = 0; i < length; i++) {
                 Long l = arr.getLong(i);
-                if(l != null) {
+                if (l != null) {
                     darr[i][0] = new Boolean(l.intValue() == 1);
                 }
             }
