@@ -23,7 +23,7 @@ import org.apache.bsf.BSFManager;
 import org.boris.variant.VTCollection;
 import org.boris.variant.VTMap;
 import org.boris.variant.Variant;
-import org.boris.variant.codec.CCodec;
+import org.boris.variant.codec.SourceCodec;
 import org.boris.xlloop.Function;
 import org.boris.xlloop.FunctionHandler;
 import org.boris.xlloop.RequestException;
@@ -163,7 +163,7 @@ public class ScriptRepository implements Callback, FunctionHandler, FunctionProv
         File infoFile = new File(f.getParent(), IO.removeExtension(f) + ".vc");
         if (infoFile.canRead()) {
             try {
-                VTMap s = (VTMap) CCodec.decode(new FileReader(infoFile));
+                VTMap s = (VTMap) SourceCodec.decode(new FileReader(infoFile));
                 if (s.getString("functionName") == null) {
                     s.add("functionName", name);
                 }
