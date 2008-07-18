@@ -21,8 +21,22 @@
         <div class="section">
             <div class="section-title">About</div>
             <div class="section-content">
-            	XLLoop is a framework for implementing a warehouse of excel functions out of 
-            	process and has the following features:
+            <table style="border:0px">
+            <tr style="border:0px">
+            <td style="border:0px">
+            	XLLoop is an open source framework for implementing excel functions on a centralised server 
+            	(a function server).  
+            	<br/><br/>
+            	<i><b>Why is this useful?</b</i>
+            	<ul>
+            	<li>Functions can be written in any language (e.g. Java, scripting languages etc..)
+            	<li>Functions can be added quickly and dynamically without users having to restart excel.
+            	<li>Functions can be managed separately and centrally, which avoids the costly overhead of managing many XLLs and ensures
+            	all users are using the same functions.
+            	<li>Data can be shared across excel sessions/users (e.g. current stock market prices can
+            	be stored on a single server and all excel sessions could retrieve this data via a GetStock function). 
+            	</ul>
+            	It has the following features:
             	<ul>
             	<li>Extensible <b>Java</b> server framework.</li>
             	<li>Extensible <b>Erlang</b> server framework.</li>
@@ -42,6 +56,12 @@
             	receiving (binary) serialised xl objects (called xlopers).
             	<br/><br/>
                 XLLoop is licensed under the <a href="http://www.eclipse.org/legal/cpl-v10.html">Common Public License (CPL)</a>.
+            </td>
+            <td style="border:0px" valign="top">
+            	<img src="diag.jpg"/>
+            </td>
+            </tr>
+            </table>
             </div>
         </div>
         
