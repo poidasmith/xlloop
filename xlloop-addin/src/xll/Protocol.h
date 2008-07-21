@@ -25,7 +25,7 @@ public:
 
 	int connect();
 	void disconnect();
-	int send(int type, const char* name, Variant* args);
+	int send(unsigned char type, const char* name, Variant* args);
 	Variant* receive();
 	Variant* executeGeneric(const char* name, Variant* args) {
 		send(REQ_TYPE_GENERIC, name, args);

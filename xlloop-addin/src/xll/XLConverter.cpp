@@ -52,13 +52,13 @@ Variant* XLConverter::ConvertX(LPXLOPER x, bool missingToNull)
 	case xltypeBigData: 
 		return NULL;
 	case xltypeBool: 
-		return new VTLong(x->val.boolean);
+		return new VTBoolean(x->val.boolean);
 	case xltypeErr: 
 		return NULL;
 	case xltypeFlow: 
 		return NULL;
 	case xltypeInt: 
-		return new VTLong(x->val.w);
+		return new VTInteger(x->val.w);
 	case xltypeMissing: 
 		return missingToNull ? new VTNull() : NULL;
 	case xltypeMulti: 
@@ -173,9 +173,29 @@ LPXLOPER XLConverter::ConvertV(const Variant* v, LPXLOPER xl)
 		xl->xltype = xltypeStr;
 		xl->val.str = XLUtil::MakeExcelString(((VTString*)v)->get());
 		break;
+	case VFLOAT:
+		xl->xltype = xltypeNum;
+		xl->val.num = ((VTFloat*)v)->get();
+		break;
 	case VDOUBLE:
 		xl->xltype = xltypeNum;
 		xl->val.num = ((VTDouble*)v)->get();
+		break;
+	case VBOOLEAN:
+		xl->xltype = xltypeBool;
+		xl->val.num = ((VTBoolean*)v)->get();
+		break;
+	case VBYTE:
+		xl->xltype = xltypeNum;
+		xl->val.num = ((VTByte*)v)->get();
+		break;
+	case VSHORT:
+		xl->xltype = xltypeNum;
+		xl->val.num = ((VTShort*)v)->get();
+		break;
+	case VINTEGER:
+		xl->xltype = xltypeNum;
+		xl->val.num = ((VTInteger*)v)->get();
 		break;
 	case VLONG:
 		xl->xltype = xltypeNum;

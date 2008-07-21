@@ -17,7 +17,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 
-import org.boris.variant.VTLong;
+import org.boris.variant.VTByte;
 import org.boris.variant.VTString;
 import org.boris.variant.Variant;
 import org.boris.variant.codec.BinaryCodec;
@@ -47,8 +47,8 @@ public class BinaryRequestProtocol implements RequestProtocol
         InputStream is = new BufferedInputStream(socket.getInputStream());
         Variant v = BinaryCodec.decode(is);
         VTString t = null;
-        if (v instanceof VTLong) {
-            lastType = ((VTLong) v).intValue();
+        if (v instanceof VTByte) {
+            lastType = ((VTByte) v).intValue();
             t = (VTString) BinaryCodec.decode(is);
         } else if (v instanceof VTString) {
             lastType = REQ_TYPE_GENERIC;
@@ -84,7 +84,7 @@ public class BinaryRequestProtocol implements RequestProtocol
     public void send(Socket socket, int type, String name, Variant data)
             throws IOException {
         OutputStream os = new BufferedOutputStream(socket.getOutputStream());
-        BinaryCodec.encode(new VTLong(type), os);
+        BinaryCodec.encode(new VTByte((byte) type), os);
         BinaryCodec.encode(new VTString(name), os);
         BinaryCodec.encode(data, os);
         os.flush();

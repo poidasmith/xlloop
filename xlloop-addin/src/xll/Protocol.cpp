@@ -159,11 +159,11 @@ void Protocol::disconnect()
 	WSACleanup();
 }
 
-int Protocol::send(int type, const char* name, Variant* args)
+int Protocol::send(unsigned char type, const char* name, Variant* args)
 {
 	tcpbuf b(conn);
 	tcpstream s(&b);
-	VTLong* t = new VTLong(type);
+	VTByte* t = new VTByte(type);
 	VTString* n = new VTString(name);
 	VTBinaryCodec::encode(t, s);
 	VTBinaryCodec::encode(n, s);
