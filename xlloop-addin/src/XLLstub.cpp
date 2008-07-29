@@ -31,6 +31,12 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 extern "C" {  
 #endif 
 
+int far pascal XLCallVer(void)
+{
+	typedef int (CALLBACK* XLCALLVER)(void);
+	return ((XLCALLVER)g_xlcallver)();
+}
+
 int far _cdecl Excel4(int xlfn, LPXLOPER operRes, int count,... )
 {
 	va_list argptr;
@@ -50,18 +56,12 @@ int far pascal Excel4v(int xlfn, LPXLOPER operRes, int count, LPXLOPER far opers
 	return ((EXCEL4VFN)g_excel4v)(xlfn, operRes, count, opers);
 }
 
-int far pascal XLCallVer(void)
-{
-	typedef int (CALLBACK* XLCALLVER)(void);
-	return ((XLCALLVER)g_xlcallver)();
-}
-
 int far _cdecl LPenHelper(void)
 {
 	return 0;
 }
 
-__declspec(dllexport) void _cdecl SetFunctionPointers(void** Excel4v, void** XLCallVer)
+void _cdecl SetFunctionPointers(void** Excel4v, void** XLCallVer)
 {
 	g_excel4v = Excel4v;
 	g_xlcallver = XLCallVer;

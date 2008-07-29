@@ -27,14 +27,14 @@
             	XLLoop is an open source framework for implementing excel functions on a centralised server 
             	(a function server).  
             	<br/><br/>
-            	<i><b>Why is this useful?</b</i>
+            	<i><b>Why is this useful?</b></i>
             	<ul>
             	<li>Functions can be written in any language (e.g. Java, scripting languages etc..)
             	<li>Functions can be added quickly and dynamically without users having to restart excel.
             	<li>Functions can be managed separately and centrally, which avoids the costly overhead of managing many XLLs and ensures
             	all users are using the same functions.
             	<li>Data can be shared across excel sessions/users (e.g. current stock market prices can
-            	be stored on a single server and all excel sessions could retrieve this data via a GetStock function). 
+            	be stored on a single server and all excel sessions could retrieve this data via a <i>GetStock</i> function). 
             	</ul>
             	It has the following features:
             	<ul>
@@ -58,7 +58,7 @@
                 XLLoop is licensed under the <a href="http://www.eclipse.org/legal/cpl-v10.html">Common Public License (CPL)</a>.
             </td>
             <td style="border:0px" valign="top">
-            	<img src="diag.jpg"/>
+            	<img src="diag.gif"/>
             </td>
             </tr>
             </table>
@@ -76,7 +76,7 @@
 			<div class="section-title">Language Support</div>
 			<div class="section-content">
 				The following table summarizes the current support for different languages.<br/><br/>
-				<table>
+				<table width="300">
 					<tr><th>Language</th><th>Supported?</th></tr>
 					<tr><td>Java</td><td>Yes, native server</td></tr>
 					<tr><td>Erlang</td><td>Yes, <a href="erlangserver.html">native server</a></td></tr>
@@ -161,7 +161,7 @@ public class ServerExample {
 					</tr>
 					<tr>
 						<td>disable.function.list</td>
-						<td>Set this to "true" to switch off static excel function registration.</td>
+						<td>Set this to "true" to switch off dynamic excel function registration.</td>
 					</tr>
 				</table>						
 		</div>
@@ -235,8 +235,8 @@ args[0] * args[1];
 				<ul>
 					<li>Added a <a href="erlangserver.html">server implementation in Erlang</a>.</li>
 					<li>Added excel help text support for scripts</li>
-					<li>Added CSV functions to example<li>
-					<li>Added reflection functions to example<li>
+					<li>Added CSV functions to example</li>
+					<li>Added reflection functions to example</li>
 					<li>Added javascript handler that compiles scripts</li>
 				</ul>
 				V0.0.6
