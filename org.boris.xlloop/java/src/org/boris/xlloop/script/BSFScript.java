@@ -10,15 +10,16 @@
 package org.boris.xlloop.script;
 
 import org.apache.bsf.BSFManager;
-import org.boris.variant.VTCollection;
-import org.boris.variant.Variant;
 import org.boris.xlloop.Function;
 import org.boris.xlloop.RequestException;
-import org.boris.xlloop.util.VariantObjectConverter;
+import org.boris.xlloop.util.XLoperObjectConverter;
+import org.boris.xlloop.xloper.XLArray;
+import org.boris.xlloop.xloper.XLList;
+import org.boris.xlloop.xloper.XLoper;
 
 public class BSFScript implements Function
 {
-    private VariantObjectConverter converter = new VariantObjectConverter();
+    private XLoperObjectConverter converter = new XLoperObjectConverter();
     private String lang;
     private String source;
     private String name;
@@ -29,13 +30,13 @@ public class BSFScript implements Function
         this.name = name;
     }
 
-    public static Class[] createArgHints(VTCollection args) {
+    public static Class[] createArgHints(XLList args) {
         Class[] hints = new Class[args.size()];
         for (int i = 0; i < hints.length; i++) {
-            Variant v = args.get(i);
-            if(v instanceof VTCollection) {
-                VTCollection c = (VTCollection) v;
-                if(c.size() > 0 && c.get(0) instanceof VTCollection) {
+            XLoper v = args.get(i);
+            if (v instanceof XLArray) {
+                XLArray c = (XLArray) v;
+                if (c.columns > 1) {
                     hints[i] = Object[][].class;
                 } else {
                     hints[i] = Object[].class;
@@ -46,8 +47,8 @@ public class BSFScript implements Function
         }
         return hints;
     }
-    
-    public Variant execute(VTCollection args) throws RequestException {
+
+    public XLoper execute(XLList args) throws RequestException {
         try {
             Object[] a = converter.convert(args, createArgHints(args));
             BSFManager manager = new BSFManager();

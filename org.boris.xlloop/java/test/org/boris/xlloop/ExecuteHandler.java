@@ -1,28 +1,25 @@
 package org.boris.xlloop;
 
-import org.boris.variant.VTCollection;
-import org.boris.variant.VTMap;
-import org.boris.variant.Variant;
-import org.boris.xlloop.FunctionHandler;
-import org.boris.xlloop.RequestException;
+import org.boris.xlloop.xloper.XLList;
+import org.boris.xlloop.xloper.XLMap;
+import org.boris.xlloop.xloper.XLoper;
 
-public class ExecuteHandler implements FunctionHandler {
-
-    public Variant execute(String name, VTCollection args) throws RequestException {
+public class ExecuteHandler implements FunctionHandler
+{
+    public XLoper execute(String name, XLList args) throws RequestException {
         System.out.println(name + args);
 
         if (args.size() > 0) {
             return args.get(0);
         }
 
-        VTMap s = new VTMap();
+        XLMap s = new XLMap();
         s.add("hello there", 123213);
         s.add("asdf", "woeiruewoir");
-        return s;
+        return s.toXloper();
     }
 
     public boolean hasFunction(String name) {
         return true;
     }
-
 }

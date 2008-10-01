@@ -7,14 +7,18 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.xlloop;
+package org.boris.xlloop.xloper;
 
-import org.boris.xlloop.xloper.XLList;
-import org.boris.xlloop.xloper.XLoper;
-
-public interface FunctionHandler
+public final class XLNum extends XLoper
 {
-    XLoper execute(String name, XLList args) throws RequestException;
+    public final double num;
 
-    boolean hasFunction(String name);
+    public XLNum(double num) {
+        super(xlTypeNum);
+        this.num = num;
+    }
+
+    public String toString() {
+        return Double.toString(num);
+    }
 }

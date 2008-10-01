@@ -2,36 +2,36 @@ package org.boris.xlloop;
 
 import java.net.InetAddress;
 
-import org.boris.variant.VTMap;
-import org.boris.variant.Variant;
-import org.boris.xlloop.RequestExecutor;
+import org.boris.xlloop.xloper.XLList;
+import org.boris.xlloop.xloper.XLoper;
 
-public class Client1 {
+public class Client1
+{
     public static void main(String[] args) throws Exception {
         RequestExecutor re = new RequestExecutor(InetAddress.getLocalHost(),
                 5454);
 
         long t0 = System.currentTimeMillis();
         for (int i = 0; i < 10; i++) {
-            VTMap er = new VTMap();
-            er.add("asdf", 1);
-            er.add("num", i);
-            er.add("num2", i);
-            er.add("num3", i);
-            er.add("num4", i);
-            er.add("num5", i);
-            er.add("num6", i);
-            er.add("num7", i);
-            er.add("num8", i);
-            er.add("num9", i);
-            er.add("num23", i);
-            er.add("num24", i);
-            er.add("num25", i);
-            er.add("num26", i);
-            er.add("num27", i);
-            er.add("num28", i);
-            er.add("num29", i);
-            Variant v = re.execute("Echo", er);
+            XLList er = new XLList();
+            er.add(1);
+            er.add(i);
+            er.add(i);
+            er.add(i);
+            er.add(i);
+            er.add(i);
+            er.add(i);
+            er.add(i);
+            er.add(i);
+            er.add(i);
+            er.add(i);
+            er.add(i);
+            er.add(i);
+            er.add(i);
+            er.add(i);
+            er.add(i);
+            er.add(i);
+            XLoper v = re.execute("Echo", er);
             System.out.println(v);
         }
         System.out.println(System.currentTimeMillis() - t0);

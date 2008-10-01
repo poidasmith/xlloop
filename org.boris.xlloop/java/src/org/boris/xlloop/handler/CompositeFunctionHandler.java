@@ -13,12 +13,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.boris.variant.VTCollection;
-import org.boris.variant.Variant;
 import org.boris.xlloop.FunctionHandler;
 import org.boris.xlloop.RequestException;
+import org.boris.xlloop.xloper.XLList;
+import org.boris.xlloop.xloper.XLoper;
 
-public class CompositeFunctionHandler implements FunctionHandler 
+public class CompositeFunctionHandler implements FunctionHandler
 {
     private List handlers = new ArrayList();
 
@@ -26,7 +26,7 @@ public class CompositeFunctionHandler implements FunctionHandler
         handlers.add(h);
     }
 
-    public Variant execute(String name, VTCollection args) throws RequestException {
+    public XLoper execute(String name, XLList args) throws RequestException {
         for (Iterator i = handlers.iterator(); i.hasNext();) {
             FunctionHandler h = (FunctionHandler) i.next();
             if (h.hasFunction(name)) {
@@ -34,7 +34,7 @@ public class CompositeFunctionHandler implements FunctionHandler
             }
         }
 
-        throw new RequestException("#Unknown method: " + name);
+        throw new RequestException("#Unknown function: " + name);
     }
 
     public boolean hasFunction(String name) {

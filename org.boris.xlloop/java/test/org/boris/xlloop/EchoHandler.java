@@ -1,19 +1,18 @@
 package org.boris.xlloop;
 
-import org.boris.variant.VTMap;
-import org.boris.variant.Variant;
-import org.boris.xlloop.RequestException;
-import org.boris.xlloop.RequestHandler;
+import org.boris.xlloop.xloper.XLList;
+import org.boris.xlloop.xloper.XLoper;
 
-public class EchoHandler implements RequestHandler {
+public class EchoHandler implements FunctionHandler
+{
     private int count;
 
-    public Variant execute(String name, VTMap args) throws RequestException {
-        args.add("count", ++count);
-        return args;
+    public XLoper execute(String name, XLList args) throws RequestException {
+        args.add(++count);
+        return args.toXLoper();
     }
 
-    public boolean hasRequest(String name) {
+    public boolean hasFunction(String name) {
         return true;
     }
 }

@@ -5,11 +5,10 @@ import java.net.InetAddress;
 
 import junit.framework.TestCase;
 
-import org.boris.variant.VTCollection;
-import org.boris.variant.VTMap;
-import org.boris.variant.Variant;
 import org.boris.xlloop.RequestException;
 import org.boris.xlloop.RequestExecutor;
+import org.boris.xlloop.xloper.XLList;
+import org.boris.xlloop.xloper.XLoper;
 
 public abstract class XLLoopTestCase extends TestCase
 {
@@ -44,12 +43,7 @@ public abstract class XLLoopTestCase extends TestCase
         executor = new RequestExecutor(InetAddress.getByName(host), port);
     }
 
-    protected Variant executeFunction(String name, VTCollection args)
-            throws RequestException, IOException {
-        return executor.execute(name, args);
-    }
-
-    protected Variant executeGeneric(String name, VTMap args)
+    protected XLoper executeFunction(String name, XLList args)
             throws RequestException, IOException {
         return executor.execute(name, args);
     }

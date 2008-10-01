@@ -7,12 +7,18 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.xlloop;
+package org.boris.xlloop.xloper;
 
-import org.boris.variant.VTMap;
-import org.boris.variant.Variant;
-
-public interface Request 
+public class XLInt extends XLoper
 {
-    Variant execute(VTMap args) throws RequestException;
+    public final int w;
+
+    public XLInt(int w) {
+        super(xlTypeInt);
+        this.w = w;
+    }
+
+    public String toString() {
+        return Integer.toString(w);
+    }
 }

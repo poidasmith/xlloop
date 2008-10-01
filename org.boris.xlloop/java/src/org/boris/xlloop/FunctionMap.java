@@ -12,10 +12,10 @@ package org.boris.xlloop;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.boris.variant.VTCollection;
-import org.boris.variant.Variant;
+import org.boris.xlloop.xloper.XLList;
+import org.boris.xlloop.xloper.XLoper;
 
-public class FunctionMap implements FunctionHandler 
+public class FunctionMap implements FunctionHandler
 {
     private Map functions = new HashMap();
 
@@ -31,7 +31,7 @@ public class FunctionMap implements FunctionHandler
         this.functions.clear();
     }
 
-    public Variant execute(String name, VTCollection args) throws RequestException {
+    public XLoper execute(String name, XLList args) throws RequestException {
         Function f = (Function) functions.get(name);
         if (f == null) {
             throw new RequestException("Unknown function: " + name);

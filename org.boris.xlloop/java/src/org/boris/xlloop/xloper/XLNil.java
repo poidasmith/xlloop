@@ -7,14 +7,13 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.xlloop;
+package org.boris.xlloop.xloper;
 
-import org.boris.variant.VTMap;
-import org.boris.variant.Variant;
-
-public interface RequestHandler 
+public class XLNil extends XLoper
 {
-    public Variant execute(String name, VTMap args) throws RequestException;
-    
-    boolean hasRequest(String name);
+    public static XLNil NIL = new XLNil();
+
+    private XLNil() {
+        super(xlTypeNil);
+    }
 }

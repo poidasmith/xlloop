@@ -17,19 +17,20 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.boris.variant.VTCollection;
-import org.boris.variant.Variant;
 import org.boris.xlloop.Function;
 import org.boris.xlloop.FunctionHandler;
 import org.boris.xlloop.RequestException;
 import org.boris.xlloop.handler.FunctionInformation;
 import org.boris.xlloop.handler.FunctionProvider;
-import org.boris.xlloop.util.VariantObjectConverter;
+import org.boris.xlloop.util.XLoperObjectConverter;
+import org.boris.xlloop.xloper.XLList;
+import org.boris.xlloop.xloper.XLoper;
 
-public class ReflectFunctionHandler implements FunctionHandler, FunctionProvider
+public class ReflectFunctionHandler implements FunctionHandler,
+        FunctionProvider
 {
     private Map methods = new HashMap();
-    private VariantObjectConverter converter = new VariantObjectConverter();
+    private XLoperObjectConverter converter = new XLoperObjectConverter();
     private Map information = new HashMap();
 
     public Set getFunctionList() {
@@ -43,9 +44,10 @@ public class ReflectFunctionHandler implements FunctionHandler, FunctionProvider
     public void addInformation(String name, FunctionInformation fi) {
         information.put(name, fi);
     }
-    
+
     public void addMethod(String name, Class c, Object instance, Method m) {
-        if(!m.getDeclaringClass().equals(c)) return;
+        if (!m.getDeclaringClass().equals(c))
+            return;
         Function f = (Function) methods.get(name);
         if (f instanceof InstanceMethod) {
             OverloadedMethod om = new OverloadedMethod();
@@ -81,14 +83,14 @@ public class ReflectFunctionHandler implements FunctionHandler, FunctionProvider
                 if (namespace == null) {
                     addMethod(instance, m[i]);
                 } else {
-                    addMethod(namespace + m[i].getName(), instance.getClass(), instance, m[i]);
+                    addMethod(namespace + m[i].getName(), instance.getClass(),
+                            instance, m[i]);
                 }
             }
         }
     }
 
-    public Variant execute(String name, VTCollection args)
-            throws RequestException {
+    public XLoper execute(String name, XLList args) throws RequestException {
         Function f = (Function) methods.get(name);
         if (f == null) {
             throw new RequestException("#Unknown method: " + name);
@@ -99,35 +101,37 @@ public class ReflectFunctionHandler implements FunctionHandler, FunctionProvider
     public boolean hasFunction(String name) {
         return methods.containsKey(name);
     }
-    
+
     public FunctionInformation[] getFunctions() {
         ArrayList functions = new ArrayList();
-        for(Iterator i = methods.keySet().iterator(); i.hasNext();) {
+        for (Iterator i = methods.keySet().iterator(); i.hasNext();) {
             String key = (String) i.next();
             FunctionInformation fi = (FunctionInformation) information.get(key);
-            if(fi != null) {
+            if (fi != null) {
                 functions.add(fi);
                 continue;
             }
             Function f = (Function) methods.get(key);
             fi = new FunctionInformation(key);
-            if(f instanceof InstanceMethod) {
+            if (f instanceof InstanceMethod) {
                 try {
                     InstanceMethod im = (InstanceMethod) f;
-                    ParameterNameExtractor pne = new ParameterNameExtractor(im.clazz);
+                    ParameterNameExtractor pne = new ParameterNameExtractor(
+                            im.clazz);
                     String[] names = pne.getParameterNames(im.method);
-                    for(int j = 0; j < names.length; j++) {
+                    for (int j = 0; j < names.length; j++) {
                         fi.addArgument(names[j], im.args[j].getSimpleName());
                     }
                 } catch (Exception e) {
                 }
-            } else if(f instanceof OverloadedMethod) {
+            } else if (f instanceof OverloadedMethod) {
                 try {
                     OverloadedMethod om = (OverloadedMethod) f;
                     InstanceMethod im = om.getFirstMethod();
-                    ParameterNameExtractor pne = new ParameterNameExtractor(im.clazz);
+                    ParameterNameExtractor pne = new ParameterNameExtractor(
+                            im.clazz);
                     String[] names = pne.getParameterNames(im.method);
-                    for(int j = 0; j < names.length; j++) {
+                    for (int j = 0; j < names.length; j++) {
                         fi.addArgument(names[j], im.args[j].getSimpleName());
                     }
                 } catch (Exception e) {
@@ -135,6 +139,7 @@ public class ReflectFunctionHandler implements FunctionHandler, FunctionProvider
             }
             functions.add(fi);
         }
-        return (FunctionInformation[]) functions.toArray(new FunctionInformation[0]);
+        return (FunctionInformation[]) functions
+                .toArray(new FunctionInformation[0]);
     }
 }

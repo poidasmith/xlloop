@@ -20,10 +20,6 @@ import java.util.Map;
 
 import org.apache.bsf.BSFException;
 import org.apache.bsf.BSFManager;
-import org.boris.variant.VTCollection;
-import org.boris.variant.VTMap;
-import org.boris.variant.Variant;
-import org.boris.variant.codec.SourceCodec;
 import org.boris.xlloop.Function;
 import org.boris.xlloop.FunctionHandler;
 import org.boris.xlloop.RequestException;
@@ -32,8 +28,11 @@ import org.boris.xlloop.handler.FunctionProvider;
 import org.boris.xlloop.util.FileSystemWatcher;
 import org.boris.xlloop.util.IO;
 import org.boris.xlloop.util.FileSystemWatcher.Callback;
+import org.boris.xlloop.xloper.XLList;
+import org.boris.xlloop.xloper.XLoper;
 
-public class ScriptRepository implements Callback, FunctionHandler, FunctionProvider
+public class ScriptRepository implements Callback, FunctionHandler,
+        FunctionProvider
 {
     private File baseDir;
     private FileSystemWatcher watcher;
@@ -85,10 +84,8 @@ public class ScriptRepository implements Callback, FunctionHandler, FunctionProv
             if (fn != null) {
                 System.out.println("Adding script: " + n);
                 scripts.put(n, fn);
-                // Attempt to load information for this script
-                loadInformation(n, f);
             } else {
-                if(!f.getName().endsWith(".vc")) {
+                if (!f.getName().endsWith(".vc")) {
                     System.out.println("Unrecognized: " + f.getName());
                 }
             }
@@ -124,7 +121,7 @@ public class ScriptRepository implements Callback, FunctionHandler, FunctionProv
         return fs;
     }
 
-    public Variant execute(String name, VTCollection args) throws RequestException {
+    public XLoper execute(String name, XLList args) throws RequestException {
         Function f = (Function) scripts.get(name);
         if (f == null) {
             throw new RequestException("#Unknown script: " + name);
@@ -157,21 +154,6 @@ public class ScriptRepository implements Callback, FunctionHandler, FunctionProv
         }
 
         return null;
-    }
-
-    private void loadInformation(String name, File f) {
-        File infoFile = new File(f.getParent(), IO.removeExtension(f) + ".vc");
-        if (infoFile.canRead()) {
-            try {
-                VTMap s = (VTMap) SourceCodec.decode(new FileReader(infoFile));
-                if (s.getString("functionName") == null) {
-                    s.add("functionName", name);
-                }
-                information.put(s.getString("functionName"), FunctionInformation.decode(s));
-            } catch (Exception e) {
-                System.err.println("Warning: could not load info for " + infoFile);
-            }
-        }
     }
 
     public FunctionInformation[] getFunctions() {

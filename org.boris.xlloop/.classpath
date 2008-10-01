@@ -7,8 +7,6 @@
 	<classpathentry kind="lib" path="java/ext_jars/bsf.jar" sourcepath="java/ext_jars/bsf-src.zip"/>
 	<classpathentry kind="lib" path="java/ext_jars/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="java/ext_jars/jatha-2.8.jar" sourcepath="java/ext_jars/jatha-2.8-src.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.boris.winrun4j"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.boris.variantcodec"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

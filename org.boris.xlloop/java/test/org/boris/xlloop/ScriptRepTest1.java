@@ -2,23 +2,23 @@ package org.boris.xlloop;
 
 import java.io.File;
 
-import org.boris.variant.VTCollection;
-import org.boris.variant.Variant;
 import org.boris.xlloop.script.ScriptRepository;
+import org.boris.xlloop.xloper.XLList;
+import org.boris.xlloop.xloper.XLoper;
 
-public class ScriptRepTest1 {
+public class ScriptRepTest1
+{
     public static void main(String[] args) throws Exception {
         ScriptRepository rep = new ScriptRepository(new File(
-        "F:\\eclipse\\workspace\\org.boris.functionserver\\functions"),
-        "Script.");
-        
+                "F:\\eclipse\\workspace\\org.boris.functionserver\\functions"),
+                "Script.");
+
         Thread.sleep(1000);
-        
-        VTCollection a = new VTCollection();
+
+        XLList a = new XLList();
         a.add(4);
         a.add(4.5);
-        Variant res = rep.execute("Script.sum", a);
+        XLoper res = rep.execute("Script.sum", a);
         System.out.println(res);
-        
     }
 }

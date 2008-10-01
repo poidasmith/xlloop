@@ -13,15 +13,16 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import org.boris.variant.VTCollection;
-import org.boris.variant.VTMap;
-import org.boris.variant.Variant;
+import org.boris.xlloop.codec.BinaryRequestProtocol;
+import org.boris.xlloop.xloper.XLInt;
+import org.boris.xlloop.xloper.XLList;
+import org.boris.xlloop.xloper.XLString;
+import org.boris.xlloop.xloper.XLoper;
 
 public class FunctionServer
 {
     private int port;
-    private FunctionHandler fHandler;
-    private RequestHandler rHandler;
+    private FunctionHandler handler;
     private ServerSocket socket;
 
     public FunctionServer() {
@@ -32,22 +33,32 @@ public class FunctionServer
         this.port = port;
     }
 
-    public FunctionServer(int port, FunctionHandler f, RequestHandler r) {
+    public FunctionServer(int port, FunctionHandler f) {
         this.port = port;
-        this.fHandler = f;
-        this.rHandler = r;
+        this.handler = f;
     }
 
     public void setFunctionHandler(FunctionHandler h) {
-        this.fHandler = h;
+        this.handler = h;
     }
 
-    public void setRequestHandler(RequestHandler h) {
-        this.rHandler = h;
-    }
-    
     public void stop() throws IOException {
         socket.close();
+    }
+
+    public void start() {
+        Thread t = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    FunctionServer.this.run();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        t.setName("XLLoop Function Server");
+        t.setDaemon(true);
+        t.start();
     }
 
     public void run() throws IOException {
@@ -71,30 +82,17 @@ public class FunctionServer
             socket.setPerformancePreferences(0, 1, 0);
             while (!socket.isClosed()) {
                 try {
-                    Variant msg = protocol.receive(socket);
-                    if (msg == null) {
-                        throw new IOException("Protocol error: " + msg);
+                    XLString name = (XLString) protocol.receive(socket);
+                    XLInt argCount = (XLInt) protocol.receive(socket);
+                    XLList args = new XLList();
+                    for (int i = 0; i < argCount.w; i++) {
+                        args.add(protocol.receive(socket));
                     }
-
-                    Variant res = null;
-                    switch (protocol.getLastType()) {
-                    case RequestProtocol.REQ_TYPE_GENERIC:
-                        res = rHandler.execute(protocol.getLastName(),
-                                (VTMap) msg);
-                        break;
-                    case RequestProtocol.REQ_TYPE_FUNCTION:
-                        res = fHandler.execute(protocol.getLastName(),
-                                (VTCollection) msg);
-                        break;
-                    default:
-                        throw new IOException("Unexpected protocol type: " +
-                                protocol.getLastType());
-                    }
-
-                    protocol.send(socket, RequestProtocol.TYPE_OK, res);
+                    XLoper res = handler.execute(name.str, args);
+                    protocol.send(socket, res);
                 } catch (RequestException e) {
                     try {
-                        protocol.send(socket, e);
+                        protocol.send(socket, new XLString(e.getMessage()));
                     } catch (IOException ex) {
                         System.err.println(e.getMessage());
                         break;

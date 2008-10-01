@@ -7,14 +7,13 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.xlloop;
+package org.boris.xlloop.xloper;
 
-import org.boris.xlloop.xloper.XLList;
-import org.boris.xlloop.xloper.XLoper;
-
-public interface FunctionHandler
+public class XLMissing extends XLoper
 {
-    XLoper execute(String name, XLList args) throws RequestException;
+    public static final XLMissing MISSING = new XLMissing();
 
-    boolean hasFunction(String name);
+    XLMissing() {
+        super(xlTypeMissing);
+    }
 }

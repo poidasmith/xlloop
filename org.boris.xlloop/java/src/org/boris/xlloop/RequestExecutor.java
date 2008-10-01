@@ -13,10 +13,11 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 
-import org.boris.variant.VTCollection;
-import org.boris.variant.VTMap;
-import org.boris.variant.VTString;
-import org.boris.variant.Variant;
+import org.boris.xlloop.codec.BinaryRequestProtocol;
+import org.boris.xlloop.xloper.XLInt;
+import org.boris.xlloop.xloper.XLList;
+import org.boris.xlloop.xloper.XLString;
+import org.boris.xlloop.xloper.XLoper;
 
 /**
  * A client for the request handler server.
@@ -44,26 +45,18 @@ public class RequestExecutor
         socket.close();
     }
 
-    public Variant execute(String name, VTCollection args)
-            throws RequestException, IOException {
-        connect();
-        protocol.send(socket, RequestProtocol.REQ_TYPE_FUNCTION, name, args);
-        return receive();
-    }
-
-    public Variant execute(String name, VTMap args) throws RequestException,
+    public XLoper execute(String name, XLList args) throws RequestException,
             IOException {
         connect();
-        protocol.send(socket, name, args);
+        protocol.send(socket, new XLString(name));
+        protocol.send(socket, new XLInt(args.size()));
+        for (int i = 0; i < args.size(); i++) {
+            protocol.send(socket, args.get(i));
+        }
         return receive();
     }
 
-    private Variant receive() throws RequestException, IOException {
-        Variant msg = protocol.receive(socket);
-        if (protocol.hasError()) {
-            throw new RequestException(((VTString) msg).get());
-        }
-
-        return msg;
+    private XLoper receive() throws RequestException, IOException {
+        return protocol.receive(socket);
     }
 }

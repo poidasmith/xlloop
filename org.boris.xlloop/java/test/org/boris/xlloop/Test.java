@@ -1,8 +1,10 @@
 package org.boris.xlloop;
 
-import org.boris.variant.VTMap;
+import org.boris.xlloop.xloper.XLMap;
+import org.boris.xlloop.xloper.XLoper;
 
-public class Test {
+public class Test
+{
     public static Object[][] toArray(String name) {
         Object[][] val = { { name, "Hello" }, { "This", "Row" } };
         return val;
@@ -13,8 +15,6 @@ public class Test {
                 { "Method", "Overload" } };
         return val;
     }
-    
-   
 
     public static double sumV(double[] things) {
         double res = 0;
@@ -42,10 +42,10 @@ public class Test {
         return v;
     }
 
-    public static VTMap mapTest() {
-        VTMap s = new VTMap();
+    public static XLoper mapTest() {
+        XLMap s = new XLMap();
         s.add("test", 2);
         s.add("hello", 3);
-        return s;
+        return s.toXloper();
     }
 }

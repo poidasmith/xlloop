@@ -12,11 +12,13 @@ package org.boris.xlloop.handler;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.boris.variant.VTCollection;
-import org.boris.variant.VTMap;
 import org.boris.xlloop.util.CSV;
+import org.boris.xlloop.xloper.XLList;
+import org.boris.xlloop.xloper.XLMap;
+import org.boris.xlloop.xloper.XLoper;
 
-public class FunctionInformation {
+public class FunctionInformation
+{
     private String functionName;
     private String functionHelp;
     private String category;
@@ -50,8 +52,8 @@ public class FunctionInformation {
         this.argumentHelp.add(help);
     }
 
-    public VTMap encode() {
-        VTMap s = new VTMap();
+    public XLoper encode() {
+        XLMap s = new XLMap();
         s.add("functionName", functionName);
         if (functionHelp != null)
             s.add("functionHelp", functionHelp);
@@ -64,28 +66,12 @@ public class FunctionInformation {
         if (arguments.size() > 0) {
             s.add("argumentText", CSV.toCSV((String[]) arguments
                     .toArray(new String[0])));
-            VTCollection c = new VTCollection();
+            XLList c = new XLList();
             for (int i = 0; i < argumentHelp.size(); i++) {
                 c.add((String) argumentHelp.get(i));
             }
             s.add("argumentHelp", c);
         }
-        return s;
-    }
-
-    // Note that this format is slightly different than the encoded format
-    public static FunctionInformation decode(VTMap map) {
-        FunctionInformation fi = new FunctionInformation(map
-                .getString("functionName"));
-        fi.setFunctionHelp(map.getString("functionHelp"));
-        fi.setCategory(map.getString("category"));
-        VTCollection coll = map.getCollection("arguments");
-        if (coll != null) {
-            for (int i = 0; i < coll.size(); i++) {
-                VTMap s = coll.getMap(i);
-                fi.addArgument(s.getString("name"), s.getString("help"));
-            }
-        }
-        return fi;
+        return s.toXloper();
     }
 }

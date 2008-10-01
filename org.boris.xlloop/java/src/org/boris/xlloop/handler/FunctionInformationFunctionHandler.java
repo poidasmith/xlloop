@@ -15,48 +15,49 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.boris.variant.VTCollection;
-import org.boris.variant.VTMap;
-import org.boris.variant.Variant;
+import org.boris.xlloop.FunctionHandler;
 import org.boris.xlloop.RequestException;
-import org.boris.xlloop.RequestHandler;
+import org.boris.xlloop.xloper.XLList;
+import org.boris.xlloop.xloper.XLoper;
 
-public class FunctionInformationRequestHandler implements RequestHandler
+public class FunctionInformationFunctionHandler implements FunctionHandler
 {
     private ArrayList functions = new ArrayList();
     private Set functionProviders = new HashSet();
-    
+
     public void add(FunctionInformation fi) {
         functions.add(fi);
     }
-    
+
     public void add(FunctionInformation[] fis) {
         functions.addAll(Arrays.asList(fis));
     }
-    
+
     public void add(FunctionProvider prov) {
         functionProviders.add(prov);
     }
-    
-    public Variant execute(String name, VTMap args) throws RequestException {
-        VTCollection c = new VTCollection();
-        for(Iterator i = functions.iterator(); i.hasNext(); ) {
+
+    public XLoper execute(String name, XLList args) throws RequestException {
+        XLList c = new XLList();
+        for (Iterator i = functions.iterator(); i.hasNext();) {
             FunctionInformation fi = (FunctionInformation) i.next();
             c.add(fi.encode());
         }
-        for(Iterator i = functionProviders.iterator(); i.hasNext(); ){
+
+        for (Iterator i = functionProviders.iterator(); i.hasNext();) {
             FunctionProvider fp = (FunctionProvider) i.next();
             FunctionInformation[] fis = fp.getFunctions();
-            if(fis != null) {
-                for(int j = 0; j < fis.length; j++) {
+            if (fis != null) {
+                for (int j = 0; j < fis.length; j++) {
                     c.add(fis[j].encode());
                 }
             }
         }
-        return c;
+
+        return c.toXLoper();
     }
 
-    public boolean hasRequest(String name) {
-        return "GetFunctions".equals(name);
+    public boolean hasFunction(String name) {
+        return "org.boris.xlloop.GetFunctions".equals(name);
     }
 }

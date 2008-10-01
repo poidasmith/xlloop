@@ -7,14 +7,18 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.xlloop;
+package org.boris.xlloop.xloper;
 
-import org.boris.xlloop.xloper.XLList;
-import org.boris.xlloop.xloper.XLoper;
-
-public interface FunctionHandler
+public class XLBool extends XLoper
 {
-    XLoper execute(String name, XLList args) throws RequestException;
+    public final boolean bool;
 
-    boolean hasFunction(String name);
+    public XLBool(boolean bool) {
+        super(xlTypeBool);
+        this.bool = bool;
+    }
+
+    public String toString() {
+        return Boolean.toString(bool);
+    }
 }

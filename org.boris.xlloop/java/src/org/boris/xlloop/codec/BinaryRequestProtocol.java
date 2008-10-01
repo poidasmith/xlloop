@@ -7,19 +7,25 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.xlloop;
+package org.boris.xlloop.codec;
 
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
 
+import org.boris.xlloop.RequestProtocol;
 import org.boris.xlloop.xloper.XLoper;
 
-public interface RequestProtocol
+public class BinaryRequestProtocol implements RequestProtocol
 {
-    public void initialise(Socket socket) throws SocketException;
+    public void initialise(Socket socket) throws SocketException {
+    }
 
-    public void send(Socket socket, XLoper data) throws IOException;
+    public XLoper receive(Socket socket) throws IOException {
+        return BinaryCodec.decode(socket.getInputStream());
+    }
 
-    public XLoper receive(Socket socket) throws IOException;
+    public void send(Socket socket, XLoper data) throws IOException {
+        BinaryCodec.encode(data, socket.getOutputStream());
+    }
 }

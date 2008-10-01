@@ -9,25 +9,19 @@
  *******************************************************************************/
 package org.boris.xlloop.util;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
-import org.boris.variant.VTBoolean;
-import org.boris.variant.VTCollection;
-import org.boris.variant.VTDouble;
-import org.boris.variant.VTFloat;
-import org.boris.variant.VTInteger;
-import org.boris.variant.VTLong;
-import org.boris.variant.VTMap;
-import org.boris.variant.VTNull;
-import org.boris.variant.VTString;
-import org.boris.variant.Variant;
+import org.boris.xlloop.xloper.XLArray;
+import org.boris.xlloop.xloper.XLBool;
+import org.boris.xlloop.xloper.XLInt;
+import org.boris.xlloop.xloper.XLList;
+import org.boris.xlloop.xloper.XLNil;
+import org.boris.xlloop.xloper.XLNum;
+import org.boris.xlloop.xloper.XLString;
+import org.boris.xlloop.xloper.XLoper;
 
 /**
  * Used to map arguments to objects.
  */
-public class VariantObjectConverter
+public class XLoperObjectConverter
 {
     public static final Integer IZERO = new Integer(0);
     public static final Double DZERO = new Double(0);
@@ -39,8 +33,6 @@ public class VariantObjectConverter
      */
     public void clearRegistry() {
         registry.clear();
-        System.gc();
-        Runtime.getRuntime().runFinalization();
     }
 
     /**
@@ -59,191 +51,185 @@ public class VariantObjectConverter
      * 
      * @return XLObject.
      */
-    public Variant createFrom(Object obj) {
+    public XLoper createFrom(Object obj) {
         if (obj instanceof String) {
-            return new VTString((String) obj);
+            return new XLString((String) obj);
         } else if (obj instanceof Boolean) {
-            return new VTBoolean(((Boolean) obj).booleanValue());
+            return new XLBool(((Boolean) obj).booleanValue());
         } else if (obj instanceof Integer) {
-            return new VTInteger(((Integer) obj).intValue());
+            return new XLNum(((Integer) obj).intValue());
         } else if (obj instanceof Float) {
-            return new VTFloat(((Float) obj).floatValue());
+            return new XLNum(((Float) obj).floatValue());
         } else if (obj instanceof Double) {
-            return new VTDouble(((Double) obj).doubleValue());
+            return new XLNum(((Double) obj).doubleValue());
         } else if (obj instanceof String[]) {
             String[] arr = (String[]) obj;
-            VTCollection array = new VTCollection();
+            XLoper[] array = new XLoper[arr.length];
             for (int i = 0; i < arr.length; i++) {
-                array.add(arr[i]);
+                array[i] = new XLString(arr[i]);
             }
 
-            return array;
+            return new XLArray(array, arr.length, 1);
         } else if (obj instanceof String[][]) {
             String[][] arr = (String[][]) obj;
-            VTCollection array = new VTCollection();
+            XLArray array = new XLArray(arr.length, arr[0].length);
 
             for (int i = 0; i < arr.length; i++) {
-                VTCollection r = new VTCollection();
                 for (int j = 0; j < arr[0].length && j < arr[i].length; j++) {
-                    r.add(arr[i][j]);
+                    array.set(i, j, arr[i][j]);
                 }
-                array.add(r);
             }
 
             return array;
         } else if (obj instanceof double[]) {
             double[] arr = (double[]) obj;
-            VTCollection array = new VTCollection();
+            XLoper[] array = new XLoper[arr.length];
+
             for (int i = 0; i < arr.length; i++) {
-                array.add(arr[i]);
+                array[i] = new XLNum(arr[i]);
             }
 
-            return array;
+            return new XLArray(array, array.length, 1);
         } else if (obj instanceof double[][]) {
             double[][] arr = (double[][]) obj;
-            VTCollection array = new VTCollection();
+            XLArray array = new XLArray(arr.length, arr[0].length);
 
             for (int i = 0; i < arr.length; i++) {
-                VTCollection r = new VTCollection();
                 for (int j = 0; j < arr[0].length && j < arr[i].length; j++) {
-                    r.add(arr[i][j]);
+                    array.set(i, j, arr[i][j]);
                 }
-                array.add(r);
             }
 
             return array;
         } else if (obj instanceof Double[]) {
             Double[] arr = (Double[]) obj;
-            VTCollection array = new VTCollection();
+            XLoper[] array = new XLoper[arr.length];
+
             for (int i = 0; i < arr.length; i++) {
-                array.add(arr[i]);
+                array[i] = arr[i] == null ? (XLoper) XLNil.NIL : new XLNum(
+                        arr[i].doubleValue());
             }
 
-            return array;
+            return new XLArray(array, arr.length, 1);
         } else if (obj instanceof Double[][]) {
             Double[][] arr = (Double[][]) obj;
-            VTCollection array = new VTCollection();
+            XLArray array = new XLArray(arr.length, arr[0].length);
 
             for (int i = 0; i < arr.length; i++) {
-                VTCollection r = new VTCollection();
                 for (int j = 0; j < arr[0].length && j < arr[i].length; j++) {
-                    r.add(arr[i][j]);
+                    array.set(i, j, arr[i][j]);
                 }
-                array.add(r);
             }
 
             return array;
         } else if (obj instanceof int[]) {
             int[] arr = (int[]) obj;
-            VTCollection array = new VTCollection();
+            XLoper[] array = new XLoper[arr.length];
+
             for (int i = 0; i < arr.length; i++) {
-                array.add(arr[i]);
+                array[i] = new XLInt(arr[i]);
             }
 
-            return array;
+            return new XLArray(array, arr.length, 1);
         } else if (obj instanceof int[][]) {
             int[][] arr = (int[][]) obj;
-            VTCollection array = new VTCollection();
+            XLArray array = new XLArray(arr.length, arr[0].length);
 
             for (int i = 0; i < arr.length; i++) {
-                VTCollection r = new VTCollection();
                 for (int j = 0; j < arr[0].length && j < arr[i].length; j++) {
-                    r.add(arr[i][j]);
+                    array.set(i, j, arr[i][j]);
                 }
-                array.add(r);
             }
 
             return array;
         } else if (obj instanceof Integer[]) {
             Integer[] arr = (Integer[]) obj;
-            VTCollection array = new VTCollection();
+            XLoper[] array = new XLoper[arr.length];
+
             for (int i = 0; i < arr.length; i++) {
-                array.add(arr[i]);
+                array[i] = arr[i] == null ? (XLoper) XLNil.NIL : new XLInt(
+                        arr[i].intValue());
             }
 
-            return array;
+            return new XLArray(array, arr.length, 1);
         } else if (obj instanceof Integer[][]) {
             Integer[][] arr = (Integer[][]) obj;
-            VTCollection array = new VTCollection();
+            XLArray array = new XLArray(arr.length, arr[0].length);
 
             for (int i = 0; i < arr.length; i++) {
-                VTCollection r = new VTCollection();
                 for (int j = 0; j < arr[0].length && j < arr[i].length; j++) {
-                    r.add(arr[i][j]);
+                    array.set(i, j, arr[i][j]);
                 }
-                array.add(r);
             }
 
             return array;
         } else if (obj instanceof boolean[]) {
             boolean[] arr = (boolean[]) obj;
-            VTCollection array = new VTCollection();
+            XLoper[] array = new XLoper[arr.length];
+
             for (int i = 0; i < arr.length; i++) {
-                array.add(arr[i]);
+                array[i] = new XLBool(arr[i]);
             }
 
-            return array;
+            return new XLArray(array, arr.length, 1);
         } else if (obj instanceof boolean[][]) {
             boolean[][] arr = (boolean[][]) obj;
-            VTCollection array = new VTCollection();
+            XLArray array = new XLArray(arr.length, arr[0].length);
 
             for (int i = 0; i < arr.length; i++) {
-                VTCollection r = new VTCollection();
                 for (int j = 0; j < arr[0].length && j < arr[i].length; j++) {
-                    r.add(arr[i][j]);
+                    array.set(i, j, arr[i][j]);
                 }
-                array.add(r);
             }
 
             return array;
         } else if (obj instanceof Boolean[]) {
             Boolean[] arr = (Boolean[]) obj;
-            VTCollection array = new VTCollection();
+            XLoper[] array = new XLoper[arr.length];
+
             for (int i = 0; i < arr.length; i++) {
-                array.add(arr[i]);
+                array[i] = arr[i] == null ? (XLoper) XLNil.NIL : new XLBool(
+                        arr[i].booleanValue());
             }
 
-            return array;
+            return new XLArray(array, arr.length, 1);
         } else if (obj instanceof Boolean[][]) {
             Boolean[][] arr = (Boolean[][]) obj;
-            VTCollection array = new VTCollection();
+            XLArray array = new XLArray(arr.length, arr[0].length);
 
             for (int i = 0; i < arr.length; i++) {
-                VTCollection r = new VTCollection();
                 for (int j = 0; j < arr[0].length && j < arr[i].length; j++) {
-                    r.add(arr[i][j]);
+                    array.set(i, j, arr[i][j]);
                 }
-                array.add(r);
             }
 
             return array;
         } else if (obj instanceof Object[][]) {
             Object[][] arr = (Object[][]) obj;
-            VTCollection array = new VTCollection();
+            XLArray array = new XLArray(arr.length, arr[0].length);
 
             for (int i = 0; i < arr.length; i++) {
-                VTCollection r = new VTCollection();
                 for (int j = 0; j < arr[0].length && j < arr[i].length; j++) {
-                    r.add(createFrom(arr[i][j]));
+                    array.set(i, j, createFrom(arr[i][j]));
                 }
-                array.add(r);
             }
 
             return array;
         } else if (obj instanceof Object[]) {
             Object[] arr = (Object[]) obj;
-            VTCollection array = new VTCollection();
+            XLoper[] array = new XLoper[arr.length];
+
             for (int i = 0; i < arr.length; i++) {
-                array.add(createFrom(arr[i]));
+                array[i] = createFrom(arr[i]);
             }
 
-            return array;
-        } else if (obj instanceof Variant) {
-            return (Variant) obj;
+            return new XLArray(array, arr.length, 1);
+        } else if (obj instanceof XLoper) {
+            return (XLoper) obj;
         } else if (obj != null) {
-            return new VTString(registry.put(obj));
+            return new XLString(registry.put(obj));
         } else {
-            return VTNull.NULL;
+            return XLNil.NIL;
         }
     }
 
@@ -255,9 +241,10 @@ public class VariantObjectConverter
      * 
      * @return Object.
      */
-    public Object createFrom(Variant obj, Class hint) {
-        if (obj instanceof VTString) {
-            if (VTString.class.equals(hint)) {
+    public Object createFrom(XLoper obj, Class hint) {
+        switch (obj.type) {
+        case XLoper.xlTypeStr:
+            if (XLString.class.equals(hint)) {
                 return obj;
             } else {
                 String str = obj.toString();
@@ -268,41 +255,22 @@ public class VariantObjectConverter
                     return str;
                 }
             }
-        } else if (obj instanceof VTLong) {
+        case XLoper.xlTypeNum:
             if (Double.class.equals(hint) || double.class.equals(hint)) {
-                return new Double(((VTLong) obj).longValue());
+                return new Double(((XLNum) obj).num);
             } else if (String.class.equals(hint)) {
                 return obj.toString();
             } else if (Integer.class.equals(hint) || int.class.equals(hint)) {
-                return new Integer(((VTLong) obj).intValue());
+                return new Integer((int) ((XLNum) obj).num);
             } else if (Boolean.class.equals(hint) || boolean.class.equals(hint)) {
-                return new Boolean(((VTLong) obj).booleanValue());
+                return new Boolean(((int) ((XLNum) obj).num) != 0);
             } else {
-                return new Long(((VTLong) obj).longValue());
+                return new Long((long) ((XLNum) obj).num);
             }
-        } else if (obj instanceof VTDouble) {
-            if (String.class.equals(hint)) {
-                return obj.toString();
-            } else if (Integer.class.equals(hint) || int.class.equals(hint)) {
-                return new Integer(((VTDouble) obj).intValue());
-            } else if (Long.class.equals(hint) || long.class.equals(hint)) {
-                return new Long(((VTDouble) obj).longValue());
-            } else if (Boolean.class.equals(hint) || boolean.class.equals(hint)) {
-                return new Boolean(((VTDouble) obj).booleanValue());
-            } else {
-                return new Double(((VTDouble) obj).doubleValue());
-            }
-        } else if (obj instanceof VTCollection) {
-            return convertArray((VTCollection) obj, hint);
-        } else if (obj instanceof VTMap) {
-            VTMap st = (VTMap) obj;
-            Map m = new HashMap();
-            for (Iterator i = st.getKeys().iterator(); i.hasNext();) {
-                String s = (String) i.next();
-                m.put(s, createFrom(st.getValue(s), hint));
-            }
-            return m;
-        } else if (obj instanceof VTNull || obj == null) {
+        case XLoper.xlTypeMulti:
+            return convertArray((XLArray) obj, hint);
+        case XLoper.xlTypeNil:
+        case XLoper.xlTypeMissing:
             if (String.class.equals(hint)) {
                 return "";
             } else if (int.class.equals(hint)) {
@@ -321,25 +289,24 @@ public class VariantObjectConverter
         return null;
     }
 
-    private Object convertVector(VTCollection arr, Class hint) {
-        int length = arr.size();
+    private Object convertVector(XLArray arr, Class hint) {
         Object val = null;
 
         if (Integer.class.equals(hint)) {
-            Long l = length > 0 ? arr.getLong(0) : null;
+            Integer l = arr.rows > 0 ? arr.getInteger(0) : null;
             return l == null ? null : new Integer(l.intValue());
         } else if (int.class.equals(hint)) {
-            Long l = length > 0 ? arr.getLong(0) : null;
+            Integer l = arr.rows > 0 ? arr.getInteger(0) : null;
             return l == null ? IZERO : new Integer(l.intValue());
         } else if (Double.class.equals(hint)) {
-            return length > 0 ? arr.getDouble(0) : null;
+            return arr.rows > 0 ? arr.getDouble(0) : null;
         } else if (double.class.equals(hint)) {
-            Double d = length > 0 ? arr.getDouble(0) : null;
+            Double d = arr.rows > 0 ? arr.getDouble(0) : null;
             return d == null ? DZERO : d;
         } else if (String.class.equals(hint)) {
-            return length > 0 ? arr.getString(0) : null;
+            return arr.rows > 0 ? arr.getString(0) : null;
         } else if (double[].class.equals(hint)) {
-            double[] darr = new double[length];
+            double[] darr = new double[arr.rows];
 
             for (int i = 0; i < darr.length; i++) {
                 Double d = arr.getDouble(i);
@@ -350,9 +317,9 @@ public class VariantObjectConverter
 
             val = darr;
         } else if (double[][].class.equals(hint)) {
-            double[][] darr = new double[length][1];
+            double[][] darr = new double[arr.rows][1];
 
-            for (int i = 0; i < length; i++) {
+            for (int i = 0; i < arr.rows; i++) {
                 Double d = arr.getDouble(i);
                 if (d != null) {
                     darr[i][0] = d.doubleValue();
@@ -361,7 +328,7 @@ public class VariantObjectConverter
 
             val = darr;
         } else if (Double[].class.equals(hint)) {
-            Double[] darr = new Double[length];
+            Double[] darr = new Double[arr.rows];
 
             for (int i = 0; i < darr.length; i++) {
                 darr[i] = arr.getDouble(i);
@@ -369,29 +336,29 @@ public class VariantObjectConverter
 
             val = darr;
         } else if (Double[][].class.equals(hint)) {
-            Double[][] darr = new Double[length][1];
+            Double[][] darr = new Double[arr.rows][1];
 
-            for (int i = 0; i < length; i++) {
+            for (int i = 0; i < arr.rows; i++) {
                 darr[i][0] = arr.getDouble(i);
             }
 
             val = darr;
         } else if (int[].class.equals(hint)) {
-            int[] darr = new int[length];
+            int[] darr = new int[arr.rows];
 
             for (int i = 0; i < darr.length; i++) {
-                Long l = arr.getLong(i);
+                Integer l = arr.getInteger(i);
                 if (l != null) {
-                    darr[i] = arr.getLong(i).intValue();
+                    darr[i] = l.intValue();
                 }
             }
 
             val = darr;
         } else if (int[][].class.equals(hint)) {
-            int[][] darr = new int[length][1];
+            int[][] darr = new int[arr.rows][1];
 
-            for (int i = 0; i < length; i++) {
-                Long l = arr.getLong(i);
+            for (int i = 0; i < arr.rows; i++) {
+                Integer l = arr.getInteger(i);
                 if (l != null) {
                     darr[i][0] = l.intValue();
                 }
@@ -399,32 +366,32 @@ public class VariantObjectConverter
 
             val = darr;
         } else if (Integer[].class.equals(hint)) {
-            Integer[] darr = new Integer[length];
+            Integer[] darr = new Integer[arr.rows];
 
             for (int i = 0; i < darr.length; i++) {
-                Long l = arr.getLong(i);
+                Integer l = arr.getInteger(i);
                 if (l != null) {
-                    darr[i] = new Integer(l.intValue());
+                    darr[i] = l;
                 }
             }
 
             val = darr;
         } else if (Integer[][].class.equals(hint)) {
-            Integer[][] darr = new Integer[length][1];
+            Integer[][] darr = new Integer[arr.rows][1];
 
-            for (int i = 0; i < length; i++) {
-                Long l = arr.getLong(i);
+            for (int i = 0; i < arr.rows; i++) {
+                Integer l = arr.getInteger(i);
                 if (l != null) {
-                    darr[i][0] = new Integer(l.intValue());
+                    darr[i][0] = l;
                 }
             }
 
             val = darr;
         } else if (boolean[].class.equals(hint)) {
-            boolean[] darr = new boolean[length];
+            boolean[] darr = new boolean[arr.rows];
 
             for (int i = 0; i < darr.length; i++) {
-                Long l = arr.getLong(i);
+                Integer l = arr.getInteger(i);
                 if (l != null) {
                     darr[i] = l.intValue() == 1;
                 }
@@ -432,10 +399,10 @@ public class VariantObjectConverter
 
             val = darr;
         } else if (boolean[][].class.equals(hint)) {
-            boolean[][] darr = new boolean[length][1];
+            boolean[][] darr = new boolean[arr.rows][1];
 
-            for (int i = 0; i < length; i++) {
-                Long l = arr.getLong(i);
+            for (int i = 0; i < arr.rows; i++) {
+                Integer l = arr.getInteger(i);
                 if (l != null) {
                     darr[i][0] = l.intValue() == 1;
                 }
@@ -443,10 +410,10 @@ public class VariantObjectConverter
 
             val = darr;
         } else if (Boolean[].class.equals(hint)) {
-            Boolean[] darr = new Boolean[length];
+            Boolean[] darr = new Boolean[arr.rows];
 
             for (int i = 0; i < darr.length; i++) {
-                Long l = arr.getLong(i);
+                Integer l = arr.getInteger(i);
                 if (l != null) {
                     darr[i] = new Boolean(l.intValue() == 1);
                 }
@@ -454,10 +421,10 @@ public class VariantObjectConverter
 
             val = darr;
         } else if (Boolean[][].class.equals(hint)) {
-            Boolean[][] darr = new Boolean[length][1];
+            Boolean[][] darr = new Boolean[arr.rows][1];
 
-            for (int i = 0; i < length; i++) {
-                Long l = arr.getLong(i);
+            for (int i = 0; i < arr.rows; i++) {
+                Integer l = arr.getInteger(i);
                 if (l != null) {
                     darr[i][0] = new Boolean(l.intValue() == 1);
                 }
@@ -465,7 +432,7 @@ public class VariantObjectConverter
 
             val = darr;
         } else if (String[].class.equals(hint)) {
-            String[] darr = new String[length];
+            String[] darr = new String[arr.rows];
 
             for (int i = 0; i < darr.length; i++) {
                 darr[i] = arr.getString(i);
@@ -473,15 +440,15 @@ public class VariantObjectConverter
 
             val = darr;
         } else if (String[][].class.equals(hint)) {
-            String[][] darr = new String[length][1];
+            String[][] darr = new String[arr.rows][1];
 
-            for (int i = 0; i < length; i++) {
+            for (int i = 0; i < arr.rows; i++) {
                 darr[i][0] = arr.getString(i);
             }
 
             val = darr;
         } else if (Object[].class.equals(hint)) {
-            Object[] darr = new Object[length];
+            Object[] darr = new Object[arr.rows];
 
             for (int i = 0; i < darr.length; i++) {
                 darr[i] = createFrom(arr.get(i), Object.class);
@@ -489,15 +456,15 @@ public class VariantObjectConverter
 
             val = darr;
         } else if (Object[][].class.equals(hint)) {
-            Object[][] darr = new Object[length][1];
+            Object[][] darr = new Object[arr.rows][1];
 
-            for (int i = 0; i < length; i++) {
+            for (int i = 0; i < arr.rows; i++) {
                 darr[i][0] = createFrom(arr.get(i), Object.class);
             }
 
             val = darr;
         } else {
-            String str = arr.getCollection(0).getString(0);
+            String str = arr.getString(0);
             val = registry.get(str);
         }
 
@@ -512,184 +479,181 @@ public class VariantObjectConverter
      * 
      * @return Object.
      */
-    private Object convertArray(VTCollection arr, Class hint) {
+    private Object convertArray(XLArray arr, Class hint) {
         Object val = null;
-        VTCollection fr = arr.getCollection(0);
-        if (fr == null) {
+        if (arr.columns == 1) {
             return convertVector(arr, hint);
         }
-        int width = fr.size();
-        int height = arr.size();
 
         if (Integer.class.equals(hint) || int.class.equals(hint)) {
-            val = new Integer(arr.getCollection(0).getLong(0).intValue());
+            val = arr.getInteger(0);
         } else if (Double.class.equals(hint) || double.class.equals(hint)) {
-            val = arr.getCollection(0).getDouble(0);
+            val = arr.getDouble(0);
         } else if (String.class.equals(hint)) {
-            val = arr.getCollection(0).getString(0);
+            val = arr.getString(0);
         } else if (double[].class.equals(hint)) {
-            double[] darr = new double[height * width];
+            double[] darr = new double[arr.rows * arr.columns];
 
             for (int i = 0; i < darr.length; i++) {
-                darr[i] = arr.getCollection(i / width).getDouble(i % width)
-                        .doubleValue();
+                darr[i] = arr.getDouble(i).doubleValue();
             }
 
             val = darr;
         } else if (double[][].class.equals(hint)) {
-            double[][] darr = new double[height][width];
+            double[][] darr = new double[arr.rows][arr.columns];
 
-            for (int i = 0; i < height; i++) {
-                for (int j = 0; j < width; j++) {
-                    darr[i][j] = arr.getCollection(i).getDouble(j)
-                            .doubleValue();
+            for (int i = 0; i < arr.rows; i++) {
+                for (int j = 0; j < arr.columns; j++) {
+                    Double d = arr.getDouble(i, j);
+                    if (d != null)
+                        darr[i][j] = d.doubleValue();
                 }
             }
 
             val = darr;
         } else if (Double[].class.equals(hint)) {
-            Double[] darr = new Double[height * width];
+            Double[] darr = new Double[arr.rows * arr.columns];
 
             for (int i = 0; i < darr.length; i++) {
-                darr[i] = arr.getCollection(i / width).getDouble(i % width);
+                darr[i] = arr.getDouble(i);
             }
 
             val = darr;
         } else if (Double[][].class.equals(hint)) {
-            Double[][] darr = new Double[height][width];
+            Double[][] darr = new Double[arr.rows][arr.columns];
 
-            for (int i = 0; i < height; i++) {
-                for (int j = 0; j < width; j++) {
-                    darr[i][j] = arr.getCollection(i).getDouble(j);
+            for (int i = 0; i < arr.rows; i++) {
+                for (int j = 0; j < arr.columns; j++) {
+                    darr[i][j] = arr.getDouble(i, j);
                 }
             }
 
             val = darr;
         } else if (int[].class.equals(hint)) {
-            int[] darr = new int[height * width];
+            int[] darr = new int[arr.rows * arr.columns];
 
             for (int i = 0; i < darr.length; i++) {
-                darr[i] = arr.getCollection(i / width).getLong(i % width)
-                        .intValue();
+                Integer it = arr.getInteger(i);
+                if (it != null)
+                    darr[i] = it.intValue();
             }
 
             val = darr;
         } else if (int[][].class.equals(hint)) {
-            int[][] darr = new int[height][width];
+            int[][] darr = new int[arr.rows][arr.columns];
 
-            for (int i = 0; i < height; i++) {
-                for (int j = 0; j < width; j++) {
-                    darr[i][j] = arr.getCollection(i).getLong(j).intValue();
+            for (int i = 0; i < arr.rows; i++) {
+                for (int j = 0; j < arr.columns; j++) {
+                    Integer it = arr.getInteger(i, j);
+                    if (it != null)
+                        darr[i][j] = it.intValue();
                 }
             }
 
             val = darr;
         } else if (Integer[].class.equals(hint)) {
-            Integer[] darr = new Integer[height * width];
+            Integer[] darr = new Integer[arr.rows * arr.columns];
 
             for (int i = 0; i < darr.length; i++) {
-                darr[i] = new Integer(arr.getCollection(i / width).getLong(
-                        i % width).intValue());
+                darr[i] = arr.getInteger(i);
             }
 
             val = darr;
         } else if (Integer[][].class.equals(hint)) {
-            Integer[][] darr = new Integer[height][width];
+            Integer[][] darr = new Integer[arr.rows][arr.columns];
 
-            for (int i = 0; i < height; i++) {
-                for (int j = 0; j < width; j++) {
-                    darr[i][j] = new Integer(arr.getCollection(i).getLong(j)
-                            .intValue());
+            for (int i = 0; i < arr.rows; i++) {
+                for (int j = 0; j < arr.columns; j++) {
+                    darr[i][j] = arr.getInteger(i, j);
                 }
             }
 
             val = darr;
         } else if (boolean[].class.equals(hint)) {
-            boolean[] darr = new boolean[height * width];
+            boolean[] darr = new boolean[arr.rows * arr.columns];
 
             for (int i = 0; i < darr.length; i++) {
-                darr[i] = arr.getCollection(i / width).getLong(i % width)
-                        .intValue() == 1;
+                Boolean b = arr.getBoolean(i);
+                if (b != null)
+                    darr[i] = b.booleanValue();
             }
 
             val = darr;
         } else if (boolean[][].class.equals(hint)) {
-            boolean[][] darr = new boolean[height][width];
+            boolean[][] darr = new boolean[arr.rows][arr.columns];
 
-            for (int i = 0; i < height; i++) {
-                for (int j = 0; j < width; j++) {
-                    darr[i][j] = arr.getCollection(i).getLong(j).intValue() == 1;
+            for (int i = 0; i < arr.rows; i++) {
+                for (int j = 0; j < arr.columns; j++) {
+                    Boolean b = arr.getBoolean(i, j);
+                    if (b != null)
+                        darr[i][j] = b.booleanValue();
                 }
             }
 
             val = darr;
         } else if (Boolean[].class.equals(hint)) {
-            Boolean[] darr = new Boolean[height * width];
+            Boolean[] darr = new Boolean[arr.rows * arr.columns];
 
             for (int i = 0; i < darr.length; i++) {
-                darr[i] = new Boolean(arr.getCollection(i / width).getLong(
-                        i % width).intValue() == 1);
+                darr[i] = arr.getBoolean(i);
             }
 
             val = darr;
         } else if (Boolean[][].class.equals(hint)) {
-            Boolean[][] darr = new Boolean[height][width];
+            Boolean[][] darr = new Boolean[arr.rows][arr.columns];
 
-            for (int i = 0; i < height; i++) {
-                for (int j = 0; j < width; j++) {
-                    darr[i][j] = new Boolean(arr.getCollection(i).getLong(j)
-                            .intValue() == 1);
+            for (int i = 0; i < arr.rows; i++) {
+                for (int j = 0; j < arr.columns; j++) {
+                    darr[i][j] = arr.getBoolean(i, j);
                 }
             }
 
             val = darr;
         } else if (String[].class.equals(hint)) {
-            String[] darr = new String[height * width];
+            String[] darr = new String[arr.rows * arr.columns];
 
             for (int i = 0; i < darr.length; i++) {
-                darr[i] = arr.getCollection(i / width).getString(i % width);
+                darr[i] = arr.getString(i);
             }
 
             val = darr;
         } else if (String[][].class.equals(hint)) {
-            String[][] darr = new String[height][width];
+            String[][] darr = new String[arr.rows][arr.columns];
 
-            for (int i = 0; i < height; i++) {
-                for (int j = 0; j < width; j++) {
-                    darr[i][j] = arr.getCollection(i).getString(j);
+            for (int i = 0; i < arr.rows; i++) {
+                for (int j = 0; j < arr.columns; j++) {
+                    darr[i][j] = arr.getString(i, j);
                 }
             }
 
             val = darr;
         } else if (Object[].class.equals(hint)) {
-            Object[] darr = new Object[height * width];
+            Object[] darr = new Object[arr.rows * arr.columns];
 
             for (int i = 0; i < darr.length; i++) {
-                darr[i] = createFrom(arr.getCollection(i / width)
-                        .get(i % width), Object.class);
+                darr[i] = createFrom(arr.get(i), Object.class);
             }
 
             val = darr;
         } else if (Object[][].class.equals(hint)) {
-            Object[][] darr = new Object[height][width];
+            Object[][] darr = new Object[arr.rows][arr.columns];
 
-            for (int i = 0; i < height; i++) {
-                for (int j = 0; j < width; j++) {
-                    darr[i][j] = createFrom(arr.getCollection(i).get(j),
-                            Object.class);
+            for (int i = 0; i < arr.rows; i++) {
+                for (int j = 0; j < arr.columns; j++) {
+                    darr[i][j] = createFrom(arr.get(i, j), Object.class);
                 }
             }
 
             val = darr;
         } else {
-            String str = arr.getCollection(0).getString(0);
+            String str = arr.getString(0);
             val = registry.get(str);
         }
 
         return val;
     }
 
-    public Object[] convert(VTCollection args, Class[] hints) {
+    public Object[] convert(XLList args, Class[] hints) {
         Object[] a = new Object[hints.length];
         int csize = args.size();
         for (int i = 0; i < hints.length; i++) {

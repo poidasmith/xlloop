@@ -9,10 +9,10 @@
  *******************************************************************************/
 package org.boris.xlloop;
 
-import org.boris.variant.VTCollection;
-import org.boris.variant.Variant;
+import org.boris.xlloop.xloper.XLList;
+import org.boris.xlloop.xloper.XLoper;
 
-public interface Function 
+public interface Function
 {
-    Variant execute(VTCollection args) throws RequestException;
+    XLoper execute(XLList args) throws RequestException;
 }

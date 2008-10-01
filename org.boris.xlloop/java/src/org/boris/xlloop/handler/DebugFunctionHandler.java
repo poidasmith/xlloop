@@ -9,10 +9,10 @@
  *******************************************************************************/
 package org.boris.xlloop.handler;
 
-import org.boris.variant.VTCollection;
-import org.boris.variant.Variant;
 import org.boris.xlloop.FunctionHandler;
 import org.boris.xlloop.RequestException;
+import org.boris.xlloop.xloper.XLList;
+import org.boris.xlloop.xloper.XLoper;
 
 public class DebugFunctionHandler implements FunctionHandler
 {
@@ -22,7 +22,7 @@ public class DebugFunctionHandler implements FunctionHandler
         this.h = h;
     }
 
-    public Variant execute(String name, VTCollection args) throws RequestException {
+    public XLoper execute(String name, XLList args) throws RequestException {
         System.out.println(name + args);
         return h.execute(name, args);
     }
@@ -30,5 +30,4 @@ public class DebugFunctionHandler implements FunctionHandler
     public boolean hasFunction(String name) {
         return h.hasFunction(name);
     }
-
 }
