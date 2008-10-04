@@ -30,7 +30,7 @@ public class ExprToken
     public final ExprTokenType type;
     public final String val;
     public final double doubleValue;
-    public final double integerValue;
+    public final int integerValue;
 
     public ExprToken(ExprTokenType type, String val) {
         this.type = type;

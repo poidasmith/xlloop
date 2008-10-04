@@ -15,11 +15,11 @@ import java.io.InputStreamReader;
 import junit.framework.TestCase;
 
 import org.boris.expr.parser.ExprLexer;
-import org.boris.expr.parser.ExprToken;
+import org.boris.expr.parser.ExprParser;
 
 public class ExprTest extends TestCase
 {
-    public void test1() throws Exception {
+    public void Qtest1() throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(getClass()
                 .getResourceAsStream("test.txt")));
         String line = null;
@@ -28,13 +28,20 @@ public class ExprTest extends TestCase
         }
     }
 
+    public void test2() throws Exception {
+        test("1+2+3-5");
+    }
+
     private void test(String line) throws Exception {
         System.out.println();
         System.out.println(line);
         ExprLexer l = new ExprLexer(line);
-        ExprToken token = null;
-        while ((token = l.next()) != null) {
-            System.out.println(token);
+        ExprParser p = new ExprParser();
+        p.parse(l, null);
+        Expr out = p.get();
+        System.out.println(out.encode());
+        if (out instanceof ExprEvaluatable) {
+            System.out.println(((ExprEvaluatable) out).evaluate().encode());
         }
     }
 }

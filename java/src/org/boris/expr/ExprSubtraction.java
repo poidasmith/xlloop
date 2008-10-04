@@ -9,7 +9,10 @@
  *******************************************************************************/
 package org.boris.expr;
 
-public class ExprSubtraction extends ExprEvaluatable
+import org.boris.variant.VTMap;
+import org.boris.variant.Variant;
+
+public class ExprSubtraction extends ExprEvaluatable implements IBinaryOperator
 {
     private Expr rhs;
     private Expr lhs;
@@ -43,5 +46,13 @@ public class ExprSubtraction extends ExprEvaluatable
 
     public String toString() {
         return lhs + "-" + rhs;
+    }
+
+    public Variant encode() {
+        VTMap m = new VTMap();
+        m.add("type", type.toString());
+        m.add("lhs", lhs.encode());
+        m.add("rhs", rhs.encode());
+        return m;
     }
 }

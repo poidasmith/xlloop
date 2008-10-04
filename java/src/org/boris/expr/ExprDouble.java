@@ -9,6 +9,9 @@
  *******************************************************************************/
 package org.boris.expr;
 
+import org.boris.variant.VTMap;
+import org.boris.variant.Variant;
+
 public class ExprDouble extends ExprNumber
 {
     public final double value;
@@ -28,5 +31,12 @@ public class ExprDouble extends ExprNumber
 
     public String toString() {
         return Double.toString(value);
+    }
+
+    public Variant encode() {
+        VTMap m = new VTMap();
+        m.add("type", type.toString());
+        m.add("value", value);
+        return m;
     }
 }

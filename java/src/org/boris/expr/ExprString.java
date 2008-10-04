@@ -10,6 +10,8 @@
 package org.boris.expr;
 
 import org.boris.expr.parser.ExprLexer;
+import org.boris.variant.VTMap;
+import org.boris.variant.Variant;
 
 public class ExprString extends Expr
 {
@@ -22,5 +24,12 @@ public class ExprString extends Expr
 
     public String toString() {
         return "\"" + ExprLexer.escapeJavaString(str) + "\"";
+    }
+
+    public Variant encode() {
+        VTMap m = new VTMap();
+        m.add("type", type.toString());
+        m.add("value", str);
+        return m;
     }
 }

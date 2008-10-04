@@ -9,17 +9,13 @@
  *******************************************************************************/
 package org.boris.expr;
 
-import org.boris.variant.Variant;
-
-public abstract class Expr
+public interface IBinaryOperator
 {
-    public final ExprType type;
-    public final boolean evaluatable;
+    public Expr getLHS();
 
-    Expr(ExprType type, boolean evaluatable) {
-        this.type = type;
-        this.evaluatable = evaluatable;
-    }
+    public void setLHS(Expr lhs);
 
-    public abstract Variant encode();
+    public Expr getRHS();
+
+    public void setRHS(Expr rhs);
 }

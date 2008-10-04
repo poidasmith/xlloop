@@ -5,3 +5,4 @@ Bundle-SymbolicName: org.boris.expr
 Bundle-Version: 1.0.0
 Export-Package: org.boris.expr,
  org.boris.expr.parser
+Require-Bundle: org.boris.variantcodec

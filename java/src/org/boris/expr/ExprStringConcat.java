@@ -9,7 +9,11 @@
  *******************************************************************************/
 package org.boris.expr;
 
-public class ExprStringConcat extends ExprEvaluatable
+import org.boris.variant.VTMap;
+import org.boris.variant.Variant;
+
+public class ExprStringConcat extends ExprEvaluatable implements
+        IBinaryOperator
 {
     private Expr lhs;
     private Expr rhs;
@@ -48,5 +52,13 @@ public class ExprStringConcat extends ExprEvaluatable
 
     public String toString() {
         return lhs + "&" + rhs;
+    }
+
+    public Variant encode() {
+        VTMap m = new VTMap();
+        m.add("type", type.toString());
+        m.add("lhs", lhs.encode());
+        m.add("rhs", rhs.encode());
+        return m;
     }
 }

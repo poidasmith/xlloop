@@ -9,12 +9,15 @@
  *******************************************************************************/
 package org.boris.expr;
 
+import org.boris.variant.VTMap;
+import org.boris.variant.Variant;
+
 public class ExprVariable extends ExprEvaluatable
 {
     private IEvaluationCallback callback;
     private String name;
 
-    ExprVariable(IEvaluationCallback callback, String name) {
+    public ExprVariable(IEvaluationCallback callback, String name) {
         super(ExprType.Variable);
         this.callback = callback;
         this.name = name;
@@ -30,5 +33,12 @@ public class ExprVariable extends ExprEvaluatable
 
     public String toString() {
         return name;
+    }
+
+    public Variant encode() {
+        VTMap m = new VTMap();
+        m.add("type", type.toString());
+        m.add("name", name);
+        return m;
     }
 }

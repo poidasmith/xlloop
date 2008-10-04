@@ -9,6 +9,10 @@
  *******************************************************************************/
 package org.boris.expr;
 
+import org.boris.variant.VTCollection;
+import org.boris.variant.VTMap;
+import org.boris.variant.Variant;
+
 public class ExprFunction extends ExprEvaluatable
 {
     private IEvaluationCallback callback;
@@ -49,5 +53,17 @@ public class ExprFunction extends ExprEvaluatable
         }
         sb.append(")");
         return sb.toString();
+    }
+
+    public Variant encode() {
+        VTMap m = new VTMap();
+        m.add("type", type.toString());
+        m.add("name", name);
+        VTCollection collection = new VTCollection();
+        for (int i = 0; i < args.length; i++) {
+            collection.add(args[i].encode());
+        }
+        m.add("args", collection);
+        return m;
     }
 }
