@@ -22,5 +22,6 @@ public enum ExprTokenType
     Divide,
     OpenBracket,
     CloseBracket,
-    Comma
+    Comma,
+    StringConcat
 }

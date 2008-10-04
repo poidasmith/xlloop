@@ -15,16 +15,17 @@ public class ExprToken
             ExprTokenType.OpenBracket, "(");
     public static final ExprToken CLOSE_BRACKET = new ExprToken(
             ExprTokenType.CloseBracket, ")");
-    public static final ExprToken PLUS = new ExprToken(
-            ExprTokenType.Plus, "+");
-    public static final ExprToken MINUS = new ExprToken(
-            ExprTokenType.Minus, "-");
+    public static final ExprToken PLUS = new ExprToken(ExprTokenType.Plus, "+");
+    public static final ExprToken MINUS = new ExprToken(ExprTokenType.Minus,
+            "-");
     public static final ExprToken MULTIPLY = new ExprToken(
             ExprTokenType.Multiply, "*");
-    public static final ExprToken DIVIDE = new ExprToken(
-            ExprTokenType.Divide, "/");
-    public static final ExprToken COMMA = new ExprToken(
-            ExprTokenType.Comma, ",");
+    public static final ExprToken DIVIDE = new ExprToken(ExprTokenType.Divide,
+            "/");
+    public static final ExprToken COMMA = new ExprToken(ExprTokenType.Comma,
+            ",");
+    public static final ExprToken STRING_CONCAT = new ExprToken(
+            ExprTokenType.StringConcat, "&");
 
     public final ExprTokenType type;
     public final String val;

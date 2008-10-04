@@ -20,6 +20,22 @@ public class ExprMultiplication extends ExprEvaluatable
         this.rhs = rhs;
     }
 
+    public Expr getLHS() {
+        return lhs;
+    }
+
+    public void setLHS(Expr lhs) {
+        this.lhs = lhs;
+    }
+
+    public Expr getRHS() {
+        return rhs;
+    }
+
+    public void setRHS(Expr rhs) {
+        this.rhs = rhs;
+    }
+
     public Expr evaluate() throws ExprException {
         return new ExprDouble(((ExprNumber) lhs).doubleValue() *
                 ((ExprNumber) rhs).doubleValue());

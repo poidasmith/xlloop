@@ -9,13 +9,13 @@
  *******************************************************************************/
 package org.boris.expr;
 
-public class ExprSubtraction extends ExprEvaluatable
+public class ExprStringConcat extends ExprEvaluatable
 {
-    private Expr rhs;
     private Expr lhs;
+    private Expr rhs;
 
-    public ExprSubtraction(Expr lhs, Expr rhs) {
-        super(ExprType.Subtraction);
+    public ExprStringConcat(Expr lhs, Expr rhs) {
+        super(ExprType.StringConcat);
         this.lhs = lhs;
         this.rhs = rhs;
     }
@@ -37,11 +37,16 @@ public class ExprSubtraction extends ExprEvaluatable
     }
 
     public Expr evaluate() throws ExprException {
-        return new ExprDouble(((ExprNumber) lhs).doubleValue() -
-                ((ExprNumber) rhs).doubleValue());
+        if (lhs.type.equals(ExprType.String) &&
+                rhs.type.equals(ExprType.String)) {
+            return new ExprString(((ExprString) lhs).str +
+                    ((ExprString) rhs).str);
+        }
+
+        throw new ExprException("Unexpected arguments for string concatenation");
     }
 
     public String toString() {
-        return lhs + "-" + rhs;
+        return lhs + "&" + rhs;
     }
 }

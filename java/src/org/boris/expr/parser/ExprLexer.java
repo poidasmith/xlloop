@@ -74,6 +74,9 @@ public class ExprLexer
         case ',':
             lastChar = 0;
             return ExprToken.COMMA;
+        case '&':
+            lastChar = 0;
+            return ExprToken.STRING_CONCAT;
         case -1:
         case 0xffff:
             return null;

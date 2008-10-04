@@ -20,5 +20,6 @@ public enum ExprType
     Division,
     Function,
     Variable,
-    Expression
+    Expression,
+    StringConcat
 }
