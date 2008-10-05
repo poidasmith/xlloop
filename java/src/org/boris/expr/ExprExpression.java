@@ -22,7 +22,10 @@ public class ExprExpression extends ExprEvaluatable
     }
 
     public Expr evaluate() throws ExprException {
-        return child;
+        if (child instanceof ExprEvaluatable)
+            return ((ExprEvaluatable) child).evaluate();
+        else
+            return child;
     }
 
     public String toString() {

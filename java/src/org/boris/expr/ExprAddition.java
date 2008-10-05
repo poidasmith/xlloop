@@ -40,8 +40,14 @@ public class ExprAddition extends ExprEvaluatable implements IBinaryOperator
     }
 
     public Expr evaluate() throws ExprException {
-        return new ExprDouble(((ExprNumber) lhs).doubleValue() +
-                ((ExprNumber) rhs).doubleValue());
+        Expr l = lhs;
+        if (l instanceof ExprEvaluatable)
+            l = ((ExprEvaluatable) l).evaluate();
+        Expr r = rhs;
+        if (r instanceof ExprEvaluatable)
+            r = ((ExprEvaluatable) r).evaluate();
+        return new ExprDouble(((ExprNumber) l).doubleValue() +
+                ((ExprNumber) r).doubleValue());
     }
 
     public String toString() {
