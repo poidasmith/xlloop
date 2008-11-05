@@ -12,34 +12,34 @@ package org.boris.expr;
 import org.boris.variant.VTMap;
 import org.boris.variant.Variant;
 
-public class ExprExpression extends ExprEvaluatable
+public class ExprError extends Expr
 {
-    private Expr child;
+    private String errType;
+    private String message;
 
-    public ExprExpression(Expr child) {
-        super(ExprType.Expression);
-        this.child = child;
+    public ExprError(String type, String message) {
+        super(ExprType.Error, false);
+        this.errType = type;
+        this.message = message;
     }
 
-    public Expr evaluate() throws ExprException {
-        if (child instanceof ExprEvaluatable)
-            return ((ExprEvaluatable) child).evaluate();
-        else
-            return child;
+    public String getErrType() {
+        return errType;
     }
 
-    public Expr getChild() {
-        return child;
+    public String getMessage() {
+        return message;
     }
 
     public String toString() {
-        return "(" + child + ")";
+        return "#" + message;
     }
 
     public Variant encode() {
         VTMap m = new VTMap();
         m.add("type", type.toString());
-        m.add("child", child.encode());
+        m.add("errType", errType);
+        m.add("message", message);
         return m;
     }
 }

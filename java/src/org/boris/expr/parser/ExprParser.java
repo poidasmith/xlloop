@@ -30,6 +30,18 @@ import org.boris.expr.IEvaluationCallback;
 public class ExprParser
 {
     private Expr current;
+    private boolean isCaseSentitive;
+
+    public static Expr parse(String text, IEvaluationCallback callback)
+            throws IOException, ExprException {
+        ExprParser p = new ExprParser();
+        p.parse(new ExprLexer(text), callback);
+        return p.get();
+    }
+
+    public void setCaseSensitive(boolean cs) {
+        this.isCaseSentitive = cs;
+    }
 
     public void parse(ExprLexer lexer, IEvaluationCallback callback)
             throws IOException, ExprException {
@@ -86,8 +98,8 @@ public class ExprParser
                 parseToken(lexer, callback, e);
             }
         }
-        setValue(new ExprFunction(callback, token.val, (Expr[]) args
-                .toArray(new Expr[0])));
+        setValue(new ExprFunction(callback, isCaseSentitive ? token.val
+                : token.val.toUpperCase(), (Expr[]) args.toArray(new Expr[0])));
     }
 
     private void parseExpression(ExprLexer lexer, IEvaluationCallback callback)
@@ -121,7 +133,8 @@ public class ExprParser
             value = new ExprString(e.val);
             break;
         case Variable:
-            value = new ExprVariable(callback, e.val);
+            value = new ExprVariable(callback, isCaseSentitive ? e.val : e.val
+                    .toUpperCase());
             break;
         }
         setValue(value);

@@ -9,20 +9,20 @@
  *******************************************************************************/
 package org.boris.expr;
 
-public enum ExprType
+import org.boris.variant.Variant;
+
+public class ExprArray extends Expr
 {
-    Double,
-    Integer,
-    String,
-    Addition,
-    Subtraction,
-    Multiplication,
-    Division,
-    Function,
-    Variable,
-    Expression,
-    StringConcat,
-    Error,
-    Array,
-    Missing
+    private int columns;
+    private Expr[][] array;
+
+    ExprArray(int rows, int columns) {
+        super(ExprType.Array, false);
+        this.array = new Expr[rows][];
+        this.columns = columns;
+    }
+
+    public Variant encode() {
+        return null;
+    }
 }
