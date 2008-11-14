@@ -104,12 +104,17 @@ public class ExprLexer
     private ExprToken readVariableOrFunction() throws IOException {
         StringBuilder sb = new StringBuilder();
 
-        while (Character.isJavaIdentifierPart(lastChar)) {
+        while (isVariablePart(lastChar)) {
             sb.append((char) lastChar);
             lastChar = reader.read();
         }
 
         return new ExprToken(ExprTokenType.Variable, sb.toString());
+    }
+
+    private boolean isVariablePart(int lastChar) {
+        return Character.isJavaIdentifierPart(lastChar) || lastChar == '!' ||
+                lastChar == ':';
     }
 
     private ExprToken readString() throws IOException {

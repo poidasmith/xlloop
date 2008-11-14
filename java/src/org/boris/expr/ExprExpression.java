@@ -42,4 +42,8 @@ public class ExprExpression extends ExprEvaluatable
         m.add("child", child.encode());
         return m;
     }
+
+    public void validate() throws ExprException {
+        child.validate();
+    }
 }

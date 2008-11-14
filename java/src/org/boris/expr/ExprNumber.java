@@ -15,6 +15,9 @@ public abstract class ExprNumber extends Expr
         super(type, false);
     }
 
+    public void validate() throws ExprException {
+    }
+
     public abstract int intValue();
 
     public abstract double doubleValue();

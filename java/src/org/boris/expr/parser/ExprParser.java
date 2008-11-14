@@ -31,6 +31,7 @@ public class ExprParser
 {
     private Expr current;
     private boolean isCaseSentitive;
+    private IParserVisitor visitor;
 
     public static Expr parse(String text, IEvaluationCallback callback)
             throws IOException, ExprException {
@@ -41,6 +42,10 @@ public class ExprParser
 
     public void setCaseSensitive(boolean cs) {
         this.isCaseSentitive = cs;
+    }
+
+    public void setParserVisitor(IParserVisitor visitor) {
+        this.visitor = visitor;
     }
 
     public void parse(ExprLexer lexer, IEvaluationCallback callback)
@@ -91,15 +96,22 @@ public class ExprParser
                 args.add(current);
                 current = null;
             } else if (e.type.equals(ExprTokenType.CloseBracket)) {
-                args.add(current);
+                if (current != null)
+                    args.add(current);
                 current = c;
                 break;
             } else {
                 parseToken(lexer, callback, e);
             }
         }
-        setValue(new ExprFunction(callback, isCaseSentitive ? token.val
-                : token.val.toUpperCase(), (Expr[]) args.toArray(new Expr[0])));
+
+        ExprFunction f = new ExprFunction(callback, isCaseSentitive ? token.val
+                : token.val.toUpperCase(), (Expr[]) args.toArray(new Expr[0]));
+
+        if (visitor != null)
+            visitor.annotateFunction(f);
+
+        setValue(f);
     }
 
     private void parseExpression(ExprLexer lexer, IEvaluationCallback callback)
@@ -135,6 +147,8 @@ public class ExprParser
         case Variable:
             value = new ExprVariable(callback, isCaseSentitive ? e.val : e.val
                     .toUpperCase());
+            if (visitor != null)
+                visitor.annotateVariable((ExprVariable) value);
             break;
         }
         setValue(value);

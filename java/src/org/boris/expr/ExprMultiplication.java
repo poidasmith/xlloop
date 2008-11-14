@@ -9,57 +9,17 @@
  *******************************************************************************/
 package org.boris.expr;
 
-import org.boris.variant.VTMap;
-import org.boris.variant.Variant;
-
-public class ExprMultiplication extends ExprEvaluatable implements
-        IBinaryOperator
+public class ExprMultiplication extends AbstractBinaryOperator
 {
-    private Expr rhs;
-    private Expr lhs;
-
     public ExprMultiplication(Expr lhs, Expr rhs) {
-        super(ExprType.Multiplication);
-        this.lhs = lhs;
-        this.rhs = rhs;
-    }
-
-    public Expr getLHS() {
-        return lhs;
-    }
-
-    public void setLHS(Expr lhs) {
-        this.lhs = lhs;
-    }
-
-    public Expr getRHS() {
-        return rhs;
-    }
-
-    public void setRHS(Expr rhs) {
-        this.rhs = rhs;
+        super(ExprType.Multiplication, lhs, rhs);
     }
 
     public Expr evaluate() throws ExprException {
-        Expr l = lhs;
-        if (l instanceof ExprEvaluatable)
-            l = ((ExprEvaluatable) l).evaluate();
-        Expr r = rhs;
-        if (r instanceof ExprEvaluatable)
-            r = ((ExprEvaluatable) r).evaluate();
-        return new ExprDouble(((ExprNumber) l).doubleValue() *
-                ((ExprNumber) r).doubleValue());
+        return new ExprDouble(evaluateLHS() * evaluateRHS());
     }
 
     public String toString() {
         return lhs + "*" + rhs;
-    }
-
-    public Variant encode() {
-        VTMap m = new VTMap();
-        m.add("type", type.toString());
-        m.add("lhs", lhs.encode());
-        m.add("rhs", rhs.encode());
-        return m;
     }
 }

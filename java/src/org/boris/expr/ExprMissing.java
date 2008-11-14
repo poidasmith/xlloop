@@ -9,6 +9,7 @@
  *******************************************************************************/
 package org.boris.expr;
 
+import org.boris.variant.VTMap;
 import org.boris.variant.Variant;
 
 public class ExprMissing extends Expr
@@ -18,7 +19,8 @@ public class ExprMissing extends Expr
     }
 
     public Variant encode() {
-        return null;
+        VTMap m = new VTMap();
+        m.add("type", type.toString());
+        return m;
     }
-
 }

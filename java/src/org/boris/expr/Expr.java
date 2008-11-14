@@ -21,5 +21,8 @@ public abstract class Expr
         this.evaluatable = evaluatable;
     }
 
+    public void validate() throws ExprException {
+    }
+
     public abstract Variant encode();
 }

@@ -7,19 +7,15 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.expr;
+package org.boris.expr.parser;
 
-public class ExprAddition extends AbstractBinaryOperator
+import org.boris.expr.ExprException;
+import org.boris.expr.ExprFunction;
+import org.boris.expr.ExprVariable;
+
+public interface IParserVisitor
 {
-    public ExprAddition(Expr lhs, Expr rhs) {
-        super(ExprType.Addition, lhs, rhs);
-    }
+    void annotateVariable(ExprVariable variable) throws ExprException;
 
-    public Expr evaluate() throws ExprException {
-        return new ExprDouble(evaluateLHS() + evaluateRHS());
-    }
-
-    public String toString() {
-        return lhs + "+" + rhs;
-    }
+    void annotateFunction(ExprFunction function) throws ExprException;
 }

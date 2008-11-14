@@ -28,16 +28,32 @@ public class ExprTest extends TestCase
         }
     }
 
-    public void test2() throws Exception {
+    public void Qtest2() throws Exception {
         // test("1+2+3-5");
         testEval("1+2/5*2", 1.8);
         testEval("1+2/(8*(4+1))", 1.05);
         testEval("1-sum(1,2)+x", 3.3);
     }
 
-    public void testExpressions() throws Exception {
+    public void QtestExpressions() throws Exception {
         testEval("((2))", 2);
         testEval("(4)*(3/4)", 3);
+    }
+
+    public void testVariables() throws Exception {
+        testParse("A1");
+        testParse("$A1");
+        testParse("A$1");
+        testParse("$A$1");
+        testParse("Sheet1!A1");
+        testParse("Sheet1!$A1");
+        testParse("Sheet1!A$1");
+        testParse("Sheet1!$A$1");
+    }
+
+    private void testParse(String expr) throws Exception {
+        Expr e = ExprParser.parse(expr, null);
+        System.out.println(e.encode());
     }
 
     public void testFunctions() throws Exception {

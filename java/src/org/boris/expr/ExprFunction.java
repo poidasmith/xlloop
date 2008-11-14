@@ -66,4 +66,12 @@ public class ExprFunction extends ExprEvaluatable
         m.add("args", collection);
         return m;
     }
+
+    public void validate() throws ExprException {
+        if (name == null)
+            throw new ExprException("Function name cannot be empty");
+        for (int i = 0; i < args.length; i++) {
+            args[i].validate();
+        }
+    }
 }

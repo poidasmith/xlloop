@@ -24,5 +24,5 @@ public enum ExprType
     StringConcat,
     Error,
     Array,
-    Missing
+    Missing,
 }
