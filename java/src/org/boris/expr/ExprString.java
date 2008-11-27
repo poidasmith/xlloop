@@ -9,6 +9,7 @@
  *******************************************************************************/
 package org.boris.expr;
 
+import org.boris.expr.parser.ExprLexer;
 import org.boris.variant.VTMap;
 import org.boris.variant.Variant;
 
@@ -22,7 +23,7 @@ public class ExprString extends Expr
     }
 
     public String toString() {
-        return str;
+        return ExprLexer.escapeJavaString(str);
     }
 
     public Variant encode() {

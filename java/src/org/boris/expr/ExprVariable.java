@@ -40,7 +40,7 @@ public class ExprVariable extends ExprEvaluatable
     }
 
     public Expr evaluate() throws ExprException {
-        return callback.evaluateVariable(name);
+        return callback.evaluateVariable(this);
     }
 
     public String toString() {
@@ -52,6 +52,18 @@ public class ExprVariable extends ExprEvaluatable
         m.add("type", type.toString());
         m.add("name", name);
         return m;
+    }
+
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    public boolean equals(Object obj) {
+        if (!(obj instanceof ExprVariable))
+            return false;
+
+        ExprVariable ev = (ExprVariable) obj;
+        return ev.name.equals(name);
     }
 
     public static ExprVariable[] findVariables(Expr expr) {

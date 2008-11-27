@@ -18,6 +18,7 @@ public class ExprFunction extends ExprEvaluatable
     private IEvaluationCallback callback;
     private String name;
     private Expr[] args;
+    private Object annotation;
 
     public ExprFunction(IEvaluationCallback callback, String name, Expr[] args) {
         super(ExprType.Function);
@@ -38,8 +39,20 @@ public class ExprFunction extends ExprEvaluatable
         return args[index];
     }
 
+    public Expr[] getArgs() {
+        return args;
+    }
+
+    public void setAnnotation(Object annotation) {
+        this.annotation = annotation;
+    }
+
+    public Object getAnnotation() {
+        return annotation;
+    }
+
     public Expr evaluate() throws ExprException {
-        return callback.evaluateFunction(name, args);
+        return callback.evaluateFunction(this);
     }
 
     public String toString() {

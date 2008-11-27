@@ -11,7 +11,7 @@ package org.boris.expr;
 
 public interface IEvaluationCallback
 {
-    public Expr evaluateFunction(String name, Expr[] args) throws ExprException;
+    public Expr evaluateFunction(ExprFunction function) throws ExprException;
 
-    public Expr evaluateVariable(String name) throws ExprException;
+    public Expr evaluateVariable(ExprVariable variable) throws ExprException;
 }
