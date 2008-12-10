@@ -19,7 +19,15 @@ public class ExprSubtraction extends AbstractBinaryOperator
         return new ExprDouble(evaluateLHS() - evaluateRHS());
     }
 
+    public void validate() throws ExprException {
+        if (rhs == null)
+            throw new ExprException("RHS of operator missing");
+    }
+
     public String toString() {
-        return lhs + "-" + rhs;
+        if (lhs == null)
+            return "-" + rhs;
+        else
+            return lhs + "-" + rhs;
     }
 }

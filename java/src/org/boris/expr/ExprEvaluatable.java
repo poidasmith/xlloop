@@ -15,5 +15,9 @@ public abstract class ExprEvaluatable extends Expr
         super(type, true);
     }
 
+    public boolean isVolatile() {
+        return true;
+    }
+
     public abstract Expr evaluate() throws ExprException;
 }

@@ -19,6 +19,7 @@ public class ExprFunction extends ExprEvaluatable
     private String name;
     private Expr[] args;
     private Object annotation;
+    private IExprFunction implementation;
 
     public ExprFunction(IEvaluationCallback callback, String name, Expr[] args) {
         super(ExprType.Function);
@@ -51,8 +52,19 @@ public class ExprFunction extends ExprEvaluatable
         return annotation;
     }
 
+    public void setImplementation(IExprFunction function) {
+        this.implementation = function;
+    }
+
+    public IExprFunction getImplementation() {
+        return implementation;
+    }
+
     public Expr evaluate() throws ExprException {
-        return callback.evaluateFunction(this);
+        if (implementation != null)
+            return implementation.evaluate(args);
+        else
+            return callback.evaluateFunction(this);
     }
 
     public String toString() {

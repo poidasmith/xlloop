@@ -9,9 +9,6 @@
  *******************************************************************************/
 package org.boris.expr;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-
 import junit.framework.TestCase;
 
 import org.boris.expr.parser.ExprLexer;
@@ -19,20 +16,26 @@ import org.boris.expr.parser.ExprParser;
 
 public class ExprTest extends TestCase
 {
-    public void Qtest1() throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(getClass()
-                .getResourceAsStream("test.txt")));
-        String line = null;
-        while ((line = br.readLine()) != null) {
-            test(line);
-        }
+    public void test1() throws Exception {
+        testEval("1+2", 3);
+        test("sin(4.3)");
+        test("8-sin((3/2)+4)");
+        test("echo(\"asd\")");
+        test("printf(\"asdf\", 34, 45.6, x)");
+        test("1 +    5 / 45 - (  sin (sdf) )");
     }
 
     public void test2() throws Exception {
-        // test("1+2+3-5");
+        test("1+2+3-5");
         testEval("1+2/5*2", 1.8);
         testEval("1+2/(8*(4+1))", 1.05);
         testEval("1-sum(1,2)+x", 3.3);
+    }
+
+    public void testUnary() throws Exception {
+        testEval("3-(-5)*2", 13);
+        // assertException("*5");
+        // assertResult("-3", -3);
     }
 
     public void testExpressions() throws Exception {
@@ -52,7 +55,15 @@ public class ExprTest extends TestCase
     }
 
     public void testStrings() throws Exception {
-        System.out.println(test("A1&A2"));
+        BasicEvaluationCallback c = new BasicEvaluationCallback();
+        c.addVariable("A1", new ExprString("Hello "));
+        c.addVariable("A2", new ExprString("World!"));
+        assertResult(c, "A1&A2", new ExprString("Hello World!"));
+        assertResult(c, "A1&(A1&A2)", new ExprString("Hello Hello World!"));
+        assertResult(c, "A1&A1&A2", new ExprString("Hello Hello World!"));
+        assertResult(c, "\"A\"&\"B\"&\"C\"", new ExprString("ABC"));
+        assertResult(c, "\"\"\"\"", new ExprString("\""));
+        assertResult(c, "\"asdf\"\"sdf\"", new ExprString("asdf\"sdf"));
     }
 
     private void testParse(String expr) throws Exception {
@@ -60,7 +71,14 @@ public class ExprTest extends TestCase
         System.out.println(e.encode());
     }
 
-    public void testFunctions() throws Exception {
+    private void assertResult(BasicEvaluationCallback c, String expression,
+            Expr result) throws Exception {
+        System.out.println(expression);
+        Expr e = c.parse(expression);
+        if (e.evaluatable) {
+            e = ((ExprEvaluatable) e).evaluate();
+        }
+        assertEquals(e, result);
     }
 
     private void testEval(String line, double expected) throws Exception {

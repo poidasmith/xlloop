@@ -11,6 +11,7 @@ package org.boris.expr;
 
 import org.boris.variant.VTMap;
 import org.boris.variant.Variant;
+import org.boris.variant.util.Reflect;
 
 public abstract class AbstractBinaryOperator extends ExprEvaluatable implements
         IBinaryOperator
@@ -41,29 +42,62 @@ public abstract class AbstractBinaryOperator extends ExprEvaluatable implements
     }
 
     protected double evaluateLHS() throws ExprException {
-        Expr l = lhs;
-        if (l instanceof ExprEvaluatable)
-            l = ((ExprEvaluatable) l).evaluate();
-        ExprTypes.assertType(l, ExprType.Integer, ExprType.Double);
-        return ((ExprNumber) l).doubleValue();
+        return evaluateExpr(lhs);
     }
 
     protected double evaluateRHS() throws ExprException {
-        Expr r = rhs;
+        return evaluateExpr(rhs);
+    }
+
+    protected double evaluateExpr(Expr expr) throws ExprException {
+        Expr r = expr;
+        if (r == null)
+            return 0;
+        if (r instanceof ExprMissing)
+            return 0;
         if (r instanceof ExprEvaluatable)
             r = ((ExprEvaluatable) r).evaluate();
+        if (r instanceof ExprMissing)
+            return 0;
+        if (r == null)
+            return 0;
         ExprTypes.assertType(r, ExprType.Integer, ExprType.Double);
         return ((ExprNumber) r).doubleValue();
     }
 
     public void validate() throws ExprException {
+        if (lhs == null)
+            throw new ExprException("LHS of operator missing");
+        lhs.validate();
+        if (rhs == null)
+            throw new ExprException("RHS of operator missing");
+        rhs.validate();
     }
 
     public Variant encode() {
         VTMap m = new VTMap();
         m.add("type", type.toString());
-        m.add("lhs", lhs.encode());
-        m.add("rhs", rhs.encode());
+        if (lhs != null)
+            m.add("lhs", lhs.encode());
+        if (rhs != null)
+            m.add("rhs", rhs.encode());
         return m;
+    }
+
+    public int hashCode() {
+        int hc = type.ordinal();
+        if (lhs != null)
+            hc ^= lhs.hashCode();
+        if (rhs != null)
+            hc ^= rhs.hashCode();
+        return hc;
+    }
+
+    public boolean equals(Object obj) {
+        if (!obj.getClass().equals(getClass()))
+            return false;
+
+        AbstractBinaryOperator b = (AbstractBinaryOperator) obj;
+        return Reflect.equals(b.lhs, lhs) && Reflect.equals(b.rhs, rhs);
     }
 }

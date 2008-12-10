@@ -23,7 +23,15 @@ public class ExprString extends Expr
     }
 
     public String toString() {
-        return ExprLexer.escapeJavaString(str);
+        return ExprLexer.escapeString(str);
+    }
+
+    public int hashCode() {
+        return str.hashCode();
+    }
+
+    public boolean equals(Object obj) {
+        return obj instanceof ExprString && str.equals(((ExprString) obj).str);
     }
 
     public Variant encode() {

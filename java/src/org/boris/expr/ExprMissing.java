@@ -14,7 +14,9 @@ import org.boris.variant.Variant;
 
 public class ExprMissing extends Expr
 {
-    ExprMissing() {
+    public static final ExprMissing MISSING = new ExprMissing();
+
+    public ExprMissing() {
         super(ExprType.Missing, false);
     }
 

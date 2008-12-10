@@ -26,6 +26,26 @@ public class ExprToken
             ",");
     public static final ExprToken STRING_CONCAT = new ExprToken(
             ExprTokenType.StringConcat, "&");
+    public static final ExprToken LESS_THAN = new ExprToken(
+            ExprTokenType.LessThan, "<");
+    public static final ExprToken LESS_THAN_EQUAL = new ExprToken(
+            ExprTokenType.LessThanOrEqualTo, "<=");
+    public static final ExprToken GREATER_THAN = new ExprToken(
+            ExprTokenType.GreaterThan, ">");
+    public static final ExprToken GREATER_THAN_EQUAL = new ExprToken(
+            ExprTokenType.GreaterThanOrEqualTo, ">=");
+    public static final ExprToken NOT_EQUAL = new ExprToken(
+            ExprTokenType.NotEqual, "<>");
+    public static final ExprToken EQUAL = new ExprToken(ExprTokenType.Equal,
+            "=");
+    public static final ExprToken OPEN_BRACE = new ExprToken(
+            ExprTokenType.OpenBrace, "{");
+    public static final ExprToken CLOSE_BRACE = new ExprToken(
+            ExprTokenType.CloseBrace, "}");
+    public static final ExprToken SEMI_COLON = new ExprToken(
+            ExprTokenType.SemiColon, ";");
+    public static final ExprToken POWER = new ExprToken(ExprTokenType.Power,
+            "^");
 
     public final ExprTokenType type;
     public final String val;

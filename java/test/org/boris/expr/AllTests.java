@@ -1,0 +1,40 @@
+/*******************************************************************************
+ * This program and the accompanying materials
+ * are made available under the terms of the Common Public License v1.0
+ * which accompanies this distribution, and is available at 
+ * http://www.eclipse.org/legal/cpl-v10.html
+ * 
+ * Contributors:
+ *     Peter Smith
+ *******************************************************************************/
+package org.boris.expr;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
+
+public class AllTests
+{
+
+    public static Test suite() {
+        TestSuite suite = new TestSuite("Test for org.boris.expr");
+        //$JUnit-BEGIN$
+        suite.addTestSuite(ExcelFunctionTestEtoJ.class);
+        suite.addTestSuite(ExcelFunctionTestAtoD.class);
+        suite.addTestSuite(ExcelFunctionTestKtoM.class);
+        suite.addTestSuite(ExprTest.class);
+        suite.addTestSuite(ExcelCompatTest.class);
+        suite.addTestSuite(ParserTest.class);
+        suite.addTestSuite(ExcelDateTest.class);
+        suite.addTestSuite(ExcelFunctionTestNtoR.class);
+        suite.addTestSuite(ExprFunctionTest.class);
+        suite.addTestSuite(LexerTest.class);
+        suite.addTestSuite(GridReferenceTest.class);
+        suite.addTestSuite(ExcelFunctionTestUtoZ.class);
+        suite.addTestSuite(RangeTest.class);
+        suite.addTestSuite(EngineTest.class);
+        suite.addTestSuite(ExcelFunctionTestStoT.class);
+        //$JUnit-END$
+        return suite;
+    }
+
+}

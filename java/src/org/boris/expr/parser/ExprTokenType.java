@@ -23,5 +23,15 @@ public enum ExprTokenType
     OpenBracket,
     CloseBracket,
     Comma,
-    StringConcat
+    StringConcat,
+    GreaterThan,
+    GreaterThanOrEqualTo,
+    LessThan,
+    LessThanOrEqualTo,
+    NotEqual,
+    Equal,
+    OpenBrace,
+    CloseBrace,
+    SemiColon,
+    Power
 }

@@ -14,6 +14,16 @@ import org.boris.variant.Variant;
 
 public class ExprError extends Expr
 {
+    public static final Expr NULL = new ExprError("#NULL!", "Null Error");
+    public static final Expr DIV0 = new ExprError("#DIV/0!",
+            "Divide by Zero Error");
+    public static final Expr VALUE = new ExprError("#VALUE", "Error in Value");
+    public static final Expr REF = new ExprError("#REF!", "Reference Error");
+    public static final Expr NAME = new ExprError("#NAME?",
+            "Invalid Name Error");
+    public static final Expr NUM = new ExprError("#NUM!", "Number Error");
+    public static final Expr NA = new ExprError("#N/A", "Value not Available");
+
     private String errType;
     private String message;
 

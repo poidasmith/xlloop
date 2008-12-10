@@ -18,7 +18,6 @@ public class ExprLexer
 {
     private TokenReader reader;
     private int lastChar;
-    private ExprToken next;
 
     public ExprLexer(BufferedReader reader) {
         this.reader = new TokenReader(reader);
@@ -33,12 +32,6 @@ public class ExprLexer
     }
 
     public ExprToken next() throws IOException {
-        if (next != null) {
-            ExprToken ret = next;
-            next = null;
-            return ret;
-        }
-
         if (lastChar == 0 || Character.isWhitespace(lastChar))
             lastChar = reader.ignoreWhitespace();
 
@@ -77,6 +70,24 @@ public class ExprLexer
         case '&':
             lastChar = 0;
             return ExprToken.STRING_CONCAT;
+        case '<':
+        case '>':
+        case '=':
+            return readComparisonOperator();
+        case '\'':
+            return readQuotedVariable();
+        case '{':
+            lastChar = 0;
+            return ExprToken.OPEN_BRACE;
+        case '}':
+            lastChar = 0;
+            return ExprToken.CLOSE_BRACE;
+        case ';':
+            lastChar = 0;
+            return ExprToken.SEMI_COLON;
+        case '^':
+            lastChar = 0;
+            return ExprToken.POWER;
         case -1:
         case 0xffff:
             return null;
@@ -86,19 +97,35 @@ public class ExprLexer
             throw new IOException("Invalid token found: " + lastChar);
         }
 
-        ExprToken varF = readVariableOrFunction();
+        return readVariableOrFunction();
+    }
 
-        // Need to peek at next token to see if its an open bracket -
-        // if so then we have function otherwise a variable
-        next = next();
+    private ExprToken readQuotedVariable() throws IOException {
+        StringBuilder sb = new StringBuilder();
 
-        if (next != null && next.type.equals(ExprTokenType.OpenBracket)) {
-            next = null; // We don't need the open bracket as we know it must
-            // be there
-            return new ExprToken(ExprTokenType.Function, varF.val);
-        } else {
-            return varF;
+        sb.append('\'');
+        while (lastChar != -1) {
+            lastChar = reader.read();
+            if (lastChar == '\'') {
+                lastChar = reader.read();
+                if (lastChar == '\'') {
+                    sb.append('\'');
+                } else {
+                    break;
+                }
+            } else {
+                sb.append((char) lastChar);
+            }
         }
+        sb.append('\'');
+
+        // Now read the rest of the variable
+        while (isVariablePart(lastChar)) {
+            sb.append((char) lastChar);
+            lastChar = reader.read();
+        }
+
+        return new ExprToken(ExprTokenType.Variable, sb.toString());
     }
 
     private ExprToken readVariableOrFunction() throws IOException {
@@ -109,7 +136,16 @@ public class ExprLexer
             lastChar = reader.read();
         }
 
-        return new ExprToken(ExprTokenType.Variable, sb.toString());
+        if (Character.isWhitespace(lastChar)) {
+            lastChar = reader.ignoreWhitespace();
+        }
+
+        if (lastChar == '(') {
+            lastChar = 0;
+            return new ExprToken(ExprTokenType.Function, sb.toString());
+        } else {
+            return new ExprToken(ExprTokenType.Variable, sb.toString());
+        }
     }
 
     private boolean isVariablePart(int lastChar) {
@@ -118,7 +154,7 @@ public class ExprLexer
     }
 
     private ExprToken readString() throws IOException {
-        String str = unescapeJavaString(reader);
+        String str = unescapeString(reader);
         lastChar = 0;
         return new ExprToken(ExprTokenType.String, str);
     }
@@ -136,25 +172,40 @@ public class ExprLexer
             lastChar = reader.read();
         }
 
+        if (lastChar == 'E' || lastChar == 'e') {
+            sb.append((char) lastChar);
+            lastChar = reader.read();
+            if (lastChar == '-' || lastChar == '+') {
+                sb.append((char) lastChar);
+                lastChar = reader.read();
+            }
+            while (Character.isDigit(lastChar)) {
+                sb.append((char) lastChar);
+                lastChar = reader.read();
+            }
+        }
+
         String val = sb.toString();
         if (decimal) {
             return new ExprToken(val, Double.parseDouble(val));
         } else {
-            return new ExprToken(val, Integer.parseInt(val));
+            try {
+                return new ExprToken(val, Integer.parseInt(val));
+            } catch (NumberFormatException e) {
+                // Catch very large numbers
+                return new ExprToken(val, Double.parseDouble(val));
+            }
         }
     }
 
-    public static String escapeJavaString(String str) {
+    public static String escapeString(String str) {
         StringBuilder sb = new StringBuilder();
         int len = str.length();
         for (int i = 0; i < len; i++) {
             char c = str.charAt(i);
             switch (c) {
-            case '\\':
-                sb.append("\\\\");
-                break;
             case '\"':
-                sb.append("\\\"");
+                sb.append("\"\"");
                 break;
             default:
                 sb.append(c);
@@ -164,16 +215,19 @@ public class ExprLexer
         return sb.toString();
     }
 
-    public static String unescapeJavaString(Reader r) throws IOException {
+    private String unescapeString(TokenReader r) throws IOException {
         StringBuilder sb = new StringBuilder();
         char c = 0;
         while (c != '\"') {
             c = (char) r.read();
             switch (c) {
-            case '\\':
-                sb.append((char) r.read());
-                break;
             case '\"':
+                int v = r.peek();
+                if (v == '\"') {
+                    r.read();
+                    sb.append('\"');
+                    c = 0;
+                }
                 break;
             default:
                 sb.append(c);
@@ -181,5 +235,32 @@ public class ExprLexer
             }
         }
         return sb.toString();
+    }
+
+    private ExprToken readComparisonOperator() throws IOException {
+        int current = lastChar;
+        int peek = reader.peek();
+        lastChar = 0;
+        if (current == '<') {
+            if (peek == '=') {
+                reader.read();
+                return ExprToken.LESS_THAN_EQUAL;
+            } else if (peek == '>') {
+                reader.read();
+                return ExprToken.NOT_EQUAL;
+            } else {
+                return ExprToken.LESS_THAN;
+            }
+        } else if (current == '>') {
+            if (peek == '=') {
+                reader.read();
+                return ExprToken.GREATER_THAN_EQUAL;
+            } else {
+                return ExprToken.GREATER_THAN;
+            }
+        } else if (current == '=') {
+            return ExprToken.EQUAL;
+        }
+        return null;
     }
 }

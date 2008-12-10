@@ -13,6 +13,7 @@ public enum ExprType
 {
     Double,
     Integer,
+    Boolean,
     String,
     Addition,
     Subtraction,
@@ -25,4 +26,11 @@ public enum ExprType
     Error,
     Array,
     Missing,
+    LessThan,
+    LessThanOrEqualTo,
+    GreaterThan,
+    GreaterThanOrEqualTo,
+    NotEqual,
+    Equal,
+    Power
 }

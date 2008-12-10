@@ -14,6 +14,8 @@ import org.boris.variant.Variant;
 
 public class ExprInteger extends ExprNumber
 {
+    public static final ExprInteger ZERO = new ExprInteger(0);
+
     public final int value;
 
     public ExprInteger(int value) {
@@ -27,6 +29,14 @@ public class ExprInteger extends ExprNumber
 
     public double doubleValue() {
         return value;
+    }
+
+    public int hashCode() {
+        return value;
+    }
+
+    public boolean equals(Object obj) {
+        return obj instanceof ExprInteger && value == ((ExprInteger) obj).value;
     }
 
     public String toString() {

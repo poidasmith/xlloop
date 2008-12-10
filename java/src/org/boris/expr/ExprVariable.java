@@ -20,6 +20,7 @@ public class ExprVariable extends ExprEvaluatable
     private IEvaluationCallback callback;
     private String name;
     private Object annotation;
+    private Expr constantValue;
 
     public ExprVariable(IEvaluationCallback callback, String name) {
         super(ExprType.Variable);
@@ -39,8 +40,19 @@ public class ExprVariable extends ExprEvaluatable
         return annotation;
     }
 
+    public void setConstantValue(Expr value) {
+        this.constantValue = value;
+    }
+
+    public Expr getConstantValue() {
+        return this.constantValue;
+    }
+
     public Expr evaluate() throws ExprException {
-        return callback.evaluateVariable(this);
+        if (constantValue != null)
+            return constantValue;
+        else
+            return callback.evaluateVariable(this);
     }
 
     public String toString() {

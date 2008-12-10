@@ -18,6 +18,10 @@ public abstract class ExprNumber extends Expr
     public void validate() throws ExprException {
     }
 
+    public boolean booleanValue() {
+        return intValue() != 0;
+    }
+
     public abstract int intValue();
 
     public abstract double doubleValue();

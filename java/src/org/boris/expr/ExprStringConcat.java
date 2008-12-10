@@ -19,9 +19,13 @@ public class ExprStringConcat extends AbstractBinaryOperator
         Expr l = lhs;
         if (l instanceof ExprEvaluatable)
             l = ((ExprEvaluatable) lhs).evaluate();
+        if (l instanceof ExprNumber)
+            l = new ExprString(l.toString());
         Expr r = rhs;
         if (r instanceof ExprEvaluatable)
             r = ((ExprEvaluatable) rhs).evaluate();
+        if (r instanceof ExprNumber)
+            r = new ExprString(r.toString());
         if (l.type.equals(ExprType.String) && r.type.equals(ExprType.String)) {
             return new ExprString(((ExprString) l).str + ((ExprString) r).str);
         }

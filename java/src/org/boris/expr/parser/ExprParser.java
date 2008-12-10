@@ -14,14 +14,24 @@ import java.util.ArrayList;
 
 import org.boris.expr.Expr;
 import org.boris.expr.ExprAddition;
+import org.boris.expr.ExprArray;
 import org.boris.expr.ExprDivision;
 import org.boris.expr.ExprDouble;
+import org.boris.expr.ExprEqual;
 import org.boris.expr.ExprException;
 import org.boris.expr.ExprExpression;
 import org.boris.expr.ExprFunction;
+import org.boris.expr.ExprGreaterThan;
+import org.boris.expr.ExprGreaterThanOrEqualTo;
 import org.boris.expr.ExprInteger;
+import org.boris.expr.ExprLessThan;
+import org.boris.expr.ExprLessThanOrEqualTo;
+import org.boris.expr.ExprMissing;
 import org.boris.expr.ExprMultiplication;
+import org.boris.expr.ExprNotEqual;
+import org.boris.expr.ExprPower;
 import org.boris.expr.ExprString;
+import org.boris.expr.ExprStringConcat;
 import org.boris.expr.ExprSubtraction;
 import org.boris.expr.ExprVariable;
 import org.boris.expr.IBinaryOperator;
@@ -30,7 +40,6 @@ import org.boris.expr.IEvaluationCallback;
 public class ExprParser
 {
     private Expr current;
-    private boolean isCaseSentitive;
     private IParserVisitor visitor;
 
     public static Expr parse(String text, IEvaluationCallback callback)
@@ -38,10 +47,6 @@ public class ExprParser
         ExprParser p = new ExprParser();
         p.parse(new ExprLexer(text), callback);
         return p.get();
-    }
-
-    public void setCaseSensitive(boolean cs) {
-        this.isCaseSentitive = cs;
     }
 
     public void setParserVisitor(IParserVisitor visitor) {
@@ -63,7 +68,14 @@ public class ExprParser
         case Minus:
         case Multiply:
         case Divide:
+        case Power:
         case StringConcat:
+        case LessThan:
+        case LessThanOrEqualTo:
+        case GreaterThan:
+        case GreaterThanOrEqualTo:
+        case Equal:
+        case NotEqual:
             parseOperator(token);
             break;
         case Decimal:
@@ -77,6 +89,9 @@ public class ExprParser
             break;
         case Function:
             parseFunction(token, lexer, callback);
+            break;
+        case OpenBrace:
+            parseArray(lexer, callback);
             break;
         default:
             throw new ExprException("Unexpected " + token.type + " found");
@@ -92,8 +107,9 @@ public class ExprParser
         while ((e = lexer.next()) != null) {
             if (e.type.equals(ExprTokenType.Comma)) {
                 if (current == null)
-                    throw new ExprException("Unexpected empty argument");
-                args.add(current);
+                    args.add(ExprMissing.MISSING);
+                else
+                    args.add(current);
                 current = null;
             } else if (e.type.equals(ExprTokenType.CloseBracket)) {
                 if (current != null)
@@ -105,8 +121,8 @@ public class ExprParser
             }
         }
 
-        ExprFunction f = new ExprFunction(callback, isCaseSentitive ? token.val
-                : token.val.toUpperCase(), (Expr[]) args.toArray(new Expr[0]));
+        ExprFunction f = new ExprFunction(callback, token.val, (Expr[]) args
+                .toArray(new Expr[0]));
 
         if (visitor != null)
             visitor.annotateFunction(f);
@@ -131,6 +147,37 @@ public class ExprParser
         }
     }
 
+    private void parseArray(ExprLexer lexer, IEvaluationCallback callback)
+            throws ExprException, IOException {
+        Expr c = current;
+        current = null;
+        ExprToken e = null;
+        ArrayList args = new ArrayList();
+        while ((e = lexer.next()) != null) {
+            if (e.type.equals(ExprTokenType.Comma)) {
+                if (current == null)
+                    args.add(ExprMissing.MISSING);
+                else
+                    args.add(current);
+                current = null;
+            } else if (e.type.equals(ExprTokenType.CloseBrace)) {
+                if (current != null)
+                    args.add(current);
+                current = c;
+                break;
+            } else {
+                parseToken(lexer, callback, e);
+            }
+        }
+
+        ExprArray a = new ExprArray(1, args.size());
+        for (int i = 0; i < args.size(); i++) {
+            a.set(0, i, (Expr) args.get(i));
+        }
+
+        setValue(a);
+    }
+
     private void parseValue(ExprToken e, IEvaluationCallback callback)
             throws ExprException {
         Expr value = null;
@@ -145,8 +192,7 @@ public class ExprParser
             value = new ExprString(e.val);
             break;
         case Variable:
-            value = new ExprVariable(callback, isCaseSentitive ? e.val : e.val
-                    .toUpperCase());
+            value = new ExprVariable(callback, e.val);
             if (visitor != null)
                 visitor.annotateVariable((ExprVariable) value);
             break;
@@ -193,6 +239,32 @@ public class ExprParser
         case Divide:
             parseMultiplyDivide(new ExprDivision(null, null));
             break;
+        case Power:
+            parseMultiplyDivide(new ExprPower(null, null));
+            break;
+        case StringConcat:
+            parseMultiplyDivide(new ExprStringConcat(null, null));
+            break;
+        case LessThan:
+            current = new ExprLessThan(current, null);
+            break;
+        case LessThanOrEqualTo:
+            current = new ExprLessThanOrEqualTo(current, null);
+            break;
+        case GreaterThan:
+            current = new ExprGreaterThan(current, null);
+            break;
+        case GreaterThanOrEqualTo:
+            current = new ExprGreaterThanOrEqualTo(current, null);
+            break;
+        case NotEqual:
+            current = new ExprNotEqual(current, null);
+            break;
+        case Equal:
+            current = new ExprEqual(current, null);
+            break;
+        default:
+            throw new ExprException("Unhandled operator type: " + e.type);
         }
     }
 
