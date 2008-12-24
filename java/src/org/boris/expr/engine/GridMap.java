@@ -11,6 +11,7 @@ package org.boris.expr.engine;
 
 import org.boris.expr.Expr;
 import org.boris.expr.ExprArray;
+import org.boris.expr.ExprError;
 import org.boris.variant.util.LongMap;
 
 public class GridMap
@@ -36,8 +37,8 @@ public class GridMap
                 if (value == null)
                     values.remove(k);
                 else
-                    values.put(toId(i, j), isArray ? getElement(
-                            (ExprArray) value, i, j) : value);
+                    values.put(k, isArray ? getElement((ExprArray) value, i -
+                            x1, j - y1) : value);
             }
         }
     }
@@ -63,6 +64,8 @@ public class GridMap
             return getArray(range);
         } else {
             GridReference gr = range.getDimension1();
+            if (gr == null)
+                return ExprError.NAME;
             return get(gr.getColumn(), gr.getRow());
         }
     }

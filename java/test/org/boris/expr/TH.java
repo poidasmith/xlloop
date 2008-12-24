@@ -13,7 +13,12 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
+import org.boris.expr.engine.Range;
 import org.boris.expr.function.DoubleInOutFunction;
+import org.boris.expr.util.ExprArrayBuilder;
+import org.boris.expr.util.Exprs;
+import org.boris.variant.util.CSV;
+import org.boris.variant.util.IO;
 
 public class TH extends TestCase
 {
@@ -30,7 +35,7 @@ public class TH extends TestCase
 
     public static void assertResult(String expression, Object result)
             throws Exception {
-        assertResult(expression, convertObject(result));
+        assertResult(expression, Exprs.convertObject(result));
     }
 
     public static Expr parse(String expression) throws IOException,
@@ -40,17 +45,30 @@ public class TH extends TestCase
 
     public static void assertResult(String expression, Expr result)
             throws Exception {
+        assertResult(expression, result, !(result instanceof ExprEvaluatable));
+    }
+
+    public static void assertResult(String expression, Expr result, boolean eval)
+            throws Exception {
         BasicEvaluationCallback c = new BasicEvaluationCallback();
+        assertResult(c, expression, result, eval);
+    }
+
+    public static void assertResult(BasicEvaluationCallback c,
+            String expression, Object result) throws Exception {
+        assertResult(c, expression, result,
+                !(result instanceof ExprEvaluatable));
+    }
+
+    public static void assertResult(BasicEvaluationCallback c,
+            String expression, Object result, boolean eval) throws Exception {
         Expr e = c.parse(expression);
-        if (!(result instanceof ExprEvaluatable)) {
-            if (e instanceof ExprEvaluatable) {
-                e = ((ExprEvaluatable) e).evaluate();
-            }
+        if (eval) {
             if (e instanceof ExprEvaluatable) {
                 e = ((ExprEvaluatable) e).evaluate();
             }
         }
-        TestCase.assertEquals(e, result);
+        TestCase.assertEquals(e, Exprs.convertObject(result));
     }
 
     public static void testDoubleInOutFunction(DoubleInOutFunction f)
@@ -59,64 +77,12 @@ public class TH extends TestCase
 
     public static Object eval(IExprFunction function, Object... args)
             throws ExprException {
-        return convertExpr(function.evaluate(convertArgs(args)));
-    }
-
-    public static Expr[] convertArgs(Object[] args) {
-        Expr[] a = new Expr[args.length];
-        for (int i = 0; i < args.length; i++) {
-            a[i] = convertObject(args[i]);
-        }
-        return a;
-    }
-
-    public static Object convertExpr(Expr e) throws ExprException {
-        if (e == null)
-            return null;
-
-        if (e instanceof ExprEvaluatable)
-            e = ((ExprEvaluatable) e).evaluate();
-
-        if (e instanceof ExprString)
-            return ((ExprString) e).str;
-
-        if (e instanceof ExprDouble)
-            return ((ExprDouble) e).doubleValue();
-
-        if (e instanceof ExprInteger)
-            return ((ExprInteger) e).intValue();
-
-        if (e instanceof ExprBoolean)
-            return ((ExprBoolean) e).booleanValue();
-
-        return e;
-    }
-
-    public static Expr convertObject(Object o) {
-        if (o == null)
-            return null;
-
-        if (o instanceof Double)
-            return new ExprDouble(((Double) o).doubleValue());
-
-        if (o instanceof Integer)
-            return new ExprInteger(((Integer) o).intValue());
-
-        if (o instanceof Boolean)
-            return new ExprBoolean(((Boolean) o).booleanValue());
-
-        if (o instanceof String)
-            return new ExprString((String) o);
-
-        if (o instanceof Expr)
-            return (Expr) o;
-
-        return null;
+        return Exprs.convertExpr(function.evaluate(Exprs.convertArgs(args)));
     }
 
     public static void assertException(IExprFunction function, Object... args) {
         try {
-            function.evaluate(convertArgs(args));
+            function.evaluate(Exprs.convertArgs(args));
             TestCase.fail("Expected exception");
         } catch (ExprException e) {
         }
@@ -138,16 +104,35 @@ public class TH extends TestCase
         return true;
     }
 
-    public static boolean assertEquals(Object o, Double val) {
-        return assertEquals((Double) o, val);
+    public static void assertEquals(Expr e, Object o) throws ExprException {
+        assertEquals(Exprs.convertExpr(e), o);
+    }
+
+    public static void assertEquals(Object o, Double val) {
+        if (o instanceof Double)
+            assertEquals((Double) o, val);
+        else
+            assertEquals(o, (Object) val);
     }
 
     public static ExprArray toArray(Object... args) {
-        Expr[] a = convertArgs(args);
-        ExprArray arr = new ExprArray(1, a.length);
-        for (int i = 0; i < a.length; i++) {
-            arr.set(0, i, a[i]);
+        return Exprs.toArray(args);
+    }
+
+    public static ExprVariable var(String var) throws ExprException {
+        Range r = Range.valueOf(var);
+        if (r != null)
+            var = r.toString();
+        ExprVariable v = new ExprVariable(new BasicEvaluationCallback(), var);
+        v.setAnnotation(r);
+        return v;
+    }
+
+    public static ExprArray loadArray(String filename) throws IOException {
+        ExprArrayBuilder ab = new ExprArrayBuilder();
+        for (String line : IO.readLines(TH.class, filename)) {
+            ab.addRow(Exprs.parseValues(CSV.parseLine(line, ',', false)));
         }
-        return arr;
+        return ab.toArray();
     }
 }

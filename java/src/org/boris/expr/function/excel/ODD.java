@@ -1,12 +1,18 @@
 package org.boris.expr.function.excel;
 
-import org.boris.expr.Expr;
 import org.boris.expr.ExprException;
-import org.boris.expr.function.AbstractFunction;
+import org.boris.expr.function.DoubleInOutFunction;
 
-public class ODD extends AbstractFunction
+public class ODD extends DoubleInOutFunction
 {
-    public Expr evaluate(Expr[] args) throws ExprException {
-        return null;
+    protected double evaluate(double value) throws ExprException {
+        double res = (value + 1) % 2;
+        if (res < 0) {
+            return value - 2 - res;
+        } else if (res == 0) {
+            return value;
+        } else {
+            return value + 2 - res;
+        }
     }
 }

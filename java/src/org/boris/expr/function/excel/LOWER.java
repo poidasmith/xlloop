@@ -1,17 +1,21 @@
 package org.boris.expr.function.excel;
 
 import org.boris.expr.Expr;
+import org.boris.expr.ExprArray;
+import org.boris.expr.ExprError;
 import org.boris.expr.ExprException;
 import org.boris.expr.ExprString;
-import org.boris.expr.ExprType;
 import org.boris.expr.function.AbstractFunction;
 
 public class LOWER extends AbstractFunction
 {
     public Expr evaluate(Expr[] args) throws ExprException {
         assertArgCount(args, 1);
-        assertArgType(args[0], ExprType.String);
-
-        return new ExprString(((ExprString) args[0]).str.toLowerCase());
+        Expr a = evalArg(args[0]);
+        if (a instanceof ExprArray)
+            return ExprError.VALUE;
+        if (a instanceof ExprString)
+            return new ExprString(((ExprString) a).str.toLowerCase());
+        return new ExprString(a.toString().toLowerCase());
     }
 }

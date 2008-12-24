@@ -15,6 +15,8 @@ import org.boris.variant.Variant;
 
 public class ExprString extends Expr
 {
+    public static final ExprString EMPTY = new ExprString("");
+
     public final String str;
 
     public ExprString(String str) {

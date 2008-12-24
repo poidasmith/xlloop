@@ -2,11 +2,11 @@ package org.boris.expr.function.excel;
 
 import org.boris.expr.Expr;
 import org.boris.expr.ExprException;
-import org.boris.expr.function.AbstractFunction;
+import org.boris.expr.function.SimpleDatabaseFunction;
 
-public class DPRODUCT extends AbstractFunction
+public class DPRODUCT extends SimpleDatabaseFunction
 {
-    public Expr evaluate(Expr[] args) throws ExprException {
-        return null;
+    protected Expr evaluateMatches(Expr[] matches) throws ExprException {
+        return PRODUCT.product(matches);
     }
 }

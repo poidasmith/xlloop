@@ -3,6 +3,7 @@ package org.boris.expr.function.excel;
 import org.boris.expr.Expr;
 import org.boris.expr.ExprDouble;
 import org.boris.expr.ExprError;
+import org.boris.expr.ExprEvaluatable;
 import org.boris.expr.ExprException;
 import org.boris.expr.ExprInteger;
 import org.boris.expr.ExprVariable;
@@ -14,6 +15,11 @@ public class COLUMNS extends AbstractFunction
 {
     public Expr evaluate(Expr[] args) throws ExprException {
         assertArgCount(args, 1);
+        return columnsOrRows(args, true);
+    }
+
+    public static Expr columnsOrRows(Expr[] args, boolean cols)
+            throws ExprException {
 
         if (args[0] instanceof ExprVariable) {
             ExprVariable v = (ExprVariable) args[0];
@@ -27,16 +33,30 @@ public class COLUMNS extends AbstractFunction
                 if (dim2 == null) {
                     return new ExprInteger(1);
                 } else {
-                    return new ExprInteger(Math.abs(dim2.getColumn() -
-                            dim1.getColumn()) + 1);
+                    if (cols) {
+                        return new ExprInteger(Math.abs(dim2.getColumn() -
+                                dim1.getColumn()) + 1);
+                    } else {
+                        return new ExprInteger(Math.abs(dim2.getRow() -
+                                dim1.getRow()) + 1);
+                    }
                 }
             }
 
             return ExprError.NAME;
         }
 
-        if (args[0] instanceof ExprInteger || args[0] instanceof ExprDouble) {
+        Expr a = args[0];
+        if (a instanceof ExprEvaluatable) {
+            a = ((ExprEvaluatable) a).evaluate();
+        }
+
+        if (a instanceof ExprInteger || a instanceof ExprDouble) {
             return new ExprInteger(1);
+        }
+
+        if (a instanceof ExprError) {
+            return a;
         }
 
         return ExprError.VALUE;

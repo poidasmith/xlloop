@@ -10,6 +10,7 @@
 package org.boris.expr;
 
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import junit.framework.TestCase;
 
@@ -17,11 +18,18 @@ import org.boris.expr.util.ExcelDate;
 
 public class ExcelDateTest extends TestCase
 {
+    public void test11() throws Exception {
+        assertEquals(ExcelDate.toJavaDate(39448), makeDate(2008, 1, 1, 0, 0, 0,
+                0));
+    }
+
     public void test1() throws Exception {
         assertEquals(ExcelDate.toJavaDate(180.5), makeDate(1900, 6, 28, 12, 0,
                 0, 0));
         assertEquals(ExcelDate.toJavaDate(14560.234), makeDate(1939, 11, 11, 5,
                 36, 57, 600));
+        System.out.println(ExcelDate.toJavaDate(36444.89));
+        System.out.println(makeDate(1999, 10, 11, 21, 21, 36, 0));
         assertEquals(ExcelDate.toJavaDate(36444.89), makeDate(1999, 10, 11, 21,
                 21, 36, 0));
         assertEquals(ExcelDate.toJavaDate(10859.2492761586), makeDate(1929, 9,
@@ -41,8 +49,11 @@ public class ExcelDateTest extends TestCase
                 21, 36, 0)));
         assertEquals(10859.2492761586, ExcelDate.toExcelDate(makeDate(1929, 9,
                 23, 5, 58, 57, 460)));
-        assertEquals(48433.439658647000, ExcelDate.toExcelDate(makeDate(2032,
-                8, 7, 10, 33, 6, 507)));
+    }
+
+    public void test22() throws Exception {
+        assertEquals(48433.43965864583, ExcelDate.toExcelDate(makeDate(2032, 8,
+                7, 10, 33, 6, 507)));
         assertEquals(87995.0647529107, ExcelDate.toExcelDate(makeDate(2140, 12,
                 1, 1, 33, 14, 651)));
     }
@@ -59,7 +70,7 @@ public class ExcelDateTest extends TestCase
 
     private long makeDate(int year, int month, int day, int hour, int minute,
             int second, int millis) {
-        Calendar c = Calendar.getInstance();
+        Calendar c = new GregorianCalendar();
         c.set(year, month - 1, day, hour, minute, second);
         c.set(Calendar.MILLISECOND, millis);
         return c.getTimeInMillis();

@@ -9,6 +9,7 @@
  *******************************************************************************/
 package org.boris.expr.engine;
 
+import org.boris.expr.ExprArray;
 import org.boris.expr.ExprException;
 import org.boris.variant.util.Reflect;
 
@@ -135,7 +136,8 @@ public class Range
         int ni = var.indexOf('!');
         if (ni != -1) {
             namespace = var.substring(0, ni);
-            if (!GridReference.isValidVariable(namespace)) {
+            if (!namespace.startsWith("'") &&
+                    !GridReference.isValidVariable(namespace)) {
                 throw new ExprException("Invalid namespace: " + namespace);
             }
             var = var.substring(ni + 1);
@@ -168,6 +170,17 @@ public class Range
         }
 
         return new Range(namespace, dim1Name, dim1, dim2Name, dim2);
+    }
+
+    public static Range toRange(ExprArray array, GridReference offset) {
+        if (offset == null) {
+            offset = new GridReference(1, 1);
+        }
+
+        GridReference dim2 = new GridReference(offset.getColumn() +
+                array.columns() - 1, offset.getRow() + array.rows() - 1);
+
+        return new Range(null, offset, dim2);
     }
 
     public Range[] split() {

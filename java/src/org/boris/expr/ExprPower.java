@@ -9,14 +9,14 @@
  *******************************************************************************/
 package org.boris.expr;
 
-public class ExprPower extends AbstractBinaryOperator
+public class ExprPower extends AbstractMathematicalOperator
 {
     public ExprPower(Expr lhs, Expr rhs) {
         super(ExprType.Power, lhs, rhs);
     }
 
-    public Expr evaluate() throws ExprException {
-        return new ExprDouble(Math.pow(evaluateLHS(), evaluateRHS()));
+    protected Expr evaluate(double lhs, double rhs) throws ExprException {
+        return new ExprDouble(Math.pow(lhs, rhs));
     }
 
     public String toString() {

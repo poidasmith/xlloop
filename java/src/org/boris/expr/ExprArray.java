@@ -56,6 +56,10 @@ public class ExprArray extends Expr
         array[row * columns + column] = value;
     }
 
+    public Expr[] getInternalArray() {
+        return array;
+    }
+
     public int hashCode() {
         return 567 ^ rows ^ columns ^ array.length;
     }

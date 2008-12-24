@@ -15,18 +15,16 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.boris.expr.Expr;
-import org.boris.expr.ExprDouble;
 import org.boris.expr.ExprEvaluatable;
 import org.boris.expr.ExprException;
 import org.boris.expr.ExprFunction;
-import org.boris.expr.ExprInteger;
 import org.boris.expr.ExprMissing;
-import org.boris.expr.ExprString;
 import org.boris.expr.ExprVariable;
 import org.boris.expr.IEvaluationCallback;
 import org.boris.expr.parser.ExprLexer;
 import org.boris.expr.parser.ExprParser;
 import org.boris.expr.parser.IParserVisitor;
+import org.boris.expr.util.Exprs;
 import org.boris.variant.util.Edge;
 import org.boris.variant.util.Graph;
 import org.boris.variant.util.GraphCycleException;
@@ -189,15 +187,7 @@ public class Engine implements IParserVisitor, IEvaluationCallback,
     private Expr parseExpression(String expression) throws ExprException {
         Expr result;
         if (!expression.startsWith("=")) {
-            try {
-                result = new ExprInteger(Integer.parseInt(expression));
-            } catch (Exception e) {
-                try {
-                    result = new ExprDouble(Double.parseDouble(expression));
-                } catch (Exception ex) {
-                    result = new ExprString(expression);
-                }
-            }
+            result = Exprs.parseValue(expression);
         } else {
             expression = expression.substring(1);
             ExprParser p = new ExprParser();

@@ -10,26 +10,85 @@
 package org.boris.expr.util;
 
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 public class ExcelDate
 {
-    private static final double MS_IN_DAY = 86400000; // 1/(24*60*60*1000)
-    private static final long EPOCH_OFFSET = 2209182800000l;
+    private static final double MS_IN_DAY = 86400000; // 24*60*60*1000
 
     public static long toJavaDate(double value) {
-        return Math.round(value * MS_IN_DAY - EPOCH_OFFSET);
-    }
-
-    public static long toJavaDate2(double value) {
-        Calendar c = Calendar.getInstance();
+        Calendar c = new GregorianCalendar();
+        long days = Math.round(Math.floor(value));
+        long millis = Math.round(MS_IN_DAY * (value - days));
         c.setLenient(true);
         c.set(1900, 0, 0, 0, 0, 0);
-        c.set(Calendar.DAY_OF_YEAR, (int) value - 1);
-        c.set(Calendar.MILLISECOND, (int) Math.round((value % 1) * MS_IN_DAY));
+        c.set(Calendar.DAY_OF_YEAR, (int) days - 1);
+        c.set(Calendar.MILLISECOND, (int) millis);
         return c.getTimeInMillis();
     }
 
     public static double toExcelDate(long millis) {
-        return ((double) millis + EPOCH_OFFSET) / MS_IN_DAY;
+        Calendar c = new GregorianCalendar();
+        c.setTimeInMillis(millis);
+        int year = c.get(Calendar.YEAR);
+        int days = (year - 1601) * 365 - 109207;
+        year -= 1601;
+        days += year / 4; // leap year
+        days -= year / 100; // centuries aren't leap years
+        days += year / 400; // unless they are divisible by 400
+        days += c.get(Calendar.DAY_OF_YEAR) + 1;
+        double m = c.get(Calendar.HOUR_OF_DAY) * 60;
+        m += c.get(Calendar.MINUTE);
+        m *= 60;
+        m += c.get(Calendar.SECOND);
+        m *= 1000;
+        m += c.get(Calendar.MILLISECOND);
+        m /= MS_IN_DAY;
+        return days + m;
+    }
+
+    private static int get(double value, int field) {
+        Calendar c = new GregorianCalendar();
+        c.setTimeInMillis(toJavaDate(value));
+        return c.get(field);
+    }
+
+    public static int getDayOfMonth(double value) {
+        return get(value, Calendar.DAY_OF_MONTH);
+    }
+
+    public static int getMonth(double value) {
+        return get(value, Calendar.MONTH) + 1;
+    }
+
+    public static int getYear(double value) {
+        return get(value, Calendar.YEAR);
+    }
+
+    public static int getWeekday(double value) {
+        return get(value, Calendar.DAY_OF_WEEK);
+    }
+
+    public static int getHour(double value) {
+        double h = value - Math.floor(value);
+        h *= 24;
+        h = Math.floor(h);
+        return (int) h;
+    }
+
+    public static int getMinute(double value) {
+        double m = value - Math.floor(value);
+        m *= 24;
+        m -= Math.floor(m);
+        m = m * 60;
+        m = Math.floor(m);
+        return (int) m;
+    }
+
+    public static int getSecond(double value) {
+        double d = (value - Math.floor(value)) * 1440;
+        d -= Math.floor(d);
+        int s = (int) Math.round(d * 60);
+        return s;
     }
 }

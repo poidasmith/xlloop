@@ -12,8 +12,10 @@ package org.boris.expr.function;
 import org.boris.expr.Expr;
 import org.boris.expr.ExprArray;
 import org.boris.expr.ExprBoolean;
+import org.boris.expr.ExprDouble;
 import org.boris.expr.ExprEvaluatable;
 import org.boris.expr.ExprException;
+import org.boris.expr.ExprInteger;
 import org.boris.expr.ExprMissing;
 import org.boris.expr.ExprNumber;
 import org.boris.expr.ExprString;
@@ -125,7 +127,14 @@ public abstract class AbstractFunction implements IExprFunction
                     getClass().getSimpleName());
     }
 
-    protected Expr evalArg(Expr arg) throws ExprException {
+    protected void assertMaxArgCount(Expr[] args, int count)
+            throws ExprException {
+        if (args.length > count)
+            throw new ExprException("Too many arguments to function " +
+                    getClass().getSimpleName());
+    }
+
+    public static Expr evalArg(Expr arg) throws ExprException {
         if (arg instanceof ExprEvaluatable) {
             return ((ExprEvaluatable) arg).evaluate();
         }
@@ -155,5 +164,43 @@ public abstract class AbstractFunction implements IExprFunction
 
     protected ExprBoolean bool(boolean bool) {
         return bool ? ExprBoolean.TRUE : ExprBoolean.FALSE;
+    }
+
+    protected double asDouble(ExprArray knownY, int index) throws ExprException {
+        if (index < 0 || index >= knownY.length())
+            return 0;
+
+        Expr e = knownY.get(index);
+        return asDouble(e, false);
+    }
+
+    protected boolean isOneOf(Expr expr, ExprType... types) {
+        for (ExprType t : types) {
+            if (expr.type.equals(t))
+                return true;
+        }
+        return false;
+    }
+
+    protected ExprArray asArray(Expr expr, boolean strict) throws ExprException {
+        if (expr instanceof ExprEvaluatable) {
+            expr = ((ExprEvaluatable) expr).evaluate();
+        }
+    
+        if (expr instanceof ExprArray) {
+            return (ExprArray) expr;
+        }
+    
+        if (strict)
+            throw new ExprException("Argument not an array for function: " +
+                    getClass().getSimpleName());
+    
+        ExprArray ea = new ExprArray(1, 1);
+        ea.set(0, expr);
+        return ea;
+    }
+
+    protected boolean isNumber(Expr x) {
+        return x instanceof ExprDouble || x instanceof ExprInteger;
     }
 }

@@ -16,6 +16,11 @@ public class ParserTest extends TH
         Expr a2 = toArray(1345, 1301, 1368, 1322, 1310, 1370, 1318, 1350, 1303,
                 1299);
         assertEquals(a1, a2);
+        ExprArray a3 = (ExprArray) parse("{1,2;3,4}");
+        assertEquals(a3.get(0, 1), 2);
+        assertEquals(a3.get(1, 0), 3);
+        assertEquals(a3.get(1, 1), 4);
+        assertException("{;}");
     }
 
     public void testPower() throws Exception {

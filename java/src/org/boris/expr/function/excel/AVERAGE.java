@@ -17,6 +17,10 @@ public class AVERAGE extends AbstractFunction
     public Expr evaluate(Expr[] args) throws ExprException {
         assertMinArgCount(args, 1);
 
+        return average(args);
+    }
+
+    public static Expr average(Expr... args) throws ExprException {
         double[] values = { 0, 0 };
         for (Expr a : args)
             eval(a, values, true);

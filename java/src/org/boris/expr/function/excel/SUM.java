@@ -11,13 +11,18 @@ import org.boris.expr.function.AbstractFunction;
 public class SUM extends AbstractFunction
 {
     public Expr evaluate(Expr[] args) throws ExprException {
+        assertMinArgCount(args, 1);
+        return sum(args);
+    }
+
+    public static Expr sum(Expr[] args) throws ExprException {
         double res = 0;
         for (Expr arg : args)
             res += sum(arg);
         return new ExprDouble(res);
     }
 
-    private double sum(Expr arg) throws ExprException {
+    public static double sum(Expr arg) throws ExprException {
         if (arg instanceof ExprEvaluatable) {
             arg = ((ExprEvaluatable) arg).evaluate();
         }

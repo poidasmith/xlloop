@@ -9,14 +9,16 @@
  *******************************************************************************/
 package org.boris.expr;
 
-public class ExprDivision extends AbstractBinaryOperator
+public class ExprDivision extends AbstractMathematicalOperator
 {
     public ExprDivision(Expr lhs, Expr rhs) {
         super(ExprType.Division, lhs, rhs);
     }
 
-    public Expr evaluate() throws ExprException {
-        return new ExprDouble(evaluateLHS() / evaluateRHS());
+    protected Expr evaluate(double lhs, double rhs) throws ExprException {
+        if (rhs == 0.)
+            return ExprError.DIV0;
+        return new ExprDouble(lhs / rhs);
     }
 
     public String toString() {

@@ -25,4 +25,8 @@ public class ExprMissing extends Expr
         m.add("type", type.toString());
         return m;
     }
+
+    public String toString() {
+        return "";
+    }
 }

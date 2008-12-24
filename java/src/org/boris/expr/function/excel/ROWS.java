@@ -7,6 +7,7 @@ import org.boris.expr.function.AbstractFunction;
 public class ROWS extends AbstractFunction
 {
     public Expr evaluate(Expr[] args) throws ExprException {
-        return null;
+        assertArgCount(args, 1);
+        return COLUMNS.columnsOrRows(args, false);
     }
 }

@@ -2,11 +2,13 @@ package org.boris.expr.function.excel;
 
 import org.boris.expr.Expr;
 import org.boris.expr.ExprException;
+import org.boris.expr.ExprVariable;
 import org.boris.expr.function.AbstractFunction;
 
 public class ISREF extends AbstractFunction
 {
     public Expr evaluate(Expr[] args) throws ExprException {
-        return null;
+        assertArgCount(args, 1);
+        return bool(args[0] instanceof ExprVariable);
     }
 }

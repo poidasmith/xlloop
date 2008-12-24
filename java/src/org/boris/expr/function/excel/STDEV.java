@@ -15,12 +15,16 @@ import org.boris.expr.function.AbstractFunction;
 public class STDEV extends AbstractFunction
 {
     public Expr evaluate(Expr[] args) throws ExprException {
+        assertMinArgCount(args, 1);
+        return stdev(args);
+    }
+
+    public static Expr stdev(Expr[] args) throws ExprException {
         return stdev(args, false);
     }
 
-    protected Expr variance(Expr[] args, boolean allPopulation)
+    protected static Expr variance(Expr[] args, boolean allPopulation)
             throws ExprException {
-        assertMinArgCount(args, 1);
 
         double[] values = { 0, 0 };
 
@@ -41,7 +45,7 @@ public class STDEV extends AbstractFunction
         return new ExprDouble(values[0] / (values[1] - (allPopulation ? 0 : 1)));
     }
 
-    protected Expr stdev(Expr[] args, boolean allPopulation)
+    public static Expr stdev(Expr[] args, boolean allPopulation)
             throws ExprException {
         Expr res = variance(args, allPopulation);
         if (res instanceof ExprDouble) {
@@ -50,8 +54,8 @@ public class STDEV extends AbstractFunction
         return res;
     }
 
-    protected void eval(Expr a, double average, double[] values, boolean strict)
-            throws ExprException {
+    protected static void eval(Expr a, double average, double[] values,
+            boolean strict) throws ExprException {
         if (a instanceof ExprEvaluatable)
             a = ((ExprEvaluatable) a).evaluate();
 

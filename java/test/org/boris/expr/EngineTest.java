@@ -87,7 +87,7 @@ public class EngineTest extends TestCase
             throws Exception {
         try {
             e.set(range, expression);
-            fail("Expected ane exception");
+            fail("Expected an exception");
         } catch (Exception ex) {
         }
     }

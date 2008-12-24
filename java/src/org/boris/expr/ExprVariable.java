@@ -32,6 +32,10 @@ public class ExprVariable extends ExprEvaluatable
         return name;
     }
 
+    public IEvaluationCallback getCallback() {
+        return callback;
+    }
+
     public void setAnnotation(Object annotation) {
         this.annotation = annotation;
     }

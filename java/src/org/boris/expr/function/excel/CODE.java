@@ -13,7 +13,7 @@ public class CODE extends AbstractFunction
     public Expr evaluate(Expr[] args) throws ExprException {
         assertArgCount(args, 1);
 
-        Expr a = args[0];
+        Expr a = evalArg(args[0]);
         String s = null;
 
         if (a instanceof ExprString) {

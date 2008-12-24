@@ -1,0 +1,3 @@
+Tree,Height,Age,Yield,Profit,Height
+Apple,>10,,,,<16
+Pear,,,,,

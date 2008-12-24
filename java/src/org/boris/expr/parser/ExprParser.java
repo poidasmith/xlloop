@@ -152,14 +152,37 @@ public class ExprParser
         Expr c = current;
         current = null;
         ExprToken e = null;
+        int cols = -1;
+        int count = 0;
         ArrayList args = new ArrayList();
         while ((e = lexer.next()) != null) {
             if (e.type.equals(ExprTokenType.Comma)) {
                 if (current == null)
-                    args.add(ExprMissing.MISSING);
+                    throw new ExprException(
+                            "Arrays cannot contain empty values");
                 else
                     args.add(current);
                 current = null;
+                count++;
+            } else if (e.type.equals(ExprTokenType.SemiColon)) {
+                if (current == null)
+                    throw new ExprException(
+                            "Arrays cannot contain empty values");
+                else
+                    args.add(current);
+                current = null;
+                count++;
+
+                if (count == 0) {
+                    throw new ExprException(
+                            "Array rows must contain at least one element");
+                }
+                if (cols != -1 && count != cols) {
+                    throw new ExprException("Array rows must be equal sizes");
+                }
+
+                cols = count;
+                count = 0;
             } else if (e.type.equals(ExprTokenType.CloseBrace)) {
                 if (current != null)
                     args.add(current);
@@ -170,7 +193,12 @@ public class ExprParser
             }
         }
 
-        ExprArray a = new ExprArray(1, args.size());
+        int rows = 1;
+        if (cols == -1)
+            cols = args.size();
+        else
+            rows = args.size() / cols;
+        ExprArray a = new ExprArray(rows, cols);
         for (int i = 0; i < args.size(); i++) {
             a.set(0, i, (Expr) args.get(i));
         }

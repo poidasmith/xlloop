@@ -3,6 +3,7 @@ package org.boris.expr.function.excel;
 import org.boris.expr.Expr;
 import org.boris.expr.ExprArray;
 import org.boris.expr.ExprBoolean;
+import org.boris.expr.ExprEvaluatable;
 import org.boris.expr.ExprException;
 import org.boris.expr.ExprMissing;
 import org.boris.expr.ExprNumber;
@@ -22,9 +23,13 @@ public class AND extends AbstractFunction
         return ExprBoolean.TRUE;
     }
 
-    private boolean eval(Expr a, boolean strict) throws ExprException {
+    protected boolean eval(Expr a, boolean strict) throws ExprException {
         if (a == null)
             return true;
+
+        if (a instanceof ExprEvaluatable) {
+            a = ((ExprEvaluatable) a).evaluate();
+        }
 
         if (a instanceof ExprNumber) {
             return ((ExprNumber) a).booleanValue();
@@ -46,7 +51,8 @@ public class AND extends AbstractFunction
         }
 
         if (strict)
-            throw new ExprException("Unexpected argument to AND");
+            throw new ExprException("Unexpected argument to " +
+                    getClass().getSimpleName() + ": " + a);
 
         return false;
     }

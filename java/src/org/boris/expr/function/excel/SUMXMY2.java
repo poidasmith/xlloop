@@ -1,12 +1,9 @@
 package org.boris.expr.function.excel;
 
-import org.boris.expr.Expr;
-import org.boris.expr.ExprException;
-import org.boris.expr.function.AbstractFunction;
 
-public class SUMXMY2 extends AbstractFunction
+public class SUMXMY2 extends SUMX2MY2
 {
-    public Expr evaluate(Expr[] args) throws ExprException {
-        return null;
+    protected double eval(double x, double y) {
+        return Math.pow(x - y, 2);
     }
 }

@@ -9,38 +9,35 @@
  *******************************************************************************/
 package org.boris.expr;
 
-import junit.framework.TestCase;
-
-import org.boris.expr.parser.ExprLexer;
 import org.boris.expr.parser.ExprParser;
 
-public class ExprTest extends TestCase
+public class ExprTest extends TH
 {
     public void test1() throws Exception {
-        testEval("1+2", 3);
-        test("sin(4.3)");
-        test("8-sin((3/2)+4)");
-        test("echo(\"asd\")");
-        test("printf(\"asdf\", 34, 45.6, x)");
-        test("1 +    5 / 45 - (  sin (sdf) )");
+        assertResult("1+2", 3.);
+        testParse("sin(4.3)");
+        testParse("8-sin((3/2)+4)");
+        testParse("echo(\"asd\")");
+        testParse("printf(\"asdf\", 34, 45.6, x)");
+        testParse("1 +    5 / 45 - (  sin (sdf) )");
     }
 
     public void test2() throws Exception {
-        test("1+2+3-5");
-        testEval("1+2/5*2", 1.8);
-        testEval("1+2/(8*(4+1))", 1.05);
-        testEval("1-sum(1,2)+x", 3.3);
+        testParse("1+2+3-5");
+        assertResult("1+2/5*2", 1.8);
+        assertResult("1+2/(8*(4+1))", 1.05);
+        assertResult(c(), "1-sum(1,2)+x", 3.3);
     }
 
     public void testUnary() throws Exception {
-        testEval("3-(-5)*2", 13);
-        // assertException("*5");
-        // assertResult("-3", -3);
+        assertResult("3-(-5)*2", 13.);
+        assertException("*5");
+        assertResult("-3", -3.);
     }
 
     public void testExpressions() throws Exception {
-        testEval("((2))", 2);
-        testEval("(4)*(3/4)", 3);
+        assertResult("((2))", 2);
+        assertResult("(4)*(3/4)", 3.);
     }
 
     public void testVariables() throws Exception {
@@ -56,14 +53,14 @@ public class ExprTest extends TestCase
 
     public void testStrings() throws Exception {
         BasicEvaluationCallback c = new BasicEvaluationCallback();
-        c.addVariable("A1", new ExprString("Hello "));
-        c.addVariable("A2", new ExprString("World!"));
-        assertResult(c, "A1&A2", new ExprString("Hello World!"));
-        assertResult(c, "A1&(A1&A2)", new ExprString("Hello Hello World!"));
-        assertResult(c, "A1&A1&A2", new ExprString("Hello Hello World!"));
-        assertResult(c, "\"A\"&\"B\"&\"C\"", new ExprString("ABC"));
-        assertResult(c, "\"\"\"\"", new ExprString("\""));
-        assertResult(c, "\"asdf\"\"sdf\"", new ExprString("asdf\"sdf"));
+        c.set("A1", "Hello ");
+        c.set("A2", "World!");
+        assertResult(c, "A1&A2", "Hello World!");
+        assertResult(c, "A1&(A1&A2)", "Hello Hello World!");
+        assertResult(c, "A1&A1&A2", "Hello Hello World!");
+        assertResult(c, "\"A\"&\"B\"&\"C\"", "ABC");
+        assertResult(c, "\"\"\"\"", "\"");
+        assertResult(c, "\"asdf\"\"sdf\"", "asdf\"sdf");
     }
 
     private void testParse(String expr) throws Exception {
@@ -71,44 +68,9 @@ public class ExprTest extends TestCase
         System.out.println(e.encode());
     }
 
-    private void assertResult(BasicEvaluationCallback c, String expression,
-            Expr result) throws Exception {
-        System.out.println(expression);
-        Expr e = c.parse(expression);
-        if (e.evaluatable) {
-            e = ((ExprEvaluatable) e).evaluate();
-        }
-        assertEquals(e, result);
-    }
-
-    private void testEval(String line, double expected) throws Exception {
-        ExprNumber n = (ExprNumber) test(line);
-        assertEquals(expected, n.doubleValue());
-    }
-
-    private Expr test(String line) throws Exception {
-        System.out.println();
-        System.out.println(line);
-        ExprLexer l = new ExprLexer(line);
-        ExprParser p = new ExprParser();
-        p.parse(l, new IEvaluationCallback() {
-            public Expr evaluateFunction(ExprFunction funtion)
-                    throws ExprException {
-                return new ExprDouble(5.5);
-            }
-
-            public Expr evaluateVariable(ExprVariable variable)
-                    throws ExprException {
-                return new ExprDouble(7.8);
-            }
-        });
-        Expr out = p.get();
-        System.out.println(out);
-        System.out.println(out.encode());
-        if (out instanceof ExprEvaluatable) {
-            out = ((ExprEvaluatable) out).evaluate();
-            System.out.println(out.encode());
-        }
-        return out;
+    private BasicEvaluationCallback c() {
+        BasicEvaluationCallback c = new BasicEvaluationCallback();
+        c.addVariable("X", new ExprDouble(5.3));
+        return c;
     }
 }

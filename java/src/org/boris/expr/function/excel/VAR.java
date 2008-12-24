@@ -1,11 +1,10 @@
 package org.boris.expr.function.excel;
 
-import org.boris.expr.Expr;
-import org.boris.expr.ExprException;
+import org.boris.expr.function.AbstractVarianceFunction;
 
-public class VAR extends STDEV
+public class VAR extends AbstractVarianceFunction
 {
-    public Expr evaluate(Expr[] args) throws ExprException {
-        return variance(args, false);
+    public VAR() {
+        super(false, false);
     }
 }

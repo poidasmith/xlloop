@@ -1,12 +1,19 @@
 package org.boris.expr.function.excel;
 
 import org.boris.expr.Expr;
+import org.boris.expr.ExprDouble;
 import org.boris.expr.ExprException;
-import org.boris.expr.function.AbstractFunction;
+import org.boris.expr.ExprNumber;
+import org.boris.expr.function.SimpleDatabaseFunction;
 
-public class DCOUNT extends AbstractFunction
+public class DCOUNT extends SimpleDatabaseFunction
 {
-    public Expr evaluate(Expr[] args) throws ExprException {
-        return null;
+    protected Expr evaluateMatches(Expr[] matches) throws ExprException {
+        int count = 0;
+        for (Expr m : matches) {
+            if (m instanceof ExprNumber)
+                count++;
+        }
+        return new ExprDouble(count);
     }
 }

@@ -43,6 +43,7 @@ public class ExcelFunctionProvider implements IFunctionProvider
         functions.put("BINOMDIST", new BINOMDIST());
         functions.put("CEILING", new CEILING());
         functions.put("CELL", new CELL());
+        functions.put("CHAR", new CHAR());
         functions.put("CHIDIST", new CHIDIST());
         functions.put("CHIINV", new CHIINV());
         functions.put("CHITEST", new CHITEST());
@@ -67,6 +68,7 @@ public class ExcelFunctionProvider implements IFunctionProvider
         functions.put("DATEVALUE", new DATEVALUE());
         functions.put("DAVERAGE", new DAVERAGE());
         functions.put("DAY", new DAY());
+        functions.put("DAYS360", new DAYS360());
         functions.put("DB", new DB());
         functions.put("DCOUNT", new DCOUNT());
         functions.put("DCOUNTA", new DCOUNTA());
@@ -191,7 +193,7 @@ public class ExcelFunctionProvider implements IFunctionProvider
         functions.put("RATE", new RATE());
         functions.put("REPLACE", new REPLACE());
         functions.put("REPT", new REPT());
-        functions.put("RIIGHT", new RIIGHT());
+        functions.put("RIGHT", new RIGHT());
         functions.put("ROMAN", new ROMAN());
         functions.put("ROUND", new ROUND());
         functions.put("ROUNDDOWN", new ROUNDDOWN());
@@ -216,7 +218,7 @@ public class ExcelFunctionProvider implements IFunctionProvider
         functions.put("STDEVP", new STDEVP());
         functions.put("STDEVPA", new STDEVPA());
         functions.put("STEYX", new STEYX());
-        functions.put("SUBSTITUE", new SUBSTITUE());
+        functions.put("SUBSTITUTE", new SUBSTITUTE());
         functions.put("SUBTOTAL", new SUBTOTAL());
         functions.put("SUM", new SUM());
         functions.put("SUMIF", new SUMIF());
@@ -237,6 +239,7 @@ public class ExcelFunctionProvider implements IFunctionProvider
         functions.put("TODAY", new TODAY());
         functions.put("TRANSPOSE", new TRANSPOSE());
         functions.put("TREND", new TREND());
+        functions.put("TRIM", new TRIM());
         functions.put("TRIMMEAN", new TRIMMEAN());
         functions.put("TRUE", new TRUE());
         functions.put("TRUNC", new TRUNC());

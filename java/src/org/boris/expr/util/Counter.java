@@ -9,12 +9,15 @@
  *******************************************************************************/
 package org.boris.expr.util;
 
-import org.boris.expr.ExprArray;
+import org.boris.expr.Expr;
 
-// A table of data in a grid with named columns
-public class ArrayTable
+public class Counter
 {
-    public static ArrayTable valueOf(ExprArray array) {
-        return null;
-    }
+    public int count;
+    public double value;
+    public double value2;
+    public boolean doit = true;
+    public Expr result;
+    public int iteration;
+    public boolean flag;
 }

@@ -9,14 +9,14 @@
  *******************************************************************************/
 package org.boris.expr;
 
-public class ExprSubtraction extends AbstractBinaryOperator
+public class ExprSubtraction extends AbstractMathematicalOperator
 {
     public ExprSubtraction(Expr lhs, Expr rhs) {
         super(ExprType.Subtraction, lhs, rhs);
     }
 
-    public Expr evaluate() throws ExprException {
-        return new ExprDouble(evaluateLHS() - evaluateRHS());
+    protected Expr evaluate(double lhs, double rhs) throws ExprException {
+        return new ExprDouble(lhs - rhs);
     }
 
     public void validate() throws ExprException {

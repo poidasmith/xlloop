@@ -41,30 +41,6 @@ public abstract class AbstractBinaryOperator extends ExprEvaluatable implements
         this.rhs = rhs;
     }
 
-    protected double evaluateLHS() throws ExprException {
-        return evaluateExpr(lhs);
-    }
-
-    protected double evaluateRHS() throws ExprException {
-        return evaluateExpr(rhs);
-    }
-
-    protected double evaluateExpr(Expr expr) throws ExprException {
-        Expr r = expr;
-        if (r == null)
-            return 0;
-        if (r instanceof ExprMissing)
-            return 0;
-        if (r instanceof ExprEvaluatable)
-            r = ((ExprEvaluatable) r).evaluate();
-        if (r instanceof ExprMissing)
-            return 0;
-        if (r == null)
-            return 0;
-        ExprTypes.assertType(r, ExprType.Integer, ExprType.Double);
-        return ((ExprNumber) r).doubleValue();
-    }
-
     public void validate() throws ExprException {
         if (lhs == null)
             throw new ExprException("LHS of operator missing");
