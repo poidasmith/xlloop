@@ -5,6 +5,7 @@ import org.boris.expr.ExprDouble;
 import org.boris.expr.ExprError;
 import org.boris.expr.ExprException;
 import org.boris.expr.function.AbstractFunction;
+import org.boris.expr.util.Maths;
 
 public class FLOOR extends AbstractFunction
 {
@@ -17,8 +18,9 @@ public class FLOOR extends AbstractFunction
         if ((val < 0 && rnd > 0) || (val > 0 && rnd < 0))
             return ExprError.NUM;
         double m = val % rnd;
-        if (rnd > 0)
-            rnd = 0;
+        m = Maths.round(m, 8);
+        if (m == rnd)
+            m = 0;
         return new ExprDouble(val - m);
     }
 

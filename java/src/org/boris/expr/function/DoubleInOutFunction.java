@@ -15,7 +15,7 @@ import org.boris.expr.ExprException;
 
 public abstract class DoubleInOutFunction extends AbstractFunction
 {
-    public Expr evaluate(Expr[] args) throws ExprException {
+    public final Expr evaluate(Expr[] args) throws ExprException {
         assertArgCount(args, 1);
         return new ExprDouble(evaluate(asDouble(args[0], true)));
     }

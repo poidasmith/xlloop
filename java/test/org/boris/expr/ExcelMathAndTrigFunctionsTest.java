@@ -60,7 +60,6 @@ public class ExcelMathAndTrigFunctionsTest extends TH
 {
     public void testABS() throws Exception {
         ABS a = new ABS();
-        TH.testDoubleInOutFunction(a);
         for (int i = 0; i < 100; i++) {
             double d = Math.random() * 1000 - Math.random() * 1000;
             assertEquals("ABS not working", TH.eval(a, d), Math.abs(d));
@@ -79,7 +78,7 @@ public class ExcelMathAndTrigFunctionsTest extends TH
     public void testACOSH() throws Exception {
         ACOSH a = new ACOSH();
         assertEquals(TH.eval(a, 1), 0.);
-        assertEquals(TH.eval(a, 10), 2.993222846);
+        assertEquals(TH.eval(a, 10), 2.993222846126);
     }
 
     public void testASIN() throws Exception {
@@ -93,8 +92,8 @@ public class ExcelMathAndTrigFunctionsTest extends TH
 
     public void testASINH() throws Exception {
         ASINH a = new ASINH();
-        assertEquals(TH.eval(a, 2.5), -1.647231146);
-        assertEquals(TH.eval(a, 10), 2.99822295);
+        assertEquals(TH.eval(a, 2.5), 1.647231146371);
+        assertEquals(TH.eval(a, 10), 2.99822295029);
     }
 
     public void testATAN() throws Exception {
@@ -114,8 +113,8 @@ public class ExcelMathAndTrigFunctionsTest extends TH
 
     public void testATANH() throws Exception {
         ATANH a = new ATANH();
-        assertEquals(TH.eval(a, 0.76159416), 1.00000001);
-        assertEquals(TH.eval(a, -0.1), -0.100335348);
+        assertEquals(TH.eval(a, 0.76159416), 1.00000000962971);
+        assertEquals(TH.eval(a, -0.1), -0.10033534773);
     }
 
     public void testCEILING() throws Exception {
@@ -222,8 +221,10 @@ public class ExcelMathAndTrigFunctionsTest extends TH
 
     public void testLOG() throws Exception {
         LOG l = new LOG();
-
-        fail("LOG not implemented");
+        assertEquals(eval(l, 86, Math.E), 4.45434734288829);
+        assertEquals(eval(l, 10, 2), 3.32192809488736);
+        assertEquals(eval(l, 10, 1), 1.);
+        assertEquals(eval(l, 8, 2), 3.);
     }
 
     public void testLOG10() throws Exception {

@@ -11,6 +11,18 @@ package org.boris.expr.util;
 
 public class Maths
 {
+    public static double acosh(double value) {
+        return Math.log(value + Math.sqrt(Math.pow(value, 2) - 1));
+    }
+
+    public static double asinh(double value) {
+        return Math.log(value + Math.sqrt(Math.pow(value, 2) + 1));
+    }
+
+    public static double atanh(double value) {
+        return 0.5 * Math.log((1 + value) / (1 - value));
+    }
+
     public static double round(double value, int dps) {
         boolean n = value < 0;
         if (n)
@@ -42,5 +54,9 @@ public class Maths
         if (n)
             r *= -1;
         return r;
+    }
+
+    public static double log(double num, int base) {
+        return Math.log(num) / Math.log(base);
     }
 }

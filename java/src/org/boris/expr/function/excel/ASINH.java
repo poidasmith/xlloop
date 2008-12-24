@@ -1,12 +1,12 @@
 package org.boris.expr.function.excel;
 
-import org.boris.expr.Expr;
 import org.boris.expr.ExprException;
-import org.boris.expr.function.AbstractFunction;
+import org.boris.expr.function.DoubleInOutFunction;
+import org.boris.expr.util.Maths;
 
-public class ASINH extends AbstractFunction
+public class ASINH extends DoubleInOutFunction
 {
-    public Expr evaluate(Expr[] args) throws ExprException {
-        return null;
+    protected double evaluate(double value) throws ExprException {
+        return Maths.asinh(value);
     }
 }
