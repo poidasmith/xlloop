@@ -14,7 +14,7 @@ import java.util.GregorianCalendar;
 
 public class ExcelDate
 {
-    private static final double MS_IN_DAY = 86400000; // 24*60*60*1000
+    public static final double MS_IN_DAY = 86400000; // 24*60*60*1000
 
     public static long toJavaDate(double value) {
         Calendar c = new GregorianCalendar();

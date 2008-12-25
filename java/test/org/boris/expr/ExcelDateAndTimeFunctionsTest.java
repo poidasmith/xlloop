@@ -87,8 +87,10 @@ public class ExcelDateAndTimeFunctionsTest extends TH
     public void testTODAY() throws Exception {
         TODAY t = new TODAY();
         for (int i = 0; i < 100; i++) {
-            assertEquals("TODAY not working", eval(t), ExcelDate
-                    .toExcelDate(new Date().getTime()));
+            double d1 = (Double) eval(t);
+            double d2 = ExcelDate.toExcelDate(new Date().getTime());
+            assertTrue("TODAY not working (" + d1 + "," + d2 + ")", Math
+                    .abs(d1 - d2) < 0.000001);
         }
     }
 

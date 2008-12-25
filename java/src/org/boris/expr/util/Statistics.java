@@ -54,4 +54,22 @@ public class Statistics
     public static double confidence(double alpha, double stdev, int size) {
         return 1.96 * stdev / Math.sqrt(size);
     }
+
+    public static double betaDist(double x, double alpha, double beta,
+            double a, double b) {
+        return 0;
+    }
+
+    public static double betaInv(double x, double alpha, double beta, double a,
+            double b) {
+        return 0;
+    }
+
+    public static double chiDist(double x, int df) {
+        return 0;
+    }
+
+    public static double chiInv(double p, int df) {
+        return 0;
+    }
 }

@@ -20,4 +20,5 @@ public class Counter
     public Expr result;
     public int iteration;
     public boolean flag;
+    public Object any;
 }
