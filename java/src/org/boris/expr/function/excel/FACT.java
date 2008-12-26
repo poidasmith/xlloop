@@ -15,6 +15,6 @@ public class FACT extends AbstractFunction
         if (value < 0)
             return ExprError.NUM;
 
-        return new ExprDouble(Statistics.factorial((int) value));
+        return new ExprDouble(Statistics.factorial((int) value).doubleValue());
     }
 }

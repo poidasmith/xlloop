@@ -352,7 +352,8 @@ public class ExcelStatisticalFunctionsTest extends TH
 
     public void testNORMSDIST() throws Exception {
         NORMSDIST n = new NORMSDIST();
-        fail("NORMSDIST not implemented");
+        assertEquals(eval(n, 1.333333), 0.908788725604095);
+        assertEquals(eval(n, 1), 0.841344746068543);
     }
 
     public void testNORMSINV() throws Exception {
@@ -377,7 +378,8 @@ public class ExcelStatisticalFunctionsTest extends TH
 
     public void testPERMUT() throws Exception {
         PERMUT p = new PERMUT();
-        fail("PERMUT not implemented");
+        assertEquals(eval(p, 4, 3), 24.);
+        assertEquals(eval(p, 100, 3), 970200.);
     }
 
     public void testPOISSON() throws Exception {

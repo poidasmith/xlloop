@@ -9,16 +9,25 @@
  *******************************************************************************/
 package org.boris.expr.util;
 
+import java.math.BigInteger;
+
 public class Statistics
 {
-    public static int factorial(int value) {
-        if (value <= 1)
-            return 1;
-        return value * factorial(value - 1);
+    public static BigInteger factorial(int value) {
+        BigInteger n = BigInteger.ONE;
+        for (int i = 2; i <= value; i++) {
+            n = n.multiply(BigInteger.valueOf(i));
+        }
+        return n;
     }
 
     public static double combin(int num, int cho) {
-        return factorial(num) / (factorial(cho) * factorial(num - cho));
+        return factorial(num).divide(
+                factorial(cho).multiply(factorial(num - cho))).doubleValue();
+    }
+
+    public static double permut(int num, int cho) {
+        return factorial(num).divide(factorial(num - cho)).doubleValue();
     }
 
     public static double binomDist(int x, int n, double p, boolean cumulative) {
@@ -71,5 +80,33 @@ public class Statistics
 
     public static double chiInv(double p, int df) {
         return 0;
+    }
+
+    public static double normDensity(double z) {
+        return (1 / Math.sqrt(2 * Math.PI)) * Math.pow(Math.E, -z * z / 2);
+    }
+
+    public static double normsDist(double z) {
+        return N(z);
+    }
+
+    static double N(double x) {
+        double b1 = 0.319381530;
+        double b2 = -0.356563782;
+        double b3 = 1.781477937;
+        double b4 = -1.821255978;
+        double b5 = 1.330274429;
+        double p = 0.2316419;
+        double c = 0.39894228;
+
+        if (x >= 0.0) {
+            double t = 1.0 / (1.0 + p * x);
+            return (1.0 - c * Math.exp(-x * x / 2.0) * t *
+                    (t * (t * (t * (t * b5 + b4) + b3) + b2) + b1));
+        } else {
+            double t = 1.0 / (1.0 - p * x);
+            return (c * Math.exp(-x * x / 2.0) * t * (t *
+                    (t * (t * (t * b5 + b4) + b3) + b2) + b1));
+        }
     }
 }

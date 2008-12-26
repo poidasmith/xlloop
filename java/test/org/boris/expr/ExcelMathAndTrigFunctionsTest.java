@@ -186,11 +186,13 @@ public class ExcelMathAndTrigFunctionsTest extends TH
 
     public void testFACT() throws Exception {
         FACT f = new FACT();
+        assertEquals(eval(f, 0), 1.);
+        assertEquals(eval(f, 1), 1.);
+        assertEquals(eval(f, 2), 2.);
+        assertEquals(eval(f, 3), 6.);
         assertEquals(eval(f, 5), 120.);
         assertEquals(eval(f, 1.9), 1.);
-        assertEquals(eval(f, 0), 1.);
         assertEquals(eval(f, -1), ExprError.NUM);
-        assertEquals(eval(f, 1), 1.);
     }
 
     public void testFLOOR() throws Exception {
