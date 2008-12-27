@@ -20,16 +20,20 @@ public class AbstractVarianceFunction extends ForEachFunction
         setIterations(2);
     }
 
+    protected void iteration(Counter c) {
+        switch (c.iteration) {
+        case 2:
+            c.value /= c.count;
+            break;
+        }
+    }
+
     protected void value(Counter counter, double value) {
         switch (counter.iteration) {
         case 1:
             average(counter, value);
             break;
         case 2:
-            if (!counter.flag) {
-                counter.value /= counter.count;
-                counter.flag = true;
-            }
             var(counter, value);
             break;
         }

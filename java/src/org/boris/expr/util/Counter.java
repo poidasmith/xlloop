@@ -16,6 +16,7 @@ public class Counter
     public int count;
     public double value;
     public double value2;
+    public double value3;
     public boolean doit = true;
     public Expr result;
     public int iteration;

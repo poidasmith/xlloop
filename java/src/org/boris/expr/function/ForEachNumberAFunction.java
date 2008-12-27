@@ -20,6 +20,9 @@ public abstract class ForEachNumberAFunction extends ForEachFunction
     protected void initialize(Counter counter) throws ExprException {
     }
 
+    protected void iteration(Counter counter) {
+    }
+
     protected final void value(Counter counter, Expr value)
             throws ExprException {
         if (value instanceof ExprNumber) {

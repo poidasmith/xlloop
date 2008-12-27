@@ -73,8 +73,6 @@ import org.boris.expr.function.excel.SKEW;
 import org.boris.expr.function.excel.SLOPE;
 import org.boris.expr.function.excel.SMALL;
 import org.boris.expr.function.excel.STANDARDIZE;
-import org.boris.expr.function.excel.STDEVA;
-import org.boris.expr.function.excel.STDEVPA;
 import org.boris.expr.function.excel.STEYX;
 import org.boris.expr.function.excel.TDIST;
 import org.boris.expr.function.excel.TINV;
@@ -434,8 +432,9 @@ public class ExcelStatisticalFunctionsTest extends TH
     }
 
     public void testSTDEVA() throws Exception {
-        STDEVA s = new STDEVA();
-        fail("STDEVA not implemented");
+        assertResult(
+                "stdeva({1345,1301,1368,1322,1310,1370,1318,1350,1303,1299})",
+                27.4639157198405);
     }
 
     public void testSTDEVP() throws Exception {
@@ -445,8 +444,9 @@ public class ExcelStatisticalFunctionsTest extends TH
     }
 
     public void testSTDEVPA() throws Exception {
-        STDEVPA s = new STDEVPA();
-        fail("STDEVPA not implemented");
+        assertResult(
+                "stdevpa({1345,1301,1368,1322,1310,1370,1318,1350,1303,1299})",
+                26.0545581424796);
     }
 
     public void testSTEYX() throws Exception {

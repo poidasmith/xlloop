@@ -21,6 +21,9 @@ public abstract class ForEachNumberFunction extends ForEachFunction
     protected void initialize(Counter counter) throws ExprException {
     }
 
+    protected void iteration(Counter counter) {
+    }
+
     protected final void value(Counter counter, Expr value)
             throws ExprException {
         if (value instanceof ExprInteger || value instanceof ExprDouble) {

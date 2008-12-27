@@ -29,6 +29,7 @@ public abstract class ForEachFunction extends AbstractFunction
         initialize(c);
         ol: for (int i = 0; i < iterations; i++) {
             c.iteration = i + 1;
+            iteration(c);
             for (Expr e : args) {
                 evalItem(e, c);
                 if (!c.doit)
@@ -57,6 +58,8 @@ public abstract class ForEachFunction extends AbstractFunction
     }
 
     protected abstract void initialize(Counter counter) throws ExprException;
+
+    protected abstract void iteration(Counter counter);
 
     protected abstract void value(Counter counter, Expr value)
             throws ExprException;
