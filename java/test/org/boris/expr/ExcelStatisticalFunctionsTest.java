@@ -275,7 +275,8 @@ public class ExcelStatisticalFunctionsTest extends TH
 
     public void testKURT() throws Exception {
         KURT k = new KURT();
-        fail("KURT not implemented");
+        assertEquals(eval(k, 11, 2, 33, 44, 44), -2.47630587213087);
+        assertEquals(eval(k, 3, 4, 5, 2, 3, 4, 5, 6, 4, 7), -0.151799637208416);
     }
 
     public void testLARGE() throws Exception {

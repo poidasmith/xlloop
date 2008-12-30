@@ -34,7 +34,10 @@ public class ExcelDateAndTimeFunctionsTest extends TH
 
     public void testDATE() throws Exception {
         DATE d = new DATE();
-        fail("DATE not implemented");
+        assertEquals(eval(d, 3, 5, 6), 1222.);
+        assertEquals(eval(d, 3444, 65, 78), 565960.);
+        assertEquals(eval(d, -12, -12, -12), ExprError.NUM);
+        assertEquals(eval(d, 10000, 1, 1), ExprError.NUM);
     }
 
     public void testDATEVALUE() throws Exception {

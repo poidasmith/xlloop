@@ -24,16 +24,10 @@ public class DATE extends AbstractFunction
         if (!isNumber(eD))
             return ExprError.VALUE;
         double d = ((ExprNumber) eD).doubleValue();
-        return date(y, m, d);
-    }
-
-    public static Expr date(double y, double m, double d) {
-        y %= 24;
-
-        double t = (y + m + d) / ExcelDate.MS_IN_DAY;
-        if (t < 0 || t >= 1)
+        double r = ExcelDate.date(y, m, d);
+        if (r < 0)
             return ExprError.NUM;
-        return new ExprDouble(t);
+        return new ExprDouble(r);
     }
 
 }

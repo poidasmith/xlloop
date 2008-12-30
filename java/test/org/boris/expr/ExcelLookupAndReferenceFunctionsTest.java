@@ -23,31 +23,31 @@ public class ExcelLookupAndReferenceFunctionsTest extends TH
 {
     public void testADDRESS() throws Exception {
         ADDRESS a = new ADDRESS();
-        assertEquals(TH.eval(a, 1, 1, 2, 0, "Sheet "), "\'Sheet \'!R1C[1]");
-        assertEquals(TH.eval(a, 2, 3), "$C$2");
-        assertEquals(TH.eval(a, 2, 3, 2), "C$2");
-        assertEquals(TH.eval(a, 2, 3, 2, false), "R2C[3]");
-        assertEquals(TH.eval(a, 2, 3, 1, false, "EXCEL SHEET"),
+        assertEquals(eval(a, 1, 1, 2, 0, "Sheet "), "\'Sheet \'!R1C[1]");
+        assertEquals(eval(a, 2, 3), "$C$2");
+        assertEquals(eval(a, 2, 3, 2), "C$2");
+        assertEquals(eval(a, 2, 3, 2, false), "R2C[3]");
+        assertEquals(eval(a, 2, 3, 1, false, "EXCEL SHEET"),
                 "\'EXCEL SHEET\'!R2C3");
     }
 
     public void testAREAS() throws Exception {
-        TH.assertResult("AREAS(B4:C7)", 1.);
-        TH.assertResult("AREAS(B2:D4)", 1.);
-        TH.assertResult("AREAS((B2:D4,E5,F6:I9))", 3.);
-        TH.assertResult("AREAS(B2:D4 B2)", 1.);
+        assertResult("AREAS(B4:C7)", 1.);
+        assertResult("AREAS(B2:D4)", 1.);
+        assertResult("AREAS((B2:D4,E5,F6:I9))", 3.);
+        assertResult("AREAS(B2:D4 B2)", 1.);
     }
 
     public void testCHOOSE() throws Exception {
         CHOOSE c = new CHOOSE();
-        assertEquals(TH.eval(c, 1, 3, 4), 3);
-        assertEquals(TH.eval(c, 2, 3, "hello"), "hello");
-        assertEquals(TH.eval(c, true, 35), 35);
-        TH.assertException(c, 1.2);
-        TH.assertException(c, 1);
-        TH.assertException(c, "asdf");
-        TH.assertException(c, 0, 23, 34);
-        TH.assertException(c);
+        assertEquals(eval(c, 1, 3, 4), 3);
+        assertEquals(eval(c, 2, 3, "hello"), "hello");
+        assertEquals(eval(c, true, 35), 35);
+        assertException(c, 1.2);
+        assertException(c, 1);
+        assertException(c, "asdf");
+        assertException(c, 0, 23, 34);
+        assertException(c);
     }
 
     public void testCOLUMN() throws Exception {

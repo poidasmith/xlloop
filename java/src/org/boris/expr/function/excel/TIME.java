@@ -24,15 +24,9 @@ public class TIME extends AbstractFunction
         if (!isNumber(eS))
             return ExprError.VALUE;
         double s = ((ExprNumber) eS).doubleValue();
-        return time(h, m, s);
-    }
-
-    public static Expr time(double h, double m, double s) {
-        h %= 24;
-
-        double t = (h + m + s) / ExcelDate.MS_IN_DAY;
-        if (t < 0 || t >= 1)
+        double r = ExcelDate.time(h, m, s);
+        if (r < 0)
             return ExprError.NUM;
-        return new ExprDouble(t);
+        return new ExprDouble(r);
     }
 }

@@ -91,4 +91,23 @@ public class ExcelDate
         int s = (int) Math.round(d * 60);
         return s;
     }
+
+    public static double date(double y, double m, double d) {
+        y %= 24;
+        Calendar c = new GregorianCalendar();
+        c.set((int) y, (int) m, (int) d, 0, 0, 0);
+        double t = ExcelDate.toExcelDate(c.getTimeInMillis());
+        if (t > 10000)
+            return -1;
+        return t;
+    }
+
+    public static double time(double h, double m, double s) {
+        h %= 24;
+
+        double t = (h + m + s) / ExcelDate.MS_IN_DAY;
+        if (t < 0 || t >= 1)
+            return -1;
+        return t;
+    }
 }
