@@ -22,8 +22,8 @@ import org.boris.xlloop.FunctionHandler;
 import org.boris.xlloop.RequestException;
 import org.boris.xlloop.handler.FunctionInformation;
 import org.boris.xlloop.handler.FunctionProvider;
+import org.boris.xlloop.util.XLList;
 import org.boris.xlloop.util.XLoperObjectConverter;
-import org.boris.xlloop.xloper.XLList;
 import org.boris.xlloop.xloper.XLoper;
 
 public class ReflectFunctionHandler implements FunctionHandler,

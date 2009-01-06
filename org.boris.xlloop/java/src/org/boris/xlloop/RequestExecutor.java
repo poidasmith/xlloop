@@ -14,8 +14,8 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 import org.boris.xlloop.codec.BinaryRequestProtocol;
+import org.boris.xlloop.util.XLList;
 import org.boris.xlloop.xloper.XLInt;
-import org.boris.xlloop.xloper.XLList;
 import org.boris.xlloop.xloper.XLString;
 import org.boris.xlloop.xloper.XLoper;
 

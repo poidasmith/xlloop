@@ -11,7 +11,7 @@ package org.boris.xlloop.handler;
 
 import org.boris.xlloop.FunctionHandler;
 import org.boris.xlloop.RequestException;
-import org.boris.xlloop.xloper.XLList;
+import org.boris.xlloop.util.XLList;
 import org.boris.xlloop.xloper.XLoper;
 
 public class DebugFunctionHandler implements FunctionHandler

@@ -14,8 +14,8 @@ import java.io.Reader;
 
 import org.boris.xlloop.Function;
 import org.boris.xlloop.RequestException;
+import org.boris.xlloop.util.XLList;
 import org.boris.xlloop.util.XLoperObjectConverter;
-import org.boris.xlloop.xloper.XLList;
 import org.boris.xlloop.xloper.XLoper;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Script;

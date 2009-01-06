@@ -12,9 +12,9 @@ package org.boris.xlloop.script;
 import org.apache.bsf.BSFManager;
 import org.boris.xlloop.Function;
 import org.boris.xlloop.RequestException;
+import org.boris.xlloop.util.XLList;
 import org.boris.xlloop.util.XLoperObjectConverter;
 import org.boris.xlloop.xloper.XLArray;
-import org.boris.xlloop.xloper.XLList;
 import org.boris.xlloop.xloper.XLoper;
 
 public class BSFScript implements Function

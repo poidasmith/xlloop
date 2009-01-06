@@ -7,11 +7,17 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.xlloop.xloper;
+package org.boris.xlloop.util;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.boris.xlloop.xloper.XLArray;
+import org.boris.xlloop.xloper.XLInt;
+import org.boris.xlloop.xloper.XLNum;
+import org.boris.xlloop.xloper.XLString;
+import org.boris.xlloop.xloper.XLoper;
 
 public class XLMap
 {

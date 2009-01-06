@@ -27,8 +27,8 @@ import org.boris.xlloop.handler.FunctionInformation;
 import org.boris.xlloop.handler.FunctionProvider;
 import org.boris.xlloop.util.FileSystemWatcher;
 import org.boris.xlloop.util.IO;
+import org.boris.xlloop.util.XLList;
 import org.boris.xlloop.util.FileSystemWatcher.Callback;
-import org.boris.xlloop.xloper.XLList;
 import org.boris.xlloop.xloper.XLoper;
 
 public class ScriptRepository implements Callback, FunctionHandler,

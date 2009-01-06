@@ -7,7 +7,6 @@ import junit.framework.TestCase;
 
 import org.boris.xlloop.RequestException;
 import org.boris.xlloop.RequestExecutor;
-import org.boris.xlloop.xloper.XLList;
 import org.boris.xlloop.xloper.XLoper;
 
 public abstract class XLLoopTestCase extends TestCase

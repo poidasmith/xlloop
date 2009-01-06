@@ -2,7 +2,7 @@ package org.boris.xlloop;
 
 import java.net.InetAddress;
 
-import org.boris.xlloop.xloper.XLList;
+import org.boris.xlloop.util.XLList;
 import org.boris.xlloop.xloper.XLoper;
 
 public class Client1

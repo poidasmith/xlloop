@@ -12,7 +12,7 @@ package org.boris.xlloop;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.boris.xlloop.xloper.XLList;
+import org.boris.xlloop.util.XLList;
 import org.boris.xlloop.xloper.XLoper;
 
 public class FunctionMap implements FunctionHandler

@@ -13,8 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.boris.xlloop.util.CSV;
-import org.boris.xlloop.xloper.XLList;
-import org.boris.xlloop.xloper.XLMap;
+import org.boris.xlloop.util.XLList;
+import org.boris.xlloop.util.XLMap;
 import org.boris.xlloop.xloper.XLoper;
 
 public class FunctionInformation

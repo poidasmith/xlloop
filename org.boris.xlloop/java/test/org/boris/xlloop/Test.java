@@ -1,6 +1,6 @@
 package org.boris.xlloop;
 
-import org.boris.xlloop.xloper.XLMap;
+import org.boris.xlloop.util.XLMap;
 import org.boris.xlloop.xloper.XLoper;
 
 public class Test

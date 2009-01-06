@@ -3,7 +3,7 @@ package org.boris.xlloop;
 import java.io.File;
 
 import org.boris.xlloop.script.ScriptRepository;
-import org.boris.xlloop.xloper.XLList;
+import org.boris.xlloop.util.XLList;
 import org.boris.xlloop.xloper.XLoper;
 
 public class ScriptRepTest1

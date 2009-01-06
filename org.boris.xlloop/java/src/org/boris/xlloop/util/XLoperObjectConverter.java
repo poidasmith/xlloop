@@ -12,7 +12,6 @@ package org.boris.xlloop.util;
 import org.boris.xlloop.xloper.XLArray;
 import org.boris.xlloop.xloper.XLBool;
 import org.boris.xlloop.xloper.XLInt;
-import org.boris.xlloop.xloper.XLList;
 import org.boris.xlloop.xloper.XLNil;
 import org.boris.xlloop.xloper.XLNum;
 import org.boris.xlloop.xloper.XLString;

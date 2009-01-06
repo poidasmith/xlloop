@@ -15,7 +15,7 @@ import java.util.List;
 
 import org.boris.xlloop.FunctionHandler;
 import org.boris.xlloop.RequestException;
-import org.boris.xlloop.xloper.XLList;
+import org.boris.xlloop.util.XLList;
 import org.boris.xlloop.xloper.XLoper;
 
 public class CompositeFunctionHandler implements FunctionHandler

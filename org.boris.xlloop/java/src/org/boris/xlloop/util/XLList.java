@@ -7,11 +7,18 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.xlloop.xloper;
+package org.boris.xlloop.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import org.boris.xlloop.xloper.XLArray;
+import org.boris.xlloop.xloper.XLInt;
+import org.boris.xlloop.xloper.XLNil;
+import org.boris.xlloop.xloper.XLNum;
+import org.boris.xlloop.xloper.XLString;
+import org.boris.xlloop.xloper.XLoper;
 
 public class XLList
 {
