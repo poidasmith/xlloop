@@ -7,18 +7,11 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.expr;
+package org.boris.expr.util;
 
-
-public class ExprMissing extends Expr
+public class ValueFormatter
 {
-    public static final ExprMissing MISSING = new ExprMissing();
-
-    public ExprMissing() {
-        super(ExprType.Missing, false);
-    }
-
-    public String toString() {
-        return "";
+    public static String format(double value, String format) {
+        return null;
     }
 }

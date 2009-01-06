@@ -33,7 +33,7 @@ public class AllTests
         suite.addTestSuite(ExcelTextFunctionsTest.class);
         suite.addTestSuite(ExcelDatabaseFunctionsTest.class);
         suite.addTestSuite(RangeTest.class);
-        suite.addTestSuite(EngineTest.class);
+        suite.addTestSuite(DependencyEngineTest.class);
         suite.addTestSuite(ExcelFinancialFunctionsTest.class);
         suite.addTestSuite(ExcelLogicalFunctionsTest.class);
         //$JUnit-END$

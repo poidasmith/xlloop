@@ -9,8 +9,6 @@
  *******************************************************************************/
 package org.boris.expr;
 
-import org.boris.variant.VTMap;
-import org.boris.variant.Variant;
 
 public class ExprError extends Expr
 {
@@ -43,13 +41,5 @@ public class ExprError extends Expr
 
     public String toString() {
         return "#" + message;
-    }
-
-    public Variant encode() {
-        VTMap m = new VTMap();
-        m.add("type", type.toString());
-        m.add("errType", errType);
-        m.add("message", message);
-        return m;
     }
 }

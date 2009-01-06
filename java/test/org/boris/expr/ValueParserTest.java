@@ -9,16 +9,11 @@
  *******************************************************************************/
 package org.boris.expr;
 
+import org.boris.expr.util.ValueParser;
 
-public class ExprMissing extends Expr
+public class ValueParserTest extends TH
 {
-    public static final ExprMissing MISSING = new ExprMissing();
-
-    public ExprMissing() {
-        super(ExprType.Missing, false);
-    }
-
-    public String toString() {
-        return "";
+    public void testDates() throws Exception {
+        assertEquals(ValueParser.parseDate("3/4/5"), 38415.);
     }
 }

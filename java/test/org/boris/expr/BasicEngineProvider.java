@@ -29,11 +29,11 @@ public class BasicEngineProvider implements EngineProvider
     private int rows = 100;
 
     public void inputChanged(Range range, Expr input) {
-        System.out.println("Input changed: " + range + "=\n" + input.encode());
+        System.out.println("Input changed: " + range + "=\n" + input);
     }
 
     public void valueChanged(Range range, Expr value) {
-        System.out.println("Value changed: " + range + "=\n" + value.encode());
+        System.out.println("Value changed: " + range + "=\n" + value);
     }
 
     public void validate(ExprVariable variable) throws ExprException {

@@ -56,7 +56,7 @@ public class BasicEvaluationCallback implements IEvaluationCallback,
         if (ann instanceof Range) {
             return grid.get((Range) ann);
         }
-        Expr e = variables.get(variable.getName().toUpperCase());
+        Expr e = variables.get(name);
         if (e == null)
             return ExprError.NAME;
         return e;

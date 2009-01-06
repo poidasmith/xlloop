@@ -60,7 +60,7 @@ public class RangeTest extends TestCase
         Object o = gf;
         if (gf != null) {
             System.out.println(gf);
-            o = gf.encode();
+            o = gf;
         }
         System.out.println(o);
     }

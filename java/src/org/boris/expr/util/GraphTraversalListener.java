@@ -7,18 +7,9 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.expr;
+package org.boris.expr.util;
 
-
-public class ExprMissing extends Expr
+public interface GraphTraversalListener
 {
-    public static final ExprMissing MISSING = new ExprMissing();
-
-    public ExprMissing() {
-        super(ExprType.Missing, false);
-    }
-
-    public String toString() {
-        return "";
-    }
+    void traverse(Object node);
 }

@@ -9,8 +9,6 @@
  *******************************************************************************/
 package org.boris.expr.engine;
 
-import org.boris.variant.VTMap;
-import org.boris.variant.Variant;
 
 public class GridReference
 {
@@ -178,14 +176,5 @@ public class GridReference
             sb.append('$');
         sb.append(row);
         return sb.toString();
-    }
-
-    public Variant encode() {
-        VTMap m = new VTMap();
-        m.add("column", column);
-        m.add("row", row);
-        m.add("columnFixed", columnFixed);
-        m.add("rowFixed", rowFixed);
-        return m;
     }
 }

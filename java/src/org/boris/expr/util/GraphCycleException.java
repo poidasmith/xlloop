@@ -7,18 +7,22 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.expr;
+package org.boris.expr.util;
 
-
-public class ExprMissing extends Expr
+public class GraphCycleException extends Exception
 {
-    public static final ExprMissing MISSING = new ExprMissing();
-
-    public ExprMissing() {
-        super(ExprType.Missing, false);
+    public GraphCycleException() {
     }
 
-    public String toString() {
-        return "";
+    public GraphCycleException(String message) {
+        super(message);
+    }
+
+    public GraphCycleException(Throwable cause) {
+        super(cause);
+    }
+
+    public GraphCycleException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

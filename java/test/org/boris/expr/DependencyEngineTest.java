@@ -11,13 +11,13 @@ package org.boris.expr;
 
 import junit.framework.TestCase;
 
-import org.boris.expr.engine.Engine;
+import org.boris.expr.engine.DependencyEngine;
 import org.boris.expr.engine.Range;
 
-public class EngineTest extends TestCase
+public class DependencyEngineTest extends TestCase
 {
     public void testBasic() throws Exception {
-        Engine e = new Engine(new BasicEngineProvider());
+        DependencyEngine e = new DependencyEngine(new BasicEngineProvider());
         e.set("B1", "=A1*2");
         e.set("A1", "=12*2");
         e.set("C1", "=B1*A1");
@@ -29,7 +29,7 @@ public class EngineTest extends TestCase
     }
 
     public void testRangeDependencies() throws Exception {
-        Engine e = new Engine(new BasicEngineProvider());
+        DependencyEngine e = new DependencyEngine(new BasicEngineProvider());
         e.set("A1", "1");
         e.set("B1", "2");
         e.set("A2", "3");
@@ -41,7 +41,7 @@ public class EngineTest extends TestCase
     }
 
     public void testFunction() throws Exception {
-        Engine e = new Engine(new BasicEngineProvider());
+        DependencyEngine e = new DependencyEngine(new BasicEngineProvider());
         e.set("A4", "25");
         e.set("B6", "26");
         e.set("A1", "=sum(45,34,2.3,A4:B8)");
@@ -49,14 +49,14 @@ public class EngineTest extends TestCase
     }
 
     public void testArrays() throws Exception {
-        Engine e = new Engine(new BasicEngineProvider());
+        DependencyEngine e = new DependencyEngine(new BasicEngineProvider());
         e.set("A1:B2", "32");
         assertResult(e, "A2", 32);
         e.set("D5:E6", "=TestRange(A1)");
     }
 
     public void testAliases() throws Exception {
-        Engine e = new Engine(new BasicEngineProvider());
+        DependencyEngine e = new DependencyEngine(new BasicEngineProvider());
         e.setNamespace("Sheet1");
         e.addAlias("x", Range.valueOf("A1:B3"));
         e.addAlias("alias1", Range.valueOf("A1"));
@@ -68,22 +68,22 @@ public class EngineTest extends TestCase
     }
 
     public void testInvalidReference() throws Exception {
-        Engine e = new Engine(new BasicEngineProvider());
+        DependencyEngine e = new DependencyEngine(new BasicEngineProvider());
         assertException(e, "B1:A1", "12");
     }
 
     public void testCircular() throws Exception {
-        Engine e = new Engine(new BasicEngineProvider());
+        DependencyEngine e = new DependencyEngine(new BasicEngineProvider());
         assertException(e, "A1", "=A1");
         assertException(e, "A1", "=A1:B2");
     }
 
     public void testManualCalculate() throws Exception {
-        Engine e = new Engine(new BasicEngineProvider());
+        DependencyEngine e = new DependencyEngine(new BasicEngineProvider());
         e.setAutoCalculate(false);
     }
 
-    private void assertException(Engine e, String range, String expression)
+    private void assertException(DependencyEngine e, String range, String expression)
             throws Exception {
         try {
             e.set(range, expression);
@@ -92,7 +92,7 @@ public class EngineTest extends TestCase
         }
     }
 
-    private void assertResult(Engine e, String range, double value)
+    private void assertResult(DependencyEngine e, String range, double value)
             throws Exception {
         Expr expr = e.getValue(Range.valueOf(range));
         if (expr instanceof ExprNumber) {

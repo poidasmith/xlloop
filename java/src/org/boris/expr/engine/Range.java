@@ -11,7 +11,7 @@ package org.boris.expr.engine;
 
 import org.boris.expr.ExprArray;
 import org.boris.expr.ExprException;
-import org.boris.variant.util.Reflect;
+import org.boris.expr.util.Reflect;
 
 public class Range
 {

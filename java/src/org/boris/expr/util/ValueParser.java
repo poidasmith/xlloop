@@ -7,18 +7,19 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.expr;
+package org.boris.expr.util;
 
-
-public class ExprMissing extends Expr
+public class ValueParser
 {
-    public static final ExprMissing MISSING = new ExprMissing();
-
-    public ExprMissing() {
-        super(ExprType.Missing, false);
+    public static Double parse(String text) {
+        return null;
     }
 
-    public String toString() {
-        return "";
+    public static Double parseDate(String text) {
+        return null;
+    }
+
+    public static Double parseNumber(String text) {
+        return null;
     }
 }

@@ -152,7 +152,8 @@ public class ExcelTextFunctionsTest extends TH
 
     public void testSEARCH() throws Exception {
         SEARCH s = new SEARCH();
-        fail("SEARCH not implemented");
+        assertEquals(eval(s, "e", "Statements", 6), 7);
+        assertEquals(eval(s, "margin", "Profit Margin"), 8);
     }
 
     public void testSUBSTITUE() throws Exception {
@@ -174,7 +175,8 @@ public class ExcelTextFunctionsTest extends TH
 
     public void testTEXT() throws Exception {
         TEXT t = new TEXT();
-        fail("TEXT not implemented");
+        assertEquals(eval(t, 0.4, "0%"), "40%");
+        assertEquals(eval(t, 2800, "$0.00"), "$2800.00");
     }
 
     public void testTRIM() throws Exception {

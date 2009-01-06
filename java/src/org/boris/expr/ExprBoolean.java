@@ -9,8 +9,6 @@
  *******************************************************************************/
 package org.boris.expr;
 
-import org.boris.variant.VTMap;
-import org.boris.variant.Variant;
 
 public class ExprBoolean extends ExprNumber
 {
@@ -46,12 +44,5 @@ public class ExprBoolean extends ExprNumber
 
     public String toString() {
         return Boolean.toString(value).toUpperCase();
-    }
-
-    public Variant encode() {
-        VTMap m = new VTMap();
-        m.add("type", type.toString());
-        m.add("value", value);
-        return m;
     }
 }

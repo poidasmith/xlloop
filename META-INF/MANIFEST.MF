@@ -8,4 +8,3 @@ Export-Package: org.boris.expr,
  org.boris.expr.function,
  org.boris.expr.function.excel,
  org.boris.expr.parser
-Require-Bundle: org.boris.variantcodec;bundle-version="1.0.0"

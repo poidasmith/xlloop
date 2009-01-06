@@ -27,7 +27,7 @@ import org.boris.expr.function.excel.TODAY;
 import org.boris.expr.function.excel.WEEKDAY;
 import org.boris.expr.function.excel.YEAR;
 import org.boris.expr.util.ExcelDate;
-import org.boris.variant.util.IO;
+import org.boris.expr.util.IO;
 
 public class ExcelDateAndTimeFunctionsTest extends TH
 {

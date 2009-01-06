@@ -9,9 +9,7 @@
  *******************************************************************************/
 package org.boris.expr;
 
-import org.boris.variant.VTMap;
-import org.boris.variant.Variant;
-import org.boris.variant.util.Reflect;
+import org.boris.expr.util.Reflect;
 
 public abstract class AbstractBinaryOperator extends ExprEvaluatable implements
         IBinaryOperator
@@ -48,16 +46,6 @@ public abstract class AbstractBinaryOperator extends ExprEvaluatable implements
         if (rhs == null)
             throw new ExprException("RHS of operator missing");
         rhs.validate();
-    }
-
-    public Variant encode() {
-        VTMap m = new VTMap();
-        m.add("type", type.toString());
-        if (lhs != null)
-            m.add("lhs", lhs.encode());
-        if (rhs != null)
-            m.add("rhs", rhs.encode());
-        return m;
     }
 
     public int hashCode() {

@@ -9,8 +9,6 @@
  *******************************************************************************/
 package org.boris.expr;
 
-import org.boris.variant.VTMap;
-import org.boris.variant.Variant;
 
 public class ExprDouble extends ExprNumber
 {
@@ -44,12 +42,5 @@ public class ExprDouble extends ExprNumber
     public boolean equals(Object obj) {
         return obj instanceof ExprDouble &&
                 Math.abs(value - ((ExprDouble) obj).value) < 1.0e-10;
-    }
-
-    public Variant encode() {
-        VTMap m = new VTMap();
-        m.add("type", type.toString());
-        m.add("value", value);
-        return m;
     }
 }

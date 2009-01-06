@@ -11,10 +11,6 @@ package org.boris.expr;
 
 import java.util.Arrays;
 
-import org.boris.variant.VTCollection;
-import org.boris.variant.VTMap;
-import org.boris.variant.Variant;
-
 public class ExprArray extends Expr
 {
     private int columns;
@@ -71,18 +67,5 @@ public class ExprArray extends Expr
         ExprArray a = (ExprArray) obj;
         return a.rows == rows && a.columns == columns &&
                 Arrays.equals(a.array, array);
-    }
-
-    public Variant encode() {
-        VTMap m = new VTMap();
-        m.add("type", type.toString());
-        m.add("rows", rows);
-        m.add("columns", columns);
-        VTCollection values = new VTCollection();
-        for (int i = 0; i < array.length; i++) {
-            values.add(array[i].encode());
-        }
-        m.add("values", values);
-        return m;
     }
 }

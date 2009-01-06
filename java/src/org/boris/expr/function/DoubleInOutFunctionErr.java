@@ -20,6 +20,8 @@ public abstract class DoubleInOutFunctionErr extends AbstractFunction
     public Expr evaluate(Expr[] args) throws ExprException {
         assertArgCount(args, 1);
         Expr a = evalArg(args[0]);
+        if (a instanceof ExprError)
+            return a;
         if (!isNumber(a))
             return ExprError.VALUE;
         return new ExprDouble(evaluate(((ExprNumber) a).doubleValue()));

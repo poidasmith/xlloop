@@ -9,8 +9,6 @@
  *******************************************************************************/
 package org.boris.expr;
 
-import org.boris.variant.VTMap;
-import org.boris.variant.Variant;
 
 public class ExprExpression extends ExprEvaluatable
 {
@@ -34,13 +32,6 @@ public class ExprExpression extends ExprEvaluatable
 
     public String toString() {
         return "(" + child + ")";
-    }
-
-    public Variant encode() {
-        VTMap m = new VTMap();
-        m.add("type", type.toString());
-        m.add("child", child.encode());
-        return m;
     }
 
     public void validate() throws ExprException {

@@ -12,7 +12,7 @@ package org.boris.expr.engine;
 import org.boris.expr.Expr;
 import org.boris.expr.ExprArray;
 import org.boris.expr.ExprError;
-import org.boris.variant.util.LongMap;
+import org.boris.expr.util.LongMap;
 
 public class GridMap
 {

@@ -15,10 +15,10 @@ import junit.framework.TestCase;
 
 import org.boris.expr.engine.Range;
 import org.boris.expr.function.DoubleInOutFunction;
+import org.boris.expr.util.CSV;
 import org.boris.expr.util.ExprArrayBuilder;
 import org.boris.expr.util.Exprs;
-import org.boris.variant.util.CSV;
-import org.boris.variant.util.IO;
+import org.boris.expr.util.IO;
 
 public class TH extends TestCase
 {

@@ -65,7 +65,7 @@ public class ExprTest extends TH
 
     private void testParse(String expr) throws Exception {
         Expr e = ExprParser.parse(expr, null);
-        System.out.println(e.encode());
+        System.out.println(e);
     }
 
     private BasicEvaluationCallback c() {

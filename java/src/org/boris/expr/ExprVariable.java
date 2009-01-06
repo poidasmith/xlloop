@@ -12,9 +12,6 @@ package org.boris.expr;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.boris.variant.VTMap;
-import org.boris.variant.Variant;
-
 public class ExprVariable extends ExprEvaluatable
 {
     private IEvaluationCallback callback;
@@ -61,13 +58,6 @@ public class ExprVariable extends ExprEvaluatable
 
     public String toString() {
         return name;
-    }
-
-    public Variant encode() {
-        VTMap m = new VTMap();
-        m.add("type", type.toString());
-        m.add("name", name);
-        return m;
     }
 
     public int hashCode() {

@@ -9,7 +9,6 @@
  *******************************************************************************/
 package org.boris.expr;
 
-import org.boris.variant.Variant;
 
 public abstract class Expr
 {
@@ -31,8 +30,6 @@ public abstract class Expr
     public Expr optimize() throws ExprException {
         return this;
     }
-
-    public abstract Variant encode();
 
     protected Expr eval(Expr expr) throws ExprException {
         if (expr instanceof ExprEvaluatable) {
