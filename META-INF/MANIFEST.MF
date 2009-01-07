@@ -7,4 +7,5 @@ Export-Package: org.boris.expr,
  org.boris.expr.engine,
  org.boris.expr.function,
  org.boris.expr.function.excel,
- org.boris.expr.parser
+ org.boris.expr.parser,
+ org.boris.expr.util

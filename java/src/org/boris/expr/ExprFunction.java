@@ -9,7 +9,6 @@
  *******************************************************************************/
 package org.boris.expr;
 
-
 public class ExprFunction extends ExprEvaluatable
 {
     private IEvaluationCallback callback;
@@ -55,6 +54,10 @@ public class ExprFunction extends ExprEvaluatable
 
     public IExprFunction getImplementation() {
         return implementation;
+    }
+
+    public IEvaluationCallback getCallback() {
+        return callback;
     }
 
     public Expr evaluate() throws ExprException {
