@@ -56,7 +56,7 @@ public class Maths
         return r;
     }
 
-    public static double log(double num, int base) {
+    public static double log(double num, double base) {
         return Math.log(num) / Math.log(base);
     }
 }

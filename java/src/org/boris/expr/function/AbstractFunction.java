@@ -120,6 +120,12 @@ public abstract class AbstractFunction implements IExprFunction
         }
     }
 
+    protected void assertArgCount(Expr[] args, int min, int max)
+            throws ExprException {
+        assertMinArgCount(args, min);
+        assertMaxArgCount(args, max);
+    }
+
     protected void assertMinArgCount(Expr[] args, int count)
             throws ExprException {
         if (args.length < count)
@@ -186,15 +192,15 @@ public abstract class AbstractFunction implements IExprFunction
         if (expr instanceof ExprEvaluatable) {
             expr = ((ExprEvaluatable) expr).evaluate();
         }
-    
+
         if (expr instanceof ExprArray) {
             return (ExprArray) expr;
         }
-    
+
         if (strict)
             throw new ExprException("Argument not an array for function: " +
                     getClass().getSimpleName());
-    
+
         ExprArray ea = new ExprArray(1, 1);
         ea.set(0, expr);
         return ea;

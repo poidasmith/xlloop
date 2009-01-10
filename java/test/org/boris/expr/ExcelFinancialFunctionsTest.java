@@ -116,6 +116,11 @@ public class ExcelFinancialFunctionsTest extends TH
 
     public void testVDB() throws Exception {
         VDB v = new VDB();
-        fail("VDB not implemented");
+        assertEquals(eval(v, 2400, 300, 10 * 365, 0, 1), 1.315068493150680);
+        assertEquals(eval(v, 2400, 300, 10 * 12, 0, 1), 40.);
+        assertEquals(eval(v, 2400, 300, 10, 0, 1), 480.);
+        assertEquals(eval(v, 2400, 300, 10 * 12, 6, 18), 396.306053264751);
+        assertEquals(eval(v, 2400, 300, 10 * 12, 6, 18, 1.5), 311.808936658234);
+        assertEquals(eval(v, 2400, 300, 10, 0, 0.875, 1.5), 315.);
     }
 }

@@ -41,4 +41,10 @@ public class Financials
         }
         return dep;
     }
+
+    public static double vdb(double cost, double salvage, int life,
+            double start_period, double end_period, double factor,
+            boolean no_switch) {
+        return 0;
+    }
 }
