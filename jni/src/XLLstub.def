@@ -1,0 +1,8 @@
+LIBRARY	"xlcall32"
+
+EXPORTS
+	XLCallVer @1
+	Excel4 @2
+	Excel4v @3
+	LPenHelper @4
+	SetFunctionPointers @5
