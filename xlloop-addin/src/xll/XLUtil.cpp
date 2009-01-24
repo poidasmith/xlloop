@@ -36,6 +36,18 @@ LPXLOPER XLUtil::MakeExcelString2(const char* string)
 	return xl;
 }
 
+LPXLOPER XLUtil::MakeExcelString3(char* lcstr) 
+{
+	LPXLOPER xl = new XLOPER;
+	if(lcstr == NULL) {
+		xl->xltype = xltypeMissing;
+	} else {
+		xl->xltype = xltypeStr;
+		xl->val.str = lcstr;
+	}
+	return xl;
+}
+
 // A helper function used to register a function
 int XLUtil::RegisterFunction(LPXLOPER xllName, 
 					  const char* procedure, const char* typeText, const char* functionText,
@@ -107,3 +119,42 @@ void XLUtil::CopyValue(LPXLOPER xloperSrc, LPXLOPER xloperDst)
 	xloperDst->xltype = (xloperSrc->xltype & ~(xlbitXLFree | xlbitDLLFree));
 }
 
+// Assumes a two-column array with key/value on each row
+LPXLOPER XLMap::get(LPXLOPER pmap, const char* key)
+{
+	if(key == NULL) return NULL;
+	int len = strlen(key);
+	int rows = pmap->val.array.rows;
+	if(rows == 0) return NULL;
+	int cols = pmap->val.array.columns;
+	if(cols != 2) return NULL;
+	for(int i =0; i < rows; i+= 2) {
+		LPXLOPER k = &pmap->val.array.lparray[i];
+		if((k->xltype & ~(xlbitXLFree | xlbitDLLFree)) != xltypeStr)
+			continue;
+		int l = k->val.str[0];
+		if(len != l)
+			continue;
+		if(strncmp(key, &k->val.str[1], l) == 0)
+			return &pmap->val.array.lparray[i+1];
+	}
+	return NULL;
+}
+
+char* XLMap::getString(LPXLOPER pmap, const char* key)
+{
+	LPXLOPER px = get(pmap, key);
+	if(px != NULL && (px->xltype & ~(xlbitXLFree | xlbitDLLFree)) == xltypeStr) {
+		return px->val.str;
+	}
+	return NULL;
+}
+
+bool XLMap::getBoolean(LPXLOPER pmap, const char* key)
+{
+	LPXLOPER px = get(pmap, key);
+	if(px != NULL && (px->xltype & ~(xlbitXLFree | xlbitDLLFree)) == xltypeBool) {
+		return px->val.boolean;
+	}
+	return false;
+}

@@ -18,7 +18,7 @@ public class ScriptRepTest1
         XLList a = new XLList();
         a.add(4);
         a.add(4.5);
-        XLoper res = rep.execute("Script.sum", a);
+        XLoper res = rep.execute("Script.sum", a.toArray());
         System.out.println(res);
     }
 }

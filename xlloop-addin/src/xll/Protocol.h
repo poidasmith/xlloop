@@ -13,10 +13,7 @@
 
 #include "windows.h"
 #include <string>
-#include "../common/VTCodec.h"
-
-#define REQ_TYPE_GENERIC 0
-#define REQ_TYPE_FUNCTION 1
+#include "XLCodec.h"
 
 class Protocol {
 public:
@@ -25,24 +22,21 @@ public:
 
 	int connect();
 	void disconnect();
-	int send(unsigned char type, const char* name, Variant* args);
-	Variant* receive();
-	Variant* executeGeneric(const char* name, Variant* args) {
-		send(REQ_TYPE_GENERIC, name, args);
-		return receive();
-	}
-	Variant* executeFunction(const char* name, VTCollection* args) {
-		send(REQ_TYPE_FUNCTION, name, args);
-		return receive();
-	}
-	bool hasError() { return lastType == "Error"; }
+	int send(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, 
+		LPXLOPER v4, LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, LPXLOPER v9);
+	int send(const char* name);
+	LPXLOPER receive();
 	bool isConnected() { return conn != NULL; }
-	const char* getLastType() { return lastType.c_str(); }
+	void setHost(char* hostname) {
+		this->hostname = hostname;
+	}
+	void setPort(int port) {
+		this->port = port;
+	}
 
 private:
 	std::string hostname;
 	int port;
-	std::string lastType;
 	SOCKET conn;
 };
 

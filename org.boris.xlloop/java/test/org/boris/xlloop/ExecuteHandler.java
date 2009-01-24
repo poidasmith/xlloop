@@ -1,16 +1,15 @@
 package org.boris.xlloop;
 
-import org.boris.xlloop.util.XLList;
 import org.boris.xlloop.util.XLMap;
 import org.boris.xlloop.xloper.XLoper;
 
 public class ExecuteHandler implements FunctionHandler
 {
-    public XLoper execute(String name, XLList args) throws RequestException {
+    public XLoper execute(String name, XLoper[] args) throws RequestException {
         System.out.println(name + args);
 
-        if (args.size() > 0) {
-            return args.get(0);
+        if (args.length > 0) {
+            return args[0];
         }
 
         XLMap s = new XLMap();

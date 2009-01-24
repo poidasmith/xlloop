@@ -14,7 +14,6 @@ import java.lang.reflect.Method;
 
 import org.boris.xlloop.Function;
 import org.boris.xlloop.RequestException;
-import org.boris.xlloop.util.XLList;
 import org.boris.xlloop.util.XLoperObjectConverter;
 import org.boris.xlloop.xloper.XLoper;
 
@@ -35,12 +34,12 @@ class InstanceMethod implements Function
         this.args = method.getParameterTypes();
     }
 
-    public XLoper execute(XLList args) throws RequestException {
+    public XLoper execute(XLoper[] args) throws RequestException {
         return converter
                 .createFrom(execute(converter.convert(args, this.args)));
     }
 
-    boolean matchesArgs(XLList args, int lastArg) throws RequestException {
+    boolean matchesArgs(XLoper[] args, int lastArg) throws RequestException {
         if (lastArg >= this.args.length) {
             return false;
         }

@@ -48,7 +48,7 @@
 				PreprocessorDefinitions="DEBUG_LOG,NO_JAVA"
 				IgnoreStandardIncludePath="false"
 				MinimalRebuild="true"
-				ExceptionHandling="0"
+				ExceptionHandling="1"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="0"
 				BufferSecurityCheck="false"
@@ -76,13 +76,14 @@
 				AdditionalDependencies="../lib/xlcall32.lib Ws2_32.lib"
 				OutputFile="$(OutDir)\$(ProjectName).xll"
 				LinkIncremental="2"
+				GenerateManifest="false"
 				ManifestFile="$(IntDir)\$(TargetFileName).intermediate.manifest"
 				IgnoreAllDefaultLibraries="false"
 				ModuleDefinitionFile="../src/XLLoop.def"
 				GenerateDebugInformation="true"
 				GenerateMapFile="true"
 				MapExports="true"
-				SubSystem="1"
+				SubSystem="2"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -90,6 +91,7 @@
 			/>
 			<Tool
 				Name="VCManifestTool"
+				EmbedManifest="false"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -220,11 +222,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\common\VTCodec.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\xll\XLConverter.cpp"
+				RelativePath="..\src\xll\XLCodec.cpp"
 				>
 			</File>
 			<File
@@ -262,15 +260,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\common\VTCodec.h"
-				>
-			</File>
-			<File
 				RelativePath="..\src\xll\xlcall.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\xll\XLConverter.h"
+				RelativePath="..\src\xll\XLCodec.h"
 				>
 			</File>
 			<File

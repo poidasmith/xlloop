@@ -16,4 +16,8 @@ public class XLMissing extends XLoper
     XLMissing() {
         super(xlTypeMissing);
     }
+
+    public String toString() {
+        return "";
+    }
 }

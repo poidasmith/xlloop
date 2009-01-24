@@ -22,6 +22,7 @@ class XLUtil {
 public:
 	static LPSTR MakeExcelString(const char* string);
 	static LPXLOPER MakeExcelString2(const char* string);
+	static LPXLOPER MakeExcelString3(char* lcstr);
 
 	static int RegisterFunction(LPXLOPER xllName, 
 			  const char* procedure, const char* typeText, const char* functionText,
@@ -36,6 +37,13 @@ public:
 					  const char* shortcutText);
 
 	static void CopyValue(LPXLOPER xloperSrc, LPXLOPER xloperDst);
+};
+
+class XLMap {
+public:
+	static LPXLOPER get(LPXLOPER pmap, const char* key);
+	static char* getString(LPXLOPER pmap, const char* key);
+	static bool getBoolean(LPXLOPER pmap, const char* key);
 };
 
 #endif // XLUTIL_H

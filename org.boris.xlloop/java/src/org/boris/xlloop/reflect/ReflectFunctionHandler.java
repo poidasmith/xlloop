@@ -22,7 +22,6 @@ import org.boris.xlloop.FunctionHandler;
 import org.boris.xlloop.RequestException;
 import org.boris.xlloop.handler.FunctionInformation;
 import org.boris.xlloop.handler.FunctionProvider;
-import org.boris.xlloop.util.XLList;
 import org.boris.xlloop.util.XLoperObjectConverter;
 import org.boris.xlloop.xloper.XLoper;
 
@@ -90,7 +89,7 @@ public class ReflectFunctionHandler implements FunctionHandler,
         }
     }
 
-    public XLoper execute(String name, XLList args) throws RequestException {
+    public XLoper execute(String name, XLoper[] args) throws RequestException {
         Function f = (Function) methods.get(name);
         if (f == null) {
             throw new RequestException("#Unknown method: " + name);

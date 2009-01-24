@@ -7,9 +7,10 @@ public class EchoHandler implements FunctionHandler
 {
     private int count;
 
-    public XLoper execute(String name, XLList args) throws RequestException {
-        args.add(++count);
-        return args.toXLoper();
+    public XLoper execute(String name, XLoper[] args) throws RequestException {
+        XLList l = new XLList(args);
+        l.add(++count);
+        return l.toXLoper();
     }
 
     public boolean hasFunction(String name) {

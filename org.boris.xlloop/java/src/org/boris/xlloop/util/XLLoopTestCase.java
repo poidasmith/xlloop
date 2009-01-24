@@ -42,7 +42,7 @@ public abstract class XLLoopTestCase extends TestCase
         executor = new RequestExecutor(InetAddress.getByName(host), port);
     }
 
-    protected XLoper executeFunction(String name, XLList args)
+    protected XLoper executeFunction(String name, XLoper[] args)
             throws RequestException, IOException {
         return executor.execute(name, args);
     }

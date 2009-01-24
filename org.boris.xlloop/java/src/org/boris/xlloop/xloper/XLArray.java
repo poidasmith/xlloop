@@ -33,7 +33,7 @@ public class XLArray extends XLoper
     }
 
     public void set(int row, int column, XLoper value) {
-        array[row * rows + column] = value;
+        array[row * columns + column] = value;
     }
 
     public void set(int row, int column, String value) {

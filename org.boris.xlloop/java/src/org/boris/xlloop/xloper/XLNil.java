@@ -16,4 +16,8 @@ public class XLNil extends XLoper
     private XLNil() {
         super(xlTypeNil);
     }
+
+    public String toString() {
+        return "";
+    }
 }

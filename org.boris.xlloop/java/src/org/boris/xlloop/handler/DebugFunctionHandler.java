@@ -11,7 +11,6 @@ package org.boris.xlloop.handler;
 
 import org.boris.xlloop.FunctionHandler;
 import org.boris.xlloop.RequestException;
-import org.boris.xlloop.util.XLList;
 import org.boris.xlloop.xloper.XLoper;
 
 public class DebugFunctionHandler implements FunctionHandler
@@ -22,8 +21,14 @@ public class DebugFunctionHandler implements FunctionHandler
         this.h = h;
     }
 
-    public XLoper execute(String name, XLList args) throws RequestException {
-        System.out.println(name + args);
+    public XLoper execute(String name, XLoper[] args) throws RequestException {
+        System.out.print(name + "(");
+        for (int i = 0; i < args.length; i++) {
+            if (i > 0)
+                System.out.print(",");
+            System.out.print(args[i]);
+        }
+        System.out.println(")");
         return h.execute(name, args);
     }
 

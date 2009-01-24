@@ -12,7 +12,6 @@ package org.boris.xlloop.script;
 import org.apache.bsf.BSFManager;
 import org.boris.xlloop.Function;
 import org.boris.xlloop.RequestException;
-import org.boris.xlloop.util.XLList;
 import org.boris.xlloop.util.XLoperObjectConverter;
 import org.boris.xlloop.xloper.XLArray;
 import org.boris.xlloop.xloper.XLoper;
@@ -30,10 +29,10 @@ public class BSFScript implements Function
         this.name = name;
     }
 
-    public static Class[] createArgHints(XLList args) {
-        Class[] hints = new Class[args.size()];
+    public static Class[] createArgHints(XLoper[] args) {
+        Class[] hints = new Class[args.length];
         for (int i = 0; i < hints.length; i++) {
-            XLoper v = args.get(i);
+            XLoper v = args[i];
             if (v instanceof XLArray) {
                 XLArray c = (XLArray) v;
                 if (c.columns > 1) {
@@ -48,7 +47,7 @@ public class BSFScript implements Function
         return hints;
     }
 
-    public XLoper execute(XLList args) throws RequestException {
+    public XLoper execute(XLoper[] args) throws RequestException {
         try {
             Object[] a = converter.convert(args, createArgHints(args));
             BSFManager manager = new BSFManager();

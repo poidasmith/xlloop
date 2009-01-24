@@ -14,7 +14,6 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 import org.boris.xlloop.codec.BinaryRequestProtocol;
-import org.boris.xlloop.util.XLList;
 import org.boris.xlloop.xloper.XLInt;
 import org.boris.xlloop.xloper.XLString;
 import org.boris.xlloop.xloper.XLoper;
@@ -45,13 +44,13 @@ public class RequestExecutor
         socket.close();
     }
 
-    public XLoper execute(String name, XLList args) throws RequestException,
+    public XLoper execute(String name, XLoper[] args) throws RequestException,
             IOException {
         connect();
         protocol.send(socket, new XLString(name));
-        protocol.send(socket, new XLInt(args.size()));
-        for (int i = 0; i < args.size(); i++) {
-            protocol.send(socket, args.get(i));
+        protocol.send(socket, new XLInt(args.length));
+        for (int i = 0; i < args.length; i++) {
+            protocol.send(socket, args[i]);
         }
         return receive();
     }

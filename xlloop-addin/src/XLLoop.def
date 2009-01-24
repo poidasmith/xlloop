@@ -1,4 +1,4 @@
-LIBRARY	"XLLoop"
+LIBRARY	"XLLoop.xll"
 
 EXPORTS
 	xlAutoOpen

@@ -27,6 +27,6 @@ public final class XLString extends XLoper
     }
 
     public String toString() {
-        return str;
+        return "\"" + str + "\"";
     }
 }

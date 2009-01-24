@@ -15,7 +15,7 @@ import java.util.List;
 
 import org.boris.xlloop.Function;
 import org.boris.xlloop.RequestException;
-import org.boris.xlloop.util.XLList;
+import org.boris.xlloop.xloper.XLMissing;
 import org.boris.xlloop.xloper.XLNil;
 import org.boris.xlloop.xloper.XLoper;
 
@@ -27,10 +27,10 @@ public class OverloadedMethod implements Function
         this.methods.add(m);
     }
 
-    public XLoper execute(XLList args) throws RequestException {
-        int lastArg = args.size() - 1;
+    public XLoper execute(XLoper[] args) throws RequestException {
+        int lastArg = args.length - 1;
         for (; lastArg >= 0; lastArg--) {
-            if (!(args.get(lastArg) instanceof XLNil)) {
+            if (!(args[lastArg] instanceof XLNil || args[lastArg] instanceof XLMissing)) {
                 break;
             }
         }

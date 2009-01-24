@@ -15,7 +15,6 @@ import java.util.List;
 
 import org.boris.xlloop.FunctionHandler;
 import org.boris.xlloop.RequestException;
-import org.boris.xlloop.util.XLList;
 import org.boris.xlloop.xloper.XLoper;
 
 public class CompositeFunctionHandler implements FunctionHandler
@@ -26,7 +25,7 @@ public class CompositeFunctionHandler implements FunctionHandler
         handlers.add(h);
     }
 
-    public XLoper execute(String name, XLList args) throws RequestException {
+    public XLoper execute(String name, XLoper[] args) throws RequestException {
         for (Iterator i = handlers.iterator(); i.hasNext();) {
             FunctionHandler h = (FunctionHandler) i.next();
             if (h.hasFunction(name)) {

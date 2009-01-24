@@ -20,7 +20,7 @@ public class ServerExample
 {
     public static void main(String[] args) throws Exception {
         // Create function server on the default port
-        FunctionServer fs = new FunctionServer();
+        FunctionServer fs = new FunctionServer(6000);
 
         // Create a reflection function handler and add the Math methods
         ReflectFunctionHandler rfh = new ReflectFunctionHandler();

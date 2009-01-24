@@ -26,6 +26,7 @@ public class FunctionInformation
     private String helpTopic;
     private List arguments = new ArrayList();
     private List argumentHelp = new ArrayList();
+    private boolean isVolatile;
 
     public FunctionInformation(String name) {
         this.functionName = name;
@@ -52,6 +53,10 @@ public class FunctionInformation
         this.argumentHelp.add(help);
     }
 
+    public void setVolatile(boolean vol) {
+        this.isVolatile = vol;
+    }
+
     public XLoper encode() {
         XLMap s = new XLMap();
         s.add("functionName", functionName);
@@ -72,6 +77,9 @@ public class FunctionInformation
             }
             s.add("argumentHelp", c);
         }
+        if (isVolatile)
+            s.add("isVolatile", true);
+
         return s.toXloper();
     }
 }

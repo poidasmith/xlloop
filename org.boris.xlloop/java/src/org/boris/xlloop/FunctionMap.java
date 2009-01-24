@@ -12,7 +12,6 @@ package org.boris.xlloop;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.boris.xlloop.util.XLList;
 import org.boris.xlloop.xloper.XLoper;
 
 public class FunctionMap implements FunctionHandler
@@ -31,7 +30,7 @@ public class FunctionMap implements FunctionHandler
         this.functions.clear();
     }
 
-    public XLoper execute(String name, XLList args) throws RequestException {
+    public XLoper execute(String name, XLoper[] args) throws RequestException {
         Function f = (Function) functions.get(name);
         if (f == null) {
             throw new RequestException("Unknown function: " + name);

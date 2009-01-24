@@ -109,4 +109,16 @@ public class FileSystemWatcher
 
         void fileRemoved(File f);
     }
+
+    public static class CallbackAdaptor implements Callback
+    {
+        public void fileAdded(File f) {
+        }
+
+        public void fileChanged(File f) {
+        }
+
+        public void fileRemoved(File f) {
+        }
+    }
 }

@@ -14,7 +14,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import org.boris.xlloop.codec.BinaryRequestProtocol;
-import org.boris.xlloop.util.XLList;
+import org.boris.xlloop.xloper.XLError;
 import org.boris.xlloop.xloper.XLInt;
 import org.boris.xlloop.xloper.XLString;
 import org.boris.xlloop.xloper.XLoper;
@@ -43,10 +43,15 @@ public class FunctionServer
     }
 
     public void stop() throws IOException {
-        socket.close();
+        if (socket != null)
+            socket.close();
+        socket = null;
     }
 
     public void start() {
+        if (socket != null)
+            return;
+
         Thread t = new Thread(new Runnable() {
             public void run() {
                 try {
@@ -84,11 +89,13 @@ public class FunctionServer
                 try {
                     XLString name = (XLString) protocol.receive(socket);
                     XLInt argCount = (XLInt) protocol.receive(socket);
-                    XLList args = new XLList();
+                    XLoper[] args = new XLoper[argCount.w];
                     for (int i = 0; i < argCount.w; i++) {
-                        args.add(protocol.receive(socket));
+                        args[i] = protocol.receive(socket);
                     }
                     XLoper res = handler.execute(name.str, args);
+                    if (res == null)
+                        res = XLError.NULL;
                     protocol.send(socket, res);
                 } catch (RequestException e) {
                     try {

@@ -31,7 +31,7 @@ public class Client1
             er.add(i);
             er.add(i);
             er.add(i);
-            XLoper v = re.execute("Echo", er);
+            XLoper v = re.execute("Echo", er.toXLoper().array);
             System.out.println(v);
         }
         System.out.println(System.currentTimeMillis() - t0);

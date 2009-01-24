@@ -246,7 +246,7 @@ public class XLoperObjectConverter
             if (XLString.class.equals(hint)) {
                 return obj;
             } else {
-                String str = obj.toString();
+                String str = ((XLString) obj).str;
                 Object val = registry.get(str);
                 if (val != null) {
                     return val;
@@ -268,6 +268,18 @@ public class XLoperObjectConverter
             }
         case XLoper.xlTypeMulti:
             return convertArray((XLArray) obj, hint);
+        case XLoper.xlTypeBool:
+            if (Double.class.equals(hint) || double.class.equals(hint)) {
+                return new Double(((XLBool) obj).bool ? 1 : 0);
+            } else if (String.class.equals(hint)) {
+                return obj.toString();
+            } else if (Integer.class.equals(hint) || int.class.equals(hint)) {
+                return new Integer(((XLBool) obj).bool ? 1 : 0);
+            } else if (Boolean.class.equals(hint) || boolean.class.equals(hint)) {
+                return new Boolean((((XLBool) obj).bool));
+            } else {
+                return new Long(((XLBool) obj).bool ? 1 : 0);
+            }
         case XLoper.xlTypeNil:
         case XLoper.xlTypeMissing:
             if (String.class.equals(hint)) {
@@ -652,12 +664,12 @@ public class XLoperObjectConverter
         return val;
     }
 
-    public Object[] convert(XLList args, Class[] hints) {
+    public Object[] convert(XLoper[] args, Class[] hints) {
         Object[] a = new Object[hints.length];
-        int csize = args.size();
+        int csize = args.length;
         for (int i = 0; i < hints.length; i++) {
             if (i < csize) {
-                a[i] = createFrom(args.get(i), hints[i]);
+                a[i] = createFrom(args[i], hints[i]);
             } else {
                 a[i] = null;
             }

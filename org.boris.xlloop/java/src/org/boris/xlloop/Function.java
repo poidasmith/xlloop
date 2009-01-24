@@ -9,10 +9,9 @@
  *******************************************************************************/
 package org.boris.xlloop;
 
-import org.boris.xlloop.util.XLList;
 import org.boris.xlloop.xloper.XLoper;
 
 public interface Function
 {
-    XLoper execute(XLList args) throws RequestException;
+    XLoper execute(XLoper[] args) throws RequestException;
 }

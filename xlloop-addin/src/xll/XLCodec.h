@@ -8,20 +8,20 @@
  *     Peter Smith
  *******************************************************************************/
 
-#ifndef XL_CONVERTER_H
-#define XL_CONVERTER_H
+#ifndef XL_CODEC_H
+#define XL_CODEC_H
 
-#include "../common/Runtime.h"
+#include <vector>
+#include <map>
+#include <windows.h>
 #include "../xll/xlcall.h"
-#include "../common/VTCodec.h"
 
-class XLConverter {
+class XLCodec {
 public:
-	static Variant* ConvertX(LPXLOPER x, bool missingToNull = true);
-	static LPXLOPER ConvertV(const Variant* v, LPXLOPER xl = NULL);
-
-private:
-	static Variant* ConvertXArray(LPXLOPER x, bool freex = false);
+	static void encode(const LPXLOPER xl, std::ostream& os);
+	static void encode(const char* str, std::ostream& os);
+	static void encode(int w, std::ostream& os);
+	static void decode(std::istream& is, LPXLOPER xl);
 };
 
-#endif // XL_CONVERTER_H
+#endif // XL_CODEC_H

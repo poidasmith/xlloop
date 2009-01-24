@@ -47,7 +47,7 @@ public class LispFunctionHandler implements FunctionHandler
         jatha.start();
     }
 
-    public XLoper execute(String name, XLList args) throws RequestException {
+    public XLoper execute(String name, XLoper[] args) throws RequestException {
         try {
             LispValue inValue = makeList(args, findSize(args));
             LispValue result = jatha.eval(inValue);
@@ -95,16 +95,16 @@ public class LispFunctionHandler implements FunctionHandler
         }
     }
 
-    private LispValue makeList(XLList args, int size) throws EOFException {
+    private LispValue makeList(XLoper[] args, int size) throws EOFException {
         if (args == null || size == 0) {
             return new StandardLispNIL();
         } else if (size == 1) {
-            return makeValue(args.get(0));
+            return makeValue(args[0]);
         } else {
             ArrayList l = new ArrayList();
             boolean quote = false;
             for (int i = 0; i < size; i++) {
-                LispValue v = makeValue(args.get(i));
+                LispValue v = makeValue(args[i]);
                 if (v != null)
                     l.add(v);
                 if (i == 0 && !(v instanceof StandardLispSymbol)) {
@@ -132,8 +132,8 @@ public class LispFunctionHandler implements FunctionHandler
         } else if (value instanceof XLNum) {
             return jatha.makeReal(((XLNum) value).num);
         } else if (value instanceof XLArray) {
-            XLList l = new XLList((XLArray) value);
-            return makeList(l, findSize(l));
+            XLoper[] a = ((XLArray) value).array;
+            return makeList(a, a.length);
         } else {
             return new StandardLispNIL();
         }
@@ -160,13 +160,13 @@ public class LispFunctionHandler implements FunctionHandler
         }
     }
 
-    private int findSize(XLList args) {
+    private int findSize(XLoper[] args) {
         int size;
-        if (args == null || (size = args.size()) == 0) {
+        if (args == null || (size = args.length) == 0) {
             return 0;
         }
         while (size > 0) {
-            XLoper v = args.get(--size);
+            XLoper v = args[--size];
             if (!(v instanceof XLMissing)) {
                 return size + 1;
             }

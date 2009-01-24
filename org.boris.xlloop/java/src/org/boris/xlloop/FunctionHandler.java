@@ -9,12 +9,11 @@
  *******************************************************************************/
 package org.boris.xlloop;
 
-import org.boris.xlloop.util.XLList;
 import org.boris.xlloop.xloper.XLoper;
 
 public interface FunctionHandler
 {
-    XLoper execute(String name, XLList args) throws RequestException;
+    XLoper execute(String name, XLoper[] args) throws RequestException;
 
     boolean hasFunction(String name);
 }

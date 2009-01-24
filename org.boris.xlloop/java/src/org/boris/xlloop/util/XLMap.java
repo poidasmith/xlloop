@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.boris.xlloop.xloper.XLArray;
+import org.boris.xlloop.xloper.XLBool;
 import org.boris.xlloop.xloper.XLInt;
 import org.boris.xlloop.xloper.XLNum;
 import org.boris.xlloop.xloper.XLString;
@@ -37,6 +38,10 @@ public class XLMap
 
     public void add(String name, XLList value) {
         map.put(name, value.toXLoper());
+    }
+
+    public void add(String name, boolean value) {
+        map.put(name, new XLBool(value));
     }
 
     public void fromXloper(XLArray array) {

@@ -159,29 +159,42 @@ void Protocol::disconnect()
 	WSACleanup();
 }
 
-int Protocol::send(unsigned char type, const char* name, Variant* args)
+int Protocol::send(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, 
+		LPXLOPER v4, LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, LPXLOPER v9)
 {
 	tcpbuf b(conn);
 	tcpstream s(&b);
-	VTByte* t = new VTByte(type);
-	VTString* n = new VTString(name);
-	VTBinaryCodec::encode(t, s);
-	VTBinaryCodec::encode(n, s);
-	VTBinaryCodec::encode(args, s);
+	XLCodec::encode(name, s);
+	XLCodec::encode(10, s);
+	XLCodec::encode(v0, s);
+	XLCodec::encode(v1, s);
+	XLCodec::encode(v2, s);
+	XLCodec::encode(v3, s);
+	XLCodec::encode(v4, s);
+	XLCodec::encode(v5, s);
+	XLCodec::encode(v6, s);
+	XLCodec::encode(v7, s);
+	XLCodec::encode(v8, s);
+	XLCodec::encode(v9, s);
 	s.flush();
-	delete t; 
-	delete n;
 	return conn == NULL ? 1 : 0;
 }
 
-Variant* Protocol::receive()
+int Protocol::send(const char* name)
 {
 	tcpbuf b(conn);
 	tcpstream s(&b);
-	Variant* t = VTBinaryCodec::decode(s);
-	if(t == NULL || t->getType() != VSTRING)
-		return NULL;
-	lastType = ((VTString *)t)->get();
-	Variant* res = VTBinaryCodec::decode(s);
-	return res;
+	XLCodec::encode(name, s);
+	XLCodec::encode(0, s);
+	s.flush();
+	return conn == NULL ? 1 : 0;
+}
+
+LPXLOPER Protocol::receive()
+{
+	tcpbuf b(conn);
+	tcpstream s(&b);
+	LPXLOPER xl = new XLOPER;
+	XLCodec::decode(s, xl);
+	return xl;
 }

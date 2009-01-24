@@ -31,6 +31,10 @@ public class XLList
         list.addAll(Arrays.asList(value.array));
     }
 
+    public XLList(XLoper[] value) {
+        list.addAll(Arrays.asList(value));
+    }
+
     public void add(XLoper xl) {
         list.add(xl);
     }
@@ -64,9 +68,12 @@ public class XLList
         return (XLoper) list.get(index);
     }
 
-    public XLoper toXLoper() {
-        return new XLArray((XLoper[]) list.toArray(new XLoper[0]), list.size(),
-                1);
+    public XLArray toXLoper() {
+        return new XLArray(toArray(), list.size(), 1);
+    }
+
+    public XLoper[] toArray() {
+        return (XLoper[]) list.toArray(new XLoper[0]);
     }
 
     public String toString() {

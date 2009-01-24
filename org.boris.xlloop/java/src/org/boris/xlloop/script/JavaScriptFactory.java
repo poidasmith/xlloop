@@ -14,7 +14,6 @@ import java.io.Reader;
 
 import org.boris.xlloop.Function;
 import org.boris.xlloop.RequestException;
-import org.boris.xlloop.util.XLList;
 import org.boris.xlloop.util.XLoperObjectConverter;
 import org.boris.xlloop.xloper.XLoper;
 import org.mozilla.javascript.Context;
@@ -41,7 +40,7 @@ public class JavaScriptFactory implements ScriptFactory
             this.converter = converter;
         }
 
-        public XLoper execute(XLList args) throws RequestException {
+        public XLoper execute(XLoper[] args) throws RequestException {
             Context ctx = Context.enter();
             Object[] oargs = converter.convert(args, BSFScript
                     .createArgHints(args));

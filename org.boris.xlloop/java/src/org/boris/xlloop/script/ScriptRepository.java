@@ -27,7 +27,6 @@ import org.boris.xlloop.handler.FunctionInformation;
 import org.boris.xlloop.handler.FunctionProvider;
 import org.boris.xlloop.util.FileSystemWatcher;
 import org.boris.xlloop.util.IO;
-import org.boris.xlloop.util.XLList;
 import org.boris.xlloop.util.FileSystemWatcher.Callback;
 import org.boris.xlloop.xloper.XLoper;
 
@@ -121,7 +120,7 @@ public class ScriptRepository implements Callback, FunctionHandler,
         return fs;
     }
 
-    public XLoper execute(String name, XLList args) throws RequestException {
+    public XLoper execute(String name, XLoper[] args) throws RequestException {
         Function f = (Function) scripts.get(name);
         if (f == null) {
             throw new RequestException("#Unknown script: " + name);

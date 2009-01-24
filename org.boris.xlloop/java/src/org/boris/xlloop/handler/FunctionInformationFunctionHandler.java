@@ -37,7 +37,7 @@ public class FunctionInformationFunctionHandler implements FunctionHandler
         functionProviders.add(prov);
     }
 
-    public XLoper execute(String name, XLList args) throws RequestException {
+    public XLoper execute(String name, XLoper[] args) throws RequestException {
         XLList c = new XLList();
         for (Iterator i = functions.iterator(); i.hasNext();) {
             FunctionInformation fi = (FunctionInformation) i.next();

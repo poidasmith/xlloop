@@ -31,7 +31,7 @@ public class XLLoopTest1 extends XLLoopTestCase
     public void test1() throws Exception {
         // System.out.println(executeFunction("org.boris.xlloop.GetFunctions",
         // new XLList()));
-        System.out.println(executeFunction("Math.sin", XLList.make(new XLNum(
-                Math.PI / 2))));
+        System.out.println(executeFunction("Math.sin", XLList.make(
+                new XLNum(Math.PI / 2)).toArray()));
     }
 }
