@@ -14,7 +14,7 @@ import org.boris.jxll.util.LibraryLoader;
 public class JNI
 {
     private static final boolean DEBUG = false;
-    private static final String VERSION = "0.0.1";
+    private static final String VERSION = "0.0.2";
     private static final String BASE = "F:/eclipse/workspace/org.boris.jxll/jni/build/";
     private static final String BUILD = "Debug";
     // private static final String BUILD = "Debug";

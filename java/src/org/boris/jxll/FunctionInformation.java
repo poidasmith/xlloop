@@ -20,7 +20,7 @@ public class FunctionInformation
     public String shortcutText;
     public String helpTopic;
     public String functionHelp;
-    public String argumentHelp;
+    public String[] argumentHelp;
 
     // Derived
     public FunctionSpec type;

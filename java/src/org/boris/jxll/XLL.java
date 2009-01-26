@@ -35,7 +35,6 @@ public class XLL
     }
 
     static int xlCallVer() {
-        System.out.println("XLCallVer");
         return 4;
     }
 

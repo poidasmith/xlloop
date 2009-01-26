@@ -141,8 +141,28 @@ public class Addin
     void registerFunction(XLOper[] opers) {
         FunctionInformation fi = new FunctionInformation();
         fi.procedure = opers[1].str;
-        fi.typeText = opers[2].str;
-        fi.functionName = opers[3].str;
+        if (opers.length > 2)
+            fi.typeText = opers[2].str;
+        if (opers.length > 3)
+            fi.functionName = opers[3].str;
+        if (opers.length > 4)
+            fi.argumentText = opers[4].str;
+        if (opers.length > 5)
+            fi.macroType = opers[5].str;
+        if (opers.length > 6)
+            fi.category = opers[6].str;
+        if (opers.length > 7)
+            fi.shortcutText = opers[7].str;
+        if (opers.length > 8)
+            fi.helpTopic = opers[8].str;
+        if (opers.length > 9)
+            fi.functionHelp = opers[9].str;
+        if (opers.length > 10) {
+            fi.argumentHelp = new String[opers.length - 10];
+            for (int i = 0; i < fi.argumentHelp.length; i++) {
+                fi.argumentHelp[i] = opers[i + 10].str;
+            }
+        }
         fi.type = FunctionSpec.valueOf(fi.typeText);
         functions.add(fi.functionName);
         information.put(fi.functionName, fi);
