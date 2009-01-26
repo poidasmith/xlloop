@@ -10,7 +10,6 @@
 package org.boris.xlloop;
 
 import org.boris.xlloop.util.XLList;
-import org.boris.xlloop.util.XLLoopTestCase;
 import org.boris.xlloop.xloper.XLNum;
 
 public class XLLoopTest1 extends XLLoopTestCase

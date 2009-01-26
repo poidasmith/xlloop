@@ -41,6 +41,7 @@ public class FunctionInformationFunctionHandler implements FunctionHandler
         XLList c = new XLList();
         for (Iterator i = functions.iterator(); i.hasNext();) {
             FunctionInformation fi = (FunctionInformation) i.next();
+            System.out.println(fi.getName());
             c.add(fi.encode());
         }
 
@@ -49,6 +50,7 @@ public class FunctionInformationFunctionHandler implements FunctionHandler
             FunctionInformation[] fis = fp.getFunctions();
             if (fis != null) {
                 for (int j = 0; j < fis.length; j++) {
+                    System.out.println(fis[j].getName());
                     c.add(fis[j].encode());
                 }
             }

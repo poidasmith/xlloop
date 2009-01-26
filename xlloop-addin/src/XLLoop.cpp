@@ -34,6 +34,11 @@ static std::vector<std::string> g_functionNames;
 #define FS_INCLUDE_VOLATILE ":include.volatile"
 #define FS_FUNCTION_NAME_VOLATILE ":function.name.volatile"
 #define FS_DISABLE_FUNCTION_LIST ":disable.function.list"
+#define FS_LOAD_SERVER_REQUEST ":load.server.request"
+
+// Admin function names
+#define AF_GET_FUNCTIONS "org.boris.xlloop.GetFunctions"
+#define AF_GET_LOAD_SERVER "org.boris.xlloop.GetLoadServer"
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
@@ -60,8 +65,6 @@ bool InitProtocol()
 		char* port = iniparser_getstr(g_ini, FS_PORT);
 		g_protocol = new Protocol(hostname == NULL ? "localhost" : hostname, 
 			port == NULL ? 5454 : atoi(port));
-
-		// TODO ask server for alternative
 	}
 
 	// Attempt connection
@@ -79,8 +82,7 @@ void RegisterFunctions()
 	Excel4(xlGetName, &xDLL, 0);
 
 	// Ask the server for a list of functions and register them
-	g_protocol->send("org.boris.xlloop.GetFunctions");
-	LPXLOPER farr = g_protocol->receive();
+	LPXLOPER farr = g_protocol->execute("org.boris.xlloop.GetFunctions");
 	int t = farr->xltype & ~(xlbitXLFree | xlbitDLLFree);
 	int rows = farr->val.array.rows;
 	int cols = farr->val.array.columns;
@@ -143,6 +145,41 @@ void RegisterFunctions()
 	Excel4(xlFree, 0, 1, (LPXLOPER) &xDLL);
 }
 
+// Asks the server for an alternative function server
+void GetLoadServer()
+{
+	if(!InitProtocol()) {
+		return;
+	}
+
+	// Execute the GetLoadServer function with [username,hostname] as args
+	TCHAR h[MAX_PATH];
+	XLOPER args[2];
+	DWORD hlen = MAX_PATH;
+	GetUserName(h, &hlen);
+	args[0].xltype = xltypeStr;
+	args[0].val.str = XLUtil::MakeExcelString(h);
+	gethostname(h, MAX_PATH);
+	args[1].xltype = xltypeStr;
+	args[1].val.str = XLUtil::MakeExcelString(h);
+	LPXLOPER pmap = g_protocol->execute(AF_GET_LOAD_SERVER, 2, args);
+	free(args[0].val.str);
+	free(args[1].val.str);
+
+	if(pmap) {
+		char* host = XLMap::getString(pmap, "host");
+		int port = XLMap::getInteger(pmap, "port");
+		if(host != NULL && port != -1) {
+			strncpy(h, &host[1], host[0]);
+			h[host[0]] = 0;
+			g_protocol->setHost(h);
+			g_protocol->setPort(port);
+			g_protocol->disconnect();
+			g_protocol->connect();
+		}
+	}
+}
+
 #ifdef __cplusplus
 extern "C" {  
 #endif 
@@ -175,6 +212,12 @@ __declspec(dllexport) int WINAPI xlAutoOpen(void)
 	char* disableFunctionList = iniparser_getstr(g_ini, FS_DISABLE_FUNCTION_LIST);
 	if(disableFunctionList == NULL || strcmp(disableFunctionList, "true")) {
 		RegisterFunctions();
+	}
+
+	// Ask server for alternative (probably for load balancing etc)
+	BOOL lsr = iniparser_getboolean(g_ini, FS_LOAD_SERVER_REQUEST, FALSE);
+	if(lsr) {
+		GetLoadServer();
 	}
 
 	// Free the XLL filename
@@ -257,8 +300,7 @@ __declspec(dllexport) LPXLOPER WINAPI FSExecute(const char* name, LPXLOPER v0, L
 	}
 
 	// Exec function
-	g_protocol->send(name, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9);
-	LPXLOPER xres = g_protocol->receive();
+	LPXLOPER xres = g_protocol->execute(name, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9);
 
 	// Check for error
 	if(!g_protocol->isConnected()) {

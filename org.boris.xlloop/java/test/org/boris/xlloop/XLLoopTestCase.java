@@ -1,4 +1,4 @@
-package org.boris.xlloop.util;
+package org.boris.xlloop;
 
 import java.io.IOException;
 import java.net.InetAddress;

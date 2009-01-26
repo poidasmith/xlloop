@@ -13,6 +13,7 @@ import org.boris.xlloop.FunctionServer;
 import org.boris.xlloop.handler.CompositeFunctionHandler;
 import org.boris.xlloop.handler.DebugFunctionHandler;
 import org.boris.xlloop.handler.FunctionInformationFunctionHandler;
+import org.boris.xlloop.handler.GetLoadServerFunctionHandler;
 import org.boris.xlloop.reflect.Reflect;
 import org.boris.xlloop.reflect.ReflectFunctionHandler;
 
@@ -20,7 +21,7 @@ public class ServerExample
 {
     public static void main(String[] args) throws Exception {
         // Create function server on the default port
-        FunctionServer fs = new FunctionServer(6000);
+        FunctionServer fs = new FunctionServer();
 
         // Create a reflection function handler and add the Math methods
         ReflectFunctionHandler rfh = new ReflectFunctionHandler();
@@ -33,14 +34,19 @@ public class ServerExample
         FunctionInformationFunctionHandler firh = new FunctionInformationFunctionHandler();
         firh.add(rfh.getFunctions());
 
+        // Create a function handler to demonstrate the "load balancing"
+        // capability
+        GetLoadServerFunctionHandler glsfh = new GetLoadServerFunctionHandler();
+
         // Set the handlers
         CompositeFunctionHandler cfh = new CompositeFunctionHandler();
         cfh.add(rfh);
         cfh.add(firh);
+        cfh.add(glsfh);
         fs.setFunctionHandler(new DebugFunctionHandler(cfh));
 
         // Run the engine
-        System.out.println("Listening on port 5454...");
+        System.out.println("Listening on port " + fs.getPort() + "...");
         fs.run();
     }
 }

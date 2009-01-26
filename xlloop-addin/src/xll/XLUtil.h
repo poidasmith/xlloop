@@ -44,6 +44,7 @@ public:
 	static LPXLOPER get(LPXLOPER pmap, const char* key);
 	static char* getString(LPXLOPER pmap, const char* key);
 	static bool getBoolean(LPXLOPER pmap, const char* key);
+	static int getInteger(LPXLOPER pmap, const char* key);
 };
 
 #endif // XLUTIL_H

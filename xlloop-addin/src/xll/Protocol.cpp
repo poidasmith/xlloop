@@ -180,6 +180,19 @@ int Protocol::send(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXL
 	return conn == NULL ? 1 : 0;
 }
 
+int Protocol::send(const char* name, int count, LPXLOPER v)
+{
+	tcpbuf b(conn);
+	tcpstream s(&b);
+	XLCodec::encode(name, s);
+	XLCodec::encode(count, s);
+	for(int i = 0; i < count; i++) {
+		XLCodec::encode(&v[i], s);
+	}
+	s.flush();
+	return conn == NULL ? 1 : 0;
+}
+
 int Protocol::send(const char* name)
 {
 	tcpbuf b(conn);

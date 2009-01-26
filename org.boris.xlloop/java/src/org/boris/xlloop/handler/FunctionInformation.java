@@ -32,6 +32,10 @@ public class FunctionInformation
         this.functionName = name;
     }
 
+    public String getName() {
+        return functionName;
+    }
+
     public void setFunctionHelp(String functionHelp) {
         this.functionHelp = functionHelp;
     }

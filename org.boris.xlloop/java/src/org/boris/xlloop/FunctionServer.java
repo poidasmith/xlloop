@@ -33,6 +33,10 @@ public class FunctionServer
         this.port = port;
     }
 
+    public int getPort() {
+        return port;
+    }
+
     public FunctionServer(int port, FunctionHandler f) {
         this.port = port;
         this.handler = f;

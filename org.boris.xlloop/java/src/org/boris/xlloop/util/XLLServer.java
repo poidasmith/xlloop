@@ -21,36 +21,41 @@ import org.boris.xlloop.util.FileSystemWatcher.CallbackAdaptor;
 
 public class XLLServer
 {
-    private static String DIR = "F:/Development/xll/";
-
-    // private static String DIR =
-    // "F:\\eclipse\\workspace\\org.boris.jxll\\jni\\build\\TestXLL-Debug";
+    private static String DIR = ".";
 
     public static void main(String[] args) throws Exception {
+        System.out
+                .println("XLLServer v0.0.1 - searching current directory for addins...");
         final FunctionServer fs = new FunctionServer();
         final CompositeFunctionHandler cfh = new CompositeFunctionHandler();
         final FunctionInformationFunctionHandler fifh = new FunctionInformationFunctionHandler();
         FileSystemWatcher fsw = new FileSystemWatcher(new File(DIR),
                 new CallbackAdaptor() {
                     public void fileAdded(File f) {
-                        if (f.getName().toLowerCase().endsWith("xll")) {
-                            Addin a = XLL.load(f.getAbsolutePath());
-                            if (a == null) {
-                                System.out
-                                        .println("Could not load addin: " + f);
-                                return;
-                            }
-                            AddinFunctionHandler fh = new AddinFunctionHandler(
-                                    a);
-                            fifh.add(fh);
-                            cfh.add(fh);
-                            System.out.println("Loaded: " + f);
-                        }
+                        registerAddin(f, fifh, cfh);
                     }
                 });
         cfh.add(fifh);
+        fsw.setPauseMillis(1000);
         fsw.start();
         fs.setFunctionHandler(new DebugFunctionHandler(cfh));
         fs.run();
+    }
+
+    private static void registerAddin(File f,
+            FunctionInformationFunctionHandler fifh,
+            CompositeFunctionHandler cfh) {
+        String n = f.getName().toLowerCase();
+        if (n.indexOf("xlloop-") == -1 && n.endsWith("xll")) {
+            Addin a = XLL.load(f.getAbsolutePath());
+            if (a == null) {
+                System.out.println("Could not load addin: " + f);
+                return;
+            }
+            AddinFunctionHandler fh = new AddinFunctionHandler(a);
+            fifh.add(fh);
+            cfh.add(fh);
+            System.out.println("Loaded: " + f);
+        }
     }
 }

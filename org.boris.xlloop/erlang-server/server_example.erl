@@ -18,7 +18,7 @@ request(Name, _Args) ->
 			{collection, [{struct, [
 				{{string, "functionName"}, {string, "Erl.Sum"}}, % The function name in excel
 				{{string, "functionHelp"}, {string, "Sums a range"}},
-				{{string, "category"}, {string, "Maths"}},
+				{{string, "category"}, 	   {string, "Maths"}},
 				{{string, "argumentText"}, {string, "Range"}},
 				{{string, "argumentHelp"}, {collection, [
 					{string, "The range to sum"}

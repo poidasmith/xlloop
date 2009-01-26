@@ -36,7 +36,26 @@ public class AddinFunctionHandler implements FunctionHandler, FunctionProvider
         info = new FunctionInformation[addin.getFunctionCount()];
         for (int i = 0; i < info.length; i++) {
             String n = addin.getFunctionName(i);
+            org.boris.jxll.FunctionInformation fi = addin.getInformation(n);
             info[i] = new FunctionInformation(n);
+            info[i].setCategory(fi.category);
+            info[i].setFunctionHelp(fi.functionHelp);
+            info[i].setHelpTopic(fi.helpTopic);
+            info[i].setShortcutText(fi.shortcutText);
+            String[] args = new String[0];
+            if (fi.argumentText != null)
+                CSV.parseLine(fi.argumentText, ',', false);
+            String[] ahelp = fi.argumentHelp;
+            for (int j = 0; j < args.length; j++) {
+                String arg = args[j];
+                String ah = "";
+                if (ahelp != null && ahelp.length > j)
+                    ah = ahelp[j];
+                info[i].addArgument(arg, ah);
+            }
+            if (fi.type != null) {
+                info[i].setVolatile(fi.type.isVolatile);
+            }
         }
     }
 

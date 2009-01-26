@@ -20,6 +20,7 @@ LPSTR XLUtil::MakeExcelString(const char* string)
 	char* temp = (char *) malloc(len + 2);
 	memcpy(temp + 1, string, len);
 	temp[0] = (BYTE) len;
+	temp[len+1] = 0;
 	return temp;
 }
 
@@ -128,7 +129,8 @@ LPXLOPER XLMap::get(LPXLOPER pmap, const char* key)
 	if(rows == 0) return NULL;
 	int cols = pmap->val.array.columns;
 	if(cols != 2) return NULL;
-	for(int i =0; i < rows; i+= 2) {
+	int cells = rows * cols;
+	for(int i =0; i < cells; i += 2) {
 		LPXLOPER k = &pmap->val.array.lparray[i];
 		if((k->xltype & ~(xlbitXLFree | xlbitDLLFree)) != xltypeStr)
 			continue;
@@ -157,4 +159,13 @@ bool XLMap::getBoolean(LPXLOPER pmap, const char* key)
 		return px->val.boolean;
 	}
 	return false;
+}
+
+int XLMap::getInteger(LPXLOPER pmap, const char* key) 
+{
+	LPXLOPER px = get(pmap, key);
+	if(px != NULL && (px->xltype & ~(xlbitXLFree | xlbitDLLFree)) == xltypeInt) {
+		return px->val.w;
+	}
+	return -1;
 }
