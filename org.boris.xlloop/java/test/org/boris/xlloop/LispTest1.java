@@ -2,6 +2,7 @@ package org.boris.xlloop;
 
 import java.io.File;
 
+import org.boris.xlloop.handler.CompositeFunctionHandler;
 import org.boris.xlloop.handler.DebugFunctionHandler;
 import org.boris.xlloop.handler.FunctionInformationFunctionHandler;
 import org.boris.xlloop.script.LispFunctionHandler;
@@ -22,8 +23,13 @@ public class LispTest1
         FunctionInformationFunctionHandler firh = new FunctionInformationFunctionHandler();
         firh.add(lfh.getInformation());
 
+        // Create a composite function handler
+        CompositeFunctionHandler cfh = new CompositeFunctionHandler();
+        cfh.add(firh);
+        cfh.add(lfh);
+
         // Set the function handler
-        fs.setFunctionHandler(new DebugFunctionHandler(lfh));
+        fs.setFunctionHandler(new DebugFunctionHandler(cfh));
 
         // Run the engine
         fs.run();

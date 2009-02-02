@@ -21,9 +21,9 @@ import org.boris.xlloop.xloper.XLoper;
 
 public class FunctionServer
 {
-    private int port;
-    private FunctionHandler handler;
-    private ServerSocket socket;
+    protected int port;
+    protected FunctionHandler handler;
+    protected ServerSocket socket;
 
     public FunctionServer() {
         this(5454);
@@ -34,7 +34,7 @@ public class FunctionServer
     }
 
     public int getPort() {
-        return port;
+        return socket == null ? port : socket.getLocalPort();
     }
 
     public FunctionServer(int port, FunctionHandler f) {
@@ -71,10 +71,42 @@ public class FunctionServer
     }
 
     public void run() throws IOException {
-        socket = new ServerSocket(port);
+        if (socket == null)
+            socket = new ServerSocket(port);
 
         while (true) {
             new HandlerThread(socket.accept()).start();
+        }
+    }
+
+    private void handleRequest(RequestProtocol protocol, Socket socket) {
+        try {
+            XLString name = (XLString) protocol.receive(socket);
+            XLInt argCount = (XLInt) protocol.receive(socket);
+            XLoper[] args = new XLoper[argCount.w];
+            for (int i = 0; i < argCount.w; i++) {
+                args[i] = protocol.receive(socket);
+            }
+            XLoper res = handler.execute(name.str, args);
+            if (res == null)
+                res = XLError.NULL;
+            protocol.send(socket, res);
+        } catch (RequestException e) {
+            try {
+                protocol.send(socket, new XLString(e.getMessage()));
+            } catch (IOException ex) {
+                System.err.println(e.getMessage());
+                try {
+                    socket.close();
+                } catch (IOException iex) {
+                }
+            }
+        } catch (Throwable e) {
+            System.err.println(e.getMessage());
+            try {
+                socket.close();
+            } catch (IOException ex) {
+            }
         }
     }
 
@@ -90,32 +122,7 @@ public class FunctionServer
         public void run() {
             socket.setPerformancePreferences(0, 1, 0);
             while (!socket.isClosed()) {
-                try {
-                    XLString name = (XLString) protocol.receive(socket);
-                    XLInt argCount = (XLInt) protocol.receive(socket);
-                    XLoper[] args = new XLoper[argCount.w];
-                    for (int i = 0; i < argCount.w; i++) {
-                        args[i] = protocol.receive(socket);
-                    }
-                    XLoper res = handler.execute(name.str, args);
-                    if (res == null)
-                        res = XLError.NULL;
-                    protocol.send(socket, res);
-                } catch (RequestException e) {
-                    try {
-                        protocol.send(socket, new XLString(e.getMessage()));
-                    } catch (IOException ex) {
-                        System.err.println(e.getMessage());
-                        break;
-                    }
-                } catch (Throwable e) {
-                    System.err.println(e.getMessage());
-                    try {
-                        socket.close();
-                    } catch (IOException ex) {
-                    }
-                    break;
-                }
+                handleRequest(protocol, socket);
             }
         }
     }

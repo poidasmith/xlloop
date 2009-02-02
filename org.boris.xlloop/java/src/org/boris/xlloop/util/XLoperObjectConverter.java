@@ -304,18 +304,18 @@ public class XLoperObjectConverter
         Object val = null;
 
         if (Integer.class.equals(hint)) {
-            Integer l = arr.rows > 0 ? arr.getInteger(0) : null;
+            Integer l = arr.length > 0 ? arr.getInteger(0) : null;
             return l == null ? null : new Integer(l.intValue());
         } else if (int.class.equals(hint)) {
-            Integer l = arr.rows > 0 ? arr.getInteger(0) : null;
+            Integer l = arr.length > 0 ? arr.getInteger(0) : null;
             return l == null ? IZERO : new Integer(l.intValue());
         } else if (Double.class.equals(hint)) {
-            return arr.rows > 0 ? arr.getDouble(0) : null;
+            return arr.length > 0 ? arr.getDouble(0) : null;
         } else if (double.class.equals(hint)) {
-            Double d = arr.rows > 0 ? arr.getDouble(0) : null;
+            Double d = arr.length > 0 ? arr.getDouble(0) : null;
             return d == null ? DZERO : d;
         } else if (String.class.equals(hint)) {
-            return arr.rows > 0 ? arr.getString(0) : null;
+            return arr.length > 0 ? arr.getString(0) : null;
         } else if (double[].class.equals(hint)) {
             double[] darr = new double[arr.rows];
 

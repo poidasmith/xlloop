@@ -7,15 +7,14 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.xlloop.util;
+package org.boris.xlloop.handler;
 
 import org.boris.jxll.Addin;
 import org.boris.jxll.XLOper;
 import org.boris.jxll.XLOperType;
 import org.boris.xlloop.FunctionHandler;
 import org.boris.xlloop.RequestException;
-import org.boris.xlloop.handler.FunctionInformation;
-import org.boris.xlloop.handler.FunctionProvider;
+import org.boris.xlloop.util.CSV;
 import org.boris.xlloop.xloper.XLArray;
 import org.boris.xlloop.xloper.XLBool;
 import org.boris.xlloop.xloper.XLError;

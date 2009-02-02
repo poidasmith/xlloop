@@ -26,7 +26,7 @@ import org.boris.xlloop.xloper.XLoper;
 public class BinaryCodec
 {
     public static XLoper decode(InputStream is) throws IOException {
-        int type = (int) readDoubleWord(is);
+        int type = (int) is.read();
         switch (type) {
         case XLoper.xlTypeBool:
             return decodeBool(is);
@@ -100,7 +100,7 @@ public class BinaryCodec
 
     public static void encode(XLoper xloper, OutputStream os)
             throws IOException {
-        writeDoubleWord(xloper.type, os);
+        os.write((int) xloper.type);
         switch (xloper.type) {
         case XLoper.xlTypeBool:
             encodeBoolean((XLBool) xloper, os);

@@ -14,6 +14,7 @@ import java.io.File;
 import org.boris.jxll.Addin;
 import org.boris.jxll.XLL;
 import org.boris.xlloop.FunctionServer;
+import org.boris.xlloop.handler.AddinFunctionHandler;
 import org.boris.xlloop.handler.CompositeFunctionHandler;
 import org.boris.xlloop.handler.DebugFunctionHandler;
 import org.boris.xlloop.handler.FunctionInformationFunctionHandler;

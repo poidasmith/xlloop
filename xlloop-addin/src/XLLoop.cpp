@@ -115,7 +115,7 @@ void RegisterFunctions()
 				static LPXLOPER input[20];
 				input[0] = (LPXLOPER FAR) &xDLL;
 				input[1] = (LPXLOPER FAR) XLUtil::MakeExcelString2(tmp);
-				input[2] = (LPXLOPER FAR) XLUtil::MakeExcelString2(isVolatile ? "PPPPPPPPPPP!" : "PPPPPPPPPPP");
+				input[2] = (LPXLOPER FAR) XLUtil::MakeExcelString2(isVolatile ? "RPPPPPPPPPP!" : "RPPPPPPPPPP");
 				input[3] = (LPXLOPER FAR) XLUtil::MakeExcelString3(functionText == NULL ? functionName : functionText);
 				input[4] = (LPXLOPER FAR) XLUtil::MakeExcelString3(argumentText);
 				input[5] = (LPXLOPER FAR) XLUtil::MakeExcelString2("1");
@@ -172,9 +172,9 @@ void GetLoadServer()
 		if(host != NULL && port != -1) {
 			strncpy(h, &host[1], host[0]);
 			h[host[0]] = 0;
+			g_protocol->disconnect();
 			g_protocol->setHost(h);
 			g_protocol->setPort(port);
-			g_protocol->disconnect();
 			g_protocol->connect();
 		}
 	}

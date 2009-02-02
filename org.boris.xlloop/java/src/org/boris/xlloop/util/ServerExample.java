@@ -19,6 +19,8 @@ import org.boris.xlloop.reflect.ReflectFunctionHandler;
 
 public class ServerExample
 {
+    private static final boolean LOAD_BALANCE = false;
+
     public static void main(String[] args) throws Exception {
         // Create function server on the default port
         FunctionServer fs = new FunctionServer();
@@ -42,7 +44,8 @@ public class ServerExample
         CompositeFunctionHandler cfh = new CompositeFunctionHandler();
         cfh.add(rfh);
         cfh.add(firh);
-        cfh.add(glsfh);
+        if (LOAD_BALANCE)
+            cfh.add(glsfh);
         fs.setFunctionHandler(new DebugFunctionHandler(cfh));
 
         // Run the engine

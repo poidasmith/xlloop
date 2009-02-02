@@ -12,6 +12,15 @@
 #include "../xll/XLUtil.h"
 #include <istream>
 
+#define XL_CODEC_TYPE_NUM 0x1
+#define XL_CODEC_TYPE_STR 0x2
+#define XL_CODEC_TYPE_BOOL 0x3
+#define XL_CODEC_TYPE_ERR 0x4
+#define XL_CODEC_TYPE_MULTI 0x5
+#define XL_CODEC_TYPE_MISSING 0x6
+#define XL_CODEC_TYPE_NIL 0x7
+#define XL_CODEC_TYPE_INT 0x8
+
 inline void writeDoubleWord(unsigned int value, std::ostream& os)
 {
 	os.put(value >> 24 & 0xff);
@@ -47,18 +56,21 @@ void XLCodec::encode(const LPXLOPER xl, std::ostream& os)
 {
 	int type = xl->xltype & ~(xlbitXLFree | xlbitDLLFree);
 	int len;
-	writeDoubleWord(type, os);
 	switch(type) {
 		case xltypeBool:
+			os.put(XL_CODEC_TYPE_BOOL);
 			os.put(xl->val.boolean);
 			break;
 		case xltypeErr:
+			os.put(XL_CODEC_TYPE_ERR);
 			writeDoubleWord(xl->val.err, os);
 			break;
 		case xltypeInt:
+			os.put(XL_CODEC_TYPE_INT);
 			writeDoubleWord(xl->val.w, os);
 			break;
 		case xltypeMulti:
+			os.put(XL_CODEC_TYPE_MULTI);
 			writeDoubleWord(xl->val.array.rows, os);
 			writeDoubleWord(xl->val.array.columns, os);
 			len = xl->val.array.rows*xl->val.array.columns;
@@ -67,21 +79,27 @@ void XLCodec::encode(const LPXLOPER xl, std::ostream& os)
 			}
 			break;
 		case xltypeNum:
+			os.put(XL_CODEC_TYPE_NUM);
 			writeDouble(xl->val.num, os);
 			break;
 		case xltypeStr:
+			os.put(XL_CODEC_TYPE_STR);
 			os.put(xl->val.str[0]);
 			os.write(&xl->val.str[1], xl->val.str[0]);
 			break;
-		case xltypeMissing:
 		case xltypeNil:
+			os.put(XL_CODEC_TYPE_NIL);
+			break;
+		case xltypeMissing:
+		default:
+			os.put(XL_CODEC_TYPE_MISSING);
 			break;
 	}
 }
 
 void XLCodec::encode(const char* str, std::ostream& os)
 {
-	writeDoubleWord(xltypeStr, os);
+	os.put(XL_CODEC_TYPE_STR);
 	int len = strlen(str);
 	os.put(len);
 	os.write(str, len);
@@ -89,25 +107,29 @@ void XLCodec::encode(const char* str, std::ostream& os)
 
 void XLCodec::encode(int w, std::ostream& os)
 {
-	writeDoubleWord(xltypeInt, os);
+	os.put(XL_CODEC_TYPE_INT);
 	writeDoubleWord(w, os);
 }
 
 void XLCodec::decode(std::istream& is, LPXLOPER xl) 
 {
-	xl->xltype = readDoubleWord(is);
+	int type = is.get();
 	int len;
-	switch(xl->xltype) {
-		case xltypeBool:
+	switch(type) {
+		case XL_CODEC_TYPE_BOOL:
+			xl->xltype = xltypeBool;
 			xl->val.boolean = is.get();
 			break;
-		case xltypeErr:
+		case XL_CODEC_TYPE_ERR:
+			xl->xltype = xltypeErr;
 			xl->val.err = readDoubleWord(is);
 			break;
-		case xltypeInt:
+		case XL_CODEC_TYPE_INT:
+			xl->xltype = xltypeInt;
 			xl->val.w = readDoubleWord(is);
 			break;
-		case xltypeMulti:
+		case XL_CODEC_TYPE_MULTI:
+			xl->xltype = xltypeMulti;
 			xl->val.array.rows = readDoubleWord(is);
 			xl->val.array.columns = readDoubleWord(is);
 			len = xl->val.array.rows * xl->val.array.columns;
@@ -116,17 +138,22 @@ void XLCodec::decode(std::istream& is, LPXLOPER xl)
 				decode(is, &xl->val.array.lparray[i]);
 			}
 			break;
-		case xltypeNum:
+		case XL_CODEC_TYPE_NUM:
+			xl->xltype = xltypeNum;
 			xl->val.num = readDouble(is);
 			break;
-		case xltypeStr:
+		case XL_CODEC_TYPE_STR:
+			xl->xltype = xltypeStr;
 			len = is.get();
 			xl->val.str = new char[len+1];
 			xl->val.str[0] = (char) len;
 			is.read(&xl->val.str[1], len);
 			break;
-		case xltypeMissing:
-		case xltypeNil:
+		case XL_CODEC_TYPE_MISSING:
+			xl->xltype = xltypeMissing;
+			break;
+		case XL_CODEC_TYPE_NIL:
+			xl->xltype = xltypeNil;
 			break;
 		default:
 			xl->xltype = xltypeErr;
