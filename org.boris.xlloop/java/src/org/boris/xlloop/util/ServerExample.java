@@ -35,6 +35,8 @@ public class ServerExample
         // Create a function information handler to register our functions
         FunctionInformationFunctionHandler firh = new FunctionInformationFunctionHandler();
         firh.add(rfh.getFunctions());
+        firh.add(CSVFunctionInformationReader.read(ServerExample.class
+                .getResourceAsStream("math.csv")));
 
         // Create a function handler to demonstrate the "load balancing"
         // capability

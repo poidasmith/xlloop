@@ -180,6 +180,51 @@ int Protocol::send(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXL
 	return conn == NULL ? 1 : 0;
 }
 
+int Protocol::send(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, 
+		LPXLOPER v4, LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, LPXLOPER v9,
+		LPXLOPER v10, LPXLOPER v11, LPXLOPER v12, LPXLOPER v13, LPXLOPER v14, LPXLOPER v15,
+		LPXLOPER v16, LPXLOPER v17, LPXLOPER v18, LPXLOPER v19, LPXLOPER v20, LPXLOPER v21,
+		LPXLOPER v22, LPXLOPER v23, LPXLOPER v24, LPXLOPER v25, LPXLOPER v26,
+		LPXLOPER v27, LPXLOPER v28, LPXLOPER v29)
+{
+	tcpbuf b(conn);
+	tcpstream s(&b);
+	XLCodec::encode(name, s);
+	XLCodec::encode(30, s);
+	XLCodec::encode(v0, s);
+	XLCodec::encode(v1, s);
+	XLCodec::encode(v2, s);
+	XLCodec::encode(v3, s);
+	XLCodec::encode(v4, s);
+	XLCodec::encode(v5, s);
+	XLCodec::encode(v6, s);
+	XLCodec::encode(v7, s);
+	XLCodec::encode(v8, s);
+	XLCodec::encode(v9, s);
+	XLCodec::encode(v10, s);
+	XLCodec::encode(v11, s);
+	XLCodec::encode(v12, s);
+	XLCodec::encode(v13, s);
+	XLCodec::encode(v14, s);
+	XLCodec::encode(v15, s);
+	XLCodec::encode(v16, s);
+	XLCodec::encode(v17, s);
+	XLCodec::encode(v18, s);
+	XLCodec::encode(v19, s);
+	XLCodec::encode(v20, s);
+	XLCodec::encode(v21, s);
+	XLCodec::encode(v22, s);
+	XLCodec::encode(v23, s);
+	XLCodec::encode(v24, s);
+	XLCodec::encode(v25, s);
+	XLCodec::encode(v26, s);
+	XLCodec::encode(v27, s);
+	XLCodec::encode(v28, s);
+	XLCodec::encode(v29, s);
+	s.flush();
+	return conn == NULL ? 1 : 0;
+}
+
 int Protocol::send(const char* name, int count, LPXLOPER v)
 {
 	tcpbuf b(conn);

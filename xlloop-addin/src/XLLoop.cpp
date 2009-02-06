@@ -40,6 +40,9 @@ static std::vector<std::string> g_functionNames;
 #define AF_GET_FUNCTIONS "org.boris.xlloop.GetFunctions"
 #define AF_GET_LOAD_SERVER "org.boris.xlloop.GetLoadServer"
 
+// Define for 30 args
+//#define LARGE_ARG_LIST
+
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
 	if(fdwReason == DLL_PROCESS_ATTACH) {
@@ -115,7 +118,11 @@ void RegisterFunctions()
 				static LPXLOPER input[20];
 				input[0] = (LPXLOPER FAR) &xDLL;
 				input[1] = (LPXLOPER FAR) XLUtil::MakeExcelString2(tmp);
+#ifdef LARGE_ARG_LIST
+				input[2] = (LPXLOPER FAR) XLUtil::MakeExcelString2(isVolatile ? "RPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP!" : "RPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP");
+#else
 				input[2] = (LPXLOPER FAR) XLUtil::MakeExcelString2(isVolatile ? "RPPPPPPPPPP!" : "RPPPPPPPPPP");
+#endif
 				input[3] = (LPXLOPER FAR) XLUtil::MakeExcelString3(functionText == NULL ? functionName : functionText);
 				input[4] = (LPXLOPER FAR) XLUtil::MakeExcelString3(argumentText);
 				input[5] = (LPXLOPER FAR) XLUtil::MakeExcelString2("1");
@@ -288,8 +295,17 @@ __declspec(dllexport) LPXLOPER WINAPI xlAddInManagerInfo(LPXLOPER xAction)
 	return (LPXLOPER) &xInfo;
 }
 
+#ifdef LARGE_ARG_LIST
+__declspec(dllexport) LPXLOPER WINAPI FSExecute(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, LPXLOPER v4, 
+												LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, LPXLOPER v9,
+												LPXLOPER v10, LPXLOPER v11, LPXLOPER v12, LPXLOPER v13, LPXLOPER v14,
+												LPXLOPER v15, LPXLOPER v16, LPXLOPER v17, LPXLOPER v18, LPXLOPER v19,
+												LPXLOPER v20, LPXLOPER v21, LPXLOPER v22, LPXLOPER v23, LPXLOPER v24,
+												LPXLOPER v25, LPXLOPER v26, LPXLOPER v27, LPXLOPER v28, LPXLOPER v29)
+#else
 __declspec(dllexport) LPXLOPER WINAPI FSExecute(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, LPXLOPER v4, 
 												LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, LPXLOPER v9)
+#endif
 {
 	// Attempt connection
 	if(!InitProtocol()) {
@@ -300,7 +316,11 @@ __declspec(dllexport) LPXLOPER WINAPI FSExecute(const char* name, LPXLOPER v0, L
 	}
 
 	// Exec function
+#ifdef LARGE_ARG_LIST
+	LPXLOPER xres = g_protocol->execute(name, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29);
+#else
 	LPXLOPER xres = g_protocol->execute(name, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9);
+#endif
 
 	// Check for error
 	if(!g_protocol->isConnected()) {
@@ -314,17 +334,37 @@ __declspec(dllexport) LPXLOPER WINAPI FSExecute(const char* name, LPXLOPER v0, L
 	return xres;
 }
 
-__declspec(dllexport) LPXLOPER WINAPI FSExecuteVolatile(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, 
-														LPXLOPER v4, LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, 
-														LPXLOPER v9)
+#ifdef LARGE_ARG_LIST
+__declspec(dllexport) LPXLOPER WINAPI FSExecuteVolatile(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, LPXLOPER v4, 
+												LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, LPXLOPER v9,
+												LPXLOPER v10, LPXLOPER v11, LPXLOPER v12, LPXLOPER v13, LPXLOPER v14,
+												LPXLOPER v15, LPXLOPER v16, LPXLOPER v17, LPXLOPER v18, LPXLOPER v19,
+												LPXLOPER v20, LPXLOPER v21, LPXLOPER v22, LPXLOPER v23, LPXLOPER v24,
+												LPXLOPER v25, LPXLOPER v26, LPXLOPER v27, LPXLOPER v28, LPXLOPER v29)
+#else
+__declspec(dllexport) LPXLOPER WINAPI FSExecuteVolatile(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, LPXLOPER v4, 
+												LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, LPXLOPER v9)
+#endif
 {
 	// Just call off to main function (as this should have the same behaviour only volatile)
+#ifdef LARGE_ARG_LIST
+	return FSExecute(name, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29);
+#else
 	return FSExecute(name, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9);
+#endif
 }
 
-LPXLOPER WINAPI FSExecuteNumber(int number, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, 
-								LPXLOPER v4, LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, 
-								LPXLOPER v9)
+#ifdef LARGE_ARG_LIST
+LPXLOPER WINAPI FSExecuteNumber(int number, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, LPXLOPER v4, 
+												LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, LPXLOPER v9,
+												LPXLOPER v10, LPXLOPER v11, LPXLOPER v12, LPXLOPER v13, LPXLOPER v14,
+												LPXLOPER v15, LPXLOPER v16, LPXLOPER v17, LPXLOPER v18, LPXLOPER v19,
+												LPXLOPER v20, LPXLOPER v21, LPXLOPER v22, LPXLOPER v23, LPXLOPER v24,
+												LPXLOPER v25, LPXLOPER v26, LPXLOPER v27, LPXLOPER v28, LPXLOPER v29)
+#else
+LPXLOPER WINAPI FSExecuteNumber(int number, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, LPXLOPER v4, 
+												LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, LPXLOPER v9)
+#endif
 {
 	if(g_functionNames.size() < number) {
 		static XLOPER err;
@@ -332,16 +372,33 @@ LPXLOPER WINAPI FSExecuteNumber(int number, LPXLOPER v0, LPXLOPER v1, LPXLOPER v
 		err.val.str = "\020#Unknown function";
 		return &err;
 	}
+#ifdef LARGE_ARG_LIST
+	return FSExecute(g_functionNames[number].c_str(), v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29);
+#else
 	return FSExecute(g_functionNames[number].c_str(), v0, v1, v2, v3, v4, v5, v6, v7, v8, v9);
+#endif
 }
 
+#ifdef LARGE_ARG_LIST
+#define DECLARE_EXCEL_FUNCTION(number) \
+__declspec(dllexport) LPXLOPER WINAPI FS##number (LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, LPXLOPER v4, \
+												LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, LPXLOPER v9, \
+												LPXLOPER v10, LPXLOPER v11, LPXLOPER v12, LPXLOPER v13, LPXLOPER v14, \
+												LPXLOPER v15, LPXLOPER v16, LPXLOPER v17, LPXLOPER v18, LPXLOPER v19, \
+												LPXLOPER v20, LPXLOPER v21, LPXLOPER v22, LPXLOPER v23, LPXLOPER v24, \
+												LPXLOPER v25, LPXLOPER v26, LPXLOPER v27, LPXLOPER v28, LPXLOPER v29) \
+{ \
+	return FSExecuteNumber(number, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29); \
+} 
+#else
 #define DECLARE_EXCEL_FUNCTION(number) \
 __declspec(dllexport) LPXLOPER WINAPI FS##number (LPXLOPER v0, LPXLOPER v1, LPXLOPER v2 \
 	,LPXLOPER v3, LPXLOPER v4, LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8 \
 	,LPXLOPER v9) \
 { \
 	return FSExecuteNumber(number, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9); \
-} \
+} 
+#endif
 
 DECLARE_EXCEL_FUNCTION(0)
 DECLARE_EXCEL_FUNCTION(1)

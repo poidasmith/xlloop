@@ -11,6 +11,8 @@ package org.boris.xlloop.util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
 
@@ -18,6 +20,10 @@ import org.boris.xlloop.handler.FunctionInformation;
 
 public class CSVFunctionInformationReader
 {
+    public static FunctionInformation[] read(InputStream is) throws IOException {
+        return read(new InputStreamReader(is));
+    }
+
     public static FunctionInformation[] read(Reader r) throws IOException {
         return read(r, ',', true);
     }

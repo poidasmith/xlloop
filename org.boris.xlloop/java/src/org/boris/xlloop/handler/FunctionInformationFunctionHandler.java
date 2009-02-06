@@ -13,7 +13,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.boris.xlloop.FunctionHandler;
 import org.boris.xlloop.RequestException;
@@ -39,10 +41,11 @@ public class FunctionInformationFunctionHandler implements FunctionHandler
 
     public XLoper execute(String name, XLoper[] args) throws RequestException {
         XLList c = new XLList();
+        Map m = new TreeMap();
         for (Iterator i = functions.iterator(); i.hasNext();) {
             FunctionInformation fi = (FunctionInformation) i.next();
             System.out.println(fi.getName());
-            c.add(fi.encode());
+            m.put(fi.getName(), fi);
         }
 
         for (Iterator i = functionProviders.iterator(); i.hasNext();) {
@@ -51,9 +54,14 @@ public class FunctionInformationFunctionHandler implements FunctionHandler
             if (fis != null) {
                 for (int j = 0; j < fis.length; j++) {
                     System.out.println(fis[j].getName());
-                    c.add(fis[j].encode());
+                    m.put(fis[j].getName(), fis[j]);
                 }
             }
+        }
+
+        for (Iterator i = m.keySet().iterator(); i.hasNext();) {
+            FunctionInformation fi = (FunctionInformation) m.get(i.next());
+            c.add(fi.encode());
         }
 
         return c.toXLoper();
