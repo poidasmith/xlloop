@@ -13,7 +13,7 @@ import org.boris.jxll.util.LibraryLoader;
 
 public class JNI
 {
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
     private static final String VERSION = "0.0.2";
     private static final String BASE = "F:/eclipse/workspace/org.boris.jxll/jni/build/";
     private static final String BUILD = "Debug";
@@ -30,6 +30,8 @@ public class JNI
     }
 
     static native long loadLibrary(String filename);
+
+    static native void dispose(Addin addin);
 
     static native void xlAutoOpen(long library);
 

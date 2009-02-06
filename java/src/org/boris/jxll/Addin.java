@@ -118,6 +118,8 @@ public class Addin
             return new XLOper(((Number) arg).doubleValue());
         } else if (arg instanceof String) {
             return new XLOper((String) arg);
+        } else if (arg instanceof XLOper) {
+            return (XLOper) arg;
         }
         return null;
     }
@@ -136,6 +138,18 @@ public class Addin
 
     public boolean hasFunction(String name) {
         return functions.contains(name);
+    }
+
+    public void registerFunction(FunctionInformation fi) {
+        if (fi == null || fi.functionName == null || fi.procedure == null)
+            return;
+        if (fi.type == null)
+            fi.type = FunctionSpec.valueOf(fi.typeText);
+        if (fi.type == null)
+            return;
+
+        functions.add(fi.functionName);
+        information.put(fi.functionName, fi);
     }
 
     void registerFunction(XLOper[] opers) {

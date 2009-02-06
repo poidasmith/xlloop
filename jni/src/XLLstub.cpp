@@ -35,6 +35,7 @@ int far _cdecl Excel4(int xlfn, LPXLOPER operRes, int count,... )
 	for(int i = 0; i < count; i++) {
 		opers[i] = va_arg(argptr, LPXLOPER);
 	}
+	va_end(argptr);
 	int res = EXCEL4V(xlfn, operRes, count, opers);
 	delete [] opers;
 	return res;

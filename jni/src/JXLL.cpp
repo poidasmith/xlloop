@@ -21,6 +21,10 @@ static jclass XLL_CLASS;
 static jmethodID XLL_XLCALLVER_METHOD;
 static jmethodID XLL_EXCEL4_METHOD;
 
+// Cache fields for Addin class
+static jclass ADDIN_CLASS;
+static jfieldID ADDIN_LIBRARY_FIELD;
+
 // Cache fields for XLOper class
 static jclass XLOPER_CLASS;
 static jmethodID XLOPER_CONSTRUCTOR;
@@ -217,6 +221,10 @@ void CacheHandles(JNIEnv* env)
 	XLL_XLCALLVER_METHOD = env->GetStaticMethodID(XLL_CLASS, "xlCallVer", "()I");
 	XLL_EXCEL4_METHOD = env->GetStaticMethodID(XLL_CLASS, "excel4", "(ILorg/boris/jxll/XLOperHolder;[Lorg/boris/jxll/XLOper;)I");
 
+	// Cache fields for Addin class
+	ADDIN_CLASS = (jclass) env->NewGlobalRef(env->FindClass("org/boris/jxll/Addin"));
+	ADDIN_LIBRARY_FIELD = env->GetFieldID(ADDIN_CLASS, "library", "J");
+
 	// Cache fields for XLOper class
 	XLOPER_CLASS = (jclass) env->NewGlobalRef(env->FindClass("org/boris/jxll/XLOper"));
 	XLOPER_CONSTRUCTOR = env->GetMethodID(XLOPER_CLASS, "<init>", "()V");
@@ -269,6 +277,17 @@ Java_org_boris_jxll_JNI_loadLibrary(JNIEnv *env, jobject obj, jstring filename)
 	HINSTANCE hDLL = LoadLibrary(fstr);
 	env->ReleaseStringUTFChars(filename, fstr);
 	return (jlong) hDLL;
+}
+
+JNIEXPORT void JNICALL 
+Java_org_boris_jxll_JNI_dispose(JNIEnv *env, jobject obj, jobject addin)
+{
+	if(addin==NULL) return;
+	HINSTANCE hDLL = (HINSTANCE) env->GetLongField(addin, ADDIN_LIBRARY_FIELD);
+	if(hDLL) {
+		FreeLibrary(hDLL);
+		env->SetLongField(addin, ADDIN_LIBRARY_FIELD, 0);
+	}
 }
 
 JNIEXPORT void JNICALL 

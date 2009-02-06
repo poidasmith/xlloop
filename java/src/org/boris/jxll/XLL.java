@@ -34,6 +34,10 @@ public class XLL
         return a;
     }
 
+    public static void dispose(Addin addin) {
+        JNI.dispose(addin);
+    }
+
     static int xlCallVer() {
         return 4;
     }

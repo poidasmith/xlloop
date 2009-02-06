@@ -24,4 +24,14 @@ public class FunctionInformation
 
     // Derived
     public FunctionSpec type;
+
+    public FunctionInformation() {
+    }
+
+    public FunctionInformation(String name, String type) {
+        this.functionName = name;
+        this.procedure = name;
+        this.typeText = type;
+        this.type = FunctionSpec.valueOf(type);
+    }
 }
