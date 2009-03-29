@@ -25,11 +25,11 @@ public class Reflect
         }
         return result;
     }
-    
+
     public static String getClassName(Object obj) {
         return obj == null ? "null" : obj.getClass().getCanonicalName();
     }
-    
+
     public static Object getField(Object obj, String name) throws Exception {
         return obj.getClass().getField(name).get(obj);
     }

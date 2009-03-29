@@ -54,7 +54,7 @@ public class CSVFunctionInformationReader
         if (sa.length > 4)
             fi.setHelpTopic(sa[4]);
         if (sa.length > 5)
-            fi.setVolatile(Boolean.parseBoolean(sa[5]));
+            fi.setVolatile(Boolean.valueOf(sa[5]).booleanValue());
         for (int i = 6; i < sa.length; i += 2) {
             String name = sa[i];
             if (name == null || name.trim().length() == 0)

@@ -19,7 +19,7 @@ import java.util.ArrayList;
 public class CSV
 {
     public static String toCSV(String[] arr) {
-        StringBuilder sb = new StringBuilder();
+        StringBuffer sb = new StringBuffer();
         for (int i = 0; i < arr.length; i++) {
             sb.append(arr[i]);
             if (i < arr.length - 1)
@@ -27,17 +27,17 @@ public class CSV
         }
         return sb.toString();
     }
-    
+
     /**
      * Parse a line.
-     *
+     * 
      * @param line.
-     *
+     * 
      * @return String[].
      */
     public static String[] parseLine(String line, char delim, boolean hasQuotes) {
         ArrayList items = new ArrayList();
-        StringBuilder sb = new StringBuilder();
+        StringBuffer sb = new StringBuffer();
         boolean inQuote = false;
         int length = line.length();
 
@@ -61,9 +61,9 @@ public class CSV
 
     /**
      * Try to open the given url as a file or url.
-     *
+     * 
      * @param url.
-     *
+     * 
      * @return BufferedReader.
      */
     public static BufferedReader openUrl(String url) throws Exception {
@@ -81,36 +81,34 @@ public class CSV
         }
 
         return null;
-    }    
-
+    }
 
     /**
      * Read a CSV from a file or URL.
-     *
+     * 
      * @param url.
-     *
+     * 
      * @return String[][] (as the csv array).
      */
     public static String[][] readEx(String url, String delim, boolean hasQuotes)
-        throws Exception {
+            throws Exception {
         BufferedReader br = CSV.openUrl(url);
 
         if (br == null) {
-            return new String[][] {
-                { "Could not open: " + url }
-            };
+            return new String[][] { { "Could not open: " + url } };
         }
 
         ArrayList lines = new ArrayList();
         String line = null;
 
         while ((line = br.readLine()) != null) {
-            lines.add(CSV.parseLine(line, (delim != null && delim.length() > 0) ? delim.charAt(0) : ',',
-                    hasQuotes));
+            lines.add(CSV.parseLine(line,
+                    (delim != null && delim.length() > 0) ? delim.charAt(0)
+                            : ',', hasQuotes));
         }
 
         br.close();
 
-        return (String[][]) lines.toArray(new String[][] {  });
+        return (String[][]) lines.toArray(new String[][] {});
     }
 }
