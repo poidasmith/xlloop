@@ -93,13 +93,9 @@ public class ExcelDate
     }
 
     public static double date(double y, double m, double d) {
-        y %= 24;
         Calendar c = new GregorianCalendar();
         c.set((int) y, (int) m, (int) d, 0, 0, 0);
-        double t = ExcelDate.toExcelDate(c.getTimeInMillis());
-        if (t > 10000)
-            return -1;
-        return t;
+        return ExcelDate.toExcelDate(c.getTimeInMillis());
     }
 
     public static double time(double h, double m, double s) {
