@@ -17,6 +17,7 @@ public class Day implements Comparable
 {
     public static String[] MONTHS = { "Jan", "Feb", "Mar", "Apr", "May", "Jun",
             "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+    public static long MILLIS_IN_DAY = 86400000l;
 
     private int year;
     private int month;
