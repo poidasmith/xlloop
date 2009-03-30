@@ -15,8 +15,8 @@ import java.util.GregorianCalendar;
 
 public class Day implements Comparable
 {
-    public static String[] MONTHS = { "Jan", "Feb", "Mar", "Apr", "Jun", "Jul",
-            "Aug", "Sep", "Oct", "Nov", "Dec" };
+    public static String[] MONTHS = { "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
     private int year;
     private int month;
@@ -100,6 +100,10 @@ public class Day implements Comparable
         if (v != 0)
             return v;
         return day - d.day;
+    }
+
+    public String toString() {
+        return day + "-" + getMonthString() + "-" + year;
     }
 
     public double toExcelDate() {
