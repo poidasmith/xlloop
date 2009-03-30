@@ -13,7 +13,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-public class Day
+public class Day implements Comparable
 {
     public static String[] MONTHS = { "Jan", "Feb", "Mar", "Apr", "Jun", "Jul",
             "Aug", "Sep", "Oct", "Nov", "Dec" };
@@ -83,5 +83,31 @@ public class Day
         if (year != other.year)
             return false;
         return true;
+    }
+
+    public int compareTo(Object o) {
+        if (this == o)
+            return 0;
+        if (o == null)
+            return 0;
+        if (o.getClass() != getClass())
+            return 0;
+        Day d = (Day) o;
+        int v = year - d.year;
+        if (v != 0)
+            return v;
+        v = month - d.month;
+        if (v != 0)
+            return v;
+        return day - d.day;
+    }
+
+    public double toExcelDate() {
+        return ExcelDate.date(year, month, day);
+    }
+
+    public static Day fromExcelDate(double date) {
+        return new Day(ExcelDate.getYear(date), ExcelDate.getMonth(date),
+                ExcelDate.getDayOfMonth(date));
     }
 }
