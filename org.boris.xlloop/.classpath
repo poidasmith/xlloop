@@ -9,5 +9,6 @@
 	<classpathentry kind="lib" path="java/ext_jars/jatha-2.8.jar" sourcepath="java/ext_jars/jatha-2.8-src.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/org.boris.jxll"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
