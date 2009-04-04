@@ -1,5 +1,11 @@
+
+scalability
+===========
 - add list of servers to connect to (either round robin or random selection)
 - probably use list like (servers=localhost:5600,myserver,myserver:8000)
+
+reliability
+===========
 - also allow a server to indicate another server to use each time
   a new connection is created (ie. when no connection exists)
 - client/server talk in xlopers
@@ -7,3 +13,30 @@
   dependencies
 - tray icon for stopping xllop/resetting connection?
 - popup for long running functions?
+
+building/configuration
+======================
+- a smaller version with wcrt.lib instead of msvcrt
+- a version with 30 args (or build in support for say 10 functions that have
+  more than 10 args)
+- a build with support for 1000 functions
+
+protocols
+=========
+- http protocol version - ie. xmlcodec over http so php users can support this 
+  natively
+- add a way to add urls to the client (ini file is not user-friendly), maybe
+  a registry based bookmark list
+- date handling, maybe add support for exceldate object on object converter.
+  
+server/language support
+=======================  
+- fix erlang server
+- create r server
+- create ruby server
+- create python server
+ 
+addin support
+=============
+- open office calc extension?
+

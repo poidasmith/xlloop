@@ -11,7 +11,6 @@ package org.boris.xlloop;
 
 import org.boris.jxll.Addin;
 import org.boris.jxll.XLL;
-import org.boris.jxll.util.Reflection;
 
 public class XLLServerTest
 {
