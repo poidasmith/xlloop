@@ -39,6 +39,10 @@ public class FunctionInformationFunctionHandler implements FunctionHandler
         functionProviders.add(prov);
     }
 
+    public void remove(FunctionProvider prov) {
+        functionProviders.remove(prov);
+    }
+
     public XLoper execute(String name, XLoper[] args) throws RequestException {
         XLList c = new XLList();
         Map m = new TreeMap();

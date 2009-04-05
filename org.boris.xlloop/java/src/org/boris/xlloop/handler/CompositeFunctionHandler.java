@@ -25,6 +25,10 @@ public class CompositeFunctionHandler implements FunctionHandler
         handlers.add(h);
     }
 
+    public void remove(FunctionHandler h) {
+        handlers.remove(h);
+    }
+
     public XLoper execute(String name, XLoper[] args) throws RequestException {
         for (Iterator i = handlers.iterator(); i.hasNext();) {
             FunctionHandler h = (FunctionHandler) i.next();
