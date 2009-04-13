@@ -3,16 +3,12 @@
 
 -define(TCP_OPTIONS, [binary, {packet, 0}, {active, false}]).
 -define(TIME_OUT, 1000).
--define(REPLY_OK, "Ok").
--define(REPLY_ERROR, "Error").
--define(REQ_TYPE_GENERIC, 0).
--define(REQ_TYPE_FUNCTION, 1).
 
 start(Port, Module) when is_integer(Port) ->
 	spawn(fun() -> listen(Port, Module) end). 
 	
 behaviour_info(callbacks) ->
-	[{request, 2}, {function, 2}].
+	[{function, 2}].
 	
 listen(Port, Module) ->
 	{ok, Socket} = gen_tcp:listen(Port, ?TCP_OPTIONS),
@@ -41,21 +37,10 @@ handle(Socket, Module) ->
 	end.
 	
 data(Socket, Data, Module) ->
-	{Type, Rest} = variant_codec:decode(Data),
-	{Name, Rest2} = variant_codec:decode(Rest),
-	{Args, _Rest3} = variant_codec:decode(Rest2),
-	case Type of
-		{long, ?REQ_TYPE_GENERIC} -> request(Socket, Name, Args, Module);
-		{long, ?REQ_TYPE_FUNCTION} -> function(Socket, Name, Args, Module)
-	end.
+	{Name, Rest2} = xloper_codec:decode(Rest),
+	{Args, _Rest3} = xloper_codec:decode(Rest2),
+    XLoper = Module:function(Name, Args),
+    gen_tcp:send(Socket, xloper_codec:encode(XLoper)).
 		
-function(Socket, Name, Args, Module) ->
-	reply(Socket, ?REPLY_OK, Module:function(Name, Args)).
 	
-request(Socket, Name, Args, Module) ->
-	reply(Socket, ?REPLY_OK, Module:request(Name, Args)).
-	
-reply(Socket, Type, Variant) ->
-	gen_tcp:send(Socket, variant_codec:encode({string, Type})),
-	gen_tcp:send(Socket, variant_codec:encode(Variant)).
 	

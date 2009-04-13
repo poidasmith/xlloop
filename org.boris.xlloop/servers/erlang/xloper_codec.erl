@@ -1,12 +1,14 @@
 -module(xloper_codec).
 -export([decode_file/1, decode/1, encode/1]).
 
--define(STRUCT, 2).
--define(COLLECTION, 3).
--define(STRING, 4).
--define(DOUBLE, 5).
--define(LONG, 6).
--define(NULL, 7).
+-define(NUM, 1).
+-define(STR, 2).
+-define(BOOL, 3).
+-define(ERR, 4).
+-define(MULTI, 5).
+-define(MISSING, 6).
+-define(NIL, 7).
+-define(INT, 8).
 
 decode_file(File) ->
 	{ok, Bin} = file:read_file(File),
@@ -17,27 +19,30 @@ decode(Bin) when is_binary(Bin) ->
 decode(Bin) when is_list(Bin) ->
 	[Value|Rest] = Bin,
 	case Value of
-		?STRUCT -> decode_struct(Rest);
-		?COLLECTION -> decode_collection(Rest);
-		?STRING -> decode_string(Rest);
-		?DOUBLE -> decode_double(Rest);
-		?LONG -> decode_long(Rest);
-		?NULL -> decode_null(Rest)
+        ?NUM -> decode_num(Rest);
+        ?STR -> decode_str(Rest);
+        ?BOOL -> decode_bool(Rest);
+        ?ERR -> decode_err(Rest);
+		?MULTI -> decode_multi(Rest);
+		?MISSING -> decode_missing(Rest);
+		?NIL -> decode_nil(Rest);
+		?INT -> decode_int(Rest)
 	end.
 	
-decode_struct(Bin) ->
-	{Size, Rest} = decode_int(Bin),
-	{Value, RestS} = decode_struct(Rest, Size),
-	{{struct, Value}, RestS}.
+decode_num(Bin) ->
+    {U, Rest} = lists:split(8, Bin),
+    <<Value:64/float>> = list_to_binary(U),
+    {{num, Value}, Rest}.
+	
+decode_str(Bin) ->
+    {Size, Rest} = decode_int(Bin),
+    {Value, RestL} = lists:split(Size, Rest),
+    {{str, Value}, RestL}.
 
-decode_struct(Bin, 0) ->
-	{[], Bin};
-decode_struct(Bin, Size) ->
-	[_|Rest] = Bin,
-	{Key, RestK} = decode_string(Rest),
-	{Value, RestV} = decode(RestK),
-	{Acc, RestAcc} = decode_struct(RestV, Size - 1),
-	{[{Key, Value} | Acc], RestAcc}.	
+decode_bool(Bin) ->
+    {Size, Rest} = decode_int(Bin),
+    {Value, RestL} = lists:split(Size, Rest),
+    {{str, Value}, RestL}.
 
 decode_collection(Bin) ->
 	{Size, Rest} = decode_int(Bin),
@@ -50,21 +55,6 @@ decode_collection(Bin, Size) ->
 	{Value, Rest} = decode(Bin),
 	{V1, R1} = decode_collection(Rest, Size - 1),
 	{[Value | V1], R1}.
-
-decode_string(Bin) ->
-	{Size, Rest} = decode_int(Bin),
-	{Value, RestL} = lists:split(Size, Rest),
-	{{string, Value}, RestL}.
-	
-decode_double(Bin) ->
-	{U, Rest} = lists:split(8, Bin),
-	<<Value:64/float>> = list_to_binary(U),
-	{{double, Value}, Rest}.
-	
-decode_long(Bin) ->
-	{U, Rest} = lists:split(8, Bin),
-	<<Value:64>> = list_to_binary(U),
-	{{long, Value}, Rest}.
 
 decode_int(Bin) ->
 	{U, Rest} = lists:split(4, Bin),
