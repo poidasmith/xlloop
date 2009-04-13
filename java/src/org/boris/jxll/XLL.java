@@ -51,7 +51,8 @@ public class XLL
             return registerFunction(opers);
         case XLCommandNumber.xlcAlert:
             System.out.println("Alert: " + opers[0].str);
-            break;
+            if (callback != null)
+                return callback.excel4(xlfn, operRes, opers);
         default:
             if (callback != null)
                 return callback.excel4(xlfn, operRes, opers);
