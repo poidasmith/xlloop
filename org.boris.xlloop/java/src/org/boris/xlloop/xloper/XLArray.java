@@ -72,7 +72,7 @@ public class XLArray extends XLoper
     }
 
     public XLoper get(int row, int column) {
-        return array[row * rows + column];
+        return array[row * columns + column];
     }
 
     public String getString(int index) {

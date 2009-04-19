@@ -261,10 +261,12 @@ public class XLoperObjectConverter
                 return obj.toString();
             } else if (Integer.class.equals(hint) || int.class.equals(hint)) {
                 return new Integer((int) ((XLNum) obj).num);
+            } else if (Long.class.equals(hint) || long.class.equals(hint)) {
+                return new Long((long) ((XLNum) obj).num);
             } else if (Boolean.class.equals(hint) || boolean.class.equals(hint)) {
                 return new Boolean(((int) ((XLNum) obj).num) != 0);
             } else {
-                return new Long((long) ((XLNum) obj).num);
+                return new Double(((XLNum) obj).num);
             }
         case XLoper.xlTypeMulti:
             return convertArray((XLArray) obj, hint);
@@ -656,6 +658,8 @@ public class XLoperObjectConverter
             }
 
             val = darr;
+        } else if (XLArray.class.equals(hint)) {
+            val = arr;
         } else {
             String str = arr.getString(0);
             val = registry.get(str);
