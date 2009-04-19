@@ -105,6 +105,10 @@ public class XLArray extends XLoper
         XLoper xl = get(row, column);
         if (xl.type == xlTypeNum) {
             return new Double(((XLNum) xl).num);
+        } else if (xl.type == xlTypeInt) {
+            return new Double(((XLInt) xl).w);
+        } else if (xl.type == xlTypeBool) {
+            return new Double(((XLBool) xl).bool ? 1 : 0);
         }
         return null;
     }

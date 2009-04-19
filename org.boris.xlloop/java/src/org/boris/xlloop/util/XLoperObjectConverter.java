@@ -255,9 +255,7 @@ public class XLoperObjectConverter
                 }
             }
         case XLoper.xlTypeNum:
-            if (Double.class.equals(hint) || double.class.equals(hint)) {
-                return new Double(((XLNum) obj).num);
-            } else if (String.class.equals(hint)) {
+            if (String.class.equals(hint)) {
                 return obj.toString();
             } else if (Integer.class.equals(hint) || int.class.equals(hint)) {
                 return new Integer((int) ((XLNum) obj).num);
@@ -277,10 +275,22 @@ public class XLoperObjectConverter
                 return obj.toString();
             } else if (Integer.class.equals(hint) || int.class.equals(hint)) {
                 return new Integer(((XLBool) obj).bool ? 1 : 0);
-            } else if (Boolean.class.equals(hint) || boolean.class.equals(hint)) {
-                return new Boolean((((XLBool) obj).bool));
-            } else {
+            } else if (Long.class.equals(hint) || long.class.equals(hint)) {
                 return new Long(((XLBool) obj).bool ? 1 : 0);
+            } else {
+                return new Boolean((((XLBool) obj).bool));
+            }
+        case XLoper.xlTypeInt:
+            if (Double.class.equals(hint) || double.class.equals(hint)) {
+                return new Double(((XLInt) obj).w);
+            } else if (String.class.equals(hint)) {
+                return obj.toString();
+            } else if (Long.class.equals(hint) || long.class.equals(hint)) {
+                return new Long(((XLInt) obj).w);
+            } else if (Boolean.class.equals(hint) || boolean.class.equals(hint)) {
+                return new Boolean((((XLInt) obj).w != 0));
+            } else {
+                return new Integer(((XLInt) obj).w);
             }
         case XLoper.xlTypeNil:
         case XLoper.xlTypeMissing:
