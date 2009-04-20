@@ -87,6 +87,10 @@ public class XLArray extends XLoper
         XLoper xl = array[index];
         if (xl.type == xlTypeNum) {
             return new Double(((XLNum) xl).num);
+        } else if (xl.type == xlTypeInt) {
+            return new Double(((XLInt) xl).w);
+        } else if (xl.type == xlTypeBool) {
+            return new Double(((XLBool) xl).bool ? 1 : 0);
         }
         return null;
     }
@@ -97,54 +101,40 @@ public class XLArray extends XLoper
             return new Integer((int) ((XLNum) xl).num);
         } else if (xl.type == xlTypeInt) {
             return new Integer((int) ((XLInt) xl).w);
-        }
-        return null;
-    }
-
-    public Double getDouble(int row, int column) {
-        XLoper xl = get(row, column);
-        if (xl.type == xlTypeNum) {
-            return new Double(((XLNum) xl).num);
-        } else if (xl.type == xlTypeInt) {
-            return new Double(((XLInt) xl).w);
         } else if (xl.type == xlTypeBool) {
-            return new Double(((XLBool) xl).bool ? 1 : 0);
-        }
-        return null;
-    }
-
-    public Integer getInteger(int row, int column) {
-        XLoper xl = get(row, column);
-        if (xl.type == xlTypeNum) {
-            return new Integer((int) ((XLNum) xl).num);
-        } else if (xl.type == xlTypeInt) {
-            return new Integer((int) ((XLInt) xl).w);
+            return new Integer(((XLBool) xl).bool ? 1 : 0);
         }
         return null;
     }
 
     public Boolean getBoolean(int index) {
         XLoper xl = array[index];
+        if (xl == null)
+            return null;
         if (xl.type == xlTypeBool) {
             return new Boolean(((XLBool) xl).bool);
+        } else if (xl.type == xlTypeNum) {
+            return new Boolean(((int) ((XLNum) xl).num) != 0);
+        } else if (xl.type == xlTypeInt) {
+            return new Boolean(((XLInt) xl).w != 0);
         }
         return null;
+    }
+
+    public Double getDouble(int row, int column) {
+        return getDouble(row * columns + column);
+    }
+
+    public Integer getInteger(int row, int column) {
+        return getInteger(row * columns + column);
     }
 
     public Boolean getBoolean(int row, int column) {
-        XLoper xl = get(row, column);
-        if (xl.type == xlTypeBool) {
-            return new Boolean(((XLBool) xl).bool);
-        }
-        return null;
+        return getBoolean(row * columns + column);
     }
 
     public String getString(int row, int column) {
-        XLoper xl = get(row, column);
-        if (xl.type == xlTypeStr) {
-            return ((XLString) xl).str;
-        }
-        return null;
+        return getString(row * columns + column);
     }
 
     public String toString() {
