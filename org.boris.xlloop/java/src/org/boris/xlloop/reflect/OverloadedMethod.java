@@ -34,12 +34,21 @@ public class OverloadedMethod implements Function
                 break;
             }
         }
+
+        InstanceMethod matched = null;
+        double matchPercent = 0;
+
         for (Iterator i = methods.iterator(); i.hasNext();) {
             InstanceMethod m = (InstanceMethod) i.next();
-            if (m.matchesArgs(args, lastArg)) {
-                return m.execute(args);
+            double mc = m.calcMatchPercent(args, lastArg);
+            if (mc > 0 && mc > matchPercent) {
+                matched = m;
+                matchPercent = mc;
             }
         }
+
+        if (matched != null)
+            return matched.execute(args);
 
         throw new RequestException("#Invalid args");
     }

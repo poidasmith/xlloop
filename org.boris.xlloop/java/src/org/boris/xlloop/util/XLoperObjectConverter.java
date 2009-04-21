@@ -57,6 +57,8 @@ public class XLoperObjectConverter
             return new XLBool(((Boolean) obj).booleanValue());
         } else if (obj instanceof Integer) {
             return new XLNum(((Integer) obj).intValue());
+        } else if (obj instanceof Long) {
+            return new XLNum(((Long) obj).longValue());
         } else if (obj instanceof Float) {
             return new XLNum(((Float) obj).floatValue());
         } else if (obj instanceof Double) {
@@ -392,10 +394,7 @@ public class XLoperObjectConverter
             Integer[] darr = new Integer[arr.rows];
 
             for (int i = 0; i < darr.length; i++) {
-                Integer l = arr.getInteger(i);
-                if (l != null) {
-                    darr[i] = l;
-                }
+                darr[i] = arr.getInteger(i);
             }
 
             val = darr;
@@ -403,10 +402,7 @@ public class XLoperObjectConverter
             Integer[][] darr = new Integer[arr.rows][1];
 
             for (int i = 0; i < arr.rows; i++) {
-                Integer l = arr.getInteger(i);
-                if (l != null) {
-                    darr[i][0] = l;
-                }
+                darr[i][0] = arr.getInteger(i);
             }
 
             val = darr;
@@ -518,7 +514,9 @@ public class XLoperObjectConverter
             double[] darr = new double[arr.rows * arr.columns];
 
             for (int i = 0; i < darr.length; i++) {
-                darr[i] = arr.getDouble(i).doubleValue();
+                Double d = arr.getDouble(i);
+                if (d != null)
+                    darr[i] = d.doubleValue();
             }
 
             val = darr;
@@ -673,6 +671,8 @@ public class XLoperObjectConverter
         } else {
             String str = arr.getString(0);
             val = registry.get(str);
+            if (val == null)
+                val = str;
         }
 
         return val;
