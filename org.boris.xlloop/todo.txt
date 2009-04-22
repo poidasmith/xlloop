@@ -40,3 +40,44 @@ addin support
 =============
 - open office calc extension?
 
+xlloop-http
+
+
+rest apis
+
+
+http://myserver/FunctionServer
+
+<XLLoop version="0.1.1">
+    <Name>MyFunc</Name>
+    <XLopers>
+        <XLoper type="multi" rows="2" columns="2">
+            <XLoper type="str">Hello Worlds!</XLoper>
+            <XLoper type="num">234.344</XLoper>
+            <XLoper type="bool">true</XLoper>
+            <XLoper type="err">34</XLoper>
+            <XLoper type="int">34</XLoper>
+        </XLoper>
+    </XLopers>
+</XLLoop>
+
+Response
+
+<XLLoop version="0.1.1">
+    <XLoper type="str">Hello World!</XLoper>
+</XLLoop>
+
+
+INI file
+
+server.1=http://yahoo.com/FunctionServer
+server.1.FunctionName=Yahoo
+server.2=http://xlloop.com/CommonServer
+server.2.FunctionName=XLLoop
+
+
+for each server listed we create FWx("Name", args...) where x is the server number
+as indicated in the INI file ? (probably not the best idea)
+
+
+
