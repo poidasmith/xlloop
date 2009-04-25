@@ -24,6 +24,10 @@ public class XLMap
 {
     private Map map = new LinkedHashMap();
 
+    public void add(String name, XLoper value) {
+        map.put(name, value);
+    }
+
     public void add(String name, String value) {
         map.put(name, new XLString(value));
     }

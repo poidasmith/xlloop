@@ -11,13 +11,12 @@ package org.boris.xlloop;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.net.SocketException;
 
 import org.boris.xlloop.xloper.XLoper;
 
 public interface RequestProtocol
 {
-    public void initialise(Socket socket) throws SocketException;
+    public void initialise(Socket socket) throws IOException;
 
     public void send(Socket socket, XLoper data) throws IOException;
 

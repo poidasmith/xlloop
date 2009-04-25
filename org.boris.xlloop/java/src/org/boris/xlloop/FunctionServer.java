@@ -120,7 +120,10 @@ public class FunctionServer
         }
 
         public void run() {
-            socket.setPerformancePreferences(0, 1, 0);
+            try {
+                protocol.initialise(socket);
+            } catch (IOException e) {
+            }
             while (!socket.isClosed()) {
                 handleRequest(protocol, socket);
             }

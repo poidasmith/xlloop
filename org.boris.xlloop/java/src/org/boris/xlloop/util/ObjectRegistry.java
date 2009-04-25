@@ -15,33 +15,38 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-
 /**
  * Used to contain objects and provides mapping to a generated key.
  */
-public class ObjectRegistry {
+public class ObjectRegistry
+{
     private Map map = new HashMap();
+    private Map rev = new HashMap();
     private Random rand = new Random(new Date().getTime());
     private SimpleDateFormat format = new SimpleDateFormat(
             "EEE, d MMM yyyy HH:mm:ss:SSS");
 
     /**
      * Place an object in the registry.
-     *
+     * 
      * @param obj.
-     *
+     * 
      * @return String (the generated key).
      */
     public String put(Object obj) {
-        String key = createKey(obj);
-        map.put(key, obj);
-
-        return key;
+        if (rev.containsKey(obj)) {
+            return (String) rev.get(obj);
+        } else {
+            String key = createKey(obj);
+            map.put(key, obj);
+            rev.put(obj, key);
+            return key;
+        }
     }
 
     /**
      * Get the keys.
-     *
+     * 
      * @return String[].
      */
     public String[] getKeys() {
@@ -50,9 +55,9 @@ public class ObjectRegistry {
 
     /**
      * Retrieve an object from the registry.
-     *
+     * 
      * @param key.
-     *
+     * 
      * @return Object.
      */
     public Object get(String key) {
@@ -61,18 +66,22 @@ public class ObjectRegistry {
 
     /**
      * Remove an object from the registry.
-     *
+     * 
      * @param key.
      */
     public void remove(String key) {
-        map.remove(key);
+        Object o = map.get(key);
+        if (o != null) {
+            map.remove(key);
+            rev.remove(o);
+        }
     }
 
     /**
      * Generate the key for the object.
-     *
+     * 
      * @param obj.
-     *
+     * 
      * @return String.
      */
     private String createKey(Object obj) {
@@ -95,11 +104,12 @@ public class ObjectRegistry {
      */
     public void clear() {
         map.clear();
+        rev.clear();
     }
 
     /**
      * Get the size of the registry.
-     *
+     * 
      * @return int.
      */
     public int size() {

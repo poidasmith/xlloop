@@ -9,23 +9,31 @@
  *******************************************************************************/
 package org.boris.xlloop.codec;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.net.SocketException;
 
 import org.boris.xlloop.RequestProtocol;
 import org.boris.xlloop.xloper.XLoper;
 
 public class BinaryRequestProtocol implements RequestProtocol
 {
-    public void initialise(Socket socket) throws SocketException {
+    private BufferedInputStream input;
+    private BufferedOutputStream output;
+
+    public void initialise(Socket socket) throws IOException {
+        socket.setPerformancePreferences(0, 1, 0);
+        input = new BufferedInputStream(socket.getInputStream());
+        output = new BufferedOutputStream(socket.getOutputStream());
     }
 
     public XLoper receive(Socket socket) throws IOException {
-        return BinaryCodec.decode(socket.getInputStream());
+        return BinaryCodec.decode(input);
     }
 
     public void send(Socket socket, XLoper data) throws IOException {
-        BinaryCodec.encode(data, socket.getOutputStream());
+        BinaryCodec.encode(data, output);
+        output.flush();
     }
 }

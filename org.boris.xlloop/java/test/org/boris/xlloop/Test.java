@@ -1,6 +1,8 @@
 package org.boris.xlloop;
 
 import org.boris.xlloop.util.XLMap;
+import org.boris.xlloop.xloper.XLArray;
+import org.boris.xlloop.xloper.XLError;
 import org.boris.xlloop.xloper.XLoper;
 
 public class Test
@@ -38,6 +40,18 @@ public class Test
         return a + b;
     }
 
+    public static XLoper enc() {
+        XLMap m = new XLMap();
+        m.add("boolt", true);
+        m.add("boolf", false);
+        m.add("i1", 2343);
+        m.add("sdf", 34.2);
+        m.add("asdf", 4545345.454345345);
+        m.add("as33", XLError.NAME);
+
+        return m.toXloper();
+    }
+
     public static double echo(double v) {
         return v;
     }
@@ -47,5 +61,16 @@ public class Test
         s.add("test", 2);
         s.add("hello", 3);
         return s.toXloper();
+    }
+
+    public static XLArray makeRandoms(int rows, int cols) {
+        XLArray xa = new XLArray(rows, cols);
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                xa.set(i, j, Math.random());
+            }
+        }
+
+        return xa;
     }
 }
