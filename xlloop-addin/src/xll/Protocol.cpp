@@ -11,100 +11,6 @@
 #include "Protocol.h"
 
 #include <stdio.h>
-#include <iostream>
-using namespace std;
-
-class tcpbuf : public streambuf 
-{
-public:
-	explicit tcpbuf(SOCKET& conn) : conn(conn) {}
-	virtual ~tcpbuf() {}
-
-	int write(const char* buf, const int n) 
-	{ 
-		int res = ::send(conn, buf, n, 0);
-		if(res < 0) {
-			conn = NULL;
-		}
-		return n; 
-	}
-	int read(char* buf, const int n) 
-	{
-		int res = ::recv(conn, buf, n, 0);
-		if(res < 0) {
-			conn = NULL;
-		}
-		return res;
-	}
-
-protected:
-	virtual int overflow(int c) 
-	{
-		if(sync() == EOF) {
-			return EOF;
-		}
-
-		if(pbase() == 0) {
-			doallocate();
-		}
-
-		if(c != EOF) {
-			*pptr() = c;
-			pbump(1);
-		}
-
-		return 0;
-	}
-	virtual int underflow()
-	{
-		if(gptr() < egptr())
-			return *(unsigned char*)gptr();
-
-		if(sync() == EOF)
-			return EOF;
-
-		if(pbase() == 0)
-			doallocate();
-
-		const int count = read(pbase(), egptr() - pbase());
-		setg(pbase(), pbase(), pbase() + (count <= 0 ? 0 : count));
-		setp(pbase(), pbase());
-		return count <= 0 ? EOF : *(unsigned char*)gptr();
-	}
-	virtual int sync(void) 
-	{
-		const int n = pptr() - pbase();
-		if(n == 0) {
-			return 0;
-		}
-		return write(pbase(), n) == n ? (pbump(-n), 0) : EOF;	
-	}
-	virtual int doallocate(void) 
-	{
-		const int size = 512;
-		char *p = (char *) malloc(size);
-		setp(p, p+size);
-		setg(p, p, p+size);
-		return 1;
-	}
-
-private:
-	SOCKET& conn;
-};
-
-class tcpstream : public iostream
-{
-public:
-	tcpstream(tcpbuf* tbuf) : iostream(tbuf), buf(tbuf) {}
-	~tcpstream() {}
-	tcpbuf* rdbuf(void) const { 
-		return buf; 
-	}
-	bool is_open() const { return true; }
-
-private:
-	mutable tcpbuf* buf;
-};
 
 int Protocol::connect()
 {
@@ -120,12 +26,11 @@ int Protocol::connect()
 		return 1;
 
 	hostent* hp;
-	const char* servername = hostname.c_str();
-	if(inet_addr(servername) == INADDR_NONE) {
-		hp = gethostbyname(servername);
+	if(inet_addr(hostname) == INADDR_NONE) {
+		hp = gethostbyname(hostname);
 	}
 	else {
-		unsigned int addr = inet_addr(servername);
+		unsigned int addr = inet_addr(hostname);
 		hp = gethostbyaddr((char*)&addr, sizeof(addr), AF_INET);
 	}
 
@@ -162,97 +67,44 @@ void Protocol::disconnect()
 int Protocol::send(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, 
 		LPXLOPER v4, LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, LPXLOPER v9)
 {
-	tcpbuf b(conn);
-	tcpstream s(&b);
-	XLCodec::encode(name, s);
-	XLCodec::encode(10, s);
-	XLCodec::encode(v0, s);
-	XLCodec::encode(v1, s);
-	XLCodec::encode(v2, s);
-	XLCodec::encode(v3, s);
-	XLCodec::encode(v4, s);
-	XLCodec::encode(v5, s);
-	XLCodec::encode(v6, s);
-	XLCodec::encode(v7, s);
-	XLCodec::encode(v8, s);
-	XLCodec::encode(v9, s);
-	s.flush();
-	return conn == NULL ? 1 : 0;
-}
-
-int Protocol::send(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, 
-		LPXLOPER v4, LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, LPXLOPER v9,
-		LPXLOPER v10, LPXLOPER v11, LPXLOPER v12, LPXLOPER v13, LPXLOPER v14, LPXLOPER v15,
-		LPXLOPER v16, LPXLOPER v17, LPXLOPER v18, LPXLOPER v19, LPXLOPER v20, LPXLOPER v21,
-		LPXLOPER v22, LPXLOPER v23, LPXLOPER v24, LPXLOPER v25, LPXLOPER v26,
-		LPXLOPER v27, LPXLOPER v28, LPXLOPER v29)
-{
-	tcpbuf b(conn);
-	tcpstream s(&b);
-	XLCodec::encode(name, s);
-	XLCodec::encode(30, s);
-	XLCodec::encode(v0, s);
-	XLCodec::encode(v1, s);
-	XLCodec::encode(v2, s);
-	XLCodec::encode(v3, s);
-	XLCodec::encode(v4, s);
-	XLCodec::encode(v5, s);
-	XLCodec::encode(v6, s);
-	XLCodec::encode(v7, s);
-	XLCodec::encode(v8, s);
-	XLCodec::encode(v9, s);
-	XLCodec::encode(v10, s);
-	XLCodec::encode(v11, s);
-	XLCodec::encode(v12, s);
-	XLCodec::encode(v13, s);
-	XLCodec::encode(v14, s);
-	XLCodec::encode(v15, s);
-	XLCodec::encode(v16, s);
-	XLCodec::encode(v17, s);
-	XLCodec::encode(v18, s);
-	XLCodec::encode(v19, s);
-	XLCodec::encode(v20, s);
-	XLCodec::encode(v21, s);
-	XLCodec::encode(v22, s);
-	XLCodec::encode(v23, s);
-	XLCodec::encode(v24, s);
-	XLCodec::encode(v25, s);
-	XLCodec::encode(v26, s);
-	XLCodec::encode(v27, s);
-	XLCodec::encode(v28, s);
-	XLCodec::encode(v29, s);
-	s.flush();
+	XLCodec::encode(name, os);
+	XLCodec::encode(10, os);
+	XLCodec::encode(v0, os);
+	XLCodec::encode(v1, os);
+	XLCodec::encode(v2, os);
+	XLCodec::encode(v3, os);
+	XLCodec::encode(v4, os);
+	XLCodec::encode(v5, os);
+	XLCodec::encode(v6, os);
+	XLCodec::encode(v7, os);
+	XLCodec::encode(v8, os);
+	XLCodec::encode(v9, os);
+	os.flush();
 	return conn == NULL ? 1 : 0;
 }
 
 int Protocol::send(const char* name, int count, LPXLOPER v)
 {
-	tcpbuf b(conn);
-	tcpstream s(&b);
-	XLCodec::encode(name, s);
-	XLCodec::encode(count, s);
+	XLCodec::encode(name, os);
+	XLCodec::encode(count, os);
 	for(int i = 0; i < count; i++) {
-		XLCodec::encode(&v[i], s);
+		XLCodec::encode(&v[i], os);
 	}
-	s.flush();
+	os.flush();
 	return conn == NULL ? 1 : 0;
 }
 
 int Protocol::send(const char* name)
 {
-	tcpbuf b(conn);
-	tcpstream s(&b);
-	XLCodec::encode(name, s);
-	XLCodec::encode(0, s);
-	s.flush();
+	XLCodec::encode(name, os);
+	XLCodec::encode(0, os);
+	os.flush();
 	return conn == NULL ? 1 : 0;
 }
 
 LPXLOPER Protocol::receive()
 {
-	tcpbuf b(conn);
-	tcpstream s(&b);
 	LPXLOPER xl = new XLOPER;
-	XLCodec::decode(s, xl);
+	XLCodec::decode(is, xl);
 	return xl;
 }
