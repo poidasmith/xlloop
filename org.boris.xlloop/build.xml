@@ -9,7 +9,6 @@
 	<target name="build">
 		<mkdir dir="${deploy.dir}"/>
 		<mkdir dir="${deploy.dir}/bin"/>
-		<!-- <copy todir="${deploy.dir}/bin" file="java/ext_jars/bsf.jar"/> -->
 		<copy tofile="${deploy.dir}/bin/xlloop-${release.version}.xll" file="${src.dir}/build/XLLoop-Release/XLLoop.xll"/>
 		<copy todir="${deploy.dir}" file="${src.dir}/cpl-v10.html"/>
 		<mkdir dir="${deploy.dir}/src"/>

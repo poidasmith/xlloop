@@ -31,6 +31,7 @@ public class ServerTest1
         rfh.addMethods("Reflect.", Reflect.class);
         rfh.addMethods("CSV.", CSV.class);
         rfh.addMethods("Test.", Test.class);
+        rfh.addMethods("Fin.", Finance1.class);
         CompositeFunctionHandler cfh = new CompositeFunctionHandler();
         cfh.add(rfh);
         cfh.add(srep);
