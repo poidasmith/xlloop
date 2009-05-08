@@ -8,7 +8,6 @@ reliability
 ===========
 - also allow a server to indicate another server to use each time
   a new connection is created (ie. when no connection exists)
-- client/server talk in xlopers
 - separate out scripting example/provider to separate jar to remove excess 
   dependencies
 - tray icon for stopping xllop/resetting connection?
