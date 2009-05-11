@@ -24,17 +24,43 @@ class XLError
 	def initialize(err)
 		@err = err
 	end
+	
+	def to_xloper(socket)
+		socket.putc XL_TYPE_ERR
+		XLCodec
+	end
+end
+
+class String
+	def to_xloper(socket)
+		socket.putc(XL_TYPE_STR)
+		if self.length > 255
+			puts "writing long #{self.length}"
+			socket.putc(255)
+			for i in 1..255 
+				socket.putc(self[i-1])
+			end
+		else
+			puts "writing short #{self.length}"
+			socket.putc(self.length && 0xff)
+			socket.write(self)
+		end
+	end
+end
+
+class Numeric
+	def to_xloper(socket)
+		socket.putc(XL_TYPE_NUM)
+		socket.write([self].pack('G'))
+	end
 end
 
 class XLCodec
 	def XLCodec.decode(socket)
 		type = socket.getc
 		case type
-			when XL_TYPE_NUM then return socket.read(8).unpack('E')[0]
-			when XL_TYPE_STR  
-				len = socket.getc
-				puts len
-				socket.read(len)
+			when XL_TYPE_NUM then return socket.read(8).unpack('G')
+			when XL_TYPE_STR then return socket.read(socket.getc) 
 			when XL_TYPE_BOOL then return socket.getc ? true : false
 			when XL_TYPE_ERR then return XLError.new(decodeInt(socket))
 			when XL_TYPE_MULTI then return decodeMulti(socket)
@@ -46,7 +72,7 @@ class XLCodec
 	end
 	
 	def XLCodec.decodeInt(socket)
-		return socket.read(4).unpack('v')[0]
+		socket.getc << 24 | socket.getc << 16 | socket.getc << 8 | socket.getc
 	end
 	
 	def XLCodec.decodeMulti(socket)
@@ -69,40 +95,17 @@ class XLCodec
 		return arr
 	end
 	
-	def XLCodec.encode(value, socket)
-		case value
-		
-			when value == nil 
-				socket.putc(XL_TYPE_NIL)
-			when value === Numeric 
-				socket.putc(XL_TYPE_NUM)
-				socket.send([value].pack('E'))
-			when value === String
-				socket.putc(XL_TYPE_STR)
-				if value.length > 255
-					socket.putc(255)
-					for i in 1..255 
-						socket.putc(value[i])
-					end
-				else
-					socket.putc(value.length)
-					socket.send(value)
-				end
-			when value === XLError
-				socket.putc(XL_TYPE_ERR)
-				socket.send([value.err].pack('v'))
-			when value === Array
-				socket.putc(XL_TYPE_MULTI)
-			else
-				puts "Unhandled type #{value.type}"
-				socket.putc(XL_TYPE_ERR)
-				socket.putc(XL_ERROR_NIL)
-		end
+	def XLCodec.encodeInt(value, socket)
+		socket.putc(value >> 24 & 0xff)
+		socket.putc(value >> 16 & 0xff)
+		socket.putc(value >> 8 & 0xff)
+		socket.putc(value & 0xff)
 	end
 end
 
 class XLLoopServer
-	def initialize(port=5454)
+	def initialize(handler, port=5454)
+		@handler = handler
 		@port = port
 	end
 	
@@ -112,16 +115,16 @@ class XLLoopServer
 			Thread.start(@socket.accept) { |s|
 				loop {
 					name = XLCodec.decode(s)
-					puts name
 					argc = XLCodec.decode(s)
-					puts argc
 					args = Array.new
-					for i in 1..argc
-						args.push(XLCodec.decode(s))
-						puts args[i]
+					if argc > 0
+						for i in 1..argc
+							args.push(XLCodec.decode(s))
+						end
 					end
-					# Todo invoke function name/args
-					XLCodec.encode("Hello World!", s)
+					res = @handler.invoke(name, args)
+					res.to_xloper(s)
+					s.flush
 				}
 			}
 		}
@@ -131,6 +134,5 @@ class XLLoopServer
 		@socket.shutdown(2)
 		@socket.close_write
 		@socket.close_read
-		@socket = nil
 	end
 end
