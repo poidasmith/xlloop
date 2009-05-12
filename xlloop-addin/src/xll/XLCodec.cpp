@@ -9,7 +9,7 @@
 *******************************************************************************/
 
 #include "XLCodec.h"
-#include "../xll/XLUtil.h"
+#include "../xll/XLUtil.h"tray
 
 inline void XOStream::put(char c)
 {
@@ -70,9 +70,11 @@ inline void XIStream::read(char* s, int n)
 			int size = len-pos;
 			if(size > n)
 				size = n;
+			if(size == 0)
+				break;
 			memcpy(&s[i], &buf[pos], size);
 			pos += size;
-			if(pos >= len)
+			if(pos > len)
 				fill();
 			n -= size;
 			i += size;
@@ -217,7 +219,7 @@ void XLCodec::decode(XIStream& is, LPXLOPER xl)
 			xl->val.array.rows = readDoubleWord(is);
 			xl->val.array.columns = readDoubleWord(is);
 			len = xl->val.array.rows * xl->val.array.columns;
-			xl->val.array.lparray = new XLOPER[len];
+			xl->val.array.lparray = (LPXLOPER) malloc(sizeof(XLOPER) * len);
 			for(int i = 0; i < len; i++) {
 				decode(is, &xl->val.array.lparray[i]);
 			}
@@ -235,9 +237,11 @@ void XLCodec::decode(XIStream& is, LPXLOPER xl)
 			break;
 		case XL_CODEC_TYPE_MISSING:
 			xl->xltype = xltypeMissing;
+			xl->val.str = 0;
 			break;
 		case XL_CODEC_TYPE_NIL:
 			xl->xltype = xltypeNil;
+			xl->val.str = 0;
 			break;
 		default:
 			xl->xltype = xltypeErr;

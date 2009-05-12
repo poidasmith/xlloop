@@ -25,14 +25,14 @@ class XLError
 		@err = err
 	end
 	
-	def to_xloper(socket)
+	def stream_xloper(socket)
 		socket.putc(XL_TYPE_ERR)
 		XLCodec.encodeInt(@err, socket)
 	end
 end
 
 class String
-	def to_xloper(socket)
+	def stream_xloper(socket)
 		socket.putc(XL_TYPE_STR)
 		if self.length > 255 
 			socket.putc(255)
@@ -47,35 +47,41 @@ class String
 end
 
 class Numeric
-	def to_xloper(socket)
+	def stream_xloper(socket)
 		socket.putc(XL_TYPE_NUM)
 		socket.write([self].pack('G'))
 	end
 end
 
 class Boolean
-	def to_xloper(socket)
+	def stream_xloper(socket)
 		socket.putc(XL_TYPE_BOOL)
 		socket.putc(self ? 1 : 0)
 	end
 end
 
 class TrueClass
-	def to_xloper(socket)
+	def stream_xloper(socket)
 		socket.putc(XL_TYPE_BOOL)
 		socket.putc(1)
 	end
 end
 
 class FalseClass
-	def to_xloper(socket)
+	def stream_xloper(socket)
 		socket.putc(XL_TYPE_BOOL)
 		socket.putc(0)
 	end
 end
 
+class NilClass
+	def stream_xloper(socket)
+		socket.putc(XL_TYPE_NIL)
+	end
+end
+
 class Array
-	def to_xloper(socket)
+	def stream_xloper(socket)
 		socket.putc(XL_TYPE_MULTI)
 		XLCodec.encodeInt(self.length, socket) # rows
 		if self.length > 0 
@@ -86,19 +92,19 @@ class Array
 					elem = self[i-1]
 					if elem.kind_of?(Array) 
 						if elem.length == e.length 
-							elem.each { |ee| ee.to_xloper(socket) }
+							elem.each { |ee| ee.stream_xloper(socket) }
 						elsif elem.length < e.length 
-							elem.each { |ee| ee.to_xloper(socket) }
+							elem.each { |ee| ee.stream_xloper(socket) }
 							for j in elem.length..(e.length-1)
 								socket.putc(XL_TYPE_MISSING)
 							end
 						else
 							for j in 1..e.length
-								elem[j-1].to_xloper(socket)
+								elem[j-1].stream_xloper(socket)
 							end
 						end
 					else
-						elem.to_xloper(socket)
+						elem.stream_xloper(socket)
 						for j in 2..e.length
 							socket.putc(XL_TYPE_MISSING)
 						end
@@ -106,7 +112,7 @@ class Array
 				end
 			else
 				XLCodec.encodeInt(1, socket)
-				self.each { |elem| elem.to_xloper(socket) }
+				self.each { |elem| elem.stream_xloper(socket) }
 			end
 		else
 			XLCodec.encodeInt(0, socket)
@@ -115,7 +121,7 @@ class Array
 end
 
 class Hash
-	def to_xloper(socket)
+	def stream_xloper(socket)
 		a = Array.new
 		self.each { |k,v| 
 			b = Array.new
@@ -123,7 +129,7 @@ class Hash
 			b.push(v)
 			a.push(b)
 		}
-		a.to_xloper(socket)
+		a.stream_xloper(socket)
 	end
 end
 
@@ -147,7 +153,7 @@ class FunctionInformation
 		@argHelps.push(help)
 	end
 	
-	def to_xloper(socket)
+	def stream_xloper(socket)
 		h = Hash.new
 		h["functionName"] = @name
 		h["functionHelp"] = @help if @help != nil
@@ -159,7 +165,7 @@ class FunctionInformation
 			h["argumentText"] = @args.join(",")
 			h["argumentHelp"] = @argHelps
 		end
-		h.to_xloper(socket)
+		h.stream_xloper(socket)
 	end
 end
 
@@ -231,7 +237,7 @@ class XLLoopServer
 						end
 					end
 					res = @handler.invoke(name, args)
-					res.to_xloper(s)
+					res.stream_xloper(s)
 					s.flush
 				}
 			}

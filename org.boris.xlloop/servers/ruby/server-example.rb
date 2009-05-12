@@ -6,7 +6,7 @@ class Handler
 		@functionInfo = createFunctionInfo
 	end
 	
-	def invoke(name, *args)
+	def invoke(name, args)
 		case name
 		when "RandTest" then # Test encoding of different types and different lengths
 			a = Array.new
@@ -29,6 +29,8 @@ class Handler
 				a.push(b)
 			end
 			return a
+		when "ArgsTest" then
+			return args
 		when "org.boris.xlloop.GetFunctions" then
 			return @functionInfo
 		else
@@ -40,6 +42,10 @@ class Handler
 		a = Array.new
 		a.push(FunctionInformation.new("RandTest", "Test encoding of different types and different lengths"))
 		a.push(FunctionInformation.new("ArrayTest", "Test encoding of arrays"))
+		f3 = FunctionInformation.new("ArgsTest", "Testing inputting args")
+		f3.addArg("anything", "Test this one")
+		f3.addArg("else", "Whatever you like")
+		a.push(f3)
 		return a
 	end
 end

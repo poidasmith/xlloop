@@ -141,10 +141,11 @@ void RegisterFunctions()
 				}
 			}		
 		}
+
+		free(farr);
 	}
 
 	// Free the XLL filename
-	Excel4(xlFree, 0, 1, farr);
 	Excel4(xlFree, 0, 1, (LPXLOPER) &xDLL);
 }
 
@@ -180,6 +181,8 @@ void GetLoadServer()
 			g_protocol->setPort(port);
 			g_protocol->connect();
 		}
+
+		free(pmap);
 	}
 }
 
