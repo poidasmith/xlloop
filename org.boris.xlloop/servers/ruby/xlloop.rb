@@ -25,103 +25,103 @@ class XLError
 		@err = err
 	end
 	
-	def stream_xloper(socket)
-		socket.putc(XL_TYPE_ERR)
-		XLCodec.encodeInt(@err, socket)
+	def stream_xloper(io)
+		io.putc(XL_TYPE_ERR)
+		XLCodec.encodeInt(@err, io)
 	end
 end
 
 class String
-	def stream_xloper(socket)
-		socket.putc(XL_TYPE_STR)
+	def stream_xloper(io)
+		io.putc(XL_TYPE_STR)
 		if self.length > 255 
-			socket.putc(255)
+			io.putc(255)
 			for i in 1..255 
-				socket.putc(self[i-1])
+				io.putc(self[i-1])
 			end
 		else
-			socket.putc(self.length & 0xff)
-			socket.write(self)
+			io.putc(self.length & 0xff)
+			io.write(self)
 		end
 	end
 end
 
 class Numeric
-	def stream_xloper(socket)
-		socket.putc(XL_TYPE_NUM)
-		socket.write([self].pack('G'))
+	def stream_xloper(io)
+		io.putc(XL_TYPE_NUM)
+		io.write([self].pack('G'))
 	end
 end
 
 class Boolean
-	def stream_xloper(socket)
-		socket.putc(XL_TYPE_BOOL)
-		socket.putc(self ? 1 : 0)
+	def stream_xloper(io)
+		io.putc(XL_TYPE_BOOL)
+		io.putc(self ? 1 : 0)
 	end
 end
 
 class TrueClass
-	def stream_xloper(socket)
-		socket.putc(XL_TYPE_BOOL)
-		socket.putc(1)
+	def stream_xloper(io)
+		io.putc(XL_TYPE_BOOL)
+		io.putc(1)
 	end
 end
 
 class FalseClass
-	def stream_xloper(socket)
-		socket.putc(XL_TYPE_BOOL)
-		socket.putc(0)
+	def stream_xloper(io)
+		io.putc(XL_TYPE_BOOL)
+		io.putc(0)
 	end
 end
 
 class NilClass
-	def stream_xloper(socket)
-		socket.putc(XL_TYPE_NIL)
+	def stream_xloper(io)
+		io.putc(XL_TYPE_NIL)
 	end
 end
 
 class Array
-	def stream_xloper(socket)
-		socket.putc(XL_TYPE_MULTI)
-		XLCodec.encodeInt(self.length, socket) # rows
+	def stream_xloper(io)
+		io.putc(XL_TYPE_MULTI)
+		XLCodec.encodeInt(self.length, io) # rows
 		if self.length > 0 
 			e = self[0]
 			if e.kind_of?(Array) 
-				XLCodec.encodeInt(e.length, socket) # cols
+				XLCodec.encodeInt(e.length, io) # cols
 				for i in 1..self.length
 					elem = self[i-1]
 					if elem.kind_of?(Array) 
 						if elem.length == e.length 
-							elem.each { |ee| ee.stream_xloper(socket) }
+							elem.each { |ee| ee.stream_xloper(io) }
 						elsif elem.length < e.length 
-							elem.each { |ee| ee.stream_xloper(socket) }
+							elem.each { |ee| ee.stream_xloper(io) }
 							for j in elem.length..(e.length-1)
-								socket.putc(XL_TYPE_MISSING)
+								io.putc(XL_TYPE_MISSING)
 							end
 						else
 							for j in 1..e.length
-								elem[j-1].stream_xloper(socket)
+								elem[j-1].stream_xloper(io)
 							end
 						end
 					else
-						elem.stream_xloper(socket)
+						elem.stream_xloper(io)
 						for j in 2..e.length
-							socket.putc(XL_TYPE_MISSING)
+							io.putc(XL_TYPE_MISSING)
 						end
 					end
 				end
 			else
-				XLCodec.encodeInt(1, socket)
-				self.each { |elem| elem.stream_xloper(socket) }
+				XLCodec.encodeInt(1, io)
+				self.each { |elem| elem.stream_xloper(io) }
 			end
 		else
-			XLCodec.encodeInt(0, socket)
+			XLCodec.encodeInt(0, io)
 		end
 	end
 end
 
 class Hash
-	def stream_xloper(socket)
+	def stream_xloper(io)
 		a = Array.new
 		self.each { |k,v| 
 			b = Array.new
@@ -129,7 +129,7 @@ class Hash
 			b.push(v)
 			a.push(b)
 		}
-		a.stream_xloper(socket)
+		a.stream_xloper(io)
 	end
 end
 
@@ -153,7 +153,7 @@ class FunctionInformation
 		@argHelps.push(help)
 	end
 	
-	def stream_xloper(socket)
+	def stream_xloper(io)
 		h = Hash.new
 		h["functionName"] = @name
 		h["functionHelp"] = @help if @help != nil
@@ -165,55 +165,55 @@ class FunctionInformation
 			h["argumentText"] = @args.join(",")
 			h["argumentHelp"] = @argHelps
 		end
-		h.stream_xloper(socket)
+		h.stream_xloper(io)
 	end
 end
 
 class XLCodec
-	def XLCodec.decode(socket)
-		type = socket.getc
+	def XLCodec.decode(io)
+		type = io.getc
 		case type
-			when XL_TYPE_NUM then return socket.read(8).unpack('G')
-			when XL_TYPE_STR then return socket.read(socket.getc) 
-			when XL_TYPE_BOOL then return socket.getc ? true : false
-			when XL_TYPE_ERR then return XLError.new(decodeInt(socket))
-			when XL_TYPE_MULTI then return decodeMulti(socket)
+			when XL_TYPE_NUM then return io.read(8).unpack('G')
+			when XL_TYPE_STR then return io.read(io.getc) 
+			when XL_TYPE_BOOL then return io.getc ? true : false
+			when XL_TYPE_ERR then return XLError.new(decodeInt(io))
+			when XL_TYPE_MULTI then return decodeMulti(io)
 			when XL_TYPE_MISSING then return nil
 			when XL_TYPE_NIL then return nil
-			when XL_TYPE_INT then return decodeInt(socket)
+			when XL_TYPE_INT then return decodeInt(io)
 			else raise "Invalid XLoper type"
 		end
 	end
 	
-	def XLCodec.decodeInt(socket)
-		socket.getc << 24 | socket.getc << 16 | socket.getc << 8 | socket.getc
+	def XLCodec.decodeInt(io)
+		io.getc << 24 | io.getc << 16 | io.getc << 8 | io.getc
 	end
 	
-	def XLCodec.decodeMulti(socket)
-		rows = decodeInt(socket)
-		cols = decodeInt(socket)
+	def XLCodec.decodeMulti(io)
+		rows = decodeInt(io)
+		cols = decodeInt(io)
 		arr = Array.new
 		if cols > 1
 			for i in 1..rows
 				arr2 = Array.new
 				for j in 1..cols
-					arr2[j] = decode(socket)
+					arr2[j] = decode(io)
 				end
 				arr[i] = arr2
 			end
 		else
 			for i in 1..rows 
-				arr[i] = decode(socket)
+				arr[i] = decode(io)
 			end
 		end
 		return arr
 	end
 	
-	def XLCodec.encodeInt(value, socket)
-		socket.putc(value >> 24 & 0xff)
-		socket.putc(value >> 16 & 0xff)
-		socket.putc(value >> 8 & 0xff)
-		socket.putc(value & 0xff)
+	def XLCodec.encodeInt(value, io)
+		io.putc(value >> 24 & 0xff)
+		io.putc(value >> 16 & 0xff)
+		io.putc(value >> 8 & 0xff)
+		io.putc(value & 0xff)
 	end
 end
 
@@ -225,28 +225,28 @@ class XLLoopServer
 	
 	def start
 		@socket = TCPServer.new('localhost', @port)
-		loop {
-			Thread.start(@socket.accept) { |s|
-				loop {
-					name = XLCodec.decode(s)
-					argc = XLCodec.decode(s)
-					args = Array.new
-					if argc > 0
-						for i in 1..argc
-							args.push(XLCodec.decode(s))
+		while !@socket.closed?
+			Thread.start(@socket.accept) { |socket|
+				while !socket.closed?
+					begin
+						name = XLCodec.decode(socket)
+						argc = XLCodec.decode(socket)
+						args = Array.new
+						argc.times do
+							args.push(XLCodec.decode(socket))
 						end
+						res = @handler.invoke(name, args)
+						res.stream_xloper(socket)
+						socket.flush
+					rescue
+						socket.close
 					end
-					res = @handler.invoke(name, args)
-					res.stream_xloper(s)
-					s.flush
-				}
+				end
 			}
-		}
+		end
 	end
 	
 	def stop
-		@socket.shutdown(2)
-		@socket.close_write
-		@socket.close_read
+		@socket.close
 	end
 end

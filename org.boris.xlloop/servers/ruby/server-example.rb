@@ -31,16 +31,17 @@ class Handler
 			return a
 		when "ArgsTest" then
 			return args
-		when "org.boris.xlloop.GetFunctions" then
+		when "org.boris.xlloop.GetFunctions" then # Registers functions in excel 
 			return @functionInfo
 		else
-			"Hello World!"
+			"#Unknown function"
 		end
 	end
 	
 	def createFunctionInfo
 		a = Array.new
-		a.push(FunctionInformation.new("RandTest", "Test encoding of different types and different lengths"))
+		a.push(FunctionInformation.new("RandTest", 
+			"Test encoding of different types and different lengths"))
 		a.push(FunctionInformation.new("ArrayTest", "Test encoding of arrays"))
 		f3 = FunctionInformation.new("ArgsTest", "Testing inputting args")
 		f3.addArg("anything", "Test this one")
