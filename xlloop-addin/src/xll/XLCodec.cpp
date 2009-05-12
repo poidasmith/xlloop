@@ -248,5 +248,5 @@ void XLCodec::decode(XIStream& is, LPXLOPER xl)
 			xl->val.err = xlerrNA;
 			break;
 	}
-	xl->xltype |= xlbitXLFree;
+	xl->xltype |= xlbitDLLFree;
 }

@@ -37,6 +37,7 @@ public:
 					  const char* shortcutText);
 
 	static void CopyValue(LPXLOPER xloperSrc, LPXLOPER xloperDst);
+	static void FreeContents(LPXLOPER px);
 };
 
 class XLMap {

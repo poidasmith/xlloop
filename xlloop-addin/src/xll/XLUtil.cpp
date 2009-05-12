@@ -120,6 +120,23 @@ void XLUtil::CopyValue(LPXLOPER xloperSrc, LPXLOPER xloperDst)
 	xloperDst->xltype = (xloperSrc->xltype & ~(xlbitXLFree | xlbitDLLFree));
 }
 
+void XLUtil::FreeContents(LPXLOPER px)
+{
+	switch(px->xltype & ~(xlbitXLFree | xlbitDLLFree)) {
+		case xltypeMulti:
+			for(int i = px->val.array.rows*px->val.array.columns - 1; i >=0; i--) {
+				FreeContents(&px->val.array.lparray[i]);
+			}
+			free(px->val.array.lparray);
+			break;
+		case xltypeStr:
+			free(px->val.str);
+			break;
+		default:
+			break;
+	}
+}
+
 // Assumes a two-column array with key/value on each row
 LPXLOPER XLMap::get(LPXLOPER pmap, const char* key)
 {

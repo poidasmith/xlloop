@@ -267,6 +267,9 @@ __declspec(dllexport) int WINAPI xlAutoRemove(void)
 
 __declspec(dllexport) void WINAPI xlAutoFree(LPXLOPER px)
 {
+	if(!px) return;
+	XLUtil::FreeContents(px);
+	free(px);
 }
 
 __declspec(dllexport) LPXLOPER WINAPI xlAddInManagerInfo(LPXLOPER xAction)
