@@ -46,6 +46,12 @@ class String
 	end
 end
 
+class Object
+	def stream_xloper(io)
+		self.to_s.stream_xloper(io)
+	end
+end
+
 class Numeric
 	def stream_xloper(io)
 		io.putc(XL_TYPE_NUM)
@@ -169,11 +175,85 @@ class FunctionInformation
 	end
 end
 
+class ReflectionHandler
+	def initialize
+		o = Object.new
+		@baseMethods = [o.public_methods, o.singleton_methods].flatten
+		@methods = Hash.new
+	end
+	
+	def push(object, namespace="")
+		methods = [object.public_methods, object.singleton_methods].flatten - @baseMethods
+		methods.each { |s| 
+			m = object.method(s)
+			k = namespace + s
+			v = @methods[k]
+			if v == nil
+				@methods[k] = m
+			elsif v.kind_of?(Array)
+				v.push(m)
+			else
+				a = Array.new
+				a.push(v)
+				a.push(m)
+				@methods[k] = a
+			end
+		}
+	end
+	
+	def invoke(name, args)
+		m = @methods[name]
+		chomp(args) # remove trailing nulls
+		if m == nil
+			if name == "org.boris.xlloop.GetFunctions"
+				fi = Array.new
+				@methods.each_key { |k| fi.push(FunctionInformation.new(k)) }
+				return fi
+			else
+				return "#Unknown Function"
+			end
+		elsif m.kind_of?(Array)
+			m.each { |e| 
+				if canInvoke(e, args.length)
+					return invokeM(e, args)
+				end
+			}
+			return "#Invalid number of arguments to #{e}"
+		else
+			if canInvoke(m, args.length)
+				return invokeM(m, args)
+			else 
+				return "#Invalid number of arguments to #{m}"
+			end
+		end
+	end
+	
+	protected
+	def invokeM(method, args)
+		begin
+			method.call(*args)
+		rescue
+			return "#" + $!
+		end
+	end
+	
+	def canInvoke(method, argc)
+		return (method.arity >= 0 && argc == method.arity) || 
+					(method.arity < 0 && (method.arity + argc) >= -1)
+	end
+	
+	def chomp(args)
+		while args != nil && args.length > 0 && args.last == nil 
+			args.pop
+		end
+	end
+end
+
 class XLCodec
 	def XLCodec.decode(io)
 		type = io.getc
 		case type
-			when XL_TYPE_NUM then return io.read(8).unpack('G')
+			when XL_TYPE_NUM then return io.read(8).unpack('G')[0]
 			when XL_TYPE_STR then return io.read(io.getc) 
 			when XL_TYPE_BOOL then return io.getc ? true : false
 			when XL_TYPE_ERR then return XLError.new(decodeInt(io))

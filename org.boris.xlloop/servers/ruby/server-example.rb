@@ -1,6 +1,6 @@
 require "xlloop"
 
-class Handler
+class TestHandler
 	def initialize
 		@arrr = [('a'..'z'),('A'..'Z')].map{|i| i.to_a}.flatten
 		@functionInfo = createFunctionInfo
@@ -46,10 +46,11 @@ class Handler
 		f3 = FunctionInformation.new("ArgsTest", "Testing inputting args")
 		f3.addArg("anything", "Test this one")
 		f3.addArg("else", "Whatever you like")
+		f3.category = "Testing"
 		a.push(f3)
 		return a
 	end
 end
 
-f = XLLoopServer.new(Handler.new)
+f = XLLoopServer.new(TestHandler.new)
 f.start
