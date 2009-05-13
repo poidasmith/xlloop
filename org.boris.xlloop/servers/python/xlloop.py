@@ -1,4 +1,4 @@
-import socket, select, struct, threading, SocketServer
+import random, socket, select, struct, threading, traceback, types, SocketServer
 
 #  Defines the XLoper types
 XL_TYPE_NUM = 1
@@ -23,34 +23,100 @@ class XLError:
     def __init__(self, err):
         self.err = err
     
-class XLCodec:
+class XLCodec:    
     def decode(socket):
-        type = socket.recv(1)
+        type = ord(socket.recv(1))
         if type == XL_TYPE_NUM:
-            return unpack('>d', recv(8))
+            return struct.unpack('>d', socket.recv(8))[0]
         elif type == XL_TYPE_STR:
-            len = socket.recv(1)
+            len = ord(socket.recv(1))
             return socket.recv(len)
         elif type == XL_TYPE_BOOL:
-            return True if socket.recv(1) else False
+            return True if ord(socket.recv(1)) == 1 else False
         elif type == XL_TYPE_ERR:
-            return XLError(unpack('>i', socket.recv(4)))
+            return XLError(XLCodec.decodeInt(socket))
         elif type == XL_TYPE_MULTI:
-            rows = unpack('>i', socket.recv(4))
-            cols = unpack('>i', socket.recv(4))
-            
+            rows = XLCodec.decodeInt(socket)
+            cols = XLCodec.decodeInt(socket)
+            if cols == 0 or rows == 0:
+                return []
+            a = []
+            if cols > 1:
+                for i in xrange(rows):
+                    aa = []
+                    for j in xrange(cols):
+                        aa.append(XLCodec.decode(socket))
+                    a.append(a)
+            else:
+                for i in xrange(rows):
+                    a.append(XLCodec.decode(socket))
+            return a
         elif type == XL_TYPE_MISSING:
-            return null
+            return None
         elif type == XL_TYPE_NIL:
-            return null
+            return None
         elif type == XL_TYPE_INT:
-            return unpack('>i', socket.recv(4))
+            return XLCodec.decodeInt(socket)
         else:
             raise TypeError("Invalid XLoper type encountered")
     decode = staticmethod(decode)
     
+    def decodeInt(socket):
+        l = socket.recv(4)
+        return ord(l[0]) << 24 | ord(l[1]) << 16 | ord(l[2]) << 8 | ord(l[3])
+    decodeInt = staticmethod(decodeInt)
+    
     def encode(value, socket):
-        pass
+        if isinstance(value, types.StringType):
+            socket.send(struct.pack('B', XL_TYPE_STR))
+            socket.send(struct.pack('B', len(value)))
+            socket.send(value)
+        elif isinstance(value, types.FloatType):
+            socket.send(struct.pack('B', XL_TYPE_NUM))
+            socket.send(struct.pack('>d', value))
+        elif isinstance(value, types.NoneType):
+            socket.send(struct.pack('B', XL_TYPE_NIL))
+        elif isinstance(value, XLError):
+            socket.send(struct.pack('B', XL_TYPE_NIL))
+            socket.send(struct.pack('>i', value.err))
+        elif isinstance(value, types.IntType):
+            socket.send(struct.pack('B', XL_TYPE_NUM))
+            socket.send(struct.pack('>d', float(value)))
+        elif isinstance(value, types.ListType):
+            socket.send(struct.pack('B', XL_TYPE_MULTI))
+            rows = len(value)
+            socket.send(struct.pack('>i', rows))
+            if rows == 0:
+                socket.send(struct.pack('>i', 0))
+            else:
+                v = value[0]
+                if isinstance(v, types.ListType):
+                    cols = len(v)
+                    socket.send(struct.pack('>i', cols))
+                    for i in xrange(rows):
+                        v = value[i]
+                        if isinstance(v, types.ListType):
+                            l = len(v)
+                            if l < cols:
+                                for j in xrange(l):
+                                    XLCodec.encode(v[j], socket)
+                                for j in xrange(l, cols):
+                                    XLCodec.encode(None, socket)
+                            else:
+                                for j in xrange(cols):
+                                    XLCodec.encode(v[j], socket)
+                        else:
+                            XLCodec.encode(v, socket)
+                            for j in xrange(1, cols):
+                                XLCodec.encode(None, socket)
+                else:
+                    socket.send(struct.pack('>i', 1))
+                    for i in xrange(rows):
+                        XLCodec.encode(value[i], socket)
+        else:
+            XLCodec.encode(str(value), socket)
+                    
+                    
     encode = staticmethod(encode)
 
 class XLLoopHandler(SocketServer.BaseRequestHandler):
@@ -60,12 +126,12 @@ class XLLoopHandler(SocketServer.BaseRequestHandler):
                 name = XLCodec.decode(self.request)
                 argc = XLCodec.decode(self.request)
                 args = []
-                for i in 1..argc:
+                for i in xrange(0, argc):
                     args.append(XLCodec.decode(self.request))
                 res = self.server.handler.invoke(name, args)
                 XLCodec.encode(res, self.request)
-                self.request.flush()
             except BaseException:
+                traceback.print_exc()
                 self.request.shutdown
                 break
             
@@ -82,14 +148,7 @@ class XLLoopServer:
     def stop(self):
         self.server.shutdown()
     
-class TestHandler:
-    def invoke(self, name, args):
-        if name=='ArgsTest':
-            return args
-        
-h = TestHandler()
-xs = XLLoopServer(h)
-xs.start()
+
 
 
 

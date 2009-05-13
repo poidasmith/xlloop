@@ -274,16 +274,16 @@ class XLCodec
 		cols = decodeInt(io)
 		arr = Array.new
 		if cols > 1
-			for i in 1..rows
+			rows.times do
 				arr2 = Array.new
-				for j in 1..cols
-					arr2[j] = decode(io)
+				cols.times do 
+					arr2.push(decode(io))
 				end
-				arr[i] = arr2
+				arr.push(arr2)
 			end
 		else
-			for i in 1..rows 
-				arr[i] = decode(io)
+			rows.times do  
+				arr.push(decode(io))
 			end
 		end
 		return arr
