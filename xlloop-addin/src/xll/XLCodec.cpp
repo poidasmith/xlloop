@@ -218,10 +218,14 @@ void XLCodec::decode(XIStream& is, LPXLOPER xl)
 			xl->xltype = xltypeMulti;
 			xl->val.array.rows = readDoubleWord(is);
 			xl->val.array.columns = readDoubleWord(is);
-			len = xl->val.array.rows * xl->val.array.columns;
+			if(!is.valid()) {
+				xl->xltype = xltypeNil;
+			} else {
+				len = xl->val.array.rows * xl->val.array.columns;
 			xl->val.array.lparray = (LPXLOPER) malloc(sizeof(XLOPER) * len);
-			for(int i = 0; i < len; i++) {
-				decode(is, &xl->val.array.lparray[i]);
+				for(int i = 0; i < len; i++) {
+					decode(is, &xl->val.array.lparray[i]);
+				}
 			}
 			break;
 		case XL_CODEC_TYPE_NUM:
@@ -231,9 +235,13 @@ void XLCodec::decode(XIStream& is, LPXLOPER xl)
 		case XL_CODEC_TYPE_STR:
 			xl->xltype = xltypeStr;
 			len = is.get();
-			xl->val.str = new char[len+1];
-			xl->val.str[0] = (char) len;
-			is.read(&xl->val.str[1], len);
+			if(!is.valid()) {
+				xl->xltype = xltypeNil;
+			} else {
+				xl->val.str = new char[len+1];
+				xl->val.str[0] = (char) len;
+				is.read(&xl->val.str[1], len);
+			}
 			break;
 		case XL_CODEC_TYPE_MISSING:
 			xl->xltype = xltypeMissing;
@@ -248,5 +256,10 @@ void XLCodec::decode(XIStream& is, LPXLOPER xl)
 			xl->val.err = xlerrNA;
 			break;
 	}
+
+	// Check for valid socket
+	if(!is.valid())
+		xl->xltype = xltypeNil;
+
 	xl->xltype |= xlbitDLLFree;
 }
