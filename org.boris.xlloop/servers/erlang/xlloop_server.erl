@@ -38,6 +38,7 @@ handle(Socket, Module) ->
 	
 data(Socket, Data, Module) ->
 	{Name, Rest2} = xloper_codec:decode(Rest),
+	{Argc, Rest3} = xloper_codec:decode(Rest2),
 	{Args, _Rest3} = xloper_codec:decode(Rest2),
     XLoper = Module:function(Name, Args),
     gen_tcp:send(Socket, xloper_codec:encode(XLoper)).

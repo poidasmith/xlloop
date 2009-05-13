@@ -31,6 +31,12 @@ class XLError
 	end
 end
 
+class Object
+  def stream_xloper(io)
+    self.to_s.stream_xloper(io)
+  end
+end
+
 class String
 	def stream_xloper(io)
 		io.putc(XL_TYPE_STR)
@@ -43,12 +49,6 @@ class String
 			io.putc(self.length & 0xff)
 			io.write(self)
 		end
-	end
-end
-
-class Object
-	def stream_xloper(io)
-		self.to_s.stream_xloper(io)
 	end
 end
 
@@ -111,7 +111,7 @@ class Array
 						end
 					else
 						elem.stream_xloper(io)
-						for j in 2..e.length
+						(e.length-1).times do
 							io.putc(XL_TYPE_MISSING)
 						end
 					end
