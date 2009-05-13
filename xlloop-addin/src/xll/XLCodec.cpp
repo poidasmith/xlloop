@@ -9,7 +9,7 @@
 *******************************************************************************/
 
 #include "XLCodec.h"
-#include "../xll/XLUtil.h"tray
+#include "../xll/XLUtil.h"
 
 inline void XOStream::put(char c)
 {
