@@ -90,7 +90,7 @@ class XLCodec:
             rows = len(value)
             socket.send(struct.pack('>i', rows))
             if rows == 0:
-                socket.send(struct.pack('>i', 0))
+                socket.send(struct.pack('>i', 0)) # zero cols
             else:
                 v = value[0]
                 if isinstance(v, types.ListType):
@@ -116,6 +116,16 @@ class XLCodec:
                     socket.send(struct.pack('>i', 1))
                     for i in xrange(rows):
                         XLCodec.encode(value[i], socket)
+        elif isintance(value, types.TupleType):
+            socket.send(struct.pack('B', XL_TYPE_MULTI))
+            rows = len(value)
+            socket.send(struct.pack('>i', rows))
+            if rows == 0:
+                socket.send(struct.pack('>i', 0))
+            else:
+                socket.send(struct.pack('>i', 1)) # only one column for tuples
+            for i in xrange(rows):
+                XLCodec.encode(value[i], socket)
         else:
             XLCodec.encode(str(value), socket)   
     encode = staticmethod(encode)
