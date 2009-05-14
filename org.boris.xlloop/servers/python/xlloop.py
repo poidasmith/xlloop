@@ -32,7 +32,10 @@ class XLCodec:
             len = ord(socket.recv(1))
             return socket.recv(len)
         elif type == XL_TYPE_BOOL:
-            return True if ord(socket.recv(1)) == 1 else False
+            if ord(socket.recv(1)) == 0:
+                return False
+            else:
+                return True
         elif type == XL_TYPE_ERR:
             return XLError(XLCodec.decodeInt(socket))
         elif type == XL_TYPE_MULTI:
@@ -77,7 +80,7 @@ class XLCodec:
         elif isinstance(value, types.NoneType):
             socket.send(struct.pack('B', XL_TYPE_NIL))
         elif isinstance(value, XLError):
-            socket.send(struct.pack('B', XL_TYPE_NIL))
+            socket.send(struct.pack('B', XL_TYPE_ERR))
             socket.send(struct.pack('>i', value.err))
         elif isinstance(value, types.IntType):
             socket.send(struct.pack('B', XL_TYPE_NUM))
@@ -114,9 +117,7 @@ class XLCodec:
                     for i in xrange(rows):
                         XLCodec.encode(value[i], socket)
         else:
-            XLCodec.encode(str(value), socket)
-                    
-                    
+            XLCodec.encode(str(value), socket)   
     encode = staticmethod(encode)
 
 class XLLoopHandler(SocketServer.BaseRequestHandler):
