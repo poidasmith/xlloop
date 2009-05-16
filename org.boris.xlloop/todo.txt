@@ -33,7 +33,7 @@ server/language support
 - fix erlang server
 - create r server
 - create ruby server
-- create python server
+- create python server (test tuple encode)
  
 addin support
 =============

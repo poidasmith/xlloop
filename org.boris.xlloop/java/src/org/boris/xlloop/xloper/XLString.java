@@ -11,6 +11,8 @@ package org.boris.xlloop.xloper;
 
 public final class XLString extends XLoper
 {
+    public static final XLString EMPTY = new XLString("");
+    
     public final String str;
 
     public XLString(String str) {

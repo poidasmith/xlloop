@@ -141,7 +141,7 @@ class XLLoopHandler(SocketServer.BaseRequestHandler):
                     args.append(XLCodec.decode(self.request))
                 res = self.server.handler.invoke(name, args)
                 XLCodec.encode(res, self.request)
-            except BaseException:
+            except:
                 traceback.print_exc()
                 self.request.shutdown
                 break

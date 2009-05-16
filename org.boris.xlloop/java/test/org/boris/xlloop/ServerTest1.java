@@ -36,6 +36,7 @@ public class ServerTest1
         cfh.add(rfh);
         cfh.add(srep);
         cfh.add(lfh);
+        cfh.add(new CompTest1());
         FunctionInformationFunctionHandler firh = new FunctionInformationFunctionHandler();
         firh.add(rfh.getFunctions());
         firh.add(lfh.getInformation());

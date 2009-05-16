@@ -100,6 +100,11 @@ public class BinaryCodec
 
     public static void encode(XLoper xloper, OutputStream os)
             throws IOException {
+        if(xloper == null) {
+            os.write(XLoper.xlTypeNil);
+            return;
+        }
+        
         os.write((int) xloper.type);
         switch (xloper.type) {
         case XLoper.xlTypeBool:
