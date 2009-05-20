@@ -9,7 +9,10 @@
 *******************************************************************************/
 
 #include "XLCodec.h"
-#include "../xll/XLUtil.h"
+#include "XLUtil.h"
+#include "Timeout.h"
+
+#define SOCKET_TIMEOUT -1
 
 inline void XOStream::put(char c)
 {
@@ -42,7 +45,9 @@ inline void XOStream::write(const char* s, int n)
 inline void XOStream::flush()
 {
 	if(pos > 0) {
-		::send(s, buf, pos, 0);
+		if(s && send(s, buf, pos, 0) < 0) {
+			s = 0;
+		}
 		pos = 0;
 	}
 }
@@ -87,10 +92,26 @@ inline void XIStream::read(char* s, int n)
 
 inline void XIStream::fill()
 {
-	int r = ::recv(s, buf, STREAM_BUF_SIZE, 0);
+	int r = recv(s, buf, STREAM_BUF_SIZE, 0);
+	if(r == SOCKET_TIMEOUT) {
+		int c = 0;
+		Timeout::Init();
+		while((r = recv(s, buf, STREAM_BUF_SIZE, 0)) == SOCKET_TIMEOUT) {
+			if(c == 2) {
+				const char* message = "Calculating A1: MyFuncs.sum()";
+				Timeout::Show(FindWindow("XLMAIN", NULL), message);
+			} else if(Timeout::UserCancelled()) {
+				closesocket(s);
+				s = 0;
+				break;
+			}
+			c++;
+		}
+		Timeout::Cleanup();
+	}
 	if(r > 0) {
 		len = r;
-	} else { 
+	} else {
 		len = 0;
 		s = 0;
 	}
@@ -218,11 +239,9 @@ void XLCodec::decode(XIStream& is, LPXLOPER xl)
 			xl->xltype = xltypeMulti;
 			xl->val.array.rows = readDoubleWord(is);
 			xl->val.array.columns = readDoubleWord(is);
-			if(!is.valid()) {
-				xl->xltype = xltypeNil;
-			} else {
+			if(is.valid()) {
 				len = xl->val.array.rows * xl->val.array.columns;
-			xl->val.array.lparray = (LPXLOPER) malloc(sizeof(XLOPER) * len);
+				xl->val.array.lparray = (LPXLOPER) malloc(sizeof(XLOPER) * len);
 				for(int i = 0; i < len; i++) {
 					decode(is, &xl->val.array.lparray[i]);
 				}
@@ -235,9 +254,7 @@ void XLCodec::decode(XIStream& is, LPXLOPER xl)
 		case XL_CODEC_TYPE_STR:
 			xl->xltype = xltypeStr;
 			len = is.get();
-			if(!is.valid()) {
-				xl->xltype = xltypeNil;
-			} else {
+			if(is.valid()) {
 				xl->val.str = new char[len+1];
 				xl->val.str[0] = (char) len;
 				is.read(&xl->val.str[1], len);

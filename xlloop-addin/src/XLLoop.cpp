@@ -13,6 +13,7 @@
 #include "xll/XLUtil.h"
 #include "xll/xlcall.h"
 #include "xll/Protocol.h"
+#include "xll/Timeout.h"
 
 // The DLL instance
 static HINSTANCE g_hinstance = NULL;
@@ -53,6 +54,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 		// Initialise the log
 		Log::Init(hinstDLL, iniparser_getstr(g_ini, LOG_FILE), iniparser_getstr(g_ini, LOG_LEVEL), g_ini);
+
+		// Initialise timeout feature
+		Timeout::Initialise(hinstDLL);
 	}
 
 	// OK

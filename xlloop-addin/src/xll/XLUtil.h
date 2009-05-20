@@ -38,6 +38,8 @@ public:
 
 	static void CopyValue(LPXLOPER xloperSrc, LPXLOPER xloperDst);
 	static void FreeContents(LPXLOPER px);
+	//static char* GetCurrentSheetName();
+	//static char* GetCurrentCellName();
 };
 
 class XLMap {

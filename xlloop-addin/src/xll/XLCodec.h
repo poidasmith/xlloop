@@ -34,7 +34,7 @@ public:
 	XIStream(SOCKET& s) : s(s), pos(0), len(0) {}
 	int get();
 	void read(char* s, int n);
-	bool valid() { return s != NULL; }
+	inline bool valid() { return s != NULL; }
 
 private:
 	void fill();

@@ -45,6 +45,13 @@ int Protocol::connect()
 	server.sin_family = AF_INET;
 	server.sin_port = htons(port);
 
+	// Set timeout
+	struct timeval tv;
+	tv.tv_sec = 500;
+	tv.tv_usec = 0;
+	if(setsockopt(conn, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv, sizeof(tv)))
+		return 1;
+
 	if(::connect(conn, (struct sockaddr*) &server, sizeof(server))) {
 		closesocket(conn);
 		conn = NULL;

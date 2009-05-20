@@ -16,7 +16,7 @@
 
 class Protocol {
 public:
-	explicit Protocol(char* hostname, int port) : port(port), conn(0), is(conn), os(conn) {
+	Protocol(char* hostname, int port) : port(port), conn(0), is(conn), os(conn) {
 		setHost(hostname);
 	}
 	virtual ~Protocol() { disconnect(); }
