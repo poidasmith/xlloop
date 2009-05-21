@@ -109,9 +109,9 @@ int Protocol::send(const char* name)
 	return conn == NULL ? 1 : 0;
 }
 
-LPXLOPER Protocol::receive()
+LPXLOPER Protocol::receive(const char* name)
 {
 	LPXLOPER xl = new XLOPER;
-	XLCodec::decode(is, xl);
+	XLCodec::decode(name, is, xl);
 	return xl;
 }

@@ -11,13 +11,13 @@
 #ifndef TIMEOUT_H
 #define TIMEOUT_H
 
-#include "windows.h"
+#include "../common/Runtime.h"
 
 class Timeout 
 {
 public:
 	static void Init();
-	static void Show(HWND parent, const char* message);
+	static void Show(const char* function);
 	static bool UserCancelled();
 	static void Cleanup();
 	static void Draw();

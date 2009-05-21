@@ -14,6 +14,11 @@
 
 #define SOCKET_TIMEOUT -1
 
+namespace 
+{
+	const char* g_CurrentFunction;
+}
+
 inline void XOStream::put(char c)
 {
 	if(pos >= STREAM_BUF_SIZE)
@@ -98,8 +103,7 @@ inline void XIStream::fill()
 		Timeout::Init();
 		while((r = recv(s, buf, STREAM_BUF_SIZE, 0)) == SOCKET_TIMEOUT) {
 			if(c == 2) {
-				const char* message = "Calculating A1: MyFuncs.sum()";
-				Timeout::Show(FindWindow("XLMAIN", NULL), message);
+				Timeout::Show(g_CurrentFunction);
 			} else if(Timeout::UserCancelled()) {
 				closesocket(s);
 				s = 0;
@@ -218,8 +222,9 @@ void XLCodec::encode(int w, XOStream& os)
 	writeDoubleWord(w, os);
 }
 
-void XLCodec::decode(XIStream& is, LPXLOPER xl) 
+void XLCodec::decode(const char* name, XIStream& is, LPXLOPER xl) 
 {
+	g_CurrentFunction = name;
 	int type = is.get();
 	int len;
 	switch(type) {
@@ -243,7 +248,7 @@ void XLCodec::decode(XIStream& is, LPXLOPER xl)
 				len = xl->val.array.rows * xl->val.array.columns;
 				xl->val.array.lparray = (LPXLOPER) malloc(sizeof(XLOPER) * len);
 				for(int i = 0; i < len; i++) {
-					decode(is, &xl->val.array.lparray[i]);
+					decode(name, is, &xl->val.array.lparray[i]);
 				}
 			}
 			break;

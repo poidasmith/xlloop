@@ -12,6 +12,8 @@
 #include <ocidl.h>
 #include <olectl.h>
 #include <commctrl.h>
+#include <stdio.h>
+#include "xlcall.h"
 
 #pragma comment(lib, "comctl32.lib")
 
@@ -60,13 +62,14 @@ DWORD WINAPI Timeout::ShowInternal(LPVOID)
 	// Create the window
 	RECT r;
 	GetWindowRect(g_Parent, &r);
+	DWORD x = r.left + (r.right - r.left)/2 - g_Width/2;
+	DWORD y = r.top + (r.bottom - r.top)/2 - g_Height/2;
 	g_hWnd = CreateWindowEx(
 		WS_EX_TOOLWINDOW | WS_EX_NOPARENTNOTIFY, 
 		XLLOOP_WND_CLASS, 
 		XLLOOP_WND_NAME, 
 		WS_POPUP | WS_VISIBLE, 
-		r.left + (r.right - r.left)/2 - g_Width/2, 
-		r.top + (r.bottom - r.top)/2 - 60/2,
+		x, y,
 		g_Width, g_Height, NULL, NULL, NULL, NULL);
 
 	ShowWindow(g_hWnd, SW_SHOW);
@@ -92,6 +95,14 @@ DWORD WINAPI Timeout::ShowInternal(LPVOID)
 	}
 	g_Started = false;
 
+	// Force parent to repaint the area
+	r.left = x;
+	r.top = y;
+	r.right = x + g_Width;
+	r.bottom = y + g_Height;
+	InvalidateRect(g_Parent, &r, TRUE);
+	UpdateWindow(g_Parent);
+
 	return 0;
 }
 
@@ -101,16 +112,54 @@ void Timeout::Init()
 	g_Shutdown = false;
 }
 
-void Timeout::Show(HWND parent, const char* message)
+typedef struct
+{
+	unsigned short lo;
+	HWND hwnd;
+} WindowInfo;
+
+BOOL CALLBACK EnumProc(HWND hwnd, WindowInfo* pInfo)
+{
+	char buf[MAX_PATH];
+	GetClassName(hwnd, buf, MAX_PATH);
+	if(strcmp(buf, "XLMAIN") == 0) {
+		if(LOWORD((DWORD) hwnd) == pInfo->lo) {
+			pInfo->hwnd = hwnd;
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
+
+void Timeout::Show(const char* function)
 {
 	if(!g_Initialised) return;
 	if(g_Started) return;
 
+	// Find the excel hwnd
+	XLOPER x;
+	Excel4(xlGetHwnd, &x, 0);
+	WindowInfo info;
+	info.lo = x.val.w;
+	EnumWindows((WNDENUMPROC) EnumProc, (LPARAM) &info);
+
+	// Find the active cell
+	Excel4(xlfCaller, &x, 0);
+
+	// Now format the message
+	if(x.val.sref.ref.rwLast > x.val.sref.ref.rwFirst) {
+		sprintf(g_Message, "Calculating %c%d:%c%d: %s", x.val.sref.ref.colFirst + 'A', 
+			x.val.sref.ref.rwFirst + 1, x.val.sref.ref.colLast + 'A', x.val.sref.ref.rwLast + 1, function);
+	} else {
+		sprintf(g_Message, "Calculating %c%d: %s", x.val.sref.ref.colFirst + 'A', 
+			x.val.sref.ref.rwFirst + 1, function);
+	}
+
 	g_CurrentImage = 0;
 	g_Shutdown = false;
-	g_Parent = parent;
-	strcpy_s(g_Message, MAX_PATH, message);
-	g_MessageLength = strlen(message);
+	g_Parent = info.hwnd;
+	g_MessageLength = strlen(g_Message);
 	CreateThread(0, 0, ShowInternal, 0, 0, 0);
 }
 

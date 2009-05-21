@@ -51,7 +51,7 @@ public:
 	static void encode(const LPXLOPER xl, XOStream& os);
 	static void encode(const char* str, XOStream& os);
 	static void encode(int w, XOStream& os);
-	static void decode(XIStream& is, LPXLOPER xl);
+	static void decode(const char* name, XIStream& is, LPXLOPER xl);
 };
 
 #endif // XL_CODEC_H
