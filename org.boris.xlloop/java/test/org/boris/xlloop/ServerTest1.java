@@ -24,8 +24,7 @@ public class ServerTest1
         ReflectFunctionHandler rfh = new ReflectFunctionHandler();
         LispFunctionHandler lfh = new LispFunctionHandler();
         lfh.eval(new File("functions"), true); // evaluate any lisp files
-        ScriptRepository srep = new ScriptRepository(new File("functions"),
-                "Script.");
+        ScriptRepository srep = new ScriptRepository(new File("functions"), "Script.");
         rfh.addMethods("Math.", Math.class);
         rfh.addMethods("Math.", Maths.class);
         rfh.addMethods("Reflect.", Reflect.class);
@@ -36,12 +35,12 @@ public class ServerTest1
         cfh.add(rfh);
         cfh.add(srep);
         cfh.add(lfh);
-        cfh.add(new CompTest1());
         FunctionInformationFunctionHandler firh = new FunctionInformationFunctionHandler();
         firh.add(rfh.getFunctions());
         firh.add(lfh.getInformation());
         firh.add(srep); // add script repository as a function provider
         cfh.add(firh);
+        cfh.add(new CompTest1());
         fs.setFunctionHandler(new DebugFunctionHandler(cfh));
         return fs;
     }

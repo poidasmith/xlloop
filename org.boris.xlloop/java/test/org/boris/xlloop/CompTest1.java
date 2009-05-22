@@ -21,24 +21,25 @@ import org.boris.xlloop.xloper.XLoper;
 public class CompTest1 implements FunctionHandler
 {
     private static String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    
+
     public XLoper execute(String name, XLoper[] args) throws RequestException {
-        if(name.equals("RandTest")) {
+        if (name.equals("RandTest")) {
             XLArray x = new XLArray((int) (Math.random() * 50 + 2), 1);
-            for(int i = 0; i < x.length; i++) {
+            for (int i = 0; i < x.length; i++) {
                 x.array[i] = makeRandom();
             }
             return x;
-        } else if(name.equals("ArrayTest")) {
+        } else if (name.equals("ArrayTest")) {
+            Threads.sleep(15000);
             XLArray x = new XLArray(15, 10);
-            for(int i = 0; i < 15; i++) {
+            for (int i = 0; i < 15; i++) {
                 int len = (int) (Math.random() * 10) + 1;
-                for(int j = 0; j < len; j++) {
-                    x.set(i, j, i*j);
+                for (int j = 0; j < len; j++) {
+                    x.set(i, j, i * j);
                 }
             }
             return x;
-        } else if(name.equals("ArgsTest")) {
+        } else if (name.equals("ArgsTest")) {
             return new XLList(args).toXLoper();
         }
         return new XLString("#Unknown Function");
@@ -49,12 +50,17 @@ public class CompTest1 implements FunctionHandler
     }
 
     public static XLoper makeRandom() {
-        switch((int) Math.random() * 4) {
-        case 0: return new XLString(makeRandomString());
-        case 1: return new XLNum(Math.random() * 1000);
-        case 2: return new XLInt((int) (Math.random() * 1000));
-        case 3: return new XLBool(Math.random() > 0.5 ? true : false);
-        default: return XLMissing.MISSING;
+        switch ((int) Math.random() * 4) {
+        case 0:
+            return new XLString(makeRandomString());
+        case 1:
+            return new XLNum(Math.random() * 1000);
+        case 2:
+            return new XLInt((int) (Math.random() * 1000));
+        case 3:
+            return new XLBool(Math.random() > 0.5 ? true : false);
+        default:
+            return XLMissing.MISSING;
         }
     }
 
@@ -62,9 +68,9 @@ public class CompTest1 implements FunctionHandler
         int len = (int) (Math.random() * 50 + 2);
         char[] c = new char[len];
         int cl = characters.length();
-        for(int i = 0; i < len; i++) {
+        for (int i = 0; i < len; i++) {
             c[i] = characters.charAt((int) (Math.random() * cl));
         }
         return new String(c);
-    }   
+    }
 }
