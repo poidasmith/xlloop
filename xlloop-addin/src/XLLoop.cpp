@@ -56,11 +56,11 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 		Log::Init(hinstDLL, iniparser_getstr(g_ini, LOG_FILE), iniparser_getstr(g_ini, LOG_LEVEL), g_ini);
 
 		// Initialise timeout feature
-		Timeout::Initialise(hinstDLL);
+		Timeout::Initialise(hinstDLL, g_ini);
 	}
 
 	// OK
-	return 1;
+	return TRUE;
 }
 
 bool InitProtocol()
@@ -208,8 +208,8 @@ __declspec(dllexport) int WINAPI xlAutoOpen(void)
 		NULL, "1", "General", NULL, NULL, NULL, NULL);
 
 	// Register execute function (volatile version (if requested))
-	char* inclVol = iniparser_getstr(g_ini, FS_INCLUDE_VOLATILE);
-	if(inclVol != NULL && strcmp(inclVol, "true") == 0) {
+	bool inclVol = iniparser_getboolean(g_ini, FS_INCLUDE_VOLATILE, true);
+	if(inclVol) {
 		char* fsvName = iniparser_getstr(g_ini, FS_FUNCTION_NAME_VOLATILE);
 		if(fsvName == NULL) {
 			fsvName = "FSV";
@@ -288,7 +288,8 @@ __declspec(dllexport) LPXLOPER WINAPI xlAddInManagerInfo(LPXLOPER xAction)
 
 	// Set addin name
 	if(xIntAction.val.w == 1) {
-		xInfo.xltype = xltypeStr | xlbitXLFree;
+		LPXLOPER x = (LPXLOPER) malloc(sizeof(XLOPER));
+		x->xltype = xltypeStr | xlbitDLLFree;
 		char* addinName = iniparser_getstr(g_ini, FS_ADDIN_NAME);
 		if(addinName == NULL) {
 #ifdef DEBUG_LOG
@@ -299,7 +300,8 @@ __declspec(dllexport) LPXLOPER WINAPI xlAddInManagerInfo(LPXLOPER xAction)
 		} else {
 			addinName = XLUtil::MakeExcelString(addinName);
 		}
-		xInfo.val.str = addinName;
+		x->val.str = addinName;
+		return x;
 	} 
 
 	return (LPXLOPER) &xInfo;

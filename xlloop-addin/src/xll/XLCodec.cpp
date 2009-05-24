@@ -104,7 +104,7 @@ inline void XIStream::fill()
 		while((r = recv(s, buf, STREAM_BUF_SIZE, 0)) == SOCKET_TIMEOUT) {
 			if(c == 2) {
 				Timeout::Show(g_CurrentFunction);
-			} else if(Timeout::UserCancelled()) {
+			} else if(c > 2 && Timeout::UserCancelled()) {
 				closesocket(s);
 				s = 0;
 				break;
@@ -170,7 +170,7 @@ void XLCodec::encode(const LPXLOPER xl, XOStream& os)
 	switch(type) {
 		case xltypeBool:
 			os.put(XL_CODEC_TYPE_BOOL);
-			os.put(xl->val.boolean);
+			os.put(xl->val.xbool);
 			break;
 		case xltypeErr:
 			os.put(XL_CODEC_TYPE_ERR);
@@ -230,7 +230,7 @@ void XLCodec::decode(const char* name, XIStream& is, LPXLOPER xl)
 	switch(type) {
 		case XL_CODEC_TYPE_BOOL:
 			xl->xltype = xltypeBool;
-			xl->val.boolean = is.get();
+			xl->val.xbool = is.get();
 			break;
 		case XL_CODEC_TYPE_ERR:
 			xl->xltype = xltypeErr;

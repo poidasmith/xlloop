@@ -64,7 +64,7 @@ typedef struct xloper
     {
         double num;                     /* xltypeNum */
         LPSTR str;                      /* xltypeStr */
-        WORD boolean;                   /* xltypeBool */
+        WORD xbool;                     /* xltypeBool */
         WORD err;                       /* xltypeErr */
         short int w;                    /* xltypeInt */
         struct 

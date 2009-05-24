@@ -11,11 +11,8 @@
 #include "Timeout.h"
 #include <ocidl.h>
 #include <olectl.h>
-#include <commctrl.h>
 #include <stdio.h>
 #include "xlcall.h"
-
-#pragma comment(lib, "comctl32.lib")
 
 #define XLLOOP_WND_CLASS "XLLoop.BusyClass"
 #define XLLOOP_WND_NAME "XLLoop.BusyWindow"
@@ -23,9 +20,13 @@
 #define CLICK_MESSAGE_LEN 15
 #define IMG_SIZE 40
 
+#define DISABLE_OPTION ":disable.calc.popup"
+#define DISABLE_CANCEL ":disable.calc.cancel"
+
 namespace 
 {
 	bool g_Initialised = false;
+	bool g_CanCancel = true;
 	HBITMAP g_SpinBitmaps[12];
 	HFONT g_Font;
 	HINSTANCE g_hInstance;
@@ -149,10 +150,10 @@ void Timeout::Show(const char* function)
 
 	// Now format the message
 	if(x.val.sref.ref.rwLast > x.val.sref.ref.rwFirst) {
-		sprintf(g_Message, "Calculating %c%d:%c%d: %s", x.val.sref.ref.colFirst + 'A', 
+		sprintf(g_Message, "Calculating %c%d:%c%d: %s()", x.val.sref.ref.colFirst + 'A', 
 			x.val.sref.ref.rwFirst + 1, x.val.sref.ref.colLast + 'A', x.val.sref.ref.rwLast + 1, function);
 	} else {
-		sprintf(g_Message, "Calculating %c%d: %s", x.val.sref.ref.colFirst + 'A', 
+		sprintf(g_Message, "Calculating %c%d: %s()", x.val.sref.ref.colFirst + 'A', 
 			x.val.sref.ref.rwFirst + 1, function);
 	}
 
@@ -193,16 +194,26 @@ void Timeout::Draw()
 	// Function text
 	HFONT old = (HFONT) SelectObject(hDC, g_Font);
 	SetTextColor(hDC, RGB(80, 80, 80));
-	TextOut(hDC, 57, 14, g_Message, g_MessageLength);
-	SetTextColor(hDC, RGB(180, 180, 180));
-	TextOut(hDC, 57, 31, CLICK_MESSAGE, CLICK_MESSAGE_LEN);
+	if(g_CanCancel) {
+		TextOut(hDC, 57, 14, g_Message, g_MessageLength);
+		SetTextColor(hDC, RGB(180, 180, 180));
+		TextOut(hDC, 57, 31, CLICK_MESSAGE, CLICK_MESSAGE_LEN);
+	} else {
+		TextOut(hDC, 57, 22, g_Message, g_MessageLength);
+	}
 	SelectObject(hDC, old);
 
 	EndPaint(g_hWnd, &ps);	
 }
 
-void Timeout::Initialise(HINSTANCE hInstance)
+void Timeout::Initialise(HINSTANCE hInstance, dictionary* ini)
 {
+	// Check if the user wants this feature
+	bool disable = iniparser_getboolean(ini, DISABLE_OPTION, false);
+	if(disable) return;
+	g_CanCancel = !iniparser_getboolean(ini, DISABLE_CANCEL, false);
+
+	// Do some background stuff
 	RegisterWindowClass(hInstance);
 	LoadBitmaps(hInstance);
 
@@ -283,7 +294,8 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		Timeout::Draw();
 		break;
 	case WM_LBUTTONDOWN:
-		Timeout::Cleanup();
+		if(g_CanCancel)
+			Timeout::Cleanup();
 		break;
 	}
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);

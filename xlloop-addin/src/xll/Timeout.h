@@ -12,6 +12,7 @@
 #define TIMEOUT_H
 
 #include "../common/Runtime.h"
+#include "../common/INI.h"
 
 class Timeout 
 {
@@ -21,7 +22,7 @@ public:
 	static bool UserCancelled();
 	static void Cleanup();
 	static void Draw();
-	static void Initialise(HINSTANCE hInstance);
+	static void Initialise(HINSTANCE hInstance, dictionary* ini);
 
 private:
 	static DWORD WINAPI ShowInternal(LPVOID);

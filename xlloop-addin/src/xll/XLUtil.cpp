@@ -173,7 +173,7 @@ bool XLMap::getBoolean(LPXLOPER pmap, const char* key)
 {
 	LPXLOPER px = get(pmap, key);
 	if(px != NULL && (px->xltype & ~(xlbitXLFree | xlbitDLLFree)) == xltypeBool) {
-		return px->val.boolean;
+		return px->val.xbool;
 	}
 	return false;
 }
