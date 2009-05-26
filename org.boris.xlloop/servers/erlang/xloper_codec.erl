@@ -25,44 +25,53 @@ decode(Bin) when is_list(Bin) ->
         ?ERR -> decode_err(Rest);
 		?MULTI -> decode_multi(Rest);
 		?MISSING -> decode_missing(Rest);
-		?NIL -> decode_nil(Rest);
+		?NIL -> decode_missing(Rest);
 		?INT -> decode_int(Rest)
 	end.
 	
 decode_num(Bin) ->
     {U, Rest} = lists:split(8, Bin),
     <<Value:64/float>> = list_to_binary(U),
-    {{num, Value}, Rest}.
+    {Value, Rest}.
 	
 decode_str(Bin) ->
     {Size, Rest} = decode_int(Bin),
-    {Value, RestL} = lists:split(Size, Rest),
-    {{str, Value}, RestL}.
+    lists:split(Size, Rest).
 
 decode_bool(Bin) ->
     {Size, Rest} = decode_int(Bin),
-    {Value, RestL} = lists:split(Size, Rest),
-    {{str, Value}, RestL}.
+    lists:split(Size, Rest).
+	
+decode_err(Bin) ->
+	{Err, Rest} = decode_int(Bin),
+	{{err, Err}, Rest}.
 
-decode_collection(Bin) ->
-	{Size, Rest} = decode_int(Bin),
-	{Value, RestC} = decode_collection(Rest, Size),
-	{{collection, Value}, RestC}.
-
-decode_collection(Bin, 0) ->
-	{[], Bin};
-decode_collection(Bin, Size) ->
-	{Value, Rest} = decode(Bin),
-	{V1, R1} = decode_collection(Rest, Size - 1),
-	{[Value | V1], R1}.
+decode_missing(Bin) ->
+	{undefined, Bin}.
 
 decode_int(Bin) ->
 	{U, Rest} = lists:split(4, Bin),
 	<<Value:32>> = list_to_binary(U),
 	{Value, Rest}.
 
-decode_null(Bin) ->
-	{undefined, Bin}.
+decode_multi(Bin, Rows, Cols, Acc) when Rows == 0 -> Acc,
+decode_multi(Bin, Rows, Cols, Acc) ->
+	decode_multi(Bin, Rows-1, Cols, [Acc|decode_multi(Bin, Cols, [])]).
+decode_multi(Bin, Length, Acc) when Length == 0 -> Acc,
+decode_multi(Bin, Length, Acc) ->
+	decode_multi(Bin, Length-1, [Acc|decode_xloper(Bin)]).
+decode_multi(Bin) ->
+	{Rows, R1} = decode_int(Bin),
+	{Cols, R2} = decode_int(R1),
+	Length = Rows * Cols,
+	if
+		Rows == 0 ; Cols == 0 ->
+			[];
+		Rows == 1; Cols == 1 ->
+			decode_multi(Bin, Length, []);
+		_ ->
+			decode_multi(Bin, Rows, Cols, [])
+	end.
 
 encode(Value) -> list_to_binary(encode(Value, [])).
 	

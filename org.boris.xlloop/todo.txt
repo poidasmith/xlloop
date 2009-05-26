@@ -9,6 +9,15 @@ Changes for 0.2.0
 - support up to 512 registered functions
 - reduced xll size by using wcrt
 
+
+What's left to do for release:
+- fix erlang server
+- fix/write R server
+- testing:
+	- 
+
+
+
 scalability
 ===========
 - add list of servers to connect to (either round robin or random selection)
@@ -17,7 +26,7 @@ scalability
 reliability
 ===========
 - also allow a server to indicate another server to use each time
-  a new connection is created (ie. when no connection exists)
+  a new connection is created (ie. when no connection exists) DONE
 - separate out scripting example/provider to separate jar to remove excess 
   dependencies
 - tray icon for stopping xllop/resetting connection? DONE

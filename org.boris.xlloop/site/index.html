@@ -40,6 +40,7 @@
             	<ul>
             	<li>Extensible <b>Java</b> server framework.</li>
             	<li>Native server frameworks written in many other languages (see <a href="#Languages">languages section</a>).</li>
+            	<li>Popup for long running operations (with option to cancel)<li>
 				<li>Support for hosting C++ XLLs via <b><a href="http://jxll.sourceforge.net">JXLL</a></b>.
             	<li>Reflection-based function adaptor for extremely quick deployment of java methods.</li>
             	<li>Bean scripting framework adaptor so functions can be written in any BSF-supported language (eg. Ruby, Python, Javascript).</li>
@@ -51,7 +52,7 @@
             	XLLoop consists of two main components:
             	<ul>
             	<li>An excel addin implementation (xll written in c++).</li>
-            	<li>A server and framework written in java (and another written in <a href="erlangserver.html">erlang</a>).</li>
+            	<li>A server and framework written in java (and in many other languages (see <a href="#Languages">languages section</a>)).</li>
             	</ul>
             	The addin and server communicate via a simple socket-based protocol, sending and
             	receiving (binary) serialised xl objects (called xlopers).
@@ -86,6 +87,7 @@
 					<tr><td>Ruby</td><td>Yes, a native <a href="rubyserver.html">ruby server</a> is included in the download.</td></tr>
 					<tr><td>Python</td><td>Yes, a native <a href="pythonserver.html">python server</a> is included in the download.</td></tr>
 					<tr><td>Javascript</td><td>Yes, using <a href="http://www.mozilla.org/rhino/">Rhino</a></td></tr>
+					<tr><td>R</td><td>Yes, a native <a href="rserver.html">R server</a> is included in the download.</td></tr>
 				</table>
 			</div>
 		</div>
@@ -184,6 +186,14 @@ public class ServerExample
 						<td>load.server.request</td>
 						<td>Set this to "true" to enable this feature in the addin.</td>
 					</tr>
+					<tr>
+						<td>disable.calc.popup</td>
+						<td>Set this to "true" to disable the popup.</td>
+					</tr>
+					<tr>
+						<td>disable.calc.cancel</td>
+						<td>Set this to "true" to disable to 'click to cancel' feature.</td>
+					</tr>
 				</table>						
 		</div>
 
@@ -191,6 +201,22 @@ public class ServerExample
 			<div class="section-title">Javadoc</div>
 			<div class="section-content">
 				The javadoc for the server framework can be found <a href="/javadoc/index.html">here</a>.
+			</div>
+		</div>
+
+		<div class="section">
+			<div class="section-title">Popup For Long Running Operations</div>
+			<div class="section-content">
+				The following screenshot shows the popup in action:
+				<br/><br/>
+				<img src="busy.gif"/>
+				<br/><br/>
+				The popup will appear after receiving no response from the server for a couple of seconds.
+				It will automatically disappear when the server responds. The user can click the
+				popup to terminate the connection to the server (it will automatically reconnect on the
+				next function call).
+				<br/><br/>
+				Note that this feature can be disabled via the INI file (see table above).
 			</div>
 		</div>
 
@@ -252,6 +278,18 @@ args[0] * args[1];
 		<div class="section">
 			<div class="section-title">Change History</div>
 			<div class="section-content">
+				V0.2.0
+				<ul>
+				<li>Added popup to client for long running operations (with option to cancel request)</li>
+				<li>Added native Ruby server</li>
+				<li>Added native Python server</li>
+				<li>Added native R server</li>
+				<li>Fixed native Erlang server</li>
+				<li>Buffered streams on java server for improved performance</li>
+				<li>Improvements to reliability on binary protocol</li>
+				<li>Support up to 512 registered functions</li>
+				<li>Reduced xll size by using wcrt</li>
+				</ul>
 				V0.1.0
 				<ul>
 					<li>Refactored protocol to directly marshal xloper objects</li>
@@ -261,46 +299,9 @@ args[0] * args[1];
 					<li>Note: Erlang server not currently supported due to change in protocol. This is TBD.</li>
 					<li>Included a CSV reader utility for function information.</li>
 				</ul>
-				V0.0.7
-				<ul>
-					<li>Added a <a href="erlangserver.html">server implementation in Erlang</a>.</li>
-					<li>Added excel help text support for scripts</li>
-					<li>Added CSV functions to example</li>
-					<li>Added reflection functions to example</li>
-					<li>Added javascript handler that compiles scripts</li>
-				</ul>
-				V0.0.6
-				<ul>
-					<li>Added <a href="lisphandler.html">lisp function handler</a> example.</li>
-					<li>Bug fix for returning empty collections.</li>
-					<li>Refactoring package names to "xlloop" structure.</li>
-				</ul>
-				V0.0.5
-				<ul>
-					<li>Added ability to register functions as real excel functions (with associated help text).</li>
-				</ul>
-				V0.0.4
-				<ul>
-					<li>Improved marshalling of arrays and vectors.</li>
-					<li>Added example server.</li>
-					<li>Bug fixes.</li>
-				</ul>
-				V0.0.3
-				<ul>
-					<li>Java source changed to 1.4 compatibility.</li>
-					<li>Included BSF jar in download.</li>
-					<li>Bug fixes.</li>
-				</ul>
-				V0.0.2
-				<ul>
-					<li>Added support for BSF scripting.</li>
-					<li>Bug fixes.</li>
-				</ul>
-				V0.0.1
-				<ul>
-					<li>Initial version.</li>
-					<li>BSF integration not working yet.</li>
-				</ul>
+				
+				<a href="oldchangehistory.html">Older Change History</a>
+				<br/><br/>
 			</div>
 		</div>		
     </div>
