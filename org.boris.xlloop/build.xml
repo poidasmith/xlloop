@@ -1,9 +1,9 @@
 <project name="XLLoop" default="build">
 	
-	<property name="release.dir" value="C:/Development/Releases/"/>
-	<property name="src.dir" value="C:\eclipse\workspace\WinRun4J"/>
+	<property name="release.dir" value="F:/Development/Releases/"/>
+	<property name="src.dir" value="F:\eclipse\workspace\WinRun4J"/>
 	<property name="release.name" value="xlloop"/>
-	<property name="release.version" value="0.2"/>
+	<property name="release.version" value="0.2.0"/>
 	<property name="deploy.dir" value="${release.dir}/${release.name}-${release.version}/xlloop"/>
 	
 	<target name="build">
@@ -48,6 +48,20 @@
                 <include name="**"/>
             </fileset>
 		</copy>
+		<copy todir="${deploy.dir}/src">
+			<fileset dir="servers/erlang">
+				<include name="**/*.erl"/>
+			</fileset>
+			<fileset dir="servers/r">
+				<include name="**/*.R"/>
+			</fileset>
+			<fileset dir="servers/ruby">
+				<include name="**/*.rb"/>
+			</fileset>
+			<fileset dir="servers/python">
+				<include name="**/*.py"/>
+			</fileset>
+		</copy>
 		<jar destfile="${deploy.dir}/src/xlloop-cppsrc.zip">
 			<fileset dir="${src.dir}">
 				<include name="**/*.def"/>
@@ -68,8 +82,8 @@
 		<delete dir="${release.dir}/${release.name}-${release.version}"/>
 		<delete dir="${release.dir}/xlloop-javadoc"/>
 		<mkdir dir="${release.dir}/xlloop-javadoc"/>
-		<javadoc packagenames="*" destdir="${release.dir}/xlloop-javadoc">
-			<fileset dir="java/src" includes="**"/>
+		<javadoc packagenames="*" destdir="${release.dir}/xlloop-javadoc" classpath="">
+			<fileset dir="java/src" includes="**/*.java"/>
 		</javadoc>
 	</target>
 </project>

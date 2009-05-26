@@ -7,6 +7,7 @@ class TestHandler
 	end
 	
 	def invoke(name, args)
+	  puts "Invoking #{name}"
 		case name
 		when "RandTest" then # Test encoding of different types and different lengths
 			a = Array.new
@@ -53,4 +54,5 @@ class TestHandler
 end
 
 f = XLLoopServer.new(TestHandler.new)
+puts "XLLoop Ruby Server Example..."
 f.start

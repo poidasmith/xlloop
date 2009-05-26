@@ -66,7 +66,7 @@ DWORD WINAPI Timeout::ShowInternal(LPVOID)
 	DWORD x = r.left + (r.right - r.left)/2 - g_Width/2;
 	DWORD y = r.top + (r.bottom - r.top)/2 - g_Height/2;
 	g_hWnd = CreateWindowEx(
-		WS_EX_TOOLWINDOW | WS_EX_NOPARENTNOTIFY, 
+		WS_EX_TOOLWINDOW | WS_EX_TOPMOST | WS_EX_NOPARENTNOTIFY, 
 		XLLOOP_WND_CLASS, 
 		XLLOOP_WND_NAME, 
 		WS_POPUP | WS_VISIBLE, 

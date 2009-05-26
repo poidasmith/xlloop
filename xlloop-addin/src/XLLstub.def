@@ -1,8 +1,0 @@
-LIBRARY	"XLLstub"
-
-EXPORTS
-	XLCallVer
-	Excel4
-	Excel4v
-	LPenHelper
-	SetFunctionPointers
