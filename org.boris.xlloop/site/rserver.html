@@ -30,8 +30,17 @@
             The R server implementation consists of a single file: xlloop.R. The code listing 
             for an example server is as follows:
 <pre>
+> ProductTest <- function(x, y) x*y
+>
+> source("xlloop.R")
+>
+> XLLoopServer()
 </pre>
-This creates a new server (a socket listening on port 5454). 
+This creates a new server (a socket listening on port 5454) and will provide the function ProductTest, 
+which can be invoked as:
+<pre>
+=FS("ProductTest", 32, 1886.5)
+</pre> 
             <div class="section-content">
             </div>
         </div>

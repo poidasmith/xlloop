@@ -79,11 +79,6 @@ encodeXloper <- function(value, con) {
 	return(length(value))
 }
 
-ArgsTest <- function() 45.3444
-RandTest <- function() "Hello World!"
-ArrayTest <- function() c(34.2, RandTest(), ArgsTest())
-ProductTest <- function(x, y) x*y
-
 XLLoopHandler <- function(name, argv) {
     fn <- if (exists(name)) get(name) else try(eval(parse(text=name)), silent=TRUE)
 	if (is.function(fn)) {
