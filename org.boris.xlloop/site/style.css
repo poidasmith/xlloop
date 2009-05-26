@@ -8,12 +8,16 @@
 }
 .title
 {
-	font-size: 28px;
+	padding-top: 10px;
+	padding-bottom: 0px;
+	font-size: 48px;
 	color: #1393c0;
+	line-height:64%;
 }
 .subtitle
 {
-	font-size: 20px;
+	padding-top: 8px;
+	font-size: 16px;
 	color: #BBBBBB;
 }
 .section-title
