@@ -1,22 +1,19 @@
 
-
-
 scalability
 ===========
+
 - add list of servers to connect to (either round robin or random selection)
 - probably use list like (servers=localhost:5600,myserver,myserver:8000)
 
 reliability
 ===========
-- also allow a server to indicate another server to use each time
-  a new connection is created (ie. when no connection exists) DONE
+
 - separate out scripting example/provider to separate jar to remove excess 
   dependencies
-- tray icon for stopping xllop/resetting connection? DONE
-- popup for long running functions? DONE
 
 building/configuration
 ======================
+
 - a smaller version with wcrt.lib instead of msvcrt DONE
 - a version with 30 args (or build in support for say 10 functions that have
   more than 10 args)
@@ -24,6 +21,7 @@ building/configuration
 
 protocols
 =========
+
 - http protocol version - ie. xmlcodec over http so php users can support this 
   natively
 - add a way to add urls to the client (ini file is not user-friendly), maybe
@@ -32,21 +30,19 @@ protocols
   
 server/language support
 =======================  
-- fix erlang server
-- create r server
-- create ruby server DONE
-- create python server DONE (test tuple encode)
+
+- haskell server?
  
 addin support
 =============
+
 - add excel 2007 support
 - open office calc extension?
 
 xlloop-http
-
+===========
 
 rest apis
-
 
 http://myserver/FunctionServer
 
