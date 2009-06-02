@@ -28,6 +28,7 @@ inline void XOStream::put(char c)
 
 inline void XOStream::write(const char* s, int n)
 {
+	if(n <= 0) return;
 	if(n > STREAM_BUF_SIZE) {
 		int i = 0;
 		while(i < n && s) {
@@ -68,7 +69,7 @@ inline int XIStream::get()
 
 inline void XIStream::read(char* s, int n)
 {
-	if(s == 0)
+	if(s == 0 || n <= 0)
 		return;
 
 	if(pos >= len)
