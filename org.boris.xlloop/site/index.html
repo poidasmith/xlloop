@@ -40,7 +40,7 @@
             	<ul>
             	<li>Extensible <b>Java</b> server framework.</li>
             	<li>Native server frameworks written in many other languages (see <a href="#Languages">languages section</a>).</li>
-            	<li><b>NEW - Popup for long running operations (with option to cancel)</b><li>
+            	<li>Popup for long running operations (with option to cancel)<li>
 				<li>Support for hosting C++ XLLs via <b><a href="http://jxll.sourceforge.net">JXLL</a></b>.
             	<li>Reflection-based function adaptor for extremely quick deployment of java methods.</li>
             	<li>Bean scripting framework adaptor so functions can be written in any BSF-supported language (eg. Ruby, Python, Javascript).</li>
@@ -221,6 +221,25 @@ public class ServerExample
 		</div>
 
 		<div class="section">
+			<div class="section-title">Function Information Registration</div>
+			<div class="section-content">
+				The addin can register function information/help with Excel on startup. This is
+				is achieved by calling a special function on the server called <code>org.boris.xlloop.GetFunctions</code>.
+				<br/><br/>
+				The server responds with an array of FunctionInformation objects (which are encoded as arrays).
+				<br/><br/>
+				The addin then calls the <code>Excel4(xlfRegister, ...)</code> function to register each function.
+				The user will then see the help information via the Insert->Function menu.
+				<br/><br/>
+				<img src="functioninfo.gif"/>
+				<br/><br/>
+				Note that the Java server framework has a handler called <code>FunctionInformationFunctionHandler</code>,
+				which accepts <code>FunctionInformation</code> objects. This handler implements the special function above. For
+				an example see the <code>ServerExample</code> class in the Java source.				
+			</div>
+		</div>
+
+		<div class="section">
 			<div class="section-title">Lisp Example</div>
 			<div class="section-content">
 				The following page shows an <a href="lisphandler.html">example lisp function handler</a>.
@@ -278,6 +297,10 @@ args[0] * args[1];
 		<div class="section">
 			<div class="section-title">Change History</div>
 			<div class="section-content">
+				V0.2.1
+				<ul>
+				<li>Fixed marshalling issues with empty/long strings</li>
+				</ul>
 				V0.2.0
 				<ul>
 				<li>Added popup to client for long running operations (with option to cancel request)</li>

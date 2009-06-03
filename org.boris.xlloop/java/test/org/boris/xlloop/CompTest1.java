@@ -65,7 +65,7 @@ public class CompTest1 implements FunctionHandler
         case 5:
             return new XLString(makeRandomString(30, true));
         case 6:
-            return new XLArray(0, 0);
+            return new XLArray(0, 1000);
         default:
             return XLMissing.MISSING;
         }

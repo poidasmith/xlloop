@@ -20,7 +20,7 @@ class XOStream {
 public:
 	XOStream(SOCKET& s) : s(s), pos(0) {}
 	void put(char c);
-	void write(const char* s, int n);
+	void write(const char* s, UINT n);
 	void flush();
 
 private:
@@ -33,7 +33,7 @@ class XIStream {
 public:
 	XIStream(SOCKET& s) : s(s), pos(0), len(0) {}
 	int get();
-	void read(char* s, int n);
+	void read(char* s, UINT n);
 	inline bool valid() { return s != NULL; }
 
 private:

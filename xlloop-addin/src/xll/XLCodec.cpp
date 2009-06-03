@@ -26,13 +26,13 @@ inline void XOStream::put(char c)
 	buf[pos++] = c;
 }
 
-inline void XOStream::write(const char* s, int n)
+inline void XOStream::write(const char* s, unsigned int n)
 {
 	if(n <= 0) return;
 	if(n > STREAM_BUF_SIZE) {
-		int i = 0;
+		unsigned int i = 0;
 		while(i < n && s) {
-			int size = STREAM_BUF_SIZE - pos;
+			unsigned int size = STREAM_BUF_SIZE - pos;
 			if(size > n)
 				size = n;
 			memcpy(&buf[pos], &s[i], size);
@@ -51,8 +51,15 @@ inline void XOStream::write(const char* s, int n)
 inline void XOStream::flush()
 {
 	if(pos > 0) {
-		if(s && send(s, buf, pos, 0) < 0) {
-			s = 0;
+		int len = 0;
+		int i = 0;
+		while(s && i < pos) {
+			len = send(s, &buf[i], pos-i, 0); // never sure how much is sent
+			if(len < 0) {
+				s = 0;
+				break;
+			}
+			i += len;
 		}
 		pos = 0;
 	}
@@ -67,7 +74,7 @@ inline int XIStream::get()
 	return buf[pos++] & 0xff;
 }
 
-inline void XIStream::read(char* s, int n)
+inline void XIStream::read(char* s, UINT n)
 {
 	if(s == 0 || n <= 0)
 		return;
@@ -75,24 +82,19 @@ inline void XIStream::read(char* s, int n)
 	if(pos >= len)
 		fill();
 
-	if(n >= len) {
-		int i = 0;
-		while(n > 0 && s) {
-			int size = len-pos;
-			if(size > n)
-				size = n;
-			if(size == 0)
-				break;
+	int i = 0;
+	while(n > 0 && s) {
+		UINT size = len-pos;
+		if(size > n)
+			size = n;
+		if(size > 0) {
 			memcpy(&s[i], &buf[pos], size);
 			pos += size;
-			if(pos > len)
-				fill();
-			n -= size;
-			i += size;
 		}
-	} else {
-		memcpy(s, &buf[pos], n);
-		pos += n;
+		n -= size;
+		i += size;
+		if(n > 0 && pos >= len)
+			fill(); // pos=0, len=0..STREAM_BUF_SIZE
 	}
 }
 
@@ -167,7 +169,8 @@ inline double readDouble(XIStream& is)
 void XLCodec::encode(const LPXLOPER xl, XOStream& os)
 {
 	int type = xl->xltype & ~(xlbitXLFree | xlbitDLLFree);
-	int len;
+	UINT len;
+	int t = 0;
 	switch(type) {
 		case xltypeBool:
 			os.put(XL_CODEC_TYPE_BOOL);
@@ -186,7 +189,7 @@ void XLCodec::encode(const LPXLOPER xl, XOStream& os)
 			writeDoubleWord(xl->val.array.rows, os);
 			writeDoubleWord(xl->val.array.columns, os);
 			len = xl->val.array.rows*xl->val.array.columns;
-			for(int i = 0; i < len; i++) {
+			for(UINT i = 0; i < len; i++) {
 				encode(&xl->val.array.lparray[i], os);
 			}
 			break;
@@ -197,7 +200,7 @@ void XLCodec::encode(const LPXLOPER xl, XOStream& os)
 		case xltypeStr:
 			os.put(XL_CODEC_TYPE_STR);
 			os.put(xl->val.str[0]);
-			os.write(&xl->val.str[1], xl->val.str[0]);
+			os.write(&xl->val.str[1], (unsigned char) xl->val.str[0]);
 			break;
 		case xltypeNil:
 			os.put(XL_CODEC_TYPE_NIL);
@@ -227,7 +230,7 @@ void XLCodec::decode(const char* name, XIStream& is, LPXLOPER xl)
 {
 	g_CurrentFunction = name;
 	int type = is.get();
-	int len;
+	UINT len;
 	switch(type) {
 		case XL_CODEC_TYPE_BOOL:
 			xl->xltype = xltypeBool;
@@ -248,7 +251,7 @@ void XLCodec::decode(const char* name, XIStream& is, LPXLOPER xl)
 			if(is.valid()) {
 				len = xl->val.array.rows * xl->val.array.columns;
 				xl->val.array.lparray = (LPXLOPER) malloc(sizeof(XLOPER) * len);
-				for(int i = 0; i < len; i++) {
+				for(UINT i = 0; i < len; i++) {
 					decode(name, is, &xl->val.array.lparray[i]);
 				}
 			}
@@ -263,7 +266,8 @@ void XLCodec::decode(const char* name, XIStream& is, LPXLOPER xl)
 			if(is.valid()) {
 				xl->val.str = new char[len+1];
 				xl->val.str[0] = (char) len;
-				is.read(&xl->val.str[1], len);
+				if(len > 0)
+					is.read(&xl->val.str[1], len);
 			}
 			break;
 		case XL_CODEC_TYPE_MISSING:
