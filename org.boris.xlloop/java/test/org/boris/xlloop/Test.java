@@ -13,8 +13,7 @@ public class Test
     }
 
     public static Object[][] toArray(String name, boolean other) {
-        Object[][] val = { { name, new Boolean(other) },
-                { "Method", "Overload" } };
+        Object[][] val = { { name, new Boolean(other) }, { "Method", "Overload" } };
         return val;
     }
 
@@ -72,5 +71,17 @@ public class Test
         }
 
         return xa;
+    }
+
+    public static String[] testStrings(double val) {
+        return new String[] { "", "", "", "asdf" };
+    }
+
+    public static String[] testStrings2(double val) {
+        return new String[] { " ", " ", " " };
+    }
+
+    public static String[] testStrings3(double val) {
+        return new String[] { " ", null, null };
     }
 }

@@ -30,7 +30,7 @@ public class CompTest1 implements FunctionHandler
             }
             return x;
         } else if (name.equals("ArrayTest")) {
-            Threads.sleep(15000);
+            // Threads.sleep(15000);
             XLArray x = new XLArray(15, 10);
             for (int i = 0; i < 15; i++) {
                 int len = (int) (Math.random() * 10) + 1;
@@ -50,7 +50,8 @@ public class CompTest1 implements FunctionHandler
     }
 
     public static XLoper makeRandom() {
-        switch ((int) Math.random() * 4) {
+        int choice = (int) (Math.random() * 7);
+        switch (choice) {
         case 0:
             return new XLString(makeRandomString());
         case 1:
@@ -59,18 +60,38 @@ public class CompTest1 implements FunctionHandler
             return new XLInt((int) (Math.random() * 1000));
         case 3:
             return new XLBool(Math.random() > 0.5 ? true : false);
+        case 4:
+            return new XLString(makeRandomString(0));
+        case 5:
+            return new XLString(makeRandomString(30, true));
+        case 6:
+            return new XLArray(0, 0);
         default:
             return XLMissing.MISSING;
         }
     }
 
-    private static String makeRandomString() {
-        int len = (int) (Math.random() * 50 + 2);
+    private static String makeRandomString(int len) {
         char[] c = new char[len];
         int cl = characters.length();
         for (int i = 0; i < len; i++) {
             c[i] = characters.charAt((int) (Math.random() * cl));
         }
         return new String(c);
+    }
+
+    private static String makeRandomString(int len, boolean unicode) {
+        if (!unicode)
+            return makeRandomString(len);
+        char[] c = new char[len];
+        for (int i = 0; i < len; i++) {
+            c[i] = (char) (Math.random() * 65536);
+        }
+        return new String(c);
+    }
+
+    private static String makeRandomString() {
+        int len = (int) (Math.random() * 260);
+        return makeRandomString(len);
     }
 }

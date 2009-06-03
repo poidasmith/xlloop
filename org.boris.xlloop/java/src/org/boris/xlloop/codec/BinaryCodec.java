@@ -142,10 +142,14 @@ public class BinaryCodec
 
     private static void encodeString(XLString xloper, OutputStream os) throws IOException {
         String str = xloper.str;
-        if (str.length() > 255)
-            str = str.substring(0, 255);
-        os.write(str.length());
-        os.write(str.getBytes());
+        byte[] b = str.getBytes();
+        if (b.length > 255) {
+            os.write(255);
+            os.write(b, 0, 255);
+        } else {
+            os.write(b.length);
+            os.write(b);
+        }
     }
 
     private static void encodeDecimal(XLNum xloper, OutputStream os) throws IOException {
