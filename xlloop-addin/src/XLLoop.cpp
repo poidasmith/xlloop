@@ -293,9 +293,9 @@ __declspec(dllexport) LPXLOPER WINAPI xlAddInManagerInfo(LPXLOPER xAction)
 		char* addinName = iniparser_getstr(g_ini, FS_ADDIN_NAME);
 		if(addinName == NULL) {
 #ifdef DEBUG_LOG
-			addinName = XLUtil::MakeExcelString("XLLoop v0.2.1 (Debug)");
+			addinName = XLUtil::MakeExcelString("XLLoop v0.2.2 (Debug)");
 #else
-			addinName = XLUtil::MakeExcelString("XLLoop v0.2.1");
+			addinName = XLUtil::MakeExcelString("XLLoop v0.2.2");
 #endif
 		} else {
 			addinName = XLUtil::MakeExcelString(addinName);

@@ -39,15 +39,14 @@ handle(Socket, Module) ->
 data(Socket, Data, Module) ->
 	{Name, R1} = xloper_codec:decode(Data),
 	{Argc, R2} = xloper_codec:decode(R1),
-	Args = decode_args(Argc, [], R2)
+	Args = decode_args(Argc, [], R2),
     XLoper = Module:function(Name, Args),
     gen_tcp:send(Socket, xloper_codec:encode(XLoper)).
 
-decode_args(Argc, Argv, Data) when Argc == 0 -> Argv
-decode_args(Argc, Argv, Data) when Argc > 0 -> Argv
-	{Arg, Rest} = xloper_codec::decode(Data),
-	decode_args(Argc-1, Argv ++ Arg, Rest)
-end.
+decode_args(Argc, Argv, _Data) when Argc == 0 -> Argv;
+decode_args(Argc, Argv, Data) ->
+	{Arg, Rest} = xloper_codec:decode(Data),
+	decode_args(Argc-1, Argv ++ [Arg], Rest).
 	
 
 	

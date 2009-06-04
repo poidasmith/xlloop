@@ -35,12 +35,15 @@ decode_num(Bin) ->
     {Value, Rest}.
 	
 decode_str(Bin) ->
-    {Size, Rest} = decode_int(Bin),
+    [Size|Rest] = Bin,
     lists:split(Size, Rest).
 
 decode_bool(Bin) ->
-    {Size, Rest} = decode_int(Bin),
-    lists:split(Size, Rest).
+    [B|Rest] = Bin,
+	if 
+		B == 0 -> {false, Rest};
+		true -> {true, Rest}
+	end.
 	
 decode_err(Bin) ->
 	{Err, Rest} = decode_int(Bin),
@@ -54,23 +57,25 @@ decode_int(Bin) ->
 	<<Value:32>> = list_to_binary(U),
 	{Value, Rest}.
 
-decode_multi(Bin, Rows, Cols, Acc) when Rows == 0 -> Acc,
+decode_multi(Bin, Rows, _Cols, Acc) when Rows == 0 -> {Acc, Bin};
 decode_multi(Bin, Rows, Cols, Acc) ->
-	decode_multi(Bin, Rows-1, Cols, [Acc|decode_multi(Bin, Cols, [])]).
-decode_multi(Bin, Length, Acc) when Length == 0 -> Acc,
+	{Value, Rest} = decode_multi(Bin, Cols, []),
+	decode_multi(Rest, Rows-1, Cols, [Acc|Value]).
+decode_multi(Bin, Length, Acc) when Length == 0 -> {Acc, Bin};
 decode_multi(Bin, Length, Acc) ->
-	decode_multi(Bin, Length-1, [Acc|decode_xloper(Bin)]).
+	{Value, Rest} = decode(Bin),
+	decode_multi(Rest, Length-1, Acc ++ [Value]).
 decode_multi(Bin) ->
 	{Rows, R1} = decode_int(Bin),
 	{Cols, R2} = decode_int(R1),
 	Length = Rows * Cols,
 	if
 		Rows == 0 ; Cols == 0 ->
-			[];
+			{[], R2};
 		Rows == 1; Cols == 1 ->
-			decode_multi(Bin, Length, []);
-		_ ->
-			decode_multi(Bin, Rows, Cols, [])
+			decode_multi(R2, Length, []);
+		true ->
+			decode_multi(R2, Rows, Cols, [])
 	end.
 
 encode(Value) -> list_to_binary(encode(Value, [])).
@@ -78,49 +83,31 @@ encode(Value) -> list_to_binary(encode(Value, [])).
 encode(Value, Acc) when is_tuple(Value) ->
 	{Type, Val} = Value,
 	case Type of
-		struct -> encode_struct(Val, Acc);
-		collection -> encode_collection(Val, Acc);
-		string -> encode_string(Val, Acc);
-		long -> encode_long(Val, Acc);
-		double -> encode_double(Val, Acc)
+		num -> encode_num(Val, Acc);
+		str -> encode_str(Val, Acc);
+		err -> encode_err(Val, Acc);
+		_ -> encode_null(Value, Acc)
 	end;
 encode(Value, Acc) when is_atom(Value) ->
-	encode_null(Value, Acc).
+	if
+		Value == true -> Acc ++ [?BOOL, 1];
+		Value == false -> Acc ++ [?BOOL, 0];
+		true -> encode_null(Value, Acc)
+	end;
+encode(Value, Acc) when is_number(Value) ->
+	encode_num(Value, Acc).
 
-encode_struct(Value, Acc) ->
-	WithType = Acc ++ [?STRUCT],
-	WithLen = encode_int(length(Value), WithType),
-	Fun = fun(Elem, AccIn) -> 
-		{Key, Entry} = Elem,
-		encode(Entry, encode(Key, AccIn)) 
-	end,		
-	lists:foldl(Fun, WithLen, Value).
+encode_str(Value, Acc) ->
+	Acc ++ [?STR, length(Value)] ++ Value.
+
+encode_num(Value, Acc) ->
+	Acc ++ [?NUM] ++ binary_to_list(<<Value:64/float>>).
+
+encode_err(Value, Acc) ->
+	Acc ++ [?ERR] ++ binary_to_list(<<Value:32>>).
 	
-encode_collection(Value, Acc) ->
-	WithType = Acc ++ [?COLLECTION],
-	WithLen = encode_int(length(Value), WithType),
-	Fun = fun(Elem, AccIn) -> 
-		encode(Elem, AccIn) 
-	end,		
-	lists:foldl(Fun, WithLen, Value).
-
-encode_string(Value, Acc) ->
-	WithType = Acc ++ [?STRING],
-	WithLen = encode_int(length(Value), WithType),
-	WithLen ++ Value.
-
-encode_double(Value, Acc) ->
-	WithType = Acc ++ [?DOUBLE],
-	WithType ++ binary_to_list(<<Value:64/float>>).
-	
-encode_long(Value, Acc) ->
-	WithType = Acc ++ [?LONG],
-	WithType ++ binary_to_list(<<Value:64>>).
-
 encode_null(_Value, Acc) ->
-	Acc ++ [?NULL].
+	Acc ++ [?NIL].
 	
-encode_int(Value, Acc) -> 
-	Acc ++ binary_to_list(<<Value:32>>).
 	
 		
