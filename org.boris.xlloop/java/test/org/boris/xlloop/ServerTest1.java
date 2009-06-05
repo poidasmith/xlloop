@@ -20,7 +20,10 @@ public class ServerTest1
     }
 
     public static FunctionServer createServer() {
-        FunctionServer fs = new FunctionServer();
+        return new FunctionServer(5454, new DebugFunctionHandler(createHandler()));
+    }
+
+    public static FunctionHandler createHandler() {
         ReflectFunctionHandler rfh = new ReflectFunctionHandler();
         LispFunctionHandler lfh = new LispFunctionHandler();
         lfh.eval(new File("functions"), true); // evaluate any lisp files
@@ -41,7 +44,6 @@ public class ServerTest1
         firh.add(srep); // add script repository as a function provider
         cfh.add(firh);
         cfh.add(new CompTest1());
-        fs.setFunctionHandler(new DebugFunctionHandler(cfh));
-        return fs;
+        return cfh;
     }
 }

@@ -14,10 +14,8 @@ reliability
 building/configuration
 ======================
 
-- a smaller version with wcrt.lib instead of msvcrt DONE
 - a version with 30 args (or build in support for say 10 functions that have
   more than 10 args)
-- a build with support for 1000 functions DONE
 
 protocols
 =========
@@ -46,7 +44,7 @@ rest apis
 
 http://myserver/FunctionServer
 
-<XLLoop version="0.1.1">
+<XLLoop version="1.0.0">
     <Name>MyFunc</Name>
     <XLopers>
         <XLoper type="multi" rows="2" columns="2">
@@ -61,7 +59,7 @@ http://myserver/FunctionServer
 
 Response
 
-<XLLoop version="0.1.1">
+<XLLoop version="1.0.0">
     <XLoper type="str">Hello World!</XLoper>
 </XLLoop>
 
