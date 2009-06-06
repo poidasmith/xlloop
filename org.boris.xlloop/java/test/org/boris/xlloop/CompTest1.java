@@ -85,7 +85,7 @@ public class CompTest1 implements FunctionHandler
             return makeRandomString(len);
         char[] c = new char[len];
         for (int i = 0; i < len; i++) {
-            c[i] = (char) (Math.random() * 65536);
+            c[i] = (char) (characters.charAt((int) (Math.random() * characters.length())));
         }
         return new String(c);
     }
