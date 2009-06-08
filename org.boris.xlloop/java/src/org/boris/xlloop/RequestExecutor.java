@@ -44,8 +44,11 @@ public class RequestExecutor
         socket.close();
     }
 
-    public XLoper execute(String name, XLoper[] args) throws RequestException,
-            IOException {
+    public boolean isConnected() {
+        return socket != null && socket.isConnected();
+    }
+
+    public XLoper execute(String name, XLoper[] args) throws RequestException, IOException {
         connect();
         protocol.send(socket, new XLString(name));
         protocol.send(socket, new XLInt(args.length));

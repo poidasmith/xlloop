@@ -4,6 +4,7 @@ scalability
 
 - add list of servers to connect to (either round robin or random selection)
 - probably use list like (servers=localhost:5600,myserver,myserver:8000)
+- create a proxy server that can multiplex requests out to child servers.
 
 reliability
 ===========
@@ -73,6 +74,10 @@ server.2.FunctionName=XLLoop
 
 
 server.1.FunctionName creates a function "Yahoo", which takes the normal "FS" arguments.
+
+normal FSW (web) function take FSW(url, name, args...)
+or XLLoop(...)
+XLLoopV(..)
 
 
 
