@@ -42,6 +42,7 @@ public class RequestExecutor
 
     public void disconnect() throws IOException {
         socket.close();
+        socket = null;
     }
 
     public boolean isConnected() {
