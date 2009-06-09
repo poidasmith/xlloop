@@ -59,7 +59,7 @@ public class CompTest1 implements FunctionHandler
         case 2:
             return new XLInt((int) (Math.random() * 1000));
         case 3:
-            return new XLBool(Math.random() > 0.5 ? true : false);
+            return new XLBool(Math.random() > 0.5);
         case 4:
             return new XLString(makeRandomString(0));
         case 5:

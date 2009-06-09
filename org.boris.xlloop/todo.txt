@@ -1,4 +1,15 @@
 
+- need to make popup a dialog that isn't toplevel or on top of everything - just modal to the
+  excel window
+  
+- support for multiple servers in normal xlloop
+
+	server.1.hostname=localhost
+	server.1.port=80
+	server.1.function=FS
+	server.1.function.volatile=FSV
+
+
 scalability
 ===========
 
