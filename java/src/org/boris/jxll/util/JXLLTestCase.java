@@ -11,12 +11,10 @@ package org.boris.jxll.util;
 
 import java.io.File;
 
-import junit.framework.TestCase;
-
 import org.boris.jxll.Addin;
 import org.boris.jxll.XLL;
 
-public class JXLLTestCase extends TestCase
+public class JXLLTestCase // extends TestCase
 {
     protected Addin addin;
 
