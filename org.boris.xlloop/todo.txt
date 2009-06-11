@@ -10,6 +10,32 @@
 	server.1.function.volatile=FSV
 
 
+- integrate http version into same codebase
+- jquantlib wrapper
+- deploy on google app engine
+
+- store data facility:
+	XG.Save(tag, password, [data])
+	XG.Load(tag)
+	
+	user can store abitrary blob of excel data (value or array) and
+	give it a tag with an optional password
+	updates to an existing tag require a password
+	anyone else can request the data based on the tag
+	website can query for data based on a tag
+	no password assumes public data, which is visible, writeable by anyone
+	
+- store hits on each bit of data so web front end can show popular data
+- data with no password only lasts for x days/hours
+- data with password lasts much longer (need to think about how long)
+- limit on IP address to X (eg. 20) saves per hour	
+
+	
+- maybe also have optional read password as well for private data
+- google finance api
+- bank of england
+- us data gov
+
 scalability
 ===========
 

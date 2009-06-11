@@ -24,7 +24,7 @@ public class CompTest1 implements FunctionHandler
 
     public XLoper execute(String name, XLoper[] args) throws RequestException {
         if (name.equals("RandTest")) {
-            XLArray x = new XLArray((int) (Math.random() * 50 + 2), 1);
+            XLArray x = new XLArray((int) (Math.random() * 10 + 2), 1);
             for (int i = 0; i < x.length; i++) {
                 x.array[i] = makeRandom();
             }
@@ -65,7 +65,7 @@ public class CompTest1 implements FunctionHandler
         case 5:
             return new XLString(makeRandomString(30, true));
         case 6:
-            return new XLArray(2, 1000);
+            return new XLArray(2, 1);
         default:
             return XLMissing.MISSING;
         }
