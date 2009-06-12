@@ -10,7 +10,6 @@
 
 #include "JSONCodec.h"
 #include "XLCodec.h"
-#include <stdio.h>
 
 json_value* get(json_value* v, char* key)
 {
@@ -44,13 +43,11 @@ json_value* to_apply(json_ctx* ctx)
 				json_value* k = new_value();
 				k->type = JSON_TYPE_STR;
 				k->str = ctx->key;
-				printf("key: %s\n", k->str);
 				ctx->key = NULL;
 				// store key
 				json_value* it = ctx->current;
 				int i = 0;
 				while(it->map.key) {
-					printf("%d- old key: %s\n", ++i, it->map.key->str);
 					it = it->map.key;
 				}
 				it->map.key = k;
@@ -58,7 +55,6 @@ json_value* to_apply(json_ctx* ctx)
 				i = 0;
 				it = ctx->current;
 				while(it->map.value) {
-					printf("%d- old value\n", ++i);
 					it = it->map.value;
 				}
 				it->map.value = v;
@@ -74,11 +70,9 @@ json_value* to_apply(json_ctx* ctx)
 			}
 		    break;
 			default:
-				printf("Invalid type: %d\n", ctx->current->type);
 			break;
 		}
 	} else {
-		printf("empty current\n");
 		return new_value();
 	}
 	return 0;
@@ -103,7 +97,6 @@ static int cb_null(void * ctx)
 	json_value* v = to_apply(c);
 	if(!v) return 0;
 	v->type = JSON_TYPE_NULL;
-	printf("null\n");
     return 1;
 }
 
@@ -114,7 +107,6 @@ static int cb_boolean(void * ctx, int boolean)
 	if(!v) return 0;
 	v->type = JSON_TYPE_BOOL;
 	v->b = boolean;
-	printf("boolean: %d\n", boolean);
     return 1;
 }
 
@@ -125,7 +117,6 @@ static int cb_integer(void * ctx, long l)
 	if(!v) return 0;
 	v->type = JSON_TYPE_INT;
 	v->i = l;
-	printf("integer: %d\n", l);
 	return 1;
 }
 
@@ -136,7 +127,6 @@ static int cb_double(void * ctx, double d)
 	if(!v) return 0;
 	v->type = JSON_TYPE_NUM;
 	v->num = d;
-	printf("double: %f\n", d);
 	return 1;
 }
 
@@ -150,7 +140,6 @@ static int cb_string(void * ctx, const unsigned char * s,
 	v->str = (char*) malloc(len + 1);
 	memcpy(v->str, s, len);
 	v->str[len] = 0;
-	printf("string: %s\n", v->str);
     return 1;
 }
 
@@ -163,7 +152,6 @@ static int cb_map_key(void * ctx, const unsigned char * s,
 	c->key = (char*) malloc(len + 1);
 	memcpy(c->key, s, len);
 	c->key[len] = 0;
-	printf("map_key: %s\n", c->key);
     return 1;
 }
 
@@ -174,14 +162,12 @@ static int cb_start_map(void * ctx)
 	if(!v) return 0;
 	v->type = JSON_TYPE_MAP;
 	push(c, v);
-	printf("start map\n");
     return 1;
 }
 
 static int cb_end_map(void * ctx)
 {
 	pop((json_ctx*) ctx);
-	printf("end map\n");
     return 1;
 }
 
@@ -192,14 +178,12 @@ static int cb_start_array(void * ctx)
 	if(!v) return 0;
 	v->type = JSON_TYPE_ARRAY;
 	push(c, v);
-	printf("start array\n");
     return 1;
 }
 
 static int cb_end_array(void * ctx)
 {
 	pop((json_ctx*) ctx);
-	printf("end array\n");
     return 1;
 }
 
@@ -331,35 +315,34 @@ void JSONCodec::FreeJsonValue(json_value* v)
 bool JSONCodec::Decode(json_value* v, LPXLOPER x) 
 {
 	if(!v || v->type != JSON_TYPE_MAP) {
-		printf("invalid xloper type: %d\n", v?v->type:0);
 		return false;
 	}
 
 	json_value* t = get(v, "type");
 	if(!t || t->type != JSON_TYPE_INT) {
-		printf("invalid type: %d\n", t?t->type:0);
 		return false;
 	}
 
 	switch(t->i) {
 		case XL_CODEC_TYPE_NUM: {
-			printf("num\n");
 			x->xltype = xltypeNum;
 			json_value* bv = get(v, "num");
-			if(!bv || bv->type != JSON_TYPE_NUM) {
-				printf("Missing num value: %d\n", bv);
+			if(!bv) {
 				return false;
 			}
-			x->val.num = bv->num;
-			printf("num: %f\n", x->val.num);
+			if(bv->type == JSON_TYPE_INT) {
+				x->val.num = bv->i;
+			} else if(bv->type == JSON_TYPE_NUM) {
+				x->val.num = bv->num;
+			} else {
+				x->val.num = 0;
+			}
 		}
 		break;
 		case XL_CODEC_TYPE_STR: {
-			printf("str\n");
 			x->xltype = xltypeStr;
 			json_value* bv = get(v, "str");
 			if(!bv || bv->type != JSON_TYPE_STR) {
-				printf("Missing str value: %d\n", bv);
 				return false;
 			}
 			int len = strlen(bv->str);
@@ -369,51 +352,40 @@ bool JSONCodec::Decode(json_value* v, LPXLOPER x)
 			x->val.str = (LPSTR) malloc(len + 1);
 			x->val.str[0] = len;
 			memcpy(&(x->val.str[1]), bv->str, len);
-			printf("str: %s\n", bv->str);
 		}
 		break;
 		case XL_CODEC_TYPE_BOOL: {
-			printf("bool\n");
 			x->xltype = xltypeBool;
 			json_value* bv = get(v, "bool");
 			if(!bv || bv->type != JSON_TYPE_BOOL) {
-				printf("Missing bool value: %d\n", bv);
 				return false;
 			}
 			x->val.xbool = bv->b;
-			printf("bool: %d\n", x->val.xbool);
 		}
 		break;
 		case XL_CODEC_TYPE_ERR: {
-			printf("err\n");
 			x->xltype = xltypeErr;
 			json_value* bv = get(v, "error");
 			if(!bv || bv->type != JSON_TYPE_INT) {
-				printf("Missing err value: %d\n", bv);
 				return false;
 			}
 			x->val.err = bv->i;
-			printf("err: %d\n", x->val.err);
 		}
 		break;
 		case XL_CODEC_TYPE_MULTI: {
-			printf("multi\n");
 			x->xltype = xltypeMulti;
 			json_value* rowsv = get(v, "rows");
 			if(!rowsv || rowsv->type != JSON_TYPE_INT) {
-				printf("Missing rows value: %d\n", rowsv);
 				return false;
 			}
 			x->val.array.rows = rowsv->i;
 			json_value* colsv = get(v, "cols");
 			if(!colsv || colsv->type != JSON_TYPE_INT) {
-				printf("Missing colsv value: %d\n", colsv);
 				return false;
 			}
 			x->val.array.columns = colsv->i;
 			json_value* a = get(v, "array");
 			if(!a || a->type != JSON_TYPE_ARRAY) {
-				printf("Missing array value: %d\n", a);
 				return false;
 			}
 			int len = x->val.array.rows * x->val.array.columns;
@@ -431,28 +403,22 @@ bool JSONCodec::Decode(json_value* v, LPXLOPER x)
 					}
 				}
 			}
-			printf("multi: %d %d\n", x->val.array.rows, x->val.array.columns);
 		}
 		break;
 		case XL_CODEC_TYPE_MISSING:
 			x->xltype = xltypeMissing;
-			printf("missing\n");
 			break;
 		case XL_CODEC_TYPE_NIL:
 			x->xltype = xltypeNil;
-			printf("nil\n");
 			break;
 		case XL_CODEC_TYPE_INT: {
-			printf("int\n");
 			x->xltype = xltypeInt;
 			json_value* bv = get(v, "int");
 			if(!bv || bv->type != JSON_TYPE_INT) {
-				printf("Missing int value: %d\n", bv);
 				free(x);
 				return false;
 			}
 			x->val.w = bv->i;
-			printf("int: %d\n", x->val.w);
 		}
 		break;
 	}

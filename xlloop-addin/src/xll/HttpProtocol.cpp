@@ -10,34 +10,34 @@
 
 #include "HttpProtocol.h"
 #include "JSONCodec.h"
-#include <stdio.h>
+
+#define USER_AGENT "XLLoop/Http v0.1.0"
+
+#define REQ_TYPE_NAME "request"
+#define REQ_TYPE_VAL "XLLoop"
+#define REQ_VER_NAME "version"
+#define REQ_VER_VAL "0.1.0"
+#define REQ_NAME_NAME "name"
+#define REQ_ARGS_NAME "args"
 
 VOID CALLBACK CallBack(HINTERNET session, DWORD_PTR context, DWORD status, LPVOID statusInfo, DWORD statusInfoLen);
 
 void SendRequest(HINTERNET hRequest, yajl_gen g, const char* fn, LPXLOPER* argv, int argc)
 {
-	char* x = "XLLoop";
-	char* v = "version";
-	char* n = "name";
-	char* r = "request";
-	char* vv = "0.1.0";
-	char* a = "args";
-
 	yajl_gen_map_open(g);
-	yajl_gen_string(g, (const unsigned char*) r, strlen(r));
-	yajl_gen_string(g, (const unsigned char*) x, strlen(x));
-	yajl_gen_string(g, (const unsigned char*) v, strlen(v));
-	yajl_gen_string(g, (const unsigned char*) vv, strlen(vv));
-	yajl_gen_string(g, (const unsigned char*) n, strlen(n));
+	yajl_gen_string(g, (const unsigned char*) REQ_TYPE_NAME, strlen(REQ_TYPE_NAME));
+	yajl_gen_string(g, (const unsigned char*) REQ_TYPE_VAL, strlen(REQ_TYPE_VAL));
+	yajl_gen_string(g, (const unsigned char*) REQ_VER_NAME, strlen(REQ_VER_NAME));
+	yajl_gen_string(g, (const unsigned char*) REQ_VER_VAL, strlen(REQ_VER_VAL));
+	yajl_gen_string(g, (const unsigned char*) REQ_NAME_NAME, strlen(REQ_NAME_NAME));
 	yajl_gen_string(g, (const unsigned char*) fn, strlen(fn));
-	yajl_gen_string(g, (const unsigned char*) a, strlen(a));
+	yajl_gen_string(g, (const unsigned char*) REQ_ARGS_NAME, strlen(REQ_ARGS_NAME));
 	yajl_gen_array_open(g);
 	for(int i = 0; i < argc; i++) {
 		JSONCodec::Encode(g, argv[i]);
 	}
 	yajl_gen_array_close(g);
 	yajl_gen_map_close(g);
-
 	const unsigned char * buf;
     unsigned int len = 0;
     yajl_gen_get_buf(g, &buf, &len);
@@ -46,7 +46,17 @@ void SendRequest(HINTERNET hRequest, yajl_gen g, const char* fn, LPXLOPER* argv,
 
 HttpProtocol::HttpProtocol(const char* url)
 {
-	hSession = InternetOpen("XLLoop/Http v0.1.0", INTERNET_OPEN_TYPE_PRECONFIG,
+	this->url = strdup(url);
+	memset(&urlc, 0, sizeof(URL_COMPONENTS));
+	urlc.dwStructSize = sizeof(URL_COMPONENTS);
+	urlc.dwSchemeLength = 1;
+	urlc.dwHostNameLength = 1;
+	urlc.dwUserNameLength = 1;
+	urlc.dwPasswordLength = 1;
+	urlc.dwUrlPathLength = 1;
+	urlc.dwExtraInfoLength = 1;
+	InternetCrackUrl(this->url, strlen(this->url), 0, &urlc);
+	hSession = InternetOpen(USER_AGENT, INTERNET_OPEN_TYPE_PRECONFIG,
 		NULL, NULL, INTERNET_FLAG_ASYNC);
 	INTERNET_STATUS_CALLBACK callback = InternetSetStatusCallback(hSession, (INTERNET_STATUS_CALLBACK) CallBack);
 }
@@ -55,6 +65,7 @@ HttpProtocol::~HttpProtocol()
 {
 	InternetSetStatusCallback(hSession, NULL);
 	InternetCloseHandle(hSession);
+	if(url) free(url);
 }
 
 LPXLOPER HttpProtocol::execute(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, 
@@ -91,17 +102,23 @@ typedef struct _ctx {
 LPXLOPER HttpProtocol::Execute(const char* name, LPXLOPER* args, int argc)
 {
 	REQUEST_CONTEXT context;
+	char host[MAX_PATH];
+	char path[MAX_PATH];
+	memcpy(host, urlc.lpszHostName, urlc.dwHostNameLength);
+	host[urlc.dwHostNameLength] = 0;
+	memcpy(path, urlc.lpszUrlPath, urlc.dwUrlPathLength);
+	path[urlc.dwUrlPathLength] = 0;
 	context.hEvent = CreateEvent(0, 1, 0, 0);
-	context.hConnect = InternetConnect(hSession, "localhost", 8000, 0, 0, 
+	context.hConnect = InternetConnect(hSession, host, urlc.nPort, 0, 0, 
 		INTERNET_SERVICE_HTTP, 0, (DWORD_PTR) this);
-	context.hRequest = HttpOpenRequest(context.hConnect, "POST", "/", 0, 0, 0, 
+	context.hRequest = HttpOpenRequest(context.hConnect, "POST", path, 0, 0, 0, 
 		INTERNET_FLAG_RELOAD | INTERNET_FLAG_NO_CACHE_WRITE, (DWORD_PTR) &context);
 	context.conf.beautify = 0;
 	context.conf.indentString = "";
 	context.g = yajl_gen_alloc(&context.conf, 0);
 	context.px = (LPXLOPER) malloc(sizeof(XLOPER));
-	SendRequest(context.hRequest, context.g, name, args, 10);
-	WaitForSingleObject(context.hEvent, INFINITE);
+	SendRequest(context.hRequest, context.g, name, args, argc);
+	WaitForSingleObject(context.hEvent, INFINITE); // TODO add timeout spinner
 	CloseHandle(context.hEvent);
 	InternetCloseHandle(context.hRequest);
 	InternetCloseHandle(context.hConnect);
@@ -138,66 +155,66 @@ VOID CALLBACK CallBack(HINTERNET session, DWORD_PTR context, DWORD status, LPVOI
 {
 	switch(status) {
 	case INTERNET_STATUS_COOKIE_SENT:
-		printf("Cookie sent\n");
+		//printf("Cookie sent\n");
 		break;
 	case INTERNET_STATUS_COOKIE_RECEIVED:
-		printf("Cookie received\n");
+		//printf("Cookie received\n");
 		break;
     case INTERNET_STATUS_CLOSING_CONNECTION:
-        printf("Closing Connection\n");
+        //printf("Closing Connection\n");
         break;
     case INTERNET_STATUS_CONNECTED_TO_SERVER:
-        printf("Connected to Server\n");
+        //printf("Connected to Server\n");
         break;
     case INTERNET_STATUS_CONNECTING_TO_SERVER:
-        printf("Connecting to Server\n");
+        //printf("Connecting to Server\n");
         break;
     case INTERNET_STATUS_CONNECTION_CLOSED:
-        printf("Connection Closed\n");
+        //printf("Connection Closed\n");
         break;
     case INTERNET_STATUS_HANDLE_CREATED:
-        printf("Handle Created\n");
+        //printf("Handle Created\n");
         break;
     case INTERNET_STATUS_HANDLE_CLOSING:
-        printf("Handle Closing\n");
+        //printf("Handle Closing\n");
         break;
     case INTERNET_STATUS_INTERMEDIATE_RESPONSE:
-        printf("Intermediate response\n");
+        //printf("Intermediate response\n");
         break;
     case INTERNET_STATUS_RECEIVING_RESPONSE:
-        printf("Receiving Response\n");    
+        //printf("Receiving Response\n");    
         break;
     case INTERNET_STATUS_RESPONSE_RECEIVED:
-        printf("Response Received (%d bytes)\n", *((LPDWORD)statusInfo));   
+        //printf("Response Received (%d bytes)\n", *((LPDWORD)statusInfo));   
 	    break;
     case INTERNET_STATUS_REQUEST_SENT:
-        printf("Request Sent\n");    
+        //printf("Request Sent\n");    
 	    break;
     case INTERNET_STATUS_REQUEST_COMPLETE:
-        printf("Request Complete\n");    
+        //printf("Request Complete\n");    
 		ReadData((REQUEST_CONTEXT*) context);
 		SetEvent(((REQUEST_CONTEXT*)context)->hEvent);
 	    break;
 	case INTERNET_STATUS_DETECTING_PROXY:
-        printf("Detecting Proxy\n");
+        //printf("Detecting Proxy\n");
         break;            
     case INTERNET_STATUS_RESOLVING_NAME:
-        printf("Resolving Name\n");
+        //printf("Resolving Name\n");
         break;
     case INTERNET_STATUS_NAME_RESOLVED:
-        printf("Name Resolved\n");
+        //printf("Name Resolved\n");
         break;
     case INTERNET_STATUS_SENDING_REQUEST:
-        printf("Sending request\n");
+        //printf("Sending request\n");
         break;
     case INTERNET_STATUS_STATE_CHANGE:
-        printf("State Change\n");
+        //printf("State Change\n");
         break;
     case INTERNET_STATUS_P3P_HEADER:
-        printf("Received P3P header\n");
+        //printf("Received P3P header\n");
         break;
     default:
-        printf("Unknown (%d)\n", status);
+        //printf("Unknown (%d)\n", status);
         break;	
 	}
 }

@@ -35,6 +35,7 @@ private:
 private:
 	char* url;
 	HINTERNET hSession;
+	URL_COMPONENTS urlc;
 };
 
 #endif // HTTP_PROTOCOL_H
