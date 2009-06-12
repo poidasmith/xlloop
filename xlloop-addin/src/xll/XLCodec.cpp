@@ -126,15 +126,6 @@ inline void XIStream::fill()
 	pos = 0;
 }
 
-#define XL_CODEC_TYPE_NUM 0x1
-#define XL_CODEC_TYPE_STR 0x2
-#define XL_CODEC_TYPE_BOOL 0x3
-#define XL_CODEC_TYPE_ERR 0x4
-#define XL_CODEC_TYPE_MULTI 0x5
-#define XL_CODEC_TYPE_MISSING 0x6
-#define XL_CODEC_TYPE_NIL 0x7
-#define XL_CODEC_TYPE_INT 0x8
-
 inline void writeDoubleWord(unsigned int value, XOStream& os)
 {
 	os.put(value >> 24 & 0xff);

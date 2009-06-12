@@ -12,7 +12,7 @@
 
 #include <stdio.h>
 
-int Protocol::connect()
+int BinaryProtocol::connect()
 {
 	if(conn != NULL) return 0;
 
@@ -61,7 +61,7 @@ int Protocol::connect()
 	return 0;
 }
 
-void Protocol::disconnect()
+void BinaryProtocol::disconnect()
 {
 	if(conn) {
 		closesocket(conn);
@@ -71,7 +71,7 @@ void Protocol::disconnect()
 	WSACleanup();
 }
 
-int Protocol::send(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, 
+int BinaryProtocol::send(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, 
 		LPXLOPER v4, LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, LPXLOPER v9)
 {
 	XLCodec::encode(name, os);
@@ -90,18 +90,7 @@ int Protocol::send(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXL
 	return conn == NULL ? 1 : 0;
 }
 
-int Protocol::send(const char* name, int count, LPXLOPER v)
-{
-	XLCodec::encode(name, os);
-	XLCodec::encode(count, os);
-	for(int i = 0; i < count; i++) {
-		XLCodec::encode(&v[i], os);
-	}
-	os.flush();
-	return conn == NULL ? 1 : 0;
-}
-
-int Protocol::send(const char* name)
+int BinaryProtocol::send(const char* name)
 {
 	XLCodec::encode(name, os);
 	XLCodec::encode(0, os);
@@ -109,7 +98,7 @@ int Protocol::send(const char* name)
 	return conn == NULL ? 1 : 0;
 }
 
-LPXLOPER Protocol::receive(const char* name)
+LPXLOPER BinaryProtocol::receive(const char* name)
 {
 	LPXLOPER xl = new XLOPER;
 	XLCodec::decode(name, is, xl);

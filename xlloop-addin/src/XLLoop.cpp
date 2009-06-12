@@ -13,6 +13,7 @@
 #include "xll/XLUtil.h"
 #include "xll/xlcall.h"
 #include "xll/Protocol.h"
+#include "xll/HttpProtocol.h"
 #include "xll/Timeout.h"
 
 // The DLL instance
@@ -30,8 +31,10 @@ static char* g_functionNames[MAX_FUNCTIONS];
 static int g_functionCount = 0;
 
 // INI keys
+#define FS_PROTOCOL ":protocol"
 #define FS_HOSTNAME ":hostname"
 #define FS_PORT ":port"
+#define FS_URL ":url"
 #define FS_ADDIN_NAME ":addin.name"
 #define FS_FUNCTION_NAME ":function.name"
 #define FS_INCLUDE_VOLATILE ":include.volatile"
@@ -41,7 +44,6 @@ static int g_functionCount = 0;
 
 // Admin function names
 #define AF_GET_FUNCTIONS "org.boris.xlloop.GetFunctions"
-#define AF_GET_LOAD_SERVER "org.boris.xlloop.GetLoadServer"
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
@@ -67,10 +69,16 @@ bool InitProtocol()
 {
 	// Create our protocol manager
 	if(g_protocol == NULL) {
-		char* hostname = iniparser_getstr(g_ini, FS_HOSTNAME);
-		char* port = iniparser_getstr(g_ini, FS_PORT);
-		g_protocol = new Protocol(hostname == NULL ? "localhost" : hostname, 
-			port == NULL ? 5454 : atoi(port));
+		char* protocol = iniparser_getstr(g_ini, FS_PROTOCOL);
+		if(protocol && strcmp(protocol, "http") == 0) {
+			char* url = iniparser_getstr(g_ini, FS_URL);
+			g_protocol = new HttpProtocol(url);
+		} else {
+			char* hostname = iniparser_getstr(g_ini, FS_HOSTNAME);
+			char* port = iniparser_getstr(g_ini, FS_PORT);
+			g_protocol = new BinaryProtocol(hostname == NULL ? "localhost" : hostname, 
+				port == NULL ? 5454 : atoi(port));
+		}
 	}
 
 	// Attempt connection
@@ -153,43 +161,6 @@ void RegisterFunctions()
 	Excel4(xlFree, 0, 1, (LPXLOPER) &xDLL);
 }
 
-// Asks the server for an alternative function server
-void GetLoadServer()
-{
-	if(!InitProtocol()) {
-		return;
-	}
-
-	// Execute the GetLoadServer function with [username,hostname] as args
-	TCHAR h[MAX_PATH];
-	XLOPER args[2];
-	DWORD hlen = MAX_PATH;
-	GetUserName(h, &hlen);
-	args[0].xltype = xltypeStr;
-	args[0].val.str = XLUtil::MakeExcelString(h);
-	gethostname(h, MAX_PATH);
-	args[1].xltype = xltypeStr;
-	args[1].val.str = XLUtil::MakeExcelString(h);
-	LPXLOPER pmap = g_protocol->execute(AF_GET_LOAD_SERVER, 2, args);
-	free(args[0].val.str);
-	free(args[1].val.str);
-
-	if(pmap) {
-		char* host = XLMap::getString(pmap, "host");
-		int port = XLMap::getInteger(pmap, "port");
-		if(host != NULL && port != -1) {
-			strncpy(h, &host[1], host[0]);
-			h[host[0]] = 0;
-			g_protocol->disconnect();
-			g_protocol->setHost(h);
-			g_protocol->setPort(port);
-			g_protocol->connect();
-		}
-
-		free(pmap);
-	}
-}
-
 #ifdef __cplusplus
 extern "C" {  
 #endif 
@@ -222,12 +193,6 @@ __declspec(dllexport) int WINAPI xlAutoOpen(void)
 	char* disableFunctionList = iniparser_getstr(g_ini, FS_DISABLE_FUNCTION_LIST);
 	if(disableFunctionList == NULL || strcmp(disableFunctionList, "true")) {
 		RegisterFunctions();
-	}
-
-	// Ask server for alternative (probably for load balancing etc)
-	BOOL lsr = iniparser_getboolean(g_ini, FS_LOAD_SERVER_REQUEST, FALSE);
-	if(lsr) {
-		GetLoadServer();
 	}
 
 	// Free the XLL filename
@@ -293,9 +258,9 @@ __declspec(dllexport) LPXLOPER WINAPI xlAddInManagerInfo(LPXLOPER xAction)
 		char* addinName = iniparser_getstr(g_ini, FS_ADDIN_NAME);
 		if(addinName == NULL) {
 #ifdef DEBUG_LOG
-			addinName = XLUtil::MakeExcelString("XLLoop v0.2.2 (Debug)");
+			addinName = XLUtil::MakeExcelString("XLLoop v0.3.0 (Debug)");
 #else
-			addinName = XLUtil::MakeExcelString("XLLoop v0.2.2");
+			addinName = XLUtil::MakeExcelString("XLLoop v0.3.0");
 #endif
 		} else {
 			addinName = XLUtil::MakeExcelString(addinName);
