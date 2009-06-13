@@ -7,9 +7,10 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.xlloop;
+package org.boris.xlloop.util;
 
-import org.boris.xlloop.util.XLList;
+import org.boris.xlloop.FunctionHandler;
+import org.boris.xlloop.RequestException;
 import org.boris.xlloop.xloper.XLArray;
 import org.boris.xlloop.xloper.XLBool;
 import org.boris.xlloop.xloper.XLInt;

@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.boris.xlloop.xloper.XLArray;
+import org.boris.xlloop.xloper.XLBool;
 import org.boris.xlloop.xloper.XLInt;
 import org.boris.xlloop.xloper.XLNil;
 import org.boris.xlloop.xloper.XLNum;
@@ -44,8 +45,7 @@ public class XLList
     }
 
     public void add(Double value) {
-        list.add(value == null ? (XLoper) XLNil.NIL : (XLoper) new XLNum(value
-                .doubleValue()));
+        list.add(value == null ? (XLoper) XLNil.NIL : (XLoper) new XLNum(value.doubleValue()));
     }
 
     public void add(int value) {
@@ -54,6 +54,10 @@ public class XLList
 
     public void add(double value) {
         list.add(new XLNum(value));
+    }
+
+    public void add(boolean value) {
+        list.add(value ? XLBool.TRUE : XLBool.FALSE);
     }
 
     public void clear() {
@@ -102,8 +106,7 @@ public class XLList
         return make(new XLoper[] { arg1, arg2, arg3, arg4 });
     }
 
-    public static XLList make(XLoper arg1, XLoper arg2, XLoper arg3,
-            XLoper arg4, XLoper arg5) {
+    public static XLList make(XLoper arg1, XLoper arg2, XLoper arg3, XLoper arg4, XLoper arg5) {
         return make(new XLoper[] { arg1, arg2, arg3, arg4, arg5 });
     }
 }
