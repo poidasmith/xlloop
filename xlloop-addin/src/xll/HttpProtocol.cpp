@@ -10,6 +10,7 @@
 
 #include "HttpProtocol.h"
 #include "JSONCodec.h"
+#include "../common/Log.h"
 
 #define USER_AGENT "XLLoop/Http v0.1.0"
 
@@ -46,6 +47,7 @@ void SendRequest(HINTERNET hRequest, yajl_gen g, const char* fn, LPXLOPER* argv,
 
 HttpProtocol::HttpProtocol(const char* url)
 {
+	Log::Info("Setup session for: %s", url);
 	this->url = strdup(url);
 	memset(&urlc, 0, sizeof(URL_COMPONENTS));
 	urlc.dwStructSize = sizeof(URL_COMPONENTS);
@@ -99,8 +101,67 @@ typedef struct _ctx {
 	LPXLOPER px;
 } REQUEST_CONTEXT;
 
+VOID ReadData(REQUEST_CONTEXT* context)
+{
+	//Log::Info("Reading data... %d", context->hRequest);
+	yajl_handle hand;
+	yajl_parser_config cfg = { 1, 1 };
+	json_ctx ctx = { 0, 0 };
+	hand = JSONCodec::AllocateHandle(&cfg, &ctx);
+
+	unsigned char temp[MAX_PATH + 1];
+	memset(temp, 0, MAX_PATH+1);
+	DWORD read = 0;
+	BOOL res = FALSE;
+	BOOL goterr = FALSE;
+	while(true) {
+		res = InternetReadFile(context->hRequest, temp, MAX_PATH, &read);
+		if(!res) {
+			DWORD err = GetLastError();
+			//Log::Info("Error in buggy wininet: %d", err);
+			if(err == 997) {
+				goterr = TRUE;
+				int l = strlen((const char *) temp);
+				if(l != 0) {
+					yajl_parse(hand, temp, l);
+				} else {
+					Sleep(10);
+				}
+				continue;
+			} else {
+				break;
+			}
+		}
+		if(read == 0)
+			break;
+		temp[read] = 0;
+		yajl_parse(hand, temp, read);
+	}
+
+	if(res && goterr) {
+		Log::Info("Recovered...");
+	}
+
+	if(!res) {
+		DWORD err = GetLastError();
+		DWORD err2;
+		char errStr[MAX_PATH];
+		memset(errStr, 0, MAX_PATH);
+		DWORD sz = MAX_PATH;
+		InternetGetLastResponseInfo(&err2, errStr, &sz);
+		Log::Info("Error in protocol: %d %d %s", err, err2, errStr);
+	}
+
+	yajl_parse_complete(hand);
+    yajl_free(hand);
+
+	res = JSONCodec::Decode(ctx.current, context->px);
+	JSONCodec::FreeJsonValue(ctx.current);
+}
+
 LPXLOPER HttpProtocol::Execute(const char* name, LPXLOPER* args, int argc)
 {
+	//Log::Info("Execute: %s", name);
 	REQUEST_CONTEXT context;
 	char host[MAX_PATH];
 	char path[MAX_PATH];
@@ -120,6 +181,7 @@ LPXLOPER HttpProtocol::Execute(const char* name, LPXLOPER* args, int argc)
 	SendRequest(context.hRequest, context.g, name, args, argc);
 	WaitForSingleObject(context.hEvent, INFINITE); // TODO add timeout spinner
 	CloseHandle(context.hEvent);
+	ReadData(&context);
 	InternetCloseHandle(context.hRequest);
 	InternetCloseHandle(context.hConnect);
     yajl_gen_clear(context.g);
@@ -128,31 +190,9 @@ LPXLOPER HttpProtocol::Execute(const char* name, LPXLOPER* args, int argc)
 	return context.px;
 }
 
-VOID ReadData(REQUEST_CONTEXT* context)
-{
-	yajl_handle hand;
-	yajl_parser_config cfg = { 1, 1 };
-	json_ctx ctx = { 0, 0 };
-	hand = JSONCodec::AllocateHandle(&cfg, &ctx);
-
-	unsigned char temp[MAX_PATH + 1];
-	DWORD read = 0;
-	while(InternetReadFile(context->hRequest, temp, MAX_PATH, &read)) {
-		if(read == 0)
-			break;
-		temp[read] = 0;
-		yajl_parse(hand, temp, read);
-	}
-
-	yajl_parse_complete(hand);
-    yajl_free(hand);
-
-	bool res = JSONCodec::Decode(ctx.current, context->px);
-	JSONCodec::FreeJsonValue(ctx.current);
-}
-
 VOID CALLBACK CallBack(HINTERNET session, DWORD_PTR context, DWORD status, LPVOID statusInfo, DWORD statusInfoLen)
 {
+	//Log::Info("callback: %d", status);
 	switch(status) {
 	case INTERNET_STATUS_COOKIE_SENT:
 		//printf("Cookie sent\n");
@@ -192,7 +232,6 @@ VOID CALLBACK CallBack(HINTERNET session, DWORD_PTR context, DWORD status, LPVOI
 	    break;
     case INTERNET_STATUS_REQUEST_COMPLETE:
         //printf("Request Complete\n");    
-		ReadData((REQUEST_CONTEXT*) context);
 		SetEvent(((REQUEST_CONTEXT*)context)->hEvent);
 	    break;
 	case INTERNET_STATUS_DETECTING_PROXY:

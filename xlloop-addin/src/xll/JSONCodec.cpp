@@ -10,6 +10,7 @@
 
 #include "JSONCodec.h"
 #include "XLCodec.h"
+#include "../common/Log.h"
 
 json_value* get(json_value* v, char* key)
 {
