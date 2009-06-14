@@ -13,7 +13,7 @@
 
 #include "windows.h"
 #include "Protocol.h"
-#include <Wininet.h>
+#include <Winhttp.h>
 
 class HttpProtocol : public Protocol {
 public:
@@ -33,7 +33,9 @@ private:
 	LPXLOPER Execute(const char* name, LPXLOPER* args, int argc);
 
 private:
-	char* url;
+	wchar_t* url;
+	wchar_t* host;
+	wchar_t* path;
 	HINTERNET hSession;
 	URL_COMPONENTS urlc;
 };

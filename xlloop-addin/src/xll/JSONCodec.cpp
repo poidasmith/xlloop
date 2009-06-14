@@ -254,6 +254,7 @@ void JSONCodec::Encode(yajl_gen g, LPXLOPER x)
 			yajl_gen_integer(g, x->val.array.rows);
 			yajl_gen_string(g, (const unsigned char*) colsStr, strlen(colsStr));
 			yajl_gen_integer(g, x->val.array.columns);
+			yajl_gen_string(g, (const unsigned char*) arrayStr, strlen(arrayStr));
 			{
 				int len = x->val.array.rows * x->val.array.columns;
 				yajl_gen_array_open(g);
@@ -271,7 +272,7 @@ void JSONCodec::Encode(yajl_gen g, LPXLOPER x)
 		case xltypeStr:
 			yajl_gen_integer(g, XL_CODEC_TYPE_STR);
 			yajl_gen_string(g, (const unsigned char*) strStr, strlen(strStr));
-			yajl_gen_string(g, (const unsigned char*) &(x->val.str[1]), x->val.str[0]);
+			yajl_gen_string(g, (const unsigned char*) &(x->val.str[1]), x->val.str[0]&0xff);
 			break;
 	}
 	yajl_gen_map_close(g);
