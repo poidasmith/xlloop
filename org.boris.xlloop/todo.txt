@@ -2,32 +2,32 @@
 - need to make popup a dialog that isn't toplevel or on top of everything - just modal to the
   excel window
   
-- support for multiple servers in normal xlloop
+- support for multiple servers
 
 	server.1.hostname=localhost
 	server.1.port=80
 	server.1.function=FS
 	server.1.function.volatile=FSV
+	server.2.protocol=http
+	server.2.url=http://xlloop.appspot.com/functionserver
+	server.2.function=GFS
+	server.2.function.help=Generic function executor for Google deployment
 
 
-- integrate http version into same codebase
 - jquantlib wrapper
-- deploy on google app engine
 
 - store data facility:
 	XG.Save(tag, password, [data])
 	XG.Load(tag)
 	
-	user can store abitrary blob of excel data (value or array) and
-	give it a tag with an optional password
-	updates to an existing tag require a password
-	anyone else can request the data based on the tag
 	website can query for data based on a tag
 	no password assumes public data, which is visible, writeable by anyone
 	
 - store hits on each bit of data so web front end can show popular data
 - data with no password only lasts for x days/hours
 - data with password lasts much longer (need to think about how long)
+	- run cron jobs to clear out old data
+
 - limit on IP address to X (eg. 20) saves per hour	
 
 	
@@ -35,6 +35,10 @@
 - google finance api
 - bank of england
 - us data gov
+
+
+- provide access to google spreadsheets
+- need a way to authenticate to google...
 
 scalability
 ===========
