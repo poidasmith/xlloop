@@ -1,1 +1,0 @@
-"f:\Program Files\R\R-2.9.0\bin\R.exe" %*
