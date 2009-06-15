@@ -73,8 +73,13 @@ HttpProtocol::HttpProtocol(const char* url)
 	this->path = (wchar_t*) malloc((urlc.dwUrlPathLength + 1) * sizeof(wchar_t));
 	memcpy(this->path, urlc.lpszUrlPath, urlc.dwUrlPathLength*sizeof(wchar_t));
 	this->path[urlc.dwUrlPathLength] = 0;
-	hSession = WinHttpOpen(USER_AGENT, WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
-		NULL, NULL, 0);
+	WINHTTP_CURRENT_USER_IE_PROXY_CONFIG proxy;
+	WinHttpGetIEProxyConfigForCurrentUser(&proxy);
+	int proxyType = WINHTTP_ACCESS_TYPE_NO_PROXY;
+	if(proxy.lpszProxy)
+		proxyType = WINHTTP_ACCESS_TYPE_NAMED_PROXY;
+	hSession = WinHttpOpen(USER_AGENT, proxyType,
+		proxy.lpszProxy, proxy.lpszProxyBypass, 0);
 }
 
 HttpProtocol::~HttpProtocol()
@@ -140,8 +145,11 @@ LPXLOPER HttpProtocol::Execute(const char* name, LPXLOPER* args, int argc)
 	REQUEST_CONTEXT context;
 	context.hEvent = CreateEvent(0, 1, 0, 0);
 	context.hConnect = WinHttpConnect(hSession, host, urlc.nPort, 0);
+	int flags = WINHTTP_FLAG_BYPASS_PROXY_CACHE;
+	if(urlc.nScheme == INTERNET_SCHEME_HTTPS)
+		flags |= WINHTTP_FLAG_SECURE;
 	context.hRequest = WinHttpOpenRequest(context.hConnect, L"POST", path, 0, 0, 0, 
-		WINHTTP_FLAG_BYPASS_PROXY_CACHE);
+		flags);
 	context.conf.beautify = 0;
 	context.conf.indentString = "";
 	context.g = yajl_gen_alloc(&context.conf, 0);
@@ -163,7 +171,7 @@ LPXLOPER HttpProtocol::Execute(const char* name, LPXLOPER* args, int argc)
 		return context.px;
 	}
 	// TODO timeout/background
-	WinHttpReceiveResponse(context.hRequest, 0);
+	res = WinHttpReceiveResponse(context.hRequest, 0);
 	ReadData(&context);
 	WinHttpCloseHandle(context.hRequest);
 	WinHttpCloseHandle(context.hConnect);
