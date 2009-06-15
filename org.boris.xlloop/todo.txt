@@ -40,6 +40,9 @@
 - provide access to google spreadsheets
 - need a way to authenticate to google...
 
+- INI option to switch off generic functions (FS, FSV)
+
+
 scalability
 ===========
 
