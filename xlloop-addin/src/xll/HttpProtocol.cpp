@@ -76,8 +76,10 @@ HttpProtocol::HttpProtocol(const char* url)
 	WINHTTP_CURRENT_USER_IE_PROXY_CONFIG proxy;
 	WinHttpGetIEProxyConfigForCurrentUser(&proxy);
 	int proxyType = WINHTTP_ACCESS_TYPE_NO_PROXY;
-	if(proxy.lpszProxy)
+	if(proxy.lpszProxy) {
 		proxyType = WINHTTP_ACCESS_TYPE_NAMED_PROXY;
+		Log::Info("Using proxy: %s", proxy.lpszProxy);
+	}
 	hSession = WinHttpOpen(USER_AGENT, proxyType,
 		proxy.lpszProxy, proxy.lpszProxyBypass, 0);
 }
@@ -116,7 +118,6 @@ LPXLOPER HttpProtocol::execute(const char* name)
 
 VOID ReadData(REQUEST_CONTEXT* context)
 {
-	//Log::Info("Reading data... %d", context->hRequest);
 	yajl_handle hand;
 	yajl_parser_config cfg = { 1, 1 };
 	json_ctx ctx = { 0, 0 };
@@ -127,10 +128,19 @@ VOID ReadData(REQUEST_CONTEXT* context)
 	BOOL res = FALSE;
 	while(true) {
 		res = WinHttpReadData(context->hRequest, temp, BUFFER_SIZE, &read);
+		if(!res) {
+			Log::Error("Error reading response data");
+			break;
+		}
 		if(read == 0)
 			break;
 		temp[read] = 0;
-		yajl_parse(hand, temp, read);
+		yajl_status status = yajl_parse(hand, temp, read);
+		if(status == yajl_status_error) {
+			Log::Error("Error parsing response data");
+			res = FALSE;
+			break;
+		}
 	}
 
 	yajl_parse_complete(hand);
@@ -141,7 +151,6 @@ VOID ReadData(REQUEST_CONTEXT* context)
 
 LPXLOPER HttpProtocol::Execute(const char* name, LPXLOPER* args, int argc)
 {
-	//Log::Info("Execute: %s", name);
 	REQUEST_CONTEXT context;
 	context.hEvent = CreateEvent(0, 1, 0, 0);
 	context.hConnect = WinHttpConnect(hSession, host, urlc.nPort, 0);
@@ -166,12 +175,35 @@ LPXLOPER HttpProtocol::Execute(const char* name, LPXLOPER* args, int argc)
 		Log::Error(err);
 		WinHttpCloseHandle(context.hRequest);
 		WinHttpCloseHandle(context.hConnect);
-		context.px->xltype = xltypeStr;
+		context.px->xltype = xltypeStr | xlbitDLLFree;
 		context.px->val.str = XLUtil::MakeExcelString(err);
 		return context.px;
 	}
 	// TODO timeout/background
 	res = WinHttpReceiveResponse(context.hRequest, 0);
+	if(!res) {
+		const char* err = "#Error retrieving server response";
+		Log::Error(err);
+		WinHttpCloseHandle(context.hRequest);
+		WinHttpCloseHandle(context.hConnect);
+		context.px->xltype = xltypeStr | xlbitDLLFree;
+		context.px->val.str = XLUtil::MakeExcelString(err);
+		return context.px;
+	}
+	// Check http response code
+	DWORD status;
+	DWORD statusLength = 4;
+	res = WinHttpQueryHeaders(context.hRequest, WINHTTP_QUERY_STATUS_CODE| WINHTTP_QUERY_FLAG_NUMBER,
+		NULL, &status, &statusLength, 0);
+	if(!res || status != 200) {
+		Log::Error("Status code: %d", status);
+		const char* err = "#Server returned an error";
+		WinHttpCloseHandle(context.hRequest);
+		WinHttpCloseHandle(context.hConnect);
+		context.px->xltype = xltypeStr | xlbitDLLFree;
+		context.px->val.str = XLUtil::MakeExcelString(err);
+		return context.px;
+	}
 	ReadData(&context);
 	WinHttpCloseHandle(context.hRequest);
 	WinHttpCloseHandle(context.hConnect);

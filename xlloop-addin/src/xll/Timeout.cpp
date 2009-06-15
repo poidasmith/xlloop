@@ -13,6 +13,7 @@
 #include <olectl.h>
 #include <stdio.h>
 #include "xlcall.h"
+#include "../common/Log.h"
 
 #define XLLOOP_WND_CLASS "XLLoop.BusyClass"
 #define XLLOOP_WND_NAME "XLLoop.BusyWindow"
@@ -249,7 +250,12 @@ void Timeout::LoadBitmaps(HINSTANCE hInstance)
 		HRSRC hi = FindResource(hInstance, MAKEINTRESOURCE(i), MAKEINTRESOURCE(689));
 		HGLOBAL hgbl = LoadResource(hInstance, hi);
 		DWORD size = SizeofResource(hInstance, hi);
-		LPVOID data = GlobalLock(hgbl);
+		LPVOID data = LockResource(hgbl);
+		if(!data) {
+			DWORD err = GetLastError();
+			Log::Error("Error loading bitmap: %d", err);
+			continue;
+		}
 		HGLOBAL hcopy = GlobalAlloc(GMEM_MOVEABLE, size);
 		LPVOID pcopy = GlobalLock(hcopy);
 		memcpy(pcopy, data, size);
