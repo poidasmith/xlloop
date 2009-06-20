@@ -43,6 +43,12 @@
 - INI option to switch off generic functions (FS, FSV)
 
 
+- fix proxy support with auto config url (proxy.pac)
+- to real method overload support using defined overload resolution from java language spec
+- 
+
+
+
 scalability
 ===========
 
