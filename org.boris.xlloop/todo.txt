@@ -48,7 +48,7 @@
 - to real method overload support using defined overload resolution from java language spec
 - 
 
-- server will contain a collection of functions
+- server will contain a collection of functions (written in?)
 	 - users can subscribe to channels of function
 	 - they will create their own personalized function server with their selection of functions
 	 	- http://xlloop.appspot.com/functionserver/user1
