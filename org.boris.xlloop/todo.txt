@@ -38,7 +38,8 @@
 
 
 - provide access to google spreadsheets
-- need a way to authenticate to google...
+
+* need a way to authenticate to google...
 
 - INI option to switch off generic functions (FS, FSV)
 
@@ -46,6 +47,12 @@
 - fix proxy support with auto config url (proxy.pac)
 - to real method overload support using defined overload resolution from java language spec
 - 
+
+- server will contain a collection of functions
+	 - users can subscribe to channels of function
+	 - they will create their own personalized function server with their selection of functions
+	 	- http://xlloop.appspot.com/functionserver/user1
+	 - need a way to generate an XLL based on this selection.
 
 
 
