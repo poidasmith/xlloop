@@ -53,7 +53,38 @@
 	 - they will create their own personalized function server with their selection of functions
 	 	- http://xlloop.appspot.com/functionserver/user1
 	 - need a way to generate an XLL based on this selection.
+	 
+	 - users could subscribe via a url eg:
+	 	
+		- http://xlloop.appspot.com/functionserver/channel1+channel2+myfuncs
+		  this would grab the normal stuff plus channel1,channel1 and myfuncs.
+		- will probably cause urls to get very large.
 
+
+- function wiki - similar access controls as data store:
+	users can upload a script with a given name, function help and a set of tags
+	other users can then use this with customized url
+	users can make function readonly with write password
+	
+	
+INI option:
+	- have extra "registry.override=true" then INI looks up from registry in
+	   HKEY_CURRENT_USER/Software/XLLoop/xlloop.appspot.com-0.02.xll/@url="http://d...."
+	   
+	 - also registry.override.path=HKEY_CURRENT_USER/Software/MyAddin/Tester 
+
+if we use the above option, the user can customize a set of function streams etc.., store
+this in the database and generate a unique key, then generate the .reg file to update
+the user's registry for this customization...
+
+
+FunctionObject
+	 - function information
+	 - language
+	 - text
+	 - version
+	 - timestamp
+	 - timeout count  <- needs to be managed when a function takes up too much time (stops rogue functions)
 
 
 scalability
