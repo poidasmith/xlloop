@@ -43,6 +43,8 @@
 
 - INI option to switch off generic functions (FS, FSV)
 
+- also make FS,FSV functions accept much more arguments (30) as workaround
+
 
 - fix proxy support with auto config url (proxy.pac)
 - to real method overload support using defined overload resolution from java language spec
@@ -76,6 +78,13 @@ INI option:
 if we use the above option, the user can customize a set of function streams etc.., store
 this in the database and generate a unique key, then generate the .reg file to update
 the user's registry for this customization...
+
+	- start with FWiki("name", "pass", args...)
+
+
+- front page snaz - 
+	- have realtime scrolling down the screen, reads on lhs, writes on rhs. needs
+	  to be dimmed out.
 
 
 FunctionObject
