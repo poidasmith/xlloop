@@ -89,6 +89,10 @@ LPSTR MakeExcelString(const char* string)
 
 void Convert(JNIEnv* env, LPXLOPER oper, jobject o)
 {
+	if(!oper) {
+		env->SetIntField(o,  XLOPER_TYPE_FIELD, xltypeNil);
+		return;
+	}
 	env->SetIntField(o,  XLOPER_TYPE_FIELD, oper->xltype & ~(xlbitXLFree | xlbitDLLFree));
 	switch(oper->xltype & ~(xlbitXLFree | xlbitDLLFree)) {
 		case xltypeNum:
