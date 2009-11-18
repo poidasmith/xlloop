@@ -8,9 +8,11 @@
 *     Peter Smith
 *******************************************************************************/
 
-#include "Protocol.h"
+#include "BinaryProtocol.h"
 
 #include <stdio.h>
+
+#define PROTOCOL_VERSION 20
 
 int BinaryProtocol::connect()
 {
@@ -58,6 +60,9 @@ int BinaryProtocol::connect()
 		return 1;	
 	}
 
+	is.reset();
+	os.reset();
+
 	return 0;
 }
 
@@ -71,29 +76,37 @@ void BinaryProtocol::disconnect()
 	WSACleanup();
 }
 
-int BinaryProtocol::send(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, 
-		LPXLOPER v4, LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, LPXLOPER v9)
+LPXLOPER BinaryProtocol::execute(const char* name, int count, ...)
 {
-	XLCodec::encode(name, os);
-	XLCodec::encode(10, os);
-	XLCodec::encode(v0, os);
-	XLCodec::encode(v1, os);
-	XLCodec::encode(v2, os);
-	XLCodec::encode(v3, os);
-	XLCodec::encode(v4, os);
-	XLCodec::encode(v5, os);
-	XLCodec::encode(v6, os);
-	XLCodec::encode(v7, os);
-	XLCodec::encode(v8, os);
-	XLCodec::encode(v9, os);
-	os.flush();
-	return conn == NULL ? 1 : 0;
+	va_list args;
+	va_start(args, count);
+	send(name, count, (LPXLOPER*) args);
+	va_end(args);
+	return receive(name);
 }
 
-int BinaryProtocol::send(const char* name)
+LPXLOPER BinaryProtocol::execute(const char* name, int count, LPXLOPER far opers[])
 {
+	send(name, count, opers);
+	return receive(name);
+}
+
+int BinaryProtocol::send(const char* name, int count, LPXLOPER far opers[])
+{
+	XLCodec::encode(PROTOCOL_VERSION, os);
+	XLCodec::encode(sendSourceInfo, os);
+	if(sendSourceInfo) {
+		XLOPER x;
+		Excel4(xlfCaller, &x, 0);
+		XLCodec::encode(&x, os);
+		Excel4(xlSheetId, &x, 0);
+		XLCodec::encode(&x, os);
+	}
 	XLCodec::encode(name, os);
-	XLCodec::encode(0, os);
+	XLCodec::encode(count, os);
+	for(int i = 0; i < count; i++) {
+		XLCodec::encode(opers[i], os);
+	}
 	os.flush();
 	return conn == NULL ? 1 : 0;
 }

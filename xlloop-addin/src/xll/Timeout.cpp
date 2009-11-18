@@ -70,7 +70,7 @@ DWORD WINAPI Timeout::ShowInternal(LPVOID)
 		WS_EX_TOOLWINDOW | WS_EX_TOPMOST | WS_EX_NOPARENTNOTIFY, 
 		XLLOOP_WND_CLASS, 
 		XLLOOP_WND_NAME, 
-		WS_POPUP | WS_VISIBLE, 
+		WS_CHILD | WS_POPUP | WS_VISIBLE, 
 		x, y,
 		g_Width, g_Height, NULL, NULL, NULL, NULL);
 
@@ -134,6 +134,20 @@ BOOL CALLBACK EnumProc(HWND hwnd, WindowInfo* pInfo)
 	return TRUE;
 }
 
+void ToColumnName(int column, char* target)
+{
+	*target=0;
+	int t0 = column%26;
+	int t1 = column/26;
+	int t2 = column/676;
+	if(t2>0)
+		*target++ = 'A'+t2-1;
+	if(t1>0)
+		*target++ = 'A'+t1-1;
+	*target++ = 'A'+t0;
+	*target=0;
+}
+
 void Timeout::Show(const char* function)
 {
 	if(!g_Initialised) return;
@@ -149,12 +163,17 @@ void Timeout::Show(const char* function)
 	// Find the active cell
 	Excel4(xlfCaller, &x, 0);
 
-	// Now format the message
-	if(x.val.sref.ref.rwLast > x.val.sref.ref.rwFirst) {
-		sprintf(g_Message, "Calculating %c%d:%c%d: %s()", x.val.sref.ref.colFirst + 'A', 
-			x.val.sref.ref.rwFirst + 1, x.val.sref.ref.colLast + 'A', x.val.sref.ref.rwLast + 1, function);
+	// Now format the message 
+	if(x.val.sref.ref.rwLast > x.val.sref.ref.rwFirst || x.val.sref.ref.colLast > x.val.sref.ref.colFirst) {
+		char c1[5], c2[5];
+		ToColumnName(x.val.sref.ref.colFirst, c1);
+		ToColumnName(x.val.sref.ref.colLast, c2);
+		sprintf(g_Message, "Calculating %s%d:%s%d: %s()", c1, 
+			x.val.sref.ref.rwFirst + 1, c2, x.val.sref.ref.rwLast + 1, function);
 	} else {
-		sprintf(g_Message, "Calculating %c%d: %s()", x.val.sref.ref.colFirst + 'A', 
+		char c1[5];
+		ToColumnName(x.val.sref.ref.colFirst, c1);
+		sprintf(g_Message, "Calculating %s%d: %s()", c1, 
 			x.val.sref.ref.rwFirst + 1, function);
 	}
 

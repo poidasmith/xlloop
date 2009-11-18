@@ -12,7 +12,7 @@
 #define HTTP_PROTOCOL_H
 
 #include "windows.h"
-#include "Protocol.h"
+#include "BinaryProtocol.h"
 #include <Winhttp.h>
 
 class HttpProtocol : public Protocol {

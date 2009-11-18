@@ -24,7 +24,7 @@
 #define XL_CODEC_TYPE_MISSING 0x6
 #define XL_CODEC_TYPE_NIL 0x7
 #define XL_CODEC_TYPE_INT 0x8
-
+#define XL_CODEC_TYPE_SREF 0x9
 
 class XOStream {
 public:
@@ -32,6 +32,7 @@ public:
 	void put(char c);
 	void write(const char* s, UINT n);
 	void flush();
+	void reset();
 
 private:
 	char buf[STREAM_BUF_SIZE];
@@ -45,6 +46,7 @@ public:
 	int get();
 	void read(char* s, UINT n);
 	inline bool valid() { return s != NULL; }
+	void reset();
 
 private:
 	void fill();
@@ -60,6 +62,7 @@ class XLCodec {
 public:
 	static void encode(const LPXLOPER xl, XOStream& os);
 	static void encode(const char* str, XOStream& os);
+	static void encode(bool b, XOStream& os);
 	static void encode(int w, XOStream& os);
 	static void decode(const char* name, XIStream& is, LPXLOPER xl);
 };

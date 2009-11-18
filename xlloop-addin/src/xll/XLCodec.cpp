@@ -65,6 +65,11 @@ inline void XOStream::flush()
 	}
 }
 
+void XOStream::reset()
+{
+	pos=0;
+}
+
 inline int XIStream::get()
 {
 	if(s == 0)
@@ -105,6 +110,9 @@ inline void XIStream::fill()
 		int c = 0;
 		Timeout::Init();
 		while((r = recv(s, buf, STREAM_BUF_SIZE, 0)) == SOCKET_TIMEOUT) {
+			int error = WSAGetLastError();
+			if(error != WSAETIMEDOUT)
+				break;
 			if(c == 2) {
 				Timeout::Show(g_CurrentFunction);
 			} else if(c > 2 && Timeout::UserCancelled()) {
@@ -124,6 +132,12 @@ inline void XIStream::fill()
 	}
 
 	pos = 0;
+}
+
+void XIStream::reset()
+{
+	pos = 0;
+	len = 0;
 }
 
 inline void writeDoubleWord(unsigned int value, XOStream& os)
@@ -196,6 +210,13 @@ void XLCodec::encode(const LPXLOPER xl, XOStream& os)
 		case xltypeNil:
 			os.put(XL_CODEC_TYPE_NIL);
 			break;
+		case xltypeSRef:
+			os.put(XL_CODEC_TYPE_SREF);
+			writeDoubleWord(xl->val.sref.ref.colFirst, os);
+			writeDoubleWord(xl->val.sref.ref.colLast, os);
+			writeDoubleWord(xl->val.sref.ref.rwFirst, os);
+			writeDoubleWord(xl->val.sref.ref.rwLast, os);
+			break;
 		case xltypeMissing:
 		default:
 			os.put(XL_CODEC_TYPE_MISSING);
@@ -209,6 +230,12 @@ void XLCodec::encode(const char* str, XOStream& os)
 	int len = strlen(str);
 	os.put(len);
 	os.write(str, len);
+}
+
+void XLCodec::encode(bool b, XOStream& os)
+{
+	os.put(XL_CODEC_TYPE_BOOL);
+	os.put(b?1:0);
 }
 
 void XLCodec::encode(int w, XOStream& os)
