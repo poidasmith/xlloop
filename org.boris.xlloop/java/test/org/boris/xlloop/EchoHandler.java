@@ -3,11 +3,11 @@ package org.boris.xlloop;
 import org.boris.xlloop.util.XLList;
 import org.boris.xlloop.xloper.XLoper;
 
-public class EchoHandler implements FunctionHandler
+public class EchoHandler implements IFunctionHandler
 {
     private int count;
 
-    public XLoper execute(String name, XLoper[] args) throws RequestException {
+    public XLoper execute(IFunctionContext context, String name, XLoper[] args) throws RequestException {
         XLList l = new XLList(args);
         l.add(++count);
         return l.toXLoper();

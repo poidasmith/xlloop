@@ -19,6 +19,7 @@ public abstract class XLoper
     public static final int xlTypeMissing = 0x6;
     public static final int xlTypeNil = 0x7;
     public static final int xlTypeInt = 0x8;
+    public static final int xlTypeSRef = 0x9;
 
     public final int type;
 

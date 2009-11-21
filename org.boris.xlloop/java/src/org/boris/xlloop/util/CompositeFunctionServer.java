@@ -14,7 +14,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.boris.xlloop.FunctionHandler;
+import org.boris.xlloop.IFunctionContext;
+import org.boris.xlloop.IFunctionHandler;
 import org.boris.xlloop.RequestException;
 import org.boris.xlloop.RequestExecutor;
 import org.boris.xlloop.xloper.XLoper;
@@ -23,7 +24,7 @@ import org.boris.xlloop.xloper.XLoper;
  * A basic function server that hosts multiple child request executors and
  * delegates requests (in a round-robin fashion).
  */
-public class CompositeFunctionServer implements FunctionHandler
+public class CompositeFunctionServer implements IFunctionHandler
 {
     private Collection executors;
     private volatile CircularIterator iterator;
@@ -43,7 +44,7 @@ public class CompositeFunctionServer implements FunctionHandler
         iterator = new CircularIterator(executors);
     }
 
-    public XLoper execute(String name, XLoper[] args) throws RequestException {
+    public XLoper execute(IFunctionContext context, String name, XLoper[] args) throws RequestException {
         try {
             return ((RequestExecutor) iterator.next()).execute(name, args);
         } catch (IOException e) {

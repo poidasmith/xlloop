@@ -12,7 +12,8 @@ package org.boris.xlloop.handler;
 import org.boris.jxll.Addin;
 import org.boris.jxll.XLOper;
 import org.boris.jxll.XLOperType;
-import org.boris.xlloop.FunctionHandler;
+import org.boris.xlloop.IFunctionContext;
+import org.boris.xlloop.IFunctionHandler;
 import org.boris.xlloop.RequestException;
 import org.boris.xlloop.util.CSV;
 import org.boris.xlloop.xloper.XLArray;
@@ -25,7 +26,7 @@ import org.boris.xlloop.xloper.XLNum;
 import org.boris.xlloop.xloper.XLString;
 import org.boris.xlloop.xloper.XLoper;
 
-public class AddinFunctionHandler implements FunctionHandler, FunctionProvider
+public class AddinFunctionHandler implements IFunctionHandler, FunctionProvider
 {
     private Addin addin;
     private FunctionInformation[] info;
@@ -58,7 +59,7 @@ public class AddinFunctionHandler implements FunctionHandler, FunctionProvider
         }
     }
 
-    public XLoper execute(String name, XLoper[] args) throws RequestException {
+    public XLoper execute(IFunctionContext context, String name, XLoper[] args) throws RequestException {
         org.boris.jxll.FunctionInformation fi = addin.getInformation(name);
         if (fi == null || fi.type == null) {
             return null;

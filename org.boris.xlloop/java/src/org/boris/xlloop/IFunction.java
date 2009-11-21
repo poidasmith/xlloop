@@ -11,9 +11,7 @@ package org.boris.xlloop;
 
 import org.boris.xlloop.xloper.XLoper;
 
-public interface FunctionHandler
+public interface IFunction
 {
-    XLoper execute(String name, XLoper[] args) throws RequestException;
-
-    boolean hasFunction(String name);
+    XLoper execute(IFunctionContext context, XLoper[] args) throws RequestException;
 }

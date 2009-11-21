@@ -15,15 +15,15 @@ import org.boris.xlloop.util.Maths;
 public class ServerTest1
 {
     public static void main(String[] args) throws Exception {
-        FunctionServer fs = createServer();
+        FunctionServer fs = createServer(5454);
         fs.run();
     }
 
-    public static FunctionServer createServer() {
-        return new FunctionServer(5454, new DebugFunctionHandler(createHandler()));
+    public static FunctionServer createServer(int port) {
+        return new FunctionServer(port, new DebugFunctionHandler(createHandler()));
     }
 
-    public static FunctionHandler createHandler() {
+    public static IFunctionHandler createHandler() {
         ReflectFunctionHandler rfh = new ReflectFunctionHandler();
         LispFunctionHandler lfh = new LispFunctionHandler();
         lfh.eval(new File("functions"), true); // evaluate any lisp files

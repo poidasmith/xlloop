@@ -12,7 +12,8 @@ package org.boris.xlloop.reflect;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.boris.xlloop.Function;
+import org.boris.xlloop.IFunction;
+import org.boris.xlloop.IFunctionContext;
 import org.boris.xlloop.RequestException;
 import org.boris.xlloop.util.XLoperObjectConverter;
 import org.boris.xlloop.xloper.XLBool;
@@ -21,7 +22,7 @@ import org.boris.xlloop.xloper.XLInt;
 import org.boris.xlloop.xloper.XLNum;
 import org.boris.xlloop.xloper.XLoper;
 
-class InstanceMethod implements Function
+class InstanceMethod implements IFunction
 {
     Class clazz;
     Object instance;
@@ -29,8 +30,7 @@ class InstanceMethod implements Function
     XLoperObjectConverter converter;
     Class[] args;
 
-    public InstanceMethod(Class clazz, Object instance, Method method,
-            XLoperObjectConverter converter) {
+    public InstanceMethod(Class clazz, Object instance, Method method, XLoperObjectConverter converter) {
         this.clazz = clazz;
         this.instance = instance;
         this.method = method;
@@ -38,9 +38,8 @@ class InstanceMethod implements Function
         this.args = method.getParameterTypes();
     }
 
-    public XLoper execute(XLoper[] args) throws RequestException {
-        return converter
-                .createFrom(execute(converter.convert(args, this.args)));
+    public XLoper execute(IFunctionContext context, XLoper[] args) throws RequestException {
+        return converter.createFrom(execute(converter.convert(args, this.args)));
     }
 
     boolean matchesArgs(XLoper[] args, int lastArg) throws RequestException {
@@ -90,8 +89,7 @@ class InstanceMethod implements Function
         case XLoper.xlTypeNum:
             if (c == double.class || c == Double.class || c == XLNum.class)
                 return 100;
-            else if (c.isAssignableFrom(Number.class) || c == int.class ||
-                    c == long.class || c == float.class)
+            else if (c.isAssignableFrom(Number.class) || c == int.class || c == long.class || c == float.class)
                 return 50;
             break;
         case XLoper.xlTypeStr:

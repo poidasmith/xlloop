@@ -14,10 +14,10 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-import org.boris.xlloop.RequestProtocol;
+import org.boris.xlloop.IRequestProtocol;
 import org.boris.xlloop.xloper.XLoper;
 
-public class BinaryRequestProtocol implements RequestProtocol
+public class BinaryRequestProtocol implements IRequestProtocol
 {
     private BufferedInputStream input;
     private BufferedOutputStream output;

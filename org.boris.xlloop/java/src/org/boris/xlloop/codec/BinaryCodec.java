@@ -21,6 +21,7 @@ import org.boris.xlloop.xloper.XLInt;
 import org.boris.xlloop.xloper.XLMissing;
 import org.boris.xlloop.xloper.XLNil;
 import org.boris.xlloop.xloper.XLNum;
+import org.boris.xlloop.xloper.XLSRef;
 import org.boris.xlloop.xloper.XLString;
 import org.boris.xlloop.xloper.XLoper;
 
@@ -45,11 +46,18 @@ public class BinaryCodec
             return decodeNum(is);
         case XLoper.xlTypeStr:
             return decodeStr(is);
+        case XLoper.xlTypeSRef:
+            return decodeSRef(is);
         case -1:
             throw new EOFException();
         default:
             throw new IOException("Invalid type encountered: " + type);
         }
+    }
+
+    private static XLoper decodeSRef(InputStream is) throws IOException {
+        return new XLSRef((int) readDoubleWord(is), (int) readDoubleWord(is), (int) readDoubleWord(is),
+                (int) readDoubleWord(is));
     }
 
     private static XLoper decodeStr(InputStream is) throws IOException {
@@ -70,8 +78,7 @@ public class BinaryCodec
     }
 
     private static XLoper decodeNum(InputStream is) throws IOException {
-        return new XLNum(Double.longBitsToDouble(((long) readDoubleWord(is) << 32)
-                | (long) readDoubleWord(is)));
+        return new XLNum(Double.longBitsToDouble(((long) readDoubleWord(is) << 32) | (long) readDoubleWord(is)));
     }
 
     private static XLoper decodeNil() {
@@ -137,7 +144,16 @@ public class BinaryCodec
         case XLoper.xlTypeStr:
             encodeString((XLString) xloper, os);
             break;
+        case XLoper.xlTypeSRef:
+            encodeSRef((XLSRef) xloper, os);
         }
+    }
+
+    private static void encodeSRef(XLSRef xloper, OutputStream os) throws IOException {
+        writeDoubleWord(xloper.colFirst, os);
+        writeDoubleWord(xloper.colLast, os);
+        writeDoubleWord(xloper.rwFirst, os);
+        writeDoubleWord(xloper.rwLast, os);
     }
 
     private static void encodeString(XLString xloper, OutputStream os) throws IOException {
@@ -186,7 +202,6 @@ public class BinaryCodec
     }
 
     private static long readDoubleWord(InputStream is) throws IOException {
-        return ((long) is.read() << 24) | ((long) is.read() << 16) | ((long) is.read() << 8)
-                | (long) is.read();
+        return ((long) is.read() << 24) | ((long) is.read() << 16) | ((long) is.read() << 8) | (long) is.read();
     }
 }

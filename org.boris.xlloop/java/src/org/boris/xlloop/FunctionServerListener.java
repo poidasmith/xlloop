@@ -9,16 +9,9 @@
  *******************************************************************************/
 package org.boris.xlloop;
 
-import java.io.IOException;
-import java.net.Socket;
+import org.boris.xlloop.FunctionServer.HandlerThread;
 
-import org.boris.xlloop.xloper.XLoper;
-
-public interface RequestProtocol
+public interface FunctionServerListener
 {
-    public void initialise(Socket socket) throws IOException;
-
-    public void send(Socket socket, XLoper data) throws IOException;
-
-    public XLoper receive(Socket socket) throws IOException;
+    void connectionCreated(HandlerThread ht);
 }

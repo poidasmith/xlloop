@@ -14,7 +14,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.boris.xlloop.FunctionHandler;
+import org.boris.xlloop.IFunctionContext;
+import org.boris.xlloop.IFunctionHandler;
 import org.boris.xlloop.RequestException;
 import org.boris.xlloop.handler.FunctionInformation;
 import org.boris.xlloop.util.IO;
@@ -37,7 +38,7 @@ import org.jatha.dynatype.StandardLispReal;
 import org.jatha.dynatype.StandardLispString;
 import org.jatha.dynatype.StandardLispSymbol;
 
-public class LispFunctionHandler implements FunctionHandler
+public class LispFunctionHandler implements IFunctionHandler
 {
     private Jatha jatha = new Jatha(false, false, false);
     private ObjectRegistry registry = new ObjectRegistry();
@@ -47,7 +48,7 @@ public class LispFunctionHandler implements FunctionHandler
         jatha.start();
     }
 
-    public XLoper execute(String name, XLoper[] args) throws RequestException {
+    public XLoper execute(IFunctionContext context, String name, XLoper[] args) throws RequestException {
         try {
             LispValue inValue = makeList(args, findSize(args));
             LispValue result = jatha.eval(inValue);
@@ -66,8 +67,7 @@ public class LispFunctionHandler implements FunctionHandler
     public FunctionInformation getInformation() {
         FunctionInformation fi = new FunctionInformation("Eval");
         fi.addArgument("args", "The arguments...");
-        fi
-                .setFunctionHelp("Evaluates a list of arguments as a lisp expression");
+        fi.setFunctionHelp("Evaluates a list of arguments as a lisp expression");
         return fi;
     }
 

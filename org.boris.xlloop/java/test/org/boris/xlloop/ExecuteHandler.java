@@ -3,9 +3,9 @@ package org.boris.xlloop;
 import org.boris.xlloop.util.XLMap;
 import org.boris.xlloop.xloper.XLoper;
 
-public class ExecuteHandler implements FunctionHandler
+public class ExecuteHandler implements IFunctionHandler
 {
-    public XLoper execute(String name, XLoper[] args) throws RequestException {
+    public XLoper execute(IFunctionContext context, String name, XLoper[] args) throws RequestException {
         System.out.println(name + args);
 
         if (args.length > 0) {

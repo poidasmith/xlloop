@@ -12,7 +12,8 @@ package org.boris.xlloop.script;
 import java.io.IOException;
 import java.io.Reader;
 
-import org.boris.xlloop.Function;
+import org.boris.xlloop.IFunction;
+import org.boris.xlloop.IFunctionContext;
 import org.boris.xlloop.RequestException;
 import org.boris.xlloop.util.XLoperObjectConverter;
 import org.boris.xlloop.xloper.XLoper;
@@ -25,12 +26,11 @@ public class JavaScriptFactory implements ScriptFactory
 {
     private static XLoperObjectConverter converter = new XLoperObjectConverter();
 
-    public Function create(Reader r) throws IOException {
-        return new JavaScriptFunction(Context.enter().compileReader(r, null, 0,
-                null), converter);
+    public IFunction create(Reader r) throws IOException {
+        return new JavaScriptFunction(Context.enter().compileReader(r, null, 0, null), converter);
     }
 
-    private static class JavaScriptFunction implements Function
+    private static class JavaScriptFunction implements IFunction
     {
         private Script script;
         private XLoperObjectConverter converter;
@@ -40,10 +40,9 @@ public class JavaScriptFactory implements ScriptFactory
             this.converter = converter;
         }
 
-        public XLoper execute(XLoper[] args) throws RequestException {
+        public XLoper execute(IFunctionContext context, XLoper[] args) throws RequestException {
             Context ctx = Context.enter();
-            Object[] oargs = converter.convert(args, BSFScript
-                    .createArgHints(args));
+            Object[] oargs = converter.convert(args, BSFScript.createArgHints(args));
             ScriptableObject so = ctx.initStandardObjects();
             Scriptable argsObj = ctx.newArray(so, oargs);
             so.defineProperty("args", argsObj, ScriptableObject.DONTENUM);

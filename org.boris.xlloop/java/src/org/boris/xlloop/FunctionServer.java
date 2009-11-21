@@ -14,16 +14,19 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import org.boris.xlloop.codec.BinaryRequestProtocol;
+import org.boris.xlloop.xloper.XLBool;
 import org.boris.xlloop.xloper.XLError;
 import org.boris.xlloop.xloper.XLInt;
+import org.boris.xlloop.xloper.XLSRef;
 import org.boris.xlloop.xloper.XLString;
 import org.boris.xlloop.xloper.XLoper;
 
 public class FunctionServer
 {
     protected int port;
-    protected FunctionHandler handler;
+    protected IFunctionHandler handler;
     protected ServerSocket socket;
+    protected FunctionServerListener listener;
 
     public FunctionServer() {
         this(5454);
@@ -37,13 +40,21 @@ public class FunctionServer
         return socket == null ? port : socket.getLocalPort();
     }
 
-    public FunctionServer(int port, FunctionHandler f) {
+    public FunctionServer(int port, IFunctionHandler f) {
         this.port = port;
         this.handler = f;
     }
 
-    public void setFunctionHandler(FunctionHandler h) {
+    public void setFunctionHandler(IFunctionHandler h) {
         this.handler = h;
+    }
+
+    public IFunctionHandler getFunctionHandler() {
+        return this.handler;
+    }
+
+    public void setListener(FunctionServerListener listener) {
+        this.listener = listener;
     }
 
     public void stop() throws IOException {
@@ -75,19 +86,42 @@ public class FunctionServer
             socket = new ServerSocket(port);
 
         while (true) {
-            new HandlerThread(socket.accept()).start();
+            HandlerThread ht = new HandlerThread(handler, socket.accept());
+            ht.start();
+            if (listener != null)
+                listener.connectionCreated(ht);
         }
     }
 
-    private void handleRequest(RequestProtocol protocol, Socket socket) {
+    public static void handleRequest(IFunctionHandler handler, IRequestProtocol protocol, Socket socket) {
         try {
-            XLString name = (XLString) protocol.receive(socket);
+            XLoper nameOrVersion = protocol.receive(socket);
+            XLString name = null;
+            IFunctionContext context = null;
+            if (nameOrVersion.type == XLoper.xlTypeInt) {
+                int version = ((XLInt) nameOrVersion).w;
+                if (version == 20) {
+                    XLBool b = (XLBool) protocol.receive(socket);
+                    if (b.bool) {
+                        XLoper caller = protocol.receive(socket);
+                        XLoper formula = protocol.receive(socket);
+                        Reflection.println(caller, formula);
+                    }
+                } else {
+                    protocol.send(socket, new XLString("#Unknown protocol version"));
+                    socket.close();
+                    return;
+                }
+                name = (XLString) protocol.receive(socket);
+            } else {
+                name = (XLString) nameOrVersion;
+            }
             XLInt argCount = (XLInt) protocol.receive(socket);
             XLoper[] args = new XLoper[argCount.w];
             for (int i = 0; i < argCount.w; i++) {
                 args[i] = protocol.receive(socket);
             }
-            XLoper res = handler.execute(name.str, args);
+            XLoper res = handler.execute(context, name.str, args);
             if (res == null)
                 res = XLError.NULL;
             protocol.send(socket, res);
@@ -110,12 +144,15 @@ public class FunctionServer
         }
     }
 
-    private class HandlerThread extends Thread
+    public static class HandlerThread extends Thread
     {
         private Socket socket;
-        private RequestProtocol protocol = new BinaryRequestProtocol();
+        private IRequestProtocol protocol = new BinaryRequestProtocol();
+        private IFunctionHandler handler;
 
-        public HandlerThread(Socket socket) {
+        public HandlerThread(IFunctionHandler handler, Socket socket) {
+            super("XLLoop Function Server Handler");
+            this.handler = handler;
             this.socket = socket;
         }
 
@@ -125,8 +162,31 @@ public class FunctionServer
             } catch (IOException e) {
             }
             while (!socket.isClosed()) {
-                handleRequest(protocol, socket);
+                handleRequest(handler, protocol, socket);
             }
+        }
+
+        public void close() {
+            try {
+                socket.getInputStream().close();
+                socket.getOutputStream().close();
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static class FunctionContext implements IFunctionContext
+    {
+        private XLSRef caller;
+
+        public void setCaller(XLSRef caller) {
+            this.caller = caller;
+        }
+
+        public XLSRef getCaller() {
+            return caller;
         }
     }
 }

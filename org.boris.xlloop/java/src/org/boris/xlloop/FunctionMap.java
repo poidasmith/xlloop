@@ -14,11 +14,11 @@ import java.util.Map;
 
 import org.boris.xlloop.xloper.XLoper;
 
-public class FunctionMap implements FunctionHandler
+public class FunctionMap implements IFunctionHandler
 {
     private Map functions = new HashMap();
 
-    public void add(String name, Function f) {
+    public void add(String name, IFunction f) {
         this.functions.put(name, f);
     }
 
@@ -30,12 +30,12 @@ public class FunctionMap implements FunctionHandler
         this.functions.clear();
     }
 
-    public XLoper execute(String name, XLoper[] args) throws RequestException {
-        Function f = (Function) functions.get(name);
+    public XLoper execute(IFunctionContext context, String name, XLoper[] args) throws RequestException {
+        IFunction f = (IFunction) functions.get(name);
         if (f == null) {
             throw new RequestException("Unknown function: " + name);
         }
-        return f.execute(args);
+        return f.execute(context, args);
     }
 
     public boolean hasFunction(String name) {

@@ -76,33 +76,40 @@ void BinaryProtocol::disconnect()
 	WSACleanup();
 }
 
-LPXLOPER BinaryProtocol::execute(const char* name, int count, ...)
+LPXLOPER BinaryProtocol::execute(const char* name, bool sendSource, int count, ...)
 {
 	va_list args;
 	va_start(args, count);
-	send(name, count, (LPXLOPER*) args);
+	send(name, sendSource, count, (LPXLOPER*) args);
 	va_end(args);
 	return receive(name);
 }
 
-LPXLOPER BinaryProtocol::execute(const char* name, int count, LPXLOPER far opers[])
+LPXLOPER BinaryProtocol::execute(const char* name, bool sendSource, int count, LPXLOPER far opers[])
 {
-	send(name, count, opers);
+	send(name, sendSource, count, opers);
 	return receive(name);
 }
 
-int BinaryProtocol::send(const char* name, int count, LPXLOPER far opers[])
+int BinaryProtocol::send(const char* name, bool sendSource, int count, LPXLOPER far opers[])
 {
 	XLCodec::encode(PROTOCOL_VERSION, os);
-	XLCodec::encode(sendSourceInfo, os);
-	if(sendSourceInfo) {
+	XLCodec::encode(sendSource, os);
+	if(sendSource) {
 		XLOPER x;
 		Excel4(xlfCaller, &x, 0);
 		XLCodec::encode(&x, os);
-		Excel4(xlSheetId, &x, 0);
+		Excel4(xlSheetId, &x, 1, &x);
 		XLCodec::encode(&x, os);
 	}
 	XLCodec::encode(name, os);
+	// Find last non-missing value
+	while(count>0) {
+		if((opers[count-1]->xltype & ~(xlbitXLFree | xlbitDLLFree)) == xltypeMissing)
+			count--;
+		else
+			break;
+	}
 	XLCodec::encode(count, os);
 	for(int i = 0; i < count; i++) {
 		XLCodec::encode(opers[i], os);

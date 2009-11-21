@@ -26,7 +26,7 @@ public class RequestExecutor
     private Socket socket;
     private InetAddress address;
     private int port;
-    private RequestProtocol protocol = new BinaryRequestProtocol();
+    private IRequestProtocol protocol = new BinaryRequestProtocol();
 
     public RequestExecutor(InetAddress add, int port) {
         this.address = add;

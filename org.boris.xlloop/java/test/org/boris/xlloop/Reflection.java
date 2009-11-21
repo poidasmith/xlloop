@@ -10,6 +10,7 @@
 package org.boris.xlloop;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 public class Reflection
 {
@@ -20,6 +21,8 @@ public class Reflection
         Field[] fields = o.getClass().getDeclaredFields();
         for (int fi = 0; fi < fields.length; fi++) {
             Field f = fields[fi];
+            if (Modifier.isStatic(f.getModifiers()))
+                continue;
             f.setAccessible(true);
             sb.append(f.getName());
             sb.append(": ");
@@ -67,5 +70,20 @@ public class Reflection
             sb.append("\n");
         }
         return sb.toString();
+    }
+
+    public static void println(Object o) {
+        System.out.println(toString(o));
+    }
+
+    public static void println(Object o1, Object o2) {
+        System.out.println(toString(o1));
+        System.out.println(toString(o2));
+    }
+
+    public static void println(Object o1, Object o2, Object o3) {
+        System.out.println(toString(o1));
+        System.out.println(toString(o2));
+        System.out.println(toString(o3));
     }
 }

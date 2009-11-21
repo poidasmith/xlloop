@@ -13,27 +13,28 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.boris.xlloop.FunctionHandler;
+import org.boris.xlloop.IFunctionContext;
+import org.boris.xlloop.IFunctionHandler;
 import org.boris.xlloop.RequestException;
 import org.boris.xlloop.xloper.XLoper;
 
-public class CompositeFunctionHandler implements FunctionHandler
+public class CompositeFunctionHandler implements IFunctionHandler
 {
     private List handlers = new ArrayList();
 
-    public void add(FunctionHandler h) {
+    public void add(IFunctionHandler h) {
         handlers.add(h);
     }
 
-    public void remove(FunctionHandler h) {
+    public void remove(IFunctionHandler h) {
         handlers.remove(h);
     }
 
-    public XLoper execute(String name, XLoper[] args) throws RequestException {
+    public XLoper execute(IFunctionContext context, String name, XLoper[] args) throws RequestException {
         for (Iterator i = handlers.iterator(); i.hasNext();) {
-            FunctionHandler h = (FunctionHandler) i.next();
+            IFunctionHandler h = (IFunctionHandler) i.next();
             if (h.hasFunction(name)) {
-                return h.execute(name, args);
+                return h.execute(context, name, args);
             }
         }
 
@@ -42,7 +43,7 @@ public class CompositeFunctionHandler implements FunctionHandler
 
     public boolean hasFunction(String name) {
         for (Iterator i = handlers.iterator(); i.hasNext();) {
-            FunctionHandler h = (FunctionHandler) i.next();
+            IFunctionHandler h = (IFunctionHandler) i.next();
             if (h.hasFunction(name)) {
                 return true;
             }

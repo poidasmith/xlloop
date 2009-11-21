@@ -7,14 +7,18 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.xlloop.script;
+package org.boris.xlloop;
 
 import java.io.IOException;
-import java.io.Reader;
+import java.net.Socket;
 
-import org.boris.xlloop.IFunction;
+import org.boris.xlloop.xloper.XLoper;
 
-public interface ScriptFactory 
+public interface IRequestProtocol
 {
-    public IFunction create(Reader r) throws IOException;
+    public void initialise(Socket socket) throws IOException;
+
+    public void send(Socket socket, XLoper data) throws IOException;
+
+    public XLoper receive(Socket socket) throws IOException;
 }

@@ -19,11 +19,11 @@ import org.boris.xlloop.xloper.XLNum;
 import org.boris.xlloop.xloper.XLString;
 import org.boris.xlloop.xloper.XLoper;
 
-public class CompTest1 implements FunctionHandler
+public class CompTest1 implements IFunctionHandler
 {
     private static String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-    public XLoper execute(String name, XLoper[] args) throws RequestException {
+    public XLoper execute(IFunctionContext context, String name, XLoper[] args) throws RequestException {
         if (name.equals("RandTest")) {
             XLArray x = new XLArray((int) (Math.random() * 10 + 2), 1);
             for (int i = 0; i < x.length; i++) {
@@ -64,6 +64,12 @@ public class CompTest1 implements FunctionHandler
             l.add(false);
             return l.toXLoper();
 
+        } else if (name.equals("LongRunner")) {
+            try {
+                Thread.sleep(8000);
+            } catch (InterruptedException e) {
+            }
+            return new XLString("Finally...");
         }
         return new XLString("#Unknown Function");
     }

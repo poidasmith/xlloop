@@ -10,13 +10,14 @@
 package org.boris.xlloop.script;
 
 import org.apache.bsf.BSFManager;
-import org.boris.xlloop.Function;
+import org.boris.xlloop.IFunction;
+import org.boris.xlloop.IFunctionContext;
 import org.boris.xlloop.RequestException;
 import org.boris.xlloop.util.XLoperObjectConverter;
 import org.boris.xlloop.xloper.XLArray;
 import org.boris.xlloop.xloper.XLoper;
 
-public class BSFScript implements Function
+public class BSFScript implements IFunction
 {
     private XLoperObjectConverter converter = new XLoperObjectConverter();
     private String lang;
@@ -47,10 +48,11 @@ public class BSFScript implements Function
         return hints;
     }
 
-    public XLoper execute(XLoper[] args) throws RequestException {
+    public XLoper execute(IFunctionContext context, XLoper[] args) throws RequestException {
         try {
             Object[] a = converter.convert(args, createArgHints(args));
             BSFManager manager = new BSFManager();
+            manager.declareBean("context", a, IFunctionContext.class);
             manager.declareBean("args", a, Object[].class);
             Object res = manager.eval(lang, name, 1, 1, source);
             return converter.createFrom(res);

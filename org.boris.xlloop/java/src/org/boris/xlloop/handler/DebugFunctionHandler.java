@@ -9,19 +9,27 @@
  *******************************************************************************/
 package org.boris.xlloop.handler;
 
-import org.boris.xlloop.FunctionHandler;
+import org.boris.xlloop.IFunctionContext;
+import org.boris.xlloop.IFunctionHandler;
 import org.boris.xlloop.RequestException;
 import org.boris.xlloop.xloper.XLoper;
 
-public class DebugFunctionHandler implements FunctionHandler
+public class DebugFunctionHandler implements IFunctionHandler
 {
-    private FunctionHandler h;
+    private IFunctionHandler h;
+    private String label;
 
-    public DebugFunctionHandler(FunctionHandler h) {
+    public DebugFunctionHandler(IFunctionHandler h) {
         this.h = h;
     }
 
-    public XLoper execute(String name, XLoper[] args) throws RequestException {
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public XLoper execute(IFunctionContext context, String name, XLoper[] args) throws RequestException {
+        if (label != null)
+            System.out.print(label);
         System.out.print(name + "(");
         for (int i = 0; i < args.length; i++) {
             if (i > 0)
@@ -29,7 +37,7 @@ public class DebugFunctionHandler implements FunctionHandler
             System.out.print(args[i]);
         }
         System.out.println(")");
-        return h.execute(name, args);
+        return h.execute(context, name, args);
     }
 
     public boolean hasFunction(String name) {

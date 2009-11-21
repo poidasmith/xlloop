@@ -36,8 +36,7 @@ public class ReflectFunctionHandlerTest extends TestCase
         return execute(name, new Object[] { a1, a2 });
     }
 
-    public Object execute(String name, Object a1, Object a2, Object a3)
-            throws Exception {
+    public Object execute(String name, Object a1, Object a2, Object a3) throws Exception {
         return execute(name, new Object[] { a1, a2, a3 });
     }
 
@@ -46,6 +45,6 @@ public class ReflectFunctionHandlerTest extends TestCase
         for (int i = 0; i < x.length; i++) {
             x[i] = xlo.createFrom(args[i]);
         }
-        return xlo.createFrom(rfh.execute(name, x), Object.class);
+        return xlo.createFrom(rfh.execute(null, name, x), Object.class);
     }
 }

@@ -24,6 +24,7 @@ static dictionary* g_ini = NULL;
 
 // The protocol manager
 static BinaryProtocol* g_protocol = NULL;
+static bool g_sendSourceInfo = false;
 
 // The list of available servers
 #define MAX_SERVERS 20
@@ -41,8 +42,6 @@ static XLOPER g_errorMessage;
 
 // INI keys
 #define FS_PROTOCOL ":protocol"
-#define FS_HOSTNAME ":hostname"
-#define FS_PORT ":port"
 #define FS_URL ":url"
 #define FS_SERVER_LIST ":server"
 #define FS_ADDIN_NAME ":addin.name"
@@ -52,6 +51,7 @@ static XLOPER g_errorMessage;
 #define FS_DISABLE_FUNCTION_LIST ":disable.function.list"
 #define FS_LOAD_SERVER_REQUEST ":load.server.request"
 #define FS_SEND_USER_INFO ":send.user.info"
+#define FS_USER_KEY ":user.key"
 #define FS_SEND_SOURCE_INFO ":send.source.info"
 
 // Admin function names
@@ -69,6 +69,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 		// Init error message
 		g_errorMessage.xltype = xltypeStr;
 		g_errorMessage.val.str = 0;
+
+		// Read config
+		g_sendSourceInfo = iniparser_getboolean(g_ini, FS_SEND_SOURCE_INFO, 0);
 
 		// Initialise the log
 		Log::Init(hinstDLL, iniparser_getstr(g_ini, LOG_FILE), iniparser_getstr(g_ini, LOG_LEVEL), g_ini);
@@ -120,6 +123,32 @@ void ParseServerList(char* server)
 	}
 }
 
+void InitializeSession()
+{
+	bool sendUserInfo = iniparser_getboolean(g_ini, FS_SEND_USER_INFO, 1);
+	if(sendUserInfo) {
+		char username[MAX_PATH];
+		DWORD usize= MAX_PATH;
+		GetUserName(username, &usize);
+		LPXLOPER uname = XLUtil::MakeExcelString2(username);
+		gethostname(username, MAX_PATH);
+		LPXLOPER hostname = XLUtil::MakeExcelString2(username);
+		char* userKey = iniparser_getstr(g_ini, FS_USER_KEY);
+		if(userKey) {
+			LPXLOPER ukey = XLUtil::MakeExcelString2(userKey);
+			g_protocol->execute("org.boris.xlloop.Initialize", false, 3, uname, hostname, ukey);
+			XLUtil::FreeContents(ukey);
+			free(ukey);
+		} else {
+			g_protocol->execute("org.boris.xlloop.Initialize", false, 2, uname, hostname);
+		}
+		XLUtil::FreeContents(uname);
+		XLUtil::FreeContents(hostname);
+		free(uname);
+		free(hostname);
+	}
+}
+
 bool InitProtocol()
 {
 	// Create our protocol manager
@@ -143,12 +172,11 @@ bool InitProtocol()
 			ParseServerList(servers);
 		}
 		g_protocol = new BinaryProtocol("localhost", 5454);
-		bool sendSourceInfo = iniparser_getboolean(g_ini, FS_SEND_SOURCE_INFO, 0);
-		g_protocol->setSendSourceInfo(sendSourceInfo);
 	}
 #endif
 
 	// If not connected then choose a random server to connect to
+	bool init = false;
 	if(!g_protocol->isConnected() && g_serverCount > 0) 
 	{
 		int choice = GetTickCount() % g_serverCount;
@@ -158,10 +186,14 @@ bool InitProtocol()
 		g_errorMessage.val.str= XLUtil::MakeExcelString(temp);
 		g_protocol->setHost(g_servers[choice]);
 		g_protocol->setPort(g_serverPorts[choice]);
+		init = true;
 	}
 
 	// Attempt connection
-	return g_protocol->connect() == 0;
+	int res = g_protocol->connect() == 0;
+	if(res && init)
+		InitializeSession();
+	return res;
 }
 
 void RegisterFunctions()
@@ -175,19 +207,7 @@ void RegisterFunctions()
 	Excel4(xlGetName, &xDLL, 0);
 
 	// Ask the server for a list of functions and register them
-	bool sendUserInfo = iniparser_getboolean(g_ini, FS_SEND_USER_INFO, 1);
-	LPXLOPER farr = NULL;
-	if(sendUserInfo) {
-		char username[MAX_PATH];
-		DWORD usize= MAX_PATH;
-		GetUserName(username, &usize);
-		LPXLOPER uname = XLUtil::MakeExcelString2(username);
-		farr = g_protocol->execute("org.boris.xlloop.GetFunctions", 1, uname);
-		XLUtil::FreeContents(uname);
-		free(uname);
-	} else {
-		farr = g_protocol->execute("org.boris.xlloop.GetFunctions", 0);
-	}
+	LPXLOPER farr = g_protocol->execute("org.boris.xlloop.GetFunctions", false, 0);
 	int t = farr->xltype & ~(xlbitXLFree | xlbitDLLFree);
 	int rows = farr->val.array.rows;
 	int cols = farr->val.array.columns;
@@ -221,7 +241,7 @@ void RegisterFunctions()
 				static LPXLOPER input[20];
 				input[0] = (LPXLOPER FAR) &xDLL;
 				input[1] = (LPXLOPER FAR) XLUtil::MakeExcelString2(tmp);
-				input[2] = (LPXLOPER FAR) XLUtil::MakeExcelString2(isVolatile ? "RPPPPPPPPPP!" : "RPPPPPPPPPP");
+				input[2] = (LPXLOPER FAR) XLUtil::MakeExcelString2(isVolatile ? "RPPPPPPPPPPPPPPPPPPPP!" : "RPPPPPPPPPPPPPPPPPPPP");
 				input[3] = (LPXLOPER FAR) XLUtil::MakeExcelString3(functionText == NULL ? functionName : functionText);
 				input[4] = (LPXLOPER FAR) XLUtil::MakeExcelString3(argumentText);
 				input[5] = (LPXLOPER FAR) XLUtil::MakeExcelString2("1");
@@ -377,7 +397,7 @@ __declspec(dllexport) LPXLOPER WINAPI FSExecute(const char* name, LPXLOPER v0, L
 	}
 
 	// Exec function
-	LPXLOPER xres = g_protocol->execute(name, 20, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19);
+	LPXLOPER xres = g_protocol->execute(name, g_sendSourceInfo, 20, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19);
 
 	// Check for error
 	if(!g_protocol->isConnected()) {

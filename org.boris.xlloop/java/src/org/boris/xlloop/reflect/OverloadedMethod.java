@@ -13,13 +13,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.boris.xlloop.Function;
+import org.boris.xlloop.IFunction;
+import org.boris.xlloop.IFunctionContext;
 import org.boris.xlloop.RequestException;
 import org.boris.xlloop.xloper.XLMissing;
 import org.boris.xlloop.xloper.XLNil;
 import org.boris.xlloop.xloper.XLoper;
 
-public class OverloadedMethod implements Function
+public class OverloadedMethod implements IFunction
 {
     private List methods = new ArrayList();
 
@@ -27,7 +28,7 @@ public class OverloadedMethod implements Function
         this.methods.add(m);
     }
 
-    public XLoper execute(XLoper[] args) throws RequestException {
+    public XLoper execute(IFunctionContext context, XLoper[] args) throws RequestException {
         int lastArg = args.length - 1;
         for (; lastArg >= 0; lastArg--) {
             if (!(args[lastArg] instanceof XLNil || args[lastArg] instanceof XLMissing)) {
@@ -48,7 +49,7 @@ public class OverloadedMethod implements Function
         }
 
         if (matched != null)
-            return matched.execute(args);
+            return matched.execute(context, args);
 
         throw new RequestException("#Invalid args");
     }

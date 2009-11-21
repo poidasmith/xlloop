@@ -7,14 +7,11 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.xlloop.script;
+package org.boris.xlloop;
 
-import java.io.IOException;
-import java.io.Reader;
+import org.boris.xlloop.xloper.XLSRef;
 
-import org.boris.xlloop.IFunction;
-
-public interface ScriptFactory 
+public interface IFunctionContext
 {
-    public IFunction create(Reader r) throws IOException;
+    XLSRef getCaller();
 }

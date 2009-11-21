@@ -33,7 +33,7 @@ class BinaryProtocol : public Protocol {
 class BinaryProtocol {
 #endif
 public:
-	BinaryProtocol(char* hostname, int port) : port(port), conn(0), is(conn), os(conn), sendSourceInfo(false) {
+	BinaryProtocol(char* hostname, int port) : port(port), conn(0), is(conn), os(conn) {
 		setHost(hostname);
 	}
 	virtual ~BinaryProtocol() { disconnect(); }
@@ -47,21 +47,16 @@ public:
 	void setPort(int port) {
 		this->port = port;
 	}
-	void setSendSourceInfo(bool send) {
-		this->sendSourceInfo = send;
-	}
-	LPXLOPER execute(const char* name, int count, ...);
-	LPXLOPER execute(const char* name, int count, LPXLOPER far opers[]);
+	LPXLOPER execute(const char* name, bool sendSource, int count, ...);
+	LPXLOPER execute(const char* name, bool sendSource, int count, LPXLOPER far opers[]);
 
 private:
-	int send(const char* name, int count, LPXLOPER far opers[]);
-	int send(const char* name);
+	int send(const char* name, bool sendSource, int count, LPXLOPER far opers[]);
 	LPXLOPER receive(const char* name);
 
 private:
 	char hostname[MAX_PATH];
 	int port;
-	bool sendSourceInfo;
 	SOCKET conn;
 	XIStream is;
 	XOStream os;

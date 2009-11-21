@@ -9,7 +9,8 @@
  *******************************************************************************/
 package org.boris.xlloop.util;
 
-import org.boris.xlloop.FunctionHandler;
+import org.boris.xlloop.IFunctionContext;
+import org.boris.xlloop.IFunctionHandler;
 import org.boris.xlloop.RequestException;
 import org.boris.xlloop.xloper.XLArray;
 import org.boris.xlloop.xloper.XLBool;
@@ -20,11 +21,11 @@ import org.boris.xlloop.xloper.XLNum;
 import org.boris.xlloop.xloper.XLString;
 import org.boris.xlloop.xloper.XLoper;
 
-public class CompTest1 implements FunctionHandler
+public class CompTest1 implements IFunctionHandler
 {
     private static String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-    public XLoper execute(String name, XLoper[] args) throws RequestException {
+    public XLoper execute(IFunctionContext context, String name, XLoper[] args) throws RequestException {
         if (name.equals("RandTest")) {
             XLArray x = new XLArray((int) (Math.random() * 10 + 2), 1);
             for (int i = 0; i < x.length; i++) {

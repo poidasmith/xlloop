@@ -17,12 +17,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.boris.xlloop.FunctionHandler;
+import org.boris.xlloop.IFunctionContext;
+import org.boris.xlloop.IFunctionHandler;
 import org.boris.xlloop.RequestException;
 import org.boris.xlloop.util.XLList;
 import org.boris.xlloop.xloper.XLoper;
 
-public class FunctionInformationFunctionHandler implements FunctionHandler
+public class FunctionInformationFunctionHandler implements IFunctionHandler
 {
     private ArrayList functions = new ArrayList();
     private Set functionProviders = new HashSet();
@@ -43,7 +44,7 @@ public class FunctionInformationFunctionHandler implements FunctionHandler
         functionProviders.remove(prov);
     }
 
-    public XLoper execute(String name, XLoper[] args) throws RequestException {
+    public XLoper execute(IFunctionContext context, String name, XLoper[] args) throws RequestException {
         XLList c = new XLList();
         Map m = new TreeMap();
         for (Iterator i = functions.iterator(); i.hasNext();) {

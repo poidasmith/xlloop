@@ -20,8 +20,9 @@ import java.util.Map;
 
 import org.apache.bsf.BSFException;
 import org.apache.bsf.BSFManager;
-import org.boris.xlloop.Function;
-import org.boris.xlloop.FunctionHandler;
+import org.boris.xlloop.IFunction;
+import org.boris.xlloop.IFunctionContext;
+import org.boris.xlloop.IFunctionHandler;
 import org.boris.xlloop.RequestException;
 import org.boris.xlloop.handler.FunctionInformation;
 import org.boris.xlloop.handler.FunctionProvider;
@@ -30,8 +31,7 @@ import org.boris.xlloop.util.IO;
 import org.boris.xlloop.util.FileSystemWatcher.Callback;
 import org.boris.xlloop.xloper.XLoper;
 
-public class ScriptRepository implements Callback, FunctionHandler,
-        FunctionProvider
+public class ScriptRepository implements Callback, IFunctionHandler, FunctionProvider
 {
     private File baseDir;
     private FileSystemWatcher watcher;
@@ -65,8 +65,8 @@ public class ScriptRepository implements Callback, FunctionHandler,
         watcher.shutdown();
     }
 
-    public Function get(String name) {
-        return (Function) scripts.get(name);
+    public IFunction get(String name) {
+        return (IFunction) scripts.get(name);
     }
 
     public void fileAdded(File f) {
@@ -79,7 +79,7 @@ public class ScriptRepository implements Callback, FunctionHandler,
             return;
         }
         try {
-            Function fn = create(f);
+            IFunction fn = create(f);
             if (fn != null) {
                 System.out.println("Adding script: " + n);
                 scripts.put(n, fn);
@@ -120,19 +120,19 @@ public class ScriptRepository implements Callback, FunctionHandler,
         return fs;
     }
 
-    public XLoper execute(String name, XLoper[] args) throws RequestException {
-        Function f = (Function) scripts.get(name);
+    public XLoper execute(IFunctionContext context, String name, XLoper[] args) throws RequestException {
+        IFunction f = (IFunction) scripts.get(name);
         if (f == null) {
             throw new RequestException("#Unknown script: " + name);
         }
-        return f.execute(args);
+        return f.execute(context, args);
     }
 
     public boolean hasFunction(String name) {
         return scripts.containsKey(name);
     }
 
-    public Function create(File f) throws BSFException, IOException {
+    public IFunction create(File f) throws BSFException, IOException {
         String lang = null;
         try {
             lang = BSFManager.getLangFromFilename(f.getName());

@@ -9,17 +9,18 @@
  *******************************************************************************/
 package org.boris.xlloop.handler;
 
-import org.boris.xlloop.FunctionHandler;
+import org.boris.xlloop.IFunctionContext;
+import org.boris.xlloop.IFunctionHandler;
 import org.boris.xlloop.RequestException;
 import org.boris.xlloop.util.XLMap;
 import org.boris.xlloop.xloper.XLoper;
 
-public class GetLoadServerFunctionHandler implements FunctionHandler
+public class GetLoadServerFunctionHandler implements IFunctionHandler
 {
     public static final String NAME = "org.boris.xlloop.GetLoadServer";
 
     // Expected args are [username,hostname] for client
-    public XLoper execute(String name, XLoper[] args) throws RequestException {
+    public XLoper execute(IFunctionContext context, String name, XLoper[] args) throws RequestException {
         XLMap m = new XLMap();
         m.add("host", "localhost");
         m.add("port", 6000);
