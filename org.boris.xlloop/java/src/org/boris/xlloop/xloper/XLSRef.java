@@ -25,17 +25,15 @@ public class XLSRef extends XLoper
     }
 
     public static String toColumnName(int column) {
-        if (column <= 0)
-            return null;
-        StringBuilder sb = new StringBuilder();
-        while (column > 0) {
-            int val = column % 26;
-            if (val == 0)
-                val = 26;
-            column -= val;
-            sb.insert(0, (char) ('A' + val - 1));
-            column /= 26;
-        }
+        StringBuffer sb = new StringBuffer();
+        int t0 = column % 26;
+        int t1 = column / 26;
+        int t2 = column / 676;
+        if (t2 > 0)
+            sb.append((char) ('A' + t2 - 1));
+        if (t1 > 0)
+            sb.append((char) ('A' + t1 - 1));
+        sb.append((char) ('A' + t0));
         return sb.toString();
     }
 
@@ -44,6 +42,6 @@ public class XLSRef extends XLoper
     }
 
     public String toString() {
-        return toColumnName(colFirst) + rwFirst + (isArray() ? (":" + toColumnName(colLast) + rwLast) : "");
+        return toColumnName(colFirst) + (rwFirst + 1) + (isArray() ? (":" + toColumnName(colLast) + (rwLast + 1)) : "");
     }
 }

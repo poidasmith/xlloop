@@ -12,6 +12,7 @@ package org.boris.xlloop.handler;
 import org.boris.xlloop.IFunctionContext;
 import org.boris.xlloop.IFunctionHandler;
 import org.boris.xlloop.RequestException;
+import org.boris.xlloop.xloper.XLSRef;
 import org.boris.xlloop.xloper.XLoper;
 
 public class DebugFunctionHandler implements IFunctionHandler
@@ -36,7 +37,20 @@ public class DebugFunctionHandler implements IFunctionHandler
                 System.out.print(",");
             System.out.print(args[i]);
         }
-        System.out.println(")");
+        System.out.print(")");
+        if (context != null) {
+            XLSRef caller = context.getCaller();
+            String sname = context.getSheetName();
+            if (sname != null) {
+                System.out.print(" ");
+                System.out.print(sname);
+            }
+            if (caller != null) {
+                System.out.print(" ");
+                System.out.print(caller);
+            }
+        }
+        System.out.println();
         return h.execute(context, name, args);
     }
 
