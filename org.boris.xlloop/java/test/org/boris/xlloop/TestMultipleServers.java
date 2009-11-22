@@ -30,7 +30,7 @@ public class TestMultipleServers
             servers[i] = server;
             server.start();
             serverHandlers.put(server, new HashSet());
-            server.setListener(new FunctionServerListener() {
+            server.setListener(new IFunctionServerListener() {
                 public void connectionCreated(HandlerThread ht) {
                     ((HashSet) serverHandlers.get(server)).add(ht);
                 }

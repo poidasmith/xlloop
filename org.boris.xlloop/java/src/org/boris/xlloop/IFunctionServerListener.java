@@ -11,7 +11,7 @@ package org.boris.xlloop;
 
 import org.boris.xlloop.FunctionServer.HandlerThread;
 
-public interface FunctionServerListener
+public interface IFunctionServerListener
 {
     void connectionCreated(HandlerThread ht);
 }

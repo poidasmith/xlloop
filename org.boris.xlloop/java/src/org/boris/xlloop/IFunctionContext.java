@@ -14,4 +14,6 @@ import org.boris.xlloop.xloper.XLSRef;
 public interface IFunctionContext
 {
     XLSRef getCaller();
+
+    String getSheetName();
 }

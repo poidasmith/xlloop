@@ -26,7 +26,7 @@ public class FunctionServer
     protected int port;
     protected IFunctionHandler handler;
     protected ServerSocket socket;
-    protected FunctionServerListener listener;
+    protected IFunctionServerListener listener;
 
     public FunctionServer() {
         this(5454);
@@ -53,7 +53,7 @@ public class FunctionServer
         return this.handler;
     }
 
-    public void setListener(FunctionServerListener listener) {
+    public void setListener(IFunctionServerListener listener) {
         this.listener = listener;
     }
 
@@ -103,9 +103,9 @@ public class FunctionServer
                 if (version == 20) {
                     XLBool b = (XLBool) protocol.receive(socket);
                     if (b.bool) {
-                        XLoper caller = protocol.receive(socket);
-                        XLoper formula = protocol.receive(socket);
-                        Reflection.println(caller, formula);
+                        XLSRef caller = (XLSRef) protocol.receive(socket);
+                        XLString sheetName = (XLString) protocol.receive(socket);
+                        context = new FunctionContext(caller, sheetName.str);
                     }
                 } else {
                     protocol.send(socket, new XLString("#Unknown protocol version"));
@@ -180,13 +180,19 @@ public class FunctionServer
     public static class FunctionContext implements IFunctionContext
     {
         private XLSRef caller;
+        private String sheetName;
 
-        public void setCaller(XLSRef caller) {
+        public FunctionContext(XLSRef caller, String sheetName) {
             this.caller = caller;
+            this.sheetName = sheetName;
         }
 
         public XLSRef getCaller() {
             return caller;
+        }
+
+        public String getSheetName() {
+            return sheetName;
         }
     }
 }
