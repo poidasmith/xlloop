@@ -14,7 +14,7 @@
 #include "XLUtil.h"
 
 #define FS_URL ":url"
-
+#define BUFFER_SIZE 8192
 #define USER_AGENT L"XLLoop/Http v0.1.0"
 
 #define REQ_TYPE_NAME "request"
@@ -86,7 +86,7 @@ HttpProtocol::~HttpProtocol()
 	if(path) free(path);
 }
 
-HttpProtocol::initialize(dictionary* ini)
+void HttpProtocol::initialize(dictionary* ini)
 {
 	char* url = iniparser_getstr(ini, FS_URL);
 	Log::Info("Setup session for: %s", url);
@@ -119,8 +119,6 @@ HttpProtocol::initialize(dictionary* ini)
 	hSession = WinHttpOpen(USER_AGENT, proxyType,
 		proxy.lpszProxy, proxy.lpszProxyBypass, 0);
 }
-
-#define BUFFER_SIZE 8192
 
 LPXLOPER HttpProtocol::execute(const char* name, bool sendCaller, int count, ...)
 {

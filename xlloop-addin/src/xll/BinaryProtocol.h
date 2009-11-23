@@ -22,9 +22,9 @@ public:
 	virtual int connect() = 0;
 	virtual void disconnect() = 0;
 	virtual bool isConnected() = 0;
+	virtual LPXLOPER getLastError() = 0;
 	virtual LPXLOPER execute(const char* name, bool sendCaller, int count, ...) = 0;
 	virtual LPXLOPER execute(const char* name, bool sendCaller, int count, LPXLOPER far opers[]) = 0;
-	virtual LPXLOPER getLastError() = 0;
 };
 
 class BinaryProtocol : public Protocol {
