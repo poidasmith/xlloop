@@ -13,7 +13,7 @@
 #include "xll/XLUtil.h"
 #include "xll/xlcall.h"
 #include "xll/BinaryProtocol.h"
-//#include "xll/HttpProtocol.h"
+#include "xll/HttpProtocol.h"
 #include "xll/Timeout.h"
 
 // The DLL instance
@@ -23,14 +23,8 @@ static HINSTANCE g_hinstance = NULL;
 static dictionary* g_ini = NULL;
 
 // The protocol manager
-static BinaryProtocol* g_protocol = NULL;
-static bool g_sendSourceInfo = false;
-
-// The list of available servers
-#define MAX_SERVERS 20
-static char* g_servers[MAX_SERVERS];
-static int g_serverPorts[MAX_SERVERS];
-static int g_serverCount = 0;
+static Protocol* g_protocol = NULL;
+static bool g_sendCallerInfo = false;
 
 // The list of static function names
 #define MAX_FUNCTIONS 512
@@ -43,16 +37,14 @@ static XLOPER g_errorMessage;
 // INI keys
 #define FS_PROTOCOL ":protocol"
 #define FS_URL ":url"
-#define FS_SERVER_LIST ":server"
 #define FS_ADDIN_NAME ":addin.name"
 #define FS_FUNCTION_NAME ":function.name"
 #define FS_INCLUDE_VOLATILE ":include.volatile"
 #define FS_FUNCTION_NAME_VOLATILE ":function.name.volatile"
 #define FS_DISABLE_FUNCTION_LIST ":disable.function.list"
-#define FS_LOAD_SERVER_REQUEST ":load.server.request"
 #define FS_SEND_USER_INFO ":send.user.info"
 #define FS_USER_KEY ":user.key"
-#define FS_SEND_SOURCE_INFO ":send.source.info"
+#define FS_SEND_CALLER_INFO ":send.caller.info"
 
 // Admin function names
 #define AF_GET_FUNCTIONS "org.boris.xlloop.GetFunctions"
@@ -71,7 +63,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 		g_errorMessage.val.str = 0;
 
 		// Read config
-		g_sendSourceInfo = iniparser_getboolean(g_ini, FS_SEND_SOURCE_INFO, 0);
+		g_sendCallerInfo = iniparser_getboolean(g_ini, FS_SEND_CALLER_INFO, 0);
 
 		// Initialise the log
 		Log::Init(hinstDLL, iniparser_getstr(g_ini, LOG_FILE), iniparser_getstr(g_ini, LOG_LEVEL), g_ini);
@@ -82,45 +74,6 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 	// OK
 	return TRUE;
-}
-
-int ExtractPort(char* server)
-{
-	int len = strlen(server);
-	for(int i = 0; i < len; i++) {
-		if(server[i] == ':') {
-			server[i] = 0;
-			return atoi(&server[i+1]);
-		}
-	}
-
-	return 5454;
-}
-
-void ParseServerList(char* server)
-{
-	int len = strlen(server);
-	int start = 0;
-	int pos = 0;
-	char temp[MAX_PATH];
-	for(pos = 0; pos < len+1; pos++) {
-		if(g_serverCount >= MAX_SERVERS)
-			break;
-		if(server[pos] == ',' || pos==len) {
-			int slen = pos-start;
-			if(slen==0) {
-				start = pos;
-				continue;
-			}
-			memcpy(temp, &server[start], slen+1);
-			temp[slen]=0;
-			StrTrim(temp, ", ");
-			g_servers[g_serverCount]=strdup(temp);
-			g_serverPorts[g_serverCount] = ExtractPort(g_servers[g_serverCount]);
-			g_serverCount++;
-			start = pos;
-		}
-	}
 }
 
 void InitializeSession()
@@ -152,47 +105,24 @@ void InitializeSession()
 bool InitProtocol()
 {
 	// Create our protocol manager
-#ifdef INCLUDE_HTTP_PROTOCOL
 	if(g_protocol == NULL) {
 		char* protocol = iniparser_getstr(g_ini, FS_PROTOCOL);
 		if(protocol && strcmp(protocol, "http") == 0) {
-			char* url = iniparser_getstr(g_ini, FS_URL);
-			g_protocol = new HttpProtocol(url);
+			g_protocol = new HttpProtocol();
 		} else {
-			char* hostname = iniparser_getstr(g_ini, FS_HOSTNAME);
-			char* port = iniparser_getstr(g_ini, FS_PORT);
-			g_protocol = new BinaryProtocol(hostname == NULL ? "localhost" : hostname, 
-				port == NULL ? 5454 : atoi(port));
+			g_protocol = new BinaryProtocol();
 		}
-	}
-#else
-	if(g_protocol == NULL) {
-		char* servers = iniparser_getstr(g_ini, FS_SERVER_LIST);
-		if(servers) {
-			ParseServerList(servers);
-		}
-		g_protocol = new BinaryProtocol("localhost", 5454);
-	}
-#endif
-
-	// If not connected then choose a random server to connect to
-	bool init = false;
-	if(!g_protocol->isConnected() && g_serverCount > 0) 
-	{
-		int choice = GetTickCount() % g_serverCount;
-		char temp[MAX_PATH];
-		sprintf(temp, "#Cannot connect to server [%d] - %s:%d", choice+1, g_servers[choice], g_serverPorts[choice]);
-		if(g_errorMessage.val.str) free(g_errorMessage.val.str);
-		g_errorMessage.val.str= XLUtil::MakeExcelString(temp);
-		g_protocol->setHost(g_servers[choice]);
-		g_protocol->setPort(g_serverPorts[choice]);
-		init = true;
+		g_protocol->initialize(g_ini);
 	}
 
 	// Attempt connection
-	int res = g_protocol->connect() == 0;
-	if(res && init)
-		InitializeSession();
+	bool connected = g_protocol->isConnected();
+	int res = 0;
+	if(!connected) {
+		res = g_protocol->connect() == 0;
+		if(res)
+			InitializeSession();
+	}
 	return res;
 }
 
@@ -393,11 +323,11 @@ __declspec(dllexport) LPXLOPER WINAPI FSExecute(const char* name, LPXLOPER v0, L
 {
 	// Attempt connection
 	if(!InitProtocol()) {
-		return &g_errorMessage;
+		return g_protocol->getLastError();
 	}
 
 	// Exec function
-	LPXLOPER xres = g_protocol->execute(name, g_sendSourceInfo, 20, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19);
+	LPXLOPER xres = g_protocol->execute(name, g_sendCallerInfo, 20, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19);
 
 	// Check for error
 	if(!g_protocol->isConnected()) {
@@ -405,7 +335,7 @@ __declspec(dllexport) LPXLOPER WINAPI FSExecute(const char* name, LPXLOPER v0, L
 			XLUtil::FreeContents(xres);
 			delete xres;
 		}
-		return &g_errorMessage;
+		return g_protocol->getLastError();
 	}
 
 	return xres;
