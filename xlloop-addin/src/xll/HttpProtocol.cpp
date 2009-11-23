@@ -13,12 +13,16 @@
 #include "../common/Log.h"
 #include "XLUtil.h"
 
+#define FS_URL ":url"
+
 #define USER_AGENT L"XLLoop/Http v0.1.0"
 
 #define REQ_TYPE_NAME "request"
 #define REQ_TYPE_VAL "XLLoop"
 #define REQ_VER_NAME "version"
 #define REQ_VER_VAL "0.1.0"
+#define REQ_CALLER_NAME "caller"
+#define REQ_SHEET_NAME "sheet"
 #define REQ_NAME_NAME "name"
 #define REQ_ARGS_NAME "args"
 
@@ -33,13 +37,32 @@ typedef struct _ctx {
 
 VOID CALLBACK CallBack(HINTERNET session, DWORD_PTR context, DWORD status, LPVOID statusInfo, DWORD statusInfoLen);
 
-void GenerateRequest(yajl_gen g, const char* fn, LPXLOPER* argv, int argc)
+void GenerateRequest(yajl_gen g, const char* fn, bool sendCaller, LPXLOPER* argv, int argc)
 {
 	yajl_gen_map_open(g);
 	yajl_gen_string(g, (const unsigned char*) REQ_TYPE_NAME, strlen(REQ_TYPE_NAME));
 	yajl_gen_string(g, (const unsigned char*) REQ_TYPE_VAL, strlen(REQ_TYPE_VAL));
 	yajl_gen_string(g, (const unsigned char*) REQ_VER_NAME, strlen(REQ_VER_NAME));
 	yajl_gen_string(g, (const unsigned char*) REQ_VER_VAL, strlen(REQ_VER_VAL));
+	if(sendCaller) {
+		XLOPER xlRef, xlSheetName;
+		Excel4(xlfCaller, &xlRef, 0);	
+		Excel4(xlSheetNm, &xlSheetName, 1, &xlRef);
+		yajl_gen_string(g, (const unsigned char*) REQ_CALLER_NAME, strlen(REQ_CALLER_NAME));
+		yajl_gen_map_open(g);
+		yajl_gen_string(g, (const unsigned char*) "colFirst", 8);
+		yajl_gen_integer(g, xlRef.val.sref.ref.colFirst);
+		yajl_gen_string(g, (const unsigned char*) "colLast", 7);
+		yajl_gen_integer(g, xlRef.val.sref.ref.colLast);
+		yajl_gen_string(g, (const unsigned char*) "rwFirst", 7);
+		yajl_gen_integer(g, xlRef.val.sref.ref.rwFirst);
+		yajl_gen_string(g, (const unsigned char*) "rwLast", 6);
+		yajl_gen_integer(g, xlRef.val.sref.ref.rwLast);
+		yajl_gen_map_close(g);
+		yajl_gen_string(g, (const unsigned char*) REQ_SHEET_NAME, strlen(REQ_SHEET_NAME));
+		yajl_gen_string(g, (const unsigned char*) &xlSheetName.val.str[1], xlSheetName.val.str[0]);
+		Excel4(xlFree, 0, 1, &xlSheetName);
+	}
 	yajl_gen_string(g, (const unsigned char*) REQ_NAME_NAME, strlen(REQ_NAME_NAME));
 	yajl_gen_string(g, (const unsigned char*) fn, strlen(fn));
 	yajl_gen_string(g, (const unsigned char*) REQ_ARGS_NAME, strlen(REQ_ARGS_NAME));
@@ -51,8 +74,21 @@ void GenerateRequest(yajl_gen g, const char* fn, LPXLOPER* argv, int argc)
 	yajl_gen_map_close(g);
 }
 
-HttpProtocol::HttpProtocol(const char* url)
+HttpProtocol::HttpProtocol()
 {
+}
+
+HttpProtocol::~HttpProtocol()
+{
+	WinHttpCloseHandle(hSession);
+	if(url) free(url);
+	if(host) free(host);
+	if(path) free(path);
+}
+
+HttpProtocol::initialize(dictionary* ini)
+{
+	char* url = iniparser_getstr(ini, FS_URL);
 	Log::Info("Setup session for: %s", url);
 	int usz = MultiByteToWideChar(CP_ACP, 0, url, strlen(url), 0, 0);
 	this->url = (wchar_t*) malloc((usz + 1) * sizeof(wchar_t));
@@ -84,37 +120,21 @@ HttpProtocol::HttpProtocol(const char* url)
 		proxy.lpszProxy, proxy.lpszProxyBypass, 0);
 }
 
-HttpProtocol::~HttpProtocol()
-{
-	WinHttpCloseHandle(hSession);
-	if(url) free(url);
-	if(host) free(host);
-	if(path) free(path);
-}
-
-LPXLOPER HttpProtocol::execute(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, 
-	LPXLOPER v4, LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, LPXLOPER v9)
-{
-	LPXLOPER args[10];
-	args[0] = v0;
-	args[1] = v1;
-	args[2] = v2;
-	args[3] = v3;
-	args[4] = v4;
-	args[5] = v5;
-	args[6] = v6;
-	args[7] = v7;
-	args[8] = v8;
-	args[9] = v9;
-	return Execute(name, args, 10);
-}
-
-LPXLOPER HttpProtocol::execute(const char* name)
-{
-	return Execute(name, 0, 0);
-}
-
 #define BUFFER_SIZE 8192
+
+LPXLOPER HttpProtocol::execute(const char* name, bool sendCaller, int count, ...)
+{
+	va_list args;
+	va_start(args, count);
+	LPXLOPER res = Execute(name, sendCaller, (LPXLOPER*) args, count);
+	va_end(args);
+	return res;
+}
+
+LPXLOPER HttpProtocol::execute(const char* name, bool sendCaller, int count, LPXLOPER far opers[])
+{
+	return Execute(name, sendCaller, opers, count);
+}
 
 VOID ReadData(REQUEST_CONTEXT* context)
 {
@@ -149,7 +169,7 @@ VOID ReadData(REQUEST_CONTEXT* context)
 	JSONCodec::FreeJsonValue(ctx.current);
 }
 
-LPXLOPER HttpProtocol::Execute(const char* name, LPXLOPER* args, int argc)
+LPXLOPER HttpProtocol::Execute(const char* name, bool sendCaller, LPXLOPER* args, int argc)
 {
 	REQUEST_CONTEXT context;
 	context.hEvent = CreateEvent(0, 1, 0, 0);
@@ -164,7 +184,7 @@ LPXLOPER HttpProtocol::Execute(const char* name, LPXLOPER* args, int argc)
 	context.g = yajl_gen_alloc(&context.conf, 0);
 	context.px = (LPXLOPER) malloc(sizeof(XLOPER));
 	context.px->xltype = xltypeNil | xlbitDLLFree;
-	GenerateRequest(context.g, name, args, argc);
+	GenerateRequest(context.g, name, sendCaller, args, argc);
 	const unsigned char * buf;
     unsigned int len = 0;
     yajl_gen_get_buf(context.g, &buf, &len);

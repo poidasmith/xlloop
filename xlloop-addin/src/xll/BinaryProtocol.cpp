@@ -9,14 +9,45 @@
 *******************************************************************************/
 
 #include "BinaryProtocol.h"
-
+#include "XLUtil.h"
 #include <stdio.h>
 
 #define PROTOCOL_VERSION 20
+#define MAX_SERVERS 20
+#define FS_SERVER_LIST ":server"
+
+extern "C" int __cdecl _purecall()
+{
+	return 0;
+}
+
+void BinaryProtocol::initialize(dictionary* ini)
+{
+	errorMessage.xltype = xltypeStr;
+	errorMessage.val.str = XLUtil::MakeExcelString("#Cannot connect to server");
+	char* server = iniparser_getstr(ini, FS_SERVER_LIST);
+	this->servers = (char**) malloc(sizeof(char*) * MAX_SERVERS);
+	this->serverPorts = (int*) malloc(sizeof(int) * MAX_SERVERS);
+	ParseServerList(server);
+}
 
 int BinaryProtocol::connect()
 {
 	if(conn != NULL) return 0;
+
+	// If not connected then choose a random server to connect to
+	if(serverCount > 0) 
+	{
+		selectedServer = GetTickCount() % serverCount;
+		char temp[MAX_PATH];
+		sprintf(temp, "#Cannot connect to server [%d] - %s:%d", selectedServer+1, 
+			servers[selectedServer], serverPorts[selectedServer]);
+		if(errorMessage.val.str) free(errorMessage.val.str);
+		errorMessage.val.str= XLUtil::MakeExcelString(temp);
+	}
+
+	char* hostname = servers[selectedServer];
+	int port = serverPorts[selectedServer];
 
 	WSADATA wsData;
 	int wsaret = WSAStartup(0x101, &wsData);
@@ -76,31 +107,32 @@ void BinaryProtocol::disconnect()
 	WSACleanup();
 }
 
-LPXLOPER BinaryProtocol::execute(const char* name, bool sendSource, int count, ...)
+LPXLOPER BinaryProtocol::execute(const char* name, bool sendCaller, int count, ...)
 {
 	va_list args;
 	va_start(args, count);
-	send(name, sendSource, count, (LPXLOPER*) args);
+	send(name, sendCaller, count, (LPXLOPER*) args);
 	va_end(args);
 	return receive(name);
 }
 
-LPXLOPER BinaryProtocol::execute(const char* name, bool sendSource, int count, LPXLOPER far opers[])
+LPXLOPER BinaryProtocol::execute(const char* name, bool sendCaller, int count, LPXLOPER far opers[])
 {
-	send(name, sendSource, count, opers);
+	send(name, sendCaller, count, opers);
 	return receive(name);
 }
 
-int BinaryProtocol::send(const char* name, bool sendSource, int count, LPXLOPER far opers[])
+int BinaryProtocol::send(const char* name, bool sendCaller, int count, LPXLOPER far opers[])
 {
 	XLCodec::encode(PROTOCOL_VERSION, os);
-	XLCodec::encode(sendSource, os);
-	if(sendSource) {
-		XLOPER x;
-		Excel4(xlfCaller, &x, 0);
-		XLCodec::encode(&x, os);
-		Excel4(xlSheetId, &x, 1, &x);
-		XLCodec::encode(&x, os);
+	XLCodec::encode(sendCaller, os);
+	if(sendCaller) {
+		XLOPER xlRef, xlSheetName;
+		Excel4(xlfCaller, &xlRef, 0);	
+		Excel4(xlSheetNm, &xlSheetName, 1, &xlRef);
+		XLCodec::encode(&xlRef, os);
+		XLCodec::encode(&xlSheetName, os);
+		Excel4(xlFree, 0, 1, &xlSheetName);
 	}
 	XLCodec::encode(name, os);
 	// Find last non-missing value
@@ -123,4 +155,51 @@ LPXLOPER BinaryProtocol::receive(const char* name)
 	LPXLOPER xl = new XLOPER;
 	XLCodec::decode(name, is, xl);
 	return xl;
+}
+
+int BinaryProtocol::ExtractPort(char* server)
+{
+	int len = strlen(server);
+	for(int i = 0; i < len; i++) {
+		if(server[i] == ':') {
+			server[i] = 0;
+			return atoi(&server[i+1]);
+		}
+	}
+
+	return 5454;
+}
+
+void BinaryProtocol::ParseServerList(char* server)
+{
+	if(server==NULL) {
+		servers[0] = strdup("localhost");
+		serverPorts[0] = 5454;
+		serverCount = 1;
+		selectedServer = 0;
+		return;
+	}
+
+	int len = strlen(server);
+	int start = 0;
+	int pos = 0;
+	char temp[MAX_PATH];
+	for(pos = 0; pos < len+1; pos++) {
+		if(serverCount >= MAX_SERVERS)
+			break;
+		if(server[pos] == ',' || pos==len) {
+			int slen = pos-start;
+			if(slen==0) {
+				start = pos;
+				continue;
+			}
+			memcpy(temp, &server[start], slen+1);
+			temp[slen]=0;
+			StrTrim(temp, ", ");
+			servers[serverCount]=strdup(temp);
+			serverPorts[serverCount] = ExtractPort(servers[serverCount]);
+			serverCount++;
+			start = pos;
+		}
+	}
 }

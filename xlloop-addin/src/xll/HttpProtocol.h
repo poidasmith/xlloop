@@ -19,18 +19,15 @@ class HttpProtocol : public Protocol {
 public:
 	HttpProtocol(const char* url);
 	virtual ~HttpProtocol();
-
 	virtual int connect() { return 0; }
 	virtual void disconnect() {}
 	virtual bool isConnected() { return true; }
-	virtual void setHost(char* hostname) { }
-	virtual void setPort(int port) { } 
-	virtual LPXLOPER execute(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, 
-		LPXLOPER v4, LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, LPXLOPER v9);
-	virtual LPXLOPER execute(const char* name);
+	LPXLOPER getLastError() { return &errorMessage; }
+	LPXLOPER execute(const char* name, bool sendCaller, int count, ...);
+	LPXLOPER execute(const char* name, bool sendCaller, int count, LPXLOPER far opers[]);
 
 private:
-	LPXLOPER Execute(const char* name, LPXLOPER* args, int argc);
+	LPXLOPER Execute(const char* name, bool sendCaller, LPXLOPER* args, int argc);
 
 private:
 	wchar_t* url;
@@ -38,6 +35,7 @@ private:
 	wchar_t* path;
 	HINTERNET hSession;
 	URL_COMPONENTS urlc;
+	XLOPER errorMessage;
 };
 
 #endif // HTTP_PROTOCOL_H

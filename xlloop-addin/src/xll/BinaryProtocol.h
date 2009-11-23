@@ -13,53 +13,48 @@
 
 #include "windows.h"
 #include "XLCodec.h"
+#include "../Common/Dictionary.h"
 
-#ifdef PURE_CALL
 class Protocol {
 public:
 	virtual ~Protocol() {}
+	virtual void initialize(dictionary* ini) = 0;
 	virtual int connect() = 0;
 	virtual void disconnect() = 0;
 	virtual bool isConnected() = 0;
-	virtual void setHost(char* hostname) = 0;
-	virtual void setPort(int port) = 0;
-	virtual LPXLOPER execute(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, 
-		LPXLOPER v4, LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, LPXLOPER v9) = 0 ;
-	virtual LPXLOPER execute(const char* name) = 0;
+	virtual LPXLOPER execute(const char* name, bool sendCaller, int count, ...) = 0;
+	virtual LPXLOPER execute(const char* name, bool sendCaller, int count, LPXLOPER far opers[]) = 0;
+	virtual LPXLOPER getLastError() = 0;
 };
 
 class BinaryProtocol : public Protocol {
-#else
-class BinaryProtocol {
-#endif
 public:
-	BinaryProtocol(char* hostname, int port) : port(port), conn(0), is(conn), os(conn) {
-		setHost(hostname);
-	}
+	BinaryProtocol() : servers(0), serverPorts(0), serverCount(0), conn(0), is(conn), os(conn) {}
 	virtual ~BinaryProtocol() { disconnect(); }
-
+	void initialize(dictionary* ini);
 	int connect();
 	void disconnect();
 	bool isConnected() { return conn != NULL; }
-	void setHost(char* hostname) {
-		strcpy(this->hostname, hostname);
-	}
-	void setPort(int port) {
-		this->port = port;
-	}
-	LPXLOPER execute(const char* name, bool sendSource, int count, ...);
-	LPXLOPER execute(const char* name, bool sendSource, int count, LPXLOPER far opers[]);
+	LPXLOPER getLastError() { return &errorMessage; }
+	LPXLOPER execute(const char* name, bool sendCaller, int count, ...);
+	LPXLOPER execute(const char* name, bool sendCaller, int count, LPXLOPER far opers[]);
 
 private:
 	int send(const char* name, bool sendSource, int count, LPXLOPER far opers[]);
 	LPXLOPER receive(const char* name);
+	void ParseServerList(char* server);
+	int ExtractPort(char* server);
 
 private:
-	char hostname[MAX_PATH];
-	int port;
+	// The list of available servers
+	char** servers;
+	int* serverPorts;
+	int serverCount;
+	int selectedServer;
 	SOCKET conn;
 	XIStream is;
 	XOStream os;
+	XLOPER errorMessage;
 };
 
 #endif // PROTOCOL_H
