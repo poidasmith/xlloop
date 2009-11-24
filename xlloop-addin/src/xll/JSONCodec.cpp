@@ -203,9 +203,31 @@ static yajl_callbacks callbacks =
     cb_end_array
 };
 
+void* malloc_func(void *ctx, unsigned int sz)
+{
+	return malloc(sz);
+}
+
+void free_func(void *ctx, void * ptr)
+{
+	free(ptr);
+}
+
+void* realloc_func(void *ctx, void * ptr, unsigned int sz)
+{
+	return realloc(ptr, sz);
+}
+
+static yajl_alloc_funcs allocs =
+{
+	malloc_func,
+	realloc_func,
+	free_func
+};
+
 yajl_handle JSONCodec::AllocateHandle(yajl_parser_config* cfg, json_ctx* ctx)
 {
-    return yajl_alloc(&callbacks, cfg, NULL, (void *) ctx);
+    return yajl_alloc(&callbacks, cfg, &allocs, (void *) ctx);
 }
 
 static char* typeStr = "type";

@@ -60,7 +60,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 		// Init error message
 		g_errorMessage.xltype = xltypeStr;
-		g_errorMessage.val.str = 0;
+		g_errorMessage.val.str = XLUtil::MakeExcelString("#Unknown function");
 
 		// Read config
 		g_sendCallerInfo = iniparser_getboolean(g_ini, FS_SEND_CALLER_INFO, 0);
@@ -116,14 +116,13 @@ bool InitProtocol()
 	}
 
 	// Attempt connection
-	bool connected = g_protocol->isConnected();
-	int res = 0;
-	if(!connected) {
-		res = g_protocol->connect() == 0;
-		if(res)
+	int conn = g_protocol->isConnected();
+	if(!conn) {
+		conn = g_protocol->connect() == 0;
+		if(conn)
 			InitializeSession();
 	}
-	return res;
+	return conn;
 }
 
 void RegisterFunctions()
@@ -356,10 +355,7 @@ LPXLOPER WINAPI FSExecuteNumber(int number, LPXLOPER v0, LPXLOPER v1, LPXLOPER v
 												LPXLOPER v17, LPXLOPER v18, LPXLOPER v19)
 {
 	if(g_functionCount < number) {
-		static XLOPER err;
-		err.xltype = xltypeStr; 
-		err.val.str = "\020#Unknown function";
-		return &err;
+		return &g_errorMessage;
 	}
 	return FSExecute(g_functionNames[number], v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19);
 }

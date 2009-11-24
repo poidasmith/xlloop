@@ -14,7 +14,6 @@
 #include "XLUtil.h"
 
 #define FS_URL ":url"
-#define BUFFER_SIZE 8192
 #define USER_AGENT L"XLLoop/Http v0.1.0"
 
 #define REQ_TYPE_NAME "request"
@@ -74,10 +73,6 @@ void GenerateRequest(yajl_gen g, const char* fn, bool sendCaller, LPXLOPER* argv
 	yajl_gen_map_close(g);
 }
 
-HttpProtocol::HttpProtocol()
-{
-}
-
 HttpProtocol::~HttpProtocol()
 {
 	WinHttpCloseHandle(hSession);
@@ -119,6 +114,8 @@ void HttpProtocol::initialize(dictionary* ini)
 	hSession = WinHttpOpen(USER_AGENT, proxyType,
 		proxy.lpszProxy, proxy.lpszProxyBypass, 0);
 }
+
+#define BUFFER_SIZE 8192
 
 LPXLOPER HttpProtocol::execute(const char* name, bool sendCaller, int count, ...)
 {

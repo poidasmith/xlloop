@@ -17,12 +17,12 @@
 
 class HttpProtocol : public Protocol {
 public:
-	HttpProtocol();
+	HttpProtocol() {}
 	virtual ~HttpProtocol();
-	void initialize(dictionary* ini);
-	int connect() { return 0; }
-	void disconnect() {}
-	bool isConnected() { return true; }
+	virtual void initialize(dictionary *ini);
+	virtual int connect() { return 0; }
+	virtual void disconnect() {}
+	virtual bool isConnected() { return true; }
 	LPXLOPER getLastError() { return &errorMessage; }
 	LPXLOPER execute(const char* name, bool sendCaller, int count, ...);
 	LPXLOPER execute(const char* name, bool sendCaller, int count, LPXLOPER far opers[]);
