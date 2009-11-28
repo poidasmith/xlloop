@@ -24,6 +24,13 @@ public class XLOper
     public XLRef[] mref;
     public int idSheet;
 
+    public static final XLOper MISSING = new XLOper();
+    public static final XLOper NULL = new XLOper();
+    static {
+        MISSING.type = XLOperType.xltypeMissing;
+        NULL.type = XLOperType.xltypeNil;
+    }
+
     public XLOper() {
     }
 
@@ -45,5 +52,31 @@ public class XLOper
     public XLOper(boolean b) {
         type = XLOperType.xltypeBool;
         bool = b;
+    }
+
+    public String toString() {
+        switch (type) {
+        case XLOperType.xltypeBool:
+            return Boolean.toString(bool);
+        case XLOperType.xltypeErr: // TODO err string
+            return Integer.toString(err);
+        case XLOperType.xltypeInt:
+            return Integer.toString(w);
+        case XLOperType.xltypeMissing:
+            return "#(missing)";
+        case XLOperType.xltypeMulti: {
+        }
+        case XLOperType.xltypeNil:
+            return "#(null)";
+        case XLOperType.xltypeNum:
+            return Double.toString(num);
+        case XLOperType.xltypeRef:
+        case XLOperType.xltypeSRef:
+            return "{" + ref.colFirst + "," + ref.colLast + "," + ref.rwFirst + "," + ref.rwLast + "}";
+        case XLOperType.xltypeStr:
+            return str;
+        }
+
+        return null;
     }
 }

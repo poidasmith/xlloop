@@ -101,6 +101,29 @@ public class Addin
         return JNI.invoke(library, fi.procedure, fi.type.returnType, fi.type.types, args);
     }
 
+    public XLOper invoke(String name, XLOper[] args, boolean normalizeArgs) {
+        FunctionInformation fi = (FunctionInformation) information.get(name);
+        if (fi == null)
+            return null;
+        if (args.length != fi.type.types.length)
+            if (normalizeArgs)
+                args = normalizeArgs(args, fi.type);
+            else
+                return null;
+        return JNI.invoke(library, fi.procedure, fi.type.returnType, fi.type.types, args);
+    }
+
+    public static XLOper[] normalizeArgs(XLOper[] args, FunctionSpec spec) {
+        XLOper[] na = new XLOper[spec.types.length];
+        System.arraycopy(args, 0, na, 0, Math.min(args.length, na.length));
+        if (na.length > args.length) {
+            for (int i = args.length; i < na.length; i++) {
+                na[i] = XLOper.MISSING;
+            }
+        }
+        return na;
+    }
+
     public static XLOper convert(Object arg) {
         if (arg instanceof Boolean) {
             return new XLOper(((Boolean) arg).booleanValue());
