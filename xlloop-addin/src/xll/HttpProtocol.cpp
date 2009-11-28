@@ -14,7 +14,9 @@
 #include "XLUtil.h"
 
 #define FS_URL ":url"
+#define FS_PROXY ":proxy"
 #define USER_AGENT L"XLLoop/Http v0.1.0"
+#define BUFFER_SIZE 8192
 
 #define REQ_TYPE_NAME "request"
 #define REQ_TYPE_VAL "XLLoop"
@@ -47,20 +49,24 @@ void GenerateRequest(yajl_gen g, const char* fn, bool sendCaller, LPXLOPER* argv
 		XLOPER xlRef, xlSheetName;
 		Excel4(xlfCaller, &xlRef, 0);	
 		Excel4(xlSheetNm, &xlSheetName, 1, &xlRef);
-		yajl_gen_string(g, (const unsigned char*) REQ_CALLER_NAME, strlen(REQ_CALLER_NAME));
-		yajl_gen_map_open(g);
-		yajl_gen_string(g, (const unsigned char*) "colFirst", 8);
-		yajl_gen_integer(g, xlRef.val.sref.ref.colFirst);
-		yajl_gen_string(g, (const unsigned char*) "colLast", 7);
-		yajl_gen_integer(g, xlRef.val.sref.ref.colLast);
-		yajl_gen_string(g, (const unsigned char*) "rwFirst", 7);
-		yajl_gen_integer(g, xlRef.val.sref.ref.rwFirst);
-		yajl_gen_string(g, (const unsigned char*) "rwLast", 6);
-		yajl_gen_integer(g, xlRef.val.sref.ref.rwLast);
-		yajl_gen_map_close(g);
-		yajl_gen_string(g, (const unsigned char*) REQ_SHEET_NAME, strlen(REQ_SHEET_NAME));
-		yajl_gen_string(g, (const unsigned char*) &xlSheetName.val.str[1], xlSheetName.val.str[0]);
-		Excel4(xlFree, 0, 1, &xlSheetName);
+		if((xlRef.xltype & ~(xlbitXLFree | xlbitDLLFree)) == xltypeSRef) {
+			yajl_gen_string(g, (const unsigned char*) REQ_CALLER_NAME, strlen(REQ_CALLER_NAME));
+			yajl_gen_map_open(g);
+			yajl_gen_string(g, (const unsigned char*) "colFirst", 8);
+			yajl_gen_integer(g, xlRef.val.sref.ref.colFirst);
+			yajl_gen_string(g, (const unsigned char*) "colLast", 7);
+			yajl_gen_integer(g, xlRef.val.sref.ref.colLast);
+			yajl_gen_string(g, (const unsigned char*) "rwFirst", 7);
+			yajl_gen_integer(g, xlRef.val.sref.ref.rwFirst);
+			yajl_gen_string(g, (const unsigned char*) "rwLast", 6);
+			yajl_gen_integer(g, xlRef.val.sref.ref.rwLast);
+			yajl_gen_map_close(g);
+		}
+		if((xlSheetName.xltype & ~(xlbitXLFree | xlbitDLLFree)) == xltypeStr && xlSheetName.val.str) {
+			yajl_gen_string(g, (const unsigned char*) REQ_SHEET_NAME, strlen(REQ_SHEET_NAME));
+			yajl_gen_string(g, (const unsigned char*) &xlSheetName.val.str[1], xlSheetName.val.str[0]);
+			Excel4(xlFree, 0, 1, &xlSheetName);
+		}
 	}
 	yajl_gen_string(g, (const unsigned char*) REQ_NAME_NAME, strlen(REQ_NAME_NAME));
 	yajl_gen_string(g, (const unsigned char*) fn, strlen(fn));
@@ -84,6 +90,10 @@ HttpProtocol::~HttpProtocol()
 void HttpProtocol::initialize(dictionary* ini)
 {
 	char* url = iniparser_getstr(ini, FS_URL);
+	if(!url) {
+		Log::Error("Missing URL for HTTP protocol");
+		return;
+	}
 	Log::Info("Setup session for: %s", url);
 	int usz = MultiByteToWideChar(CP_ACP, 0, url, strlen(url), 0, 0);
 	this->url = (wchar_t*) malloc((usz + 1) * sizeof(wchar_t));
@@ -104,18 +114,30 @@ void HttpProtocol::initialize(dictionary* ini)
 	this->path = (wchar_t*) malloc((urlc.dwUrlPathLength + 1) * sizeof(wchar_t));
 	memcpy(this->path, urlc.lpszUrlPath, urlc.dwUrlPathLength*sizeof(wchar_t));
 	this->path[urlc.dwUrlPathLength] = 0;
-	WINHTTP_CURRENT_USER_IE_PROXY_CONFIG proxy;
-	WinHttpGetIEProxyConfigForCurrentUser(&proxy);
-	int proxyType = WINHTTP_ACCESS_TYPE_NO_PROXY;
-	if(proxy.lpszProxy) {
-		proxyType = WINHTTP_ACCESS_TYPE_NAMED_PROXY;
-		Log::Info("Using proxy: %s", proxy.lpszProxy);
-	}
-	hSession = WinHttpOpen(USER_AGENT, proxyType,
-		proxy.lpszProxy, proxy.lpszProxyBypass, 0);
-}
 
-#define BUFFER_SIZE 8192
+	// Determine proxy
+	char* proxy = iniparser_getstr(ini, FS_PROXY);
+	if(proxy) {
+		Log::Info("Using proxy: %s", proxy);
+		int psz = MultiByteToWideChar(CP_ACP, 0, url, strlen(url), 0, 0);
+		wchar_t* wproxy = (wchar_t*) malloc((psz + 1) * sizeof(wchar_t));
+		MultiByteToWideChar(CP_ACP, 0, proxy, strlen(proxy), wproxy, psz);
+		wproxy[psz] = 0;
+		hSession = WinHttpOpen(USER_AGENT, WINHTTP_ACCESS_TYPE_NO_PROXY,
+			wproxy, 0, 0);
+		free(wproxy);
+	} else {
+		WINHTTP_CURRENT_USER_IE_PROXY_CONFIG proxy;
+		WinHttpGetIEProxyConfigForCurrentUser(&proxy);
+		int proxyType = WINHTTP_ACCESS_TYPE_NO_PROXY;
+		if(proxy.lpszProxy) {
+			proxyType = WINHTTP_ACCESS_TYPE_NAMED_PROXY;
+			Log::Info("Using proxy: %s", proxy.lpszProxy);
+		}
+		hSession = WinHttpOpen(USER_AGENT, proxyType,
+			proxy.lpszProxy, proxy.lpszProxyBypass, 0);
+	}
+}
 
 LPXLOPER HttpProtocol::execute(const char* name, bool sendCaller, int count, ...)
 {
@@ -224,7 +246,7 @@ LPXLOPER HttpProtocol::Execute(const char* name, bool sendCaller, LPXLOPER* args
 	WinHttpCloseHandle(context.hConnect);
     yajl_gen_clear(context.g);
 	yajl_gen_free(context.g);
-	context.px->xltype | xlbitDLLFree;
+	context.px->xltype |= xlbitDLLFree;
 	return context.px;
 }
 

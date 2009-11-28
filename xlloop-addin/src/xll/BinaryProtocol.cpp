@@ -16,11 +16,6 @@
 #define MAX_SERVERS 20
 #define FS_SERVER_LIST ":server"
 
-extern "C" int __cdecl _purecall()
-{
-	return 0;
-}
-
 void BinaryProtocol::initialize(dictionary* ini)
 {
 	errorMessage.xltype = xltypeStr;
