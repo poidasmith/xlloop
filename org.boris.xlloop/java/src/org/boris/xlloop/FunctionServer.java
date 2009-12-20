@@ -103,9 +103,15 @@ public class FunctionServer
                 if (version == 20) {
                     XLBool b = (XLBool) protocol.receive(socket);
                     if (b.bool) {
-                        XLSRef caller = (XLSRef) protocol.receive(socket);
-                        XLString sheetName = (XLString) protocol.receive(socket);
-                        context = new FunctionContext(caller, sheetName.str);
+                        XLoper caller = protocol.receive(socket);
+                        XLoper sheetName = protocol.receive(socket);
+                        XLSRef cref = null;
+                        if (caller instanceof XLSRef)
+                            cref = (XLSRef) caller;
+                        String namestr = null;
+                        if (sheetName instanceof XLString)
+                            namestr = ((XLString) sheetName).str;
+                        context = new FunctionContext(handler, cref, namestr);
                     }
                 } else {
                     protocol.send(socket, new XLString("#Unknown protocol version"));
@@ -181,8 +187,10 @@ public class FunctionServer
     {
         private XLSRef caller;
         private String sheetName;
+        private IFunctionHandler handler;
 
-        public FunctionContext(XLSRef caller, String sheetName) {
+        public FunctionContext(IFunctionHandler handler, XLSRef caller, String sheetName) {
+            this.handler = handler;
             this.caller = caller;
             this.sheetName = sheetName;
         }
@@ -193,6 +201,10 @@ public class FunctionServer
 
         public String getSheetName() {
             return sheetName;
+        }
+
+        public XLoper execute(String name, XLoper[] args) throws RequestException {
+            return handler.execute(this, name, args);
         }
     }
 }

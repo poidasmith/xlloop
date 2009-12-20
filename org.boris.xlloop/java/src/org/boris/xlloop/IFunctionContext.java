@@ -10,10 +10,13 @@
 package org.boris.xlloop;
 
 import org.boris.xlloop.xloper.XLSRef;
+import org.boris.xlloop.xloper.XLoper;
 
 public interface IFunctionContext
 {
     XLSRef getCaller();
 
     String getSheetName();
+
+    XLoper execute(String name, XLoper[] args) throws RequestException;
 }
