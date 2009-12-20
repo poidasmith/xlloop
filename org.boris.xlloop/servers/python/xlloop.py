@@ -9,6 +9,7 @@ XL_TYPE_MULTI = 5
 XL_TYPE_MISSING = 6
 XL_TYPE_NIL = 7
 XL_TYPE_INT = 8
+XL_TYPE_SREF = 9
 
 # Defines XLError types
 XL_ERROR_NULL = 0
@@ -22,6 +23,13 @@ XL_ERROR_NA = 42
 class XLError:
     def __init__(self, err):
         self.err = err
+        
+class XLSRef:
+    def __init__(self, col_first, col_last, rw_first, rw_last):
+        self.col_first = col_first
+        self.col_last = col_last
+        self.rw_first = rw_first
+        self.rw_last = rw_last
     
 class XLCodec:    
     def decode(socket):
@@ -60,6 +68,8 @@ class XLCodec:
             return None
         elif type == XL_TYPE_INT:
             return XLCodec.decodeInt(socket)
+        elif type == XL_TYPE_SREF:
+            return XLSRef(XLCodec.decodeInt(socket), XLCodec.decodeInt(socket), XLCodec.decodeInt(socket), XLCodec.decodeInt(socket))
         else:
             raise TypeError("Invalid XLoper type encountered")
     decode = staticmethod(decode)
@@ -82,6 +92,12 @@ class XLCodec:
         elif isinstance(value, XLError):
             socket.send(struct.pack('B', XL_TYPE_ERR))
             socket.send(struct.pack('>i', value.err))
+        elif isinstance(value, XLSRef):
+            socket.send(struct.pack('B', XL_TYPE_SREF))
+            socket.send(struct.pack('>i', value.col_first))
+            socket.send(struct.pack('>i', value.col_last))
+            socket.send(struct.pack('>i', value.rw_first))
+            socket.send(struct.pack('>i', value.rw_last))
         elif isinstance(value, types.IntType):
             socket.send(struct.pack('B', XL_TYPE_NUM))
             socket.send(struct.pack('>d', float(value)))
@@ -129,17 +145,34 @@ class XLCodec:
         else:
             XLCodec.encode(str(value), socket)   
     encode = staticmethod(encode)
+    
+class FunctionContext:
+    def __init__(self, caller, sheet_name):
+        self.caller = caller
+        self.sheet_name = sheet_name
 
 class XLLoopHandler(SocketServer.BaseRequestHandler):
     def handle(self):
         while 1:
             try:
+                context = None
                 name = XLCodec.decode(self.request)
+                if isinstance(name, types.IntType):
+                    version = name
+                    if version == 20:
+                        extra_info = XLCodec.decode(self.request)
+                        if extra_info:
+                            caller = XLCodec.decode(self.request)
+                            sheet_name = XLCodec.decode(self.request)
+                            context = FunctionContext(caller, sheet_name)
+                    else:
+                        raise TypeError("Unknown protocol version")
+                    name = XLCodec.decode(self.request)
                 argc = XLCodec.decode(self.request)
                 args = []
                 for i in xrange(0, argc):
                     args.append(XLCodec.decode(self.request))
-                res = self.server.handler.invoke(name, args)
+                res = self.server.handler.invoke(context, name, args)
                 XLCodec.encode(res, self.request)
             except:
                 traceback.print_exc()

@@ -2,7 +2,7 @@ from xlloop import *
 import string, random
 
 class TestHandler:
-    def invoke(self, name, args):
+    def invoke(self, context, name, args):
         if name == 'ArgsTest':
             return args
         elif name == 'RandTest':
