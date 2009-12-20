@@ -6,7 +6,7 @@ class TestHandler
 		@functionInfo = createFunctionInfo
 	end
 	
-	def invoke(name, args)
+	def invoke(context, name, args)
 	  puts "Invoking #{name}"
 		case name
 		when "RandTest" then # Test encoding of different types and different lengths
