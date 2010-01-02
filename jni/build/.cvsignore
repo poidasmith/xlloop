@@ -1,6 +1,3 @@
-JXLL-Debug
-JXLL-Release
-TestXLL-Debug
-TestXLL-Release
-XLLstub-Debug
-XLLstub-Release
+*-Debug
+*-Release
+*.user
