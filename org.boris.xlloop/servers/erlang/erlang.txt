@@ -1,0 +1,6 @@
+info on how to run/test the server
+
+- Fire up Erlang emulator
+
+11> cd ("F:/eclipse/workspace/org.boris.xlloop/servers/erlang").
+
