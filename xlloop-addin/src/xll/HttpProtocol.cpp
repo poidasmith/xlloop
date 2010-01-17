@@ -72,6 +72,15 @@ void GenerateRequest(yajl_gen g, const char* fn, bool sendCaller, LPXLOPER* argv
 	yajl_gen_string(g, (const unsigned char*) fn, strlen(fn));
 	yajl_gen_string(g, (const unsigned char*) REQ_ARGS_NAME, strlen(REQ_ARGS_NAME));
 	yajl_gen_array_open(g);
+
+	// Find last non-missing value
+	while(argc>0) {
+		if((argv[argc-1]->xltype & ~(xlbitXLFree | xlbitDLLFree)) == xltypeMissing)
+			argc--;
+		else
+			break;
+	}
+
 	for(int i = 0; i < argc; i++) {
 		JSONCodec::Encode(g, argv[i]);
 	}
