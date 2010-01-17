@@ -51,16 +51,7 @@ void GenerateRequest(yajl_gen g, const char* fn, bool sendCaller, LPXLOPER* argv
 		Excel4(xlSheetNm, &xlSheetName, 1, &xlRef);
 		if((xlRef.xltype & ~(xlbitXLFree | xlbitDLLFree)) == xltypeSRef) {
 			yajl_gen_string(g, (const unsigned char*) REQ_CALLER_NAME, strlen(REQ_CALLER_NAME));
-			yajl_gen_map_open(g);
-			yajl_gen_string(g, (const unsigned char*) "colFirst", 8);
-			yajl_gen_integer(g, xlRef.val.sref.ref.colFirst);
-			yajl_gen_string(g, (const unsigned char*) "colLast", 7);
-			yajl_gen_integer(g, xlRef.val.sref.ref.colLast);
-			yajl_gen_string(g, (const unsigned char*) "rwFirst", 7);
-			yajl_gen_integer(g, xlRef.val.sref.ref.rwFirst);
-			yajl_gen_string(g, (const unsigned char*) "rwLast", 6);
-			yajl_gen_integer(g, xlRef.val.sref.ref.rwLast);
-			yajl_gen_map_close(g);
+			JSONCodec::Encode(g, &xlRef);
 		}
 		if((xlSheetName.xltype & ~(xlbitXLFree | xlbitDLLFree)) == xltypeStr && xlSheetName.val.str) {
 			yajl_gen_string(g, (const unsigned char*) REQ_SHEET_NAME, strlen(REQ_SHEET_NAME));

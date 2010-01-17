@@ -242,6 +242,10 @@ static char* strStr = "str";
 static char* rowsStr = "rows";
 static char* colsStr = "cols";
 static char* arrayStr = "array";
+static char* colFirstStr = "colFirst";
+static char* colLastStr = "colLast";
+static char* rowFirstStr = "rowFirst";
+static char* rowLastStr = "rowLast";
 
 void JSONCodec::Encode(yajl_gen g, LPXLOPER x)
 {
@@ -296,6 +300,16 @@ void JSONCodec::Encode(yajl_gen g, LPXLOPER x)
 			yajl_gen_string(g, (const unsigned char*) strStr, strlen(strStr));
 			yajl_gen_string(g, (const unsigned char*) &(x->val.str[1]), x->val.str[0]&0xff);
 			break;
+		case xltypeSRef:
+			yajl_gen_integer(g, XL_CODEC_TYPE_SREF);
+			yajl_gen_string(g, (const unsigned char*) colFirstStr, strlen(colFirstStr));
+			yajl_gen_integer(g, x->val.sref.ref.colFirst);
+			yajl_gen_string(g, (const unsigned char*) colLastStr, strlen(colLastStr));
+			yajl_gen_integer(g, x->val.sref.ref.colLast);
+			yajl_gen_string(g, (const unsigned char*) rowFirstStr, strlen(rowFirstStr));
+			yajl_gen_integer(g, x->val.sref.ref.rwFirst);
+			yajl_gen_string(g, (const unsigned char*) rowLastStr, strlen(rowLastStr));
+			yajl_gen_integer(g, x->val.sref.ref.rwLast);
 	}
 	yajl_gen_map_close(g);
 }
