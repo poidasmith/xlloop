@@ -177,5 +177,14 @@ or XLLoop(...)
 XLLoopV(..)
 
 
+Function Documentation
+======================
+
+allow functions to be specified in the INI file (with docs) eg
+
+function.1=MyFunc,"Test a function",arg1,arg2,etc...
+function.2=etc...
+
+
 
 
