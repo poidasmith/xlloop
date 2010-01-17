@@ -47,7 +47,8 @@
             	<li><a href="lisphandler.html">Lisp Function Handler</a> for evaluating Lisp expressions on the fly.</li>
             	<li>Functions can be registered as excel functions (with help information).</li>
             	<li>Functions can be dynamically added to excel without restart.</li>
-            	<li>Fast binary protocol.</li>
+            	<li>Fast binary protocol with multiple-server fail-over/scaleability.</li>
+            	<li>JSON over HTTP(S) protocol</li>
             	</ul> 
             	XLLoop consists of two main components:
             	<ul>
@@ -105,8 +106,6 @@ import org.boris.xlloop.reflect.*;
 
 public class ServerExample
 {
-    private static final boolean LOAD_BALANCE = false;
-
     public static void main(String[] args) throws Exception {
         // Create function server on the default port
         FunctionServer fs = new FunctionServer();
@@ -122,16 +121,10 @@ public class ServerExample
         FunctionInformationFunctionHandler firh = new FunctionInformationFunctionHandler();
         firh.add(rfh.getFunctions());
 
-        // Create a function handler to demonstrate the "load balancing"
-        // capability
-        GetLoadServerFunctionHandler glsfh = new GetLoadServerFunctionHandler();
-
         // Set the handlers
         CompositeFunctionHandler cfh = new CompositeFunctionHandler();
         cfh.add(rfh);
         cfh.add(firh);
-        if (LOAD_BALANCE)
-            cfh.add(glsfh);
         fs.setFunctionHandler(new DebugFunctionHandler(cfh));
 
         // Run the engine
@@ -155,16 +148,19 @@ public class ServerExample
 				<table>
 					<tr><th>Key</th><th>Description</th></tr>
 					<tr>
-						<td>hostname</td>
-						<td>This is the hostname of the server that the addin will connect to (default is localhost)</td>
+						<td>protocol</td>
+						<td>Specifies the protocol to use ("binary" or "http"). Defaults to binary.</td>
 					</tr>
 					<tr>
-						<td>port</td>
-						<td>This is the port that the addin will connect to (default is 5454).</td>
+						<td>server</td>
+						<td>When in binary mode, this is a list of servers to connect to (eg. "<code>server=localhost:5454,localhost:5455</code>")</td>
 					</tr>
+					<tr>
+						<td>url</td>
+						<td>The URL to connect to when in "http" mode (eg. "<code>url=http://localhost:8080/functionserver</code>")</td>
 					<tr>
 						<td>addin.name</td>
-						<td>This is the name that will appear in the Excel addin manager window (default is "XLLoop " + version).</td>
+						<td>This is the name that will appear in the Excel addin manager window (default is addin filename without extension).</td>
 					</tr>
 					<tr>
 						<td>function.name</td>
@@ -183,8 +179,16 @@ public class ServerExample
 						<td>Set this to "true" to switch off dynamic excel function registration.</td>
 					</tr>
 					<tr>
-						<td>load.server.request</td>
-						<td>Set this to "true" to enable this feature in the addin.</td>
+						<td>send.user.info</td>
+						<td>Set this to "true" to send username/hostname to server when session initializes (default is false).</td>
+					</tr>
+					<tr>
+						<td>user.key</td>
+						<td>A string that is sent as the third argument to the initialize function on session startup.</td>
+					</tr>
+					<tr>
+						<td>send.caller.info</td>
+						<td>Set this to "true" to send sheet/cell information to each function (default is false).</td>
 					</tr>
 					<tr>
 						<td>disable.calc.popup</td>
@@ -286,17 +290,60 @@ args[0] * args[1];
 </pre>
 			</div>
 		</div>
-
+		
 		<div class="section">
-			<div class="section-title">Useful Code</div>
+			<div class="section-title">Multiple Server Support</div>
 			<div class="section-content">
-				A C++ std::iostream implementation for windows socket can be found <a href="tcpstream.html">here</a>.
+				The binary protocol supports connecting to multiple servers to improve reliability and
+				scaleability. 
+				
+				<br/><br/>
+				The approach is simple; it connects to a random server, if this fails to reports
+				an error to the user. If the user attempts to connect again (ie. by invoking another function) the
+				addin will choose a random server to connect to.
+				
+				The INI file key "server" takes a comma separated list of hostname:port.
 			</div>
 		</div>
 		
 		<div class="section">
+			<div class="section-title">JSON over HTTP Protocol</div>
+			<div class="section-content">
+				The addin supports a JSON over HTTP protocol. Each function invocation is a separate HTTP request.
+				The input data is sent via a POST method. The result is a single xloper object encoded in JSON.
+				
+				<br/><br/>
+				The JSON input request looks like:
+				<pre>
+{
+    "args": [],
+    "name": "Math.random",
+    "request": "XLLoop",
+    "version": "0.1.0"
+}</pre>
+				The result JSON looks like:
+				<pre>
+{
+    "num": 0.8091614905358369,
+    "type": 1
+}</pre>
+			</div>
+		</div>
+	
+		<div class="section">
 			<div class="section-title">Change History</div>
 			<div class="section-content">
+				V0.3.0
+				<ul>
+				<li>Added JSON over HTTP(S) protocol support</li>
+				<li>Added support for multiple servers in binary protocol mode</li>
+				<li>Functions can now support up to 30 arguments (and variable length)</li>
+				<li>Added ability to send caller information (sending sheet and cell)</li>
+				<li>Improvements in reliability of binary protocol</li>
+				<li>Addin name now defaults to the filename (minus .xll)</li>
+				<li>Added an Initialize call when addin first connects. This can send user information
+				    (for initializing a user session)</li>
+				</ul>
 				V0.2.2
 				<ul>
 				<li>Fixed build issue with 0.2.1 release</li>
