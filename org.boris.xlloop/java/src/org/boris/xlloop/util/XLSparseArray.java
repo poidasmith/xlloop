@@ -10,6 +10,7 @@
 package org.boris.xlloop.util;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.boris.xlloop.xloper.XLArray;
@@ -26,7 +27,7 @@ public class XLSparseArray
     private int minCol = Integer.MAX_VALUE;
     private int maxRow = 0;
     private int maxCol = 0;
-    private Map<ArrayRef, XLoper> values = new HashMap();
+    private Map values = new HashMap();
 
     public void set(int row, int column, String value) {
         set(row, column, new XLString(value));
@@ -60,8 +61,9 @@ public class XLSparseArray
 
     public XLoper toXLoper() {
         XLArray a = new XLArray(maxRow - minRow + 1, maxCol - minCol + 1);
-        for (ArrayRef r : values.keySet()) {
-            a.set(r.row - minRow, r.column - minCol, values.get(r));
+        for (Iterator i = values.keySet().iterator(); i.hasNext();) {
+            ArrayRef r = (ArrayRef) i.next();
+            a.set(r.row - minRow, r.column - minCol, (XLoper) values.get(r));
         }
         return a;
     }
