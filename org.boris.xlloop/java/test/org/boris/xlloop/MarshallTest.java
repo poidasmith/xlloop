@@ -48,10 +48,10 @@ public class MarshallTest extends TestCase
 
     public void testPrimitiveDouble2D() throws Exception {
         double[][] d2 = (double[][]) xlo.createFrom(a, double[][].class);
-        assertEquals(d2[0][0], 0.);
-        assertEquals(d2[0][1], 1.);
-        assertEquals(d2[1][0], 3.2);
-        assertEquals(d2[1][1], 45.);
+        assertEquals(d2[0][0], 0., 0);
+        assertEquals(d2[0][1], 1., 0);
+        assertEquals(d2[1][0], 3.2, 0);
+        assertEquals(d2[1][1], 45., 0);
     }
 
     public void testInteger2D() throws Exception {
@@ -82,10 +82,10 @@ public class MarshallTest extends TestCase
     public void testPrimitiveDoubleVector() throws Exception {
         double[] d = (double[]) xlo.createFrom(a, double[].class);
         assertEquals(d.length, 4);
-        assertEquals(d[0], 0.);
-        assertEquals(d[1], 1.);
-        assertEquals(d[2], 3.2);
-        assertEquals(d[3], 45.);
+        assertEquals(d[0], 0., 0);
+        assertEquals(d[1], 1., 0);
+        assertEquals(d[2], 3.2, 0);
+        assertEquals(d[3], 45., 0);
     }
 
     public void testDoubleVector() throws Exception {
