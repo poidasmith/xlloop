@@ -32,22 +32,33 @@
 
 decodeDouble <- function(con) readBin(con, 1, 1L, 8L, endian="big")
 decodeStr <- function(con) { 
-	len <- readBin(con, 1L, 1L, 1L)
+	len = readBin(con, 1L, 1L, 1L)
 	if (len) readChar(con, len, TRUE) else "" 
 }
 decodeBool <- function(con) readBin(con, 1L, 1L, 1L)
-decodeErr <- function(con) decodeInt(con)
+decodeErr <- function(con) {
+	err = decodeInt(con)
+	class(err) <- "xloper.error"
+}
 decodeMulti <- function(con) {
-  rows <- decodeInt(con)
-  cols <- decodeInt(con)
+  rows = decodeInt(con)
+  cols = decodeInt(con)
   len = rows * cols
   if (len == 0) return(list())
   lapply(1:len, function(x) decodeXloper(con))
 }
 decodeInt <- function(con) readBin(con, 1L, 1L, 4L, endian="big")
+decodeSRef <- function(con) {
+	colFirst = decodeInt(con)
+	colLast = decodeInt(con)
+	rowFirst = decodeInt(con)
+	rowLast = decodeInt(con)
+	sref = list(colFirst=colFirst, colLast=colLast, rowFirst=rowFirst, rowLast=rowLast)
+	class(sref) <- "xloper.sref" 
+}
 decodeXloper <- function(con) {
   t <- readBin(con, 1L, 1L, 1L)
-  if (t < 1L || t > 8L) stop("protocol error, unknown data type ", t)
+  if (t < 1L || t > 9L) stop("protocol error, unknown data type ", t)
   if (t == 1L) return(decodeDouble(con))
   if (t == 2L) return(decodeStr(con))
   if (t == 3L) return(decodeBool(con))
@@ -56,11 +67,12 @@ decodeXloper <- function(con) {
   if (t == 6L) return(NULL)
   if (t == 7L) return(NULL)
   if (t == 8L) return(decodeInt(con))
+  if (t == 9L) return(decodeSRef(con))
 }
 
 encodeInt <- function(value, con) return(writeBin(value, con, 4L, endian="big"))
 encodeXloper <- function(value, con) {
-	if(length(value) == 0) return(writeBin(7L, con, 1L))
+	if (length(value) == 0) return(writeBin(7L, con, 1L))
 	if (length(value) == 1L) {
 		if (is.integer(value)) { writeBin(8L, con, 1L); return(writeBin(c(0L, value), con, endian="big")) }
 		if (is.numeric(value)) { writeBin(1L, con, 1L); return(writeBin(as.double(value), con, endian="big")) }
@@ -79,7 +91,7 @@ encodeXloper <- function(value, con) {
 	return(length(value))
 }
 
-XLLoopHandler <- function(name, argv) {
+XLLoopHandler <- function(context, name, argv) {
     fn <- if (exists(name)) get(name) else try(eval(parse(text=name)), silent=TRUE)
 	if (is.function(fn)) {
 		return(try(do.call(fn, argv), silent=TRUE))
@@ -88,12 +100,7 @@ XLLoopHandler <- function(name, argv) {
 	}
 }
 
-XLLoopServer <- function(host="localhost", port=5454L, verbose=FALSE) {
-  con <- socketConnection(host, port, TRUE, open="a+b", encoding="latin1")
-  on.exit(close(con))
-  active <- TRUE
-  while (active) {
-	name = decodeXloper(con)
+XLLoopHandlerInvoker <- function(con, context, name) {
 	argc = decodeXloper(con)
 	argv = list()
 	if(argc > 0) {
@@ -104,8 +111,40 @@ XLLoopServer <- function(host="localhost", port=5454L, verbose=FALSE) {
 		# chomp trailing nulls
 		while (length(argv) && is.null(argv[[length(argv)]])) argv[[length(argv)]] <- NULL
 	}
-	result = XLLoopHandler(name, argv)
+	cat("name "); str(name)
+	result = XLLoopHandler(context, name, argv)
 	encodeXloper(result, con)
+}
+
+XLLoopServer <- function(host="localhost", port=5454L, verbose=FALSE) {
+  con <- socketConnection(host, port, TRUE, open="a+b", encoding="latin1")
+  on.exit(close(con))
+  active <- TRUE
+  while (active) {
+	name = decodeXloper(con)
+	if(verbose) {
+		cat("function name ")
+		str(name)
+	}
+	if(is.numeric(name)) {
+		hasContext = decodeXloper(con)
+		if(verbose) {
+			cat("has context ")
+			str(hasContext)
+		}
+		if(hasContext == 1) {
+			caller = decodeXloper(con)
+			sheetName = decodeXloper(con)
+			context = list(caller=caller, sheetName=sheetName)
+			funName = decodeXloper(con)
+			XLLoopHandlerInvoker(con, context, funName)
+		} else {
+			funName = decodeXloper(con)
+			XLLoopHandlerInvoker(con, NULL, funName)
+		}
+	} else {
+		XLLoopHandlerInvoker(con, NULL, name)
+	}
   }
 }
 
