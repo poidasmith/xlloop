@@ -1,5 +1,5 @@
 -module(server_example).
--export([start/0, stop/0, function/2]).
+-export([start/0, stop/0, function/3]).
 -behaviour(xlloop_server).
 -define(PORT, 5454).
 
@@ -10,6 +10,6 @@ start() ->
 stop() ->
 	server_example_pid ! stop.
 
-function(_Name, _Args) ->
+function(_Context, _Name, _Args) ->
 	{str, "Hello World!"}.
 		

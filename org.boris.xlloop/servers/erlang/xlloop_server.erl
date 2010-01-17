@@ -8,7 +8,7 @@ start(Port, Module) when is_integer(Port) ->
 	spawn(fun() -> listen(Port, Module) end). 
 	
 behaviour_info(callbacks) ->
-	[{function, 2}].
+	[{function, 3}].
 	
 listen(Port, Module) ->
 	{ok, Socket} = gen_tcp:listen(Port, ?TCP_OPTIONS),
@@ -38,9 +38,28 @@ handle(Socket, Module) ->
 	
 data(Socket, Data, Module) ->
 	{Name, R1} = xloper_codec:decode(Data),
-	{Argc, R2} = xloper_codec:decode(R1),
-	Args = decode_args(Argc, [], R2),
-    XLoper = Module:function(Name, Args),
+	data(Socket, R1, Module, Name).
+
+data(Socket, Data, Module, NameOrVersion) when is_integer(NameOrVersion) ->
+	{HasContext, R1} = xloper_codec:decode(Data),
+	case HasContext of
+		true -> 
+			{Caller, R2} = xloper_codec:decode(R1),
+			{SheetName, R3} = xloper_codec:decode(R2),
+			Context = {context, Caller, SheetName},
+			{FunName, R4} = xloper_codec:decode(R3),
+			data(Socket, R4, Module, Context, FunName);
+		false ->
+			{FunName, R2} = xloper_codec:decode(R1),
+			data(Socket, R2, Module, null, FunName)
+	end;
+data(Socket, Data, Module, NameOrVersion) ->
+	data(Socket, Data, Module, null, NameOrVersion).
+
+data(Socket, Data, Module, Context, Name) ->
+	{Argc, Rest} = xloper_codec:decode(Data),
+	Args = decode_args(Argc, [], Rest),
+    XLoper = Module:function(Context, Name, Args),
     gen_tcp:send(Socket, xloper_codec:encode(XLoper)).
 
 decode_args(Argc, Argv, _Data) when Argc == 0 -> Argv;

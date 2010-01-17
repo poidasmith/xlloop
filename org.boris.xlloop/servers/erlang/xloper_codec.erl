@@ -9,6 +9,7 @@
 -define(MISSING, 6).
 -define(NIL, 7).
 -define(INT, 8).
+-define(SREF, 9).
 
 decode_file(File) ->
 	{ok, Bin} = file:read_file(File),
@@ -26,7 +27,8 @@ decode(Bin) when is_list(Bin) ->
 		?MULTI -> decode_multi(Rest);
 		?MISSING -> decode_missing(Rest);
 		?NIL -> decode_missing(Rest);
-		?INT -> decode_int(Rest)
+		?INT -> decode_int(Rest);
+		?SREF -> decode_sref(Rest)
 	end.
 	
 decode_num(Bin) ->
@@ -56,6 +58,13 @@ decode_int(Bin) ->
 	{U, Rest} = lists:split(4, Bin),
 	<<Value:32>> = list_to_binary(U),
 	{Value, Rest}.
+	
+decode_sref(Bin) ->
+	{ColFirst, Rest1} = decode_int(Bin),
+	{ColLast, Rest2} = decode_int(Rest1),
+	{RowFirst, Rest3} = decode_int(Rest2),
+	{RowLast, Rest4} = decode_int(Rest3),
+	{{sref, [ColFirst,ColLast,RowFirst,RowLast]}, Rest4}.
 
 decode_multi(Bin, Rows, _Cols, Acc) when Rows == 0 -> {Acc, Bin};
 decode_multi(Bin, Rows, Cols, Acc) ->
