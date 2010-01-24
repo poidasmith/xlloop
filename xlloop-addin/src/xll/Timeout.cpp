@@ -67,15 +67,16 @@ DWORD WINAPI Timeout::ShowInternal(LPVOID)
 	DWORD x = r.left + (r.right - r.left)/2 - g_Width/2;
 	DWORD y = r.top + (r.bottom - r.top)/2 - g_Height/2;
 	g_hWnd = CreateWindowEx(
-		WS_EX_TOOLWINDOW | WS_EX_TOPMOST | WS_EX_NOPARENTNOTIFY, 
+		WS_EX_TOOLWINDOW, 
 		XLLOOP_WND_CLASS, 
 		XLLOOP_WND_NAME, 
-		WS_CHILD | WS_POPUP | WS_VISIBLE, 
+		WS_POPUP | WS_VISIBLE, 
 		x, y,
 		g_Width, g_Height, NULL, NULL, NULL, NULL);
 
 	ShowWindow(g_hWnd, SW_SHOW);
 	UpdateWindow(g_hWnd);
+	EnableWindow(g_Parent, true);
 
 	// Message pump
 	MSG msg;
@@ -163,19 +164,29 @@ void Timeout::Show(const char* function)
 	// Find the active cell
 	Excel4(xlfCaller, &x, 0);
 
+	// Get the sheet name
+	XLOPER xlSheetName;
+	Excel4(xlSheetNm, &xlSheetName, 1, &x);
+	char sheetName[MAX_PATH];
+	memcpy(sheetName, &xlSheetName.val.str[1], xlSheetName.val.str[0]);
+	sheetName[xlSheetName.val.str[0]] = 0;
+
 	// Now format the message 
 	if(x.val.sref.ref.rwLast > x.val.sref.ref.rwFirst || x.val.sref.ref.colLast > x.val.sref.ref.colFirst) {
 		char c1[5], c2[5];
 		ToColumnName(x.val.sref.ref.colFirst, c1);
 		ToColumnName(x.val.sref.ref.colLast, c2);
-		sprintf(g_Message, "Calculating %s%d:%s%d: %s()", c1, 
+		sprintf(g_Message, "Calculating %s %s%d:%s%d: %s()", sheetName, c1, 
 			x.val.sref.ref.rwFirst + 1, c2, x.val.sref.ref.rwLast + 1, function);
 	} else {
 		char c1[5];
 		ToColumnName(x.val.sref.ref.colFirst, c1);
-		sprintf(g_Message, "Calculating %s%d: %s()", c1, 
+		sprintf(g_Message, "Calculating %s %s%d: %s()", sheetName, c1, 
 			x.val.sref.ref.rwFirst + 1, function);
 	}
+
+	// Free sheetname
+	Excel4(xlFree, 0, 1, &xlSheetName);
 
 	g_CurrentImage = 0;
 	g_Shutdown = false;

@@ -65,11 +65,11 @@ public class CompTest1 implements IFunctionHandler
             return l.toXLoper();
 
         } else if (name.equals("LongRunner")) {
-            try {
-                Thread.sleep(8000);
-            } catch (InterruptedException e) {
-            }
+            pause(8000);
             return new XLString("Finally...");
+        } else if (name.equals("Pause")) {
+            pause((long) ((XLNum) args[0]).num);
+            return args[0];
         }
         return new XLString("#Unknown Function");
     }
@@ -122,5 +122,12 @@ public class CompTest1 implements IFunctionHandler
     private static String makeRandomString() {
         int len = (int) (Math.random() * 260);
         return makeRandomString(len);
+    }
+
+    public static void pause(long ms) {
+        try {
+            Thread.sleep(ms);
+        } catch (InterruptedException e) {
+        }
     }
 }
