@@ -38,6 +38,7 @@ static XLOPER g_errorMessage;
 #define FS_PROTOCOL ":protocol"
 #define FS_URL ":url"
 #define FS_ADDIN_NAME ":addin.name"
+#define FS_INCLUDE_GENERIC ":include.generic"
 #define FS_FUNCTION_NAME ":function.name"
 #define FS_INCLUDE_VOLATILE ":include.volatile"
 #define FS_FUNCTION_NAME_VOLATILE ":function.name.volatile"
@@ -210,22 +211,25 @@ __declspec(dllexport) int WINAPI xlAutoOpen(void)
 	static XLOPER xDLL;
 	Excel4(xlGetName, &xDLL, 0);
 
-	// Register execute function
-	char* fsName = iniparser_getstr(g_ini, FS_FUNCTION_NAME);
-	if(fsName == NULL) {
-		fsName = "FS";
+	// Register execute function (if requested)
+	bool inclGeneric = iniparser_getboolean(g_ini, FS_INCLUDE_GENERIC, true);
+	if(inclGeneric) {
+		char* fsName = iniparser_getstr(g_ini, FS_FUNCTION_NAME);
+		if(fsName == NULL) {
+			fsName = "FS";
+		}
+		XLUtil::RegisterFunction(&xDLL, "FSExecute", "RCPPPPPPPPPPPPPPPPPPPP", fsName, 
+			NULL, "1", "General", NULL, NULL, NULL, NULL);
 	}
-	int res = XLUtil::RegisterFunction(&xDLL, "FSExecute", "RCPPPPPPPPPPPPPPPPPPPP", fsName, 
-		NULL, "1", "General", NULL, NULL, NULL, NULL);
 
-	// Register execute function (volatile version (if requested))
+	// Register execute function - volatile version (if requested)
 	bool inclVol = iniparser_getboolean(g_ini, FS_INCLUDE_VOLATILE, true);
 	if(inclVol) {
 		char* fsvName = iniparser_getstr(g_ini, FS_FUNCTION_NAME_VOLATILE);
 		if(fsvName == NULL) {
 			fsvName = "FSV";
 		}
-		res = XLUtil::RegisterFunction(&xDLL, "FSExecuteVolatile", "RCPPPPPPPPPPPPPPPPPPPP!", fsvName, 
+		XLUtil::RegisterFunction(&xDLL, "FSExecuteVolatile", "RCPPPPPPPPPPPPPPPPPPPP!", fsvName, 
 			NULL, "1", "General", NULL, NULL, NULL, NULL);
 	}
 

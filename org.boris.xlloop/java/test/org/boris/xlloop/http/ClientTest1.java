@@ -11,6 +11,7 @@ package org.boris.xlloop.http;
 
 import java.net.URL;
 
+import org.boris.xlloop.CompTest1;
 import org.boris.xlloop.xloper.XLoper;
 
 public class ClientTest1
@@ -18,9 +19,14 @@ public class ClientTest1
     public static String reqj = "{\"args\":[],\"name\":\"org.boris.xlloop.GetFunctions\",\"request\":\"XLLoop\",\"version\":\"0.1.0\"}";
 
     public static void main(String[] args) throws Exception {
-        URL u = new URL("http://localhost:8000/");
+        URL u = new URL("http://localhost/xlloop/XLLoop.php");
         String n = "RandTest";
-        XLoper res = FunctionExecutor.execute(u, n, null);
+        XLoper[] xlargs = createArgs();
+        XLoper res = FunctionExecutor.execute(u, n, xlargs);
         System.out.println(JSONCodec.encode(res).toString(4));
+    }
+
+    private static XLoper[] createArgs() {
+        return new XLoper[] { CompTest1.makeRandom(), CompTest1.makeRandom(), CompTest1.makeRandom() };
     }
 }
