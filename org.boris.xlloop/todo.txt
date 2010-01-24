@@ -13,6 +13,40 @@
 	server.2.function=GFS
 	server.2.function.help=Generic function executor for Google deployment
 
+- php support on json mode
+
+
+- INI option to switch off generic functions (FS, FSV)
+
+- also make FS,FSV functions accept much more arguments (30) as workaround
+
+
+- fix proxy support with auto config url (proxy.pac)
+- to real method overload support using defined overload resolution from java language spec
+- 
+
+INI option:
+	- have extra "registry.override=true" then INI looks up from registry in
+	   HKEY_CURRENT_USER/Software/XLLoop/xlloop.appspot.com-0.02/@url="http://d...."
+	   
+	 - also registry.override.path=HKEY_CURRENT_USER/Software/MyAddin/Tester 
+
+if we use the above option, the user can customize a set of function streams etc.., store
+this in the database and generate a unique key, then generate the .reg file to update
+the user's registry for this customization...
+
+
+
+
+
+
+
+
+
+xlloop datastore
+=================
+
+
 
 - jquantlib wrapper
 
@@ -41,14 +75,6 @@
 
 * need a way to authenticate to google...
 
-- INI option to switch off generic functions (FS, FSV)
-
-- also make FS,FSV functions accept much more arguments (30) as workaround
-
-
-- fix proxy support with auto config url (proxy.pac)
-- to real method overload support using defined overload resolution from java language spec
-- 
 
 - server will contain a collection of functions (written in?)
 	 - users can subscribe to channels of function
@@ -69,15 +95,6 @@
 	users can make function readonly with write password
 	
 	
-INI option:
-	- have extra "registry.override=true" then INI looks up from registry in
-	   HKEY_CURRENT_USER/Software/XLLoop/xlloop.appspot.com-0.02.xll/@url="http://d...."
-	   
-	 - also registry.override.path=HKEY_CURRENT_USER/Software/MyAddin/Tester 
-
-if we use the above option, the user can customize a set of function streams etc.., store
-this in the database and generate a unique key, then generate the .reg file to update
-the user's registry for this customization...
 
 	- start with FWiki("name", "pass", args...)
 

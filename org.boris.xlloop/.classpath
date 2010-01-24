@@ -4,10 +4,13 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="java/src"/>
 	<classpathentry kind="src" path="java/test"/>
-	<classpathentry exported="true" kind="lib" path="java/ext_jars/commons-logging-1.1.1.jar" sourcepath="org.boris.xlloopsrc.zip"/>
-	<classpathentry kind="lib" path="java/ext_jars/bsf.jar"/>
-	<classpathentry kind="lib" path="java/ext_jars/jatha-2.8.jar"/>
-	<classpathentry kind="lib" path="java/ext_jars/js.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
+	<classpathentry kind="lib" path="lib/bsf.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/jatha-2.8.jar"/>
+	<classpathentry kind="lib" path="lib/js.jar"/>
+	<classpathentry kind="lib" path="lib/rupy-0.3.3.jar"/>
+	<classpathentry kind="lib" path="lib/json.jar"/>
+	<classpathentry kind="lib" path="lib/servlet-api-2.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

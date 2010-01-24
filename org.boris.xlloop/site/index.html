@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
     <head>
-        <title>XLLoop - Excel Functions in Java, Javascript, Ruby, Python, Erlang</title>
+        <title>XLLoop - Excel User-Define Functions in Java, Javascript, Ruby, Python, Erlang</title>
 		<link rel="shortcut icon" href="favicon.ico" type="image/vnd.microsoft.icon"/>
         <link rel="stylesheet" href="style.css" type="text/css" />
         <meta name="description" content="OOP Framework for Java"/>
@@ -13,7 +13,7 @@
 
     <div id="heading">
         <div class="title"><img src="logo.gif"/>XLLoop</div>
-        <div class="subtitle">Excel Functions in Java, Javascript, Ruby, Python, Erlang</div>
+        <div class="subtitle">Excel User-Defined Functions in Java, Javascript, Ruby, Python, Erlang</div>
     </div>
     
     <div class="content">
@@ -24,17 +24,17 @@
             <table style="border:0px">
             <tr style="border:0px">
             <td style="border:0px">
-            	XLLoop is an open source framework for implementing excel user-defined functions (UDFs) on a centralised server 
+            	XLLoop is an open source framework for implementing Excel user-defined functions (UDFs) on a centralised server 
             	(a function server).  
             	<br/><br/>
             	<i><b>Why is this useful?</b></i>
             	<ul>
             	<li>Functions can be written in any language (e.g. Java, scripting languages etc..)
-            	<li>Functions can be added quickly and dynamically without users having to restart excel.
+            	<li>Functions can be added quickly and dynamically without users having to restart Excel.
             	<li>Functions can be managed separately and centrally, which avoids the costly overhead of managing many XLLs and ensures
             	all users are using the same functions.
             	<li>Data can be shared across excel sessions/users (e.g. current stock market prices can
-            	be stored on a single server and all excel sessions could retrieve this data via a <i>GetStock</i> function). 
+            	be stored on a single server and all Excel sessions could retrieve this data via a <i>GetStock</i> function). 
             	</ul>
             	It has the following features:
             	<ul>
@@ -45,18 +45,18 @@
             	<li>Reflection-based function adaptor for extremely quick deployment of java methods.</li>
             	<li>Bean scripting framework adaptor so functions can be written in any BSF-supported language (eg. Ruby, Python, Javascript).</li>
             	<li><a href="lisphandler.html">Lisp Function Handler</a> for evaluating Lisp expressions on the fly.</li>
-            	<li>Functions can be registered as excel functions (with help information).</li>
-            	<li>Functions can be dynamically added to excel without restart.</li>
+            	<li>Functions can be dynamically added to Excel without restart.</li>
+            	<li>Functions can be registered as Excel functions (with help information).</li>
             	<li>Fast binary protocol with multiple-server fail-over/scaleability.</li>
             	<li>JSON over HTTP(S) protocol</li>
             	</ul> 
             	XLLoop consists of two main components:
             	<ul>
-            	<li>An excel addin implementation (xll written in c++).</li>
-            	<li>A server and framework written in java (and in many other languages (see <a href="#Languages">languages section</a>)).</li>
+            	<li>An Excel addin implementation (XLL written in c++).</li>
+            	<li>A server and framework written in java (and in many other languages - see <a href="#Languages">languages section</a>).</li>
             	</ul>
             	The addin and server communicate via a simple socket-based protocol, sending and
-            	receiving (binary) serialised xl objects (called xlopers).
+            	receiving (binary) serialised excel objects (called xlopers).
             	<br/><br/>
                 XLLoop is licensed under the <a href="http://www.eclipse.org/legal/cpl-v10.html">Common Public License (CPL)</a>.
             </td>
@@ -298,11 +298,15 @@ args[0] * args[1];
 				scaleability. 
 				
 				<br/><br/>
-				The approach is simple; it connects to a random server, if this fails to reports
+				The approach is simple; it connects to a random server, if this fails it reports
 				an error to the user. If the user attempts to connect again (ie. by invoking another function) the
 				addin will choose a random server to connect to.
 				
-				The INI file key "server" takes a comma separated list of hostname:port.
+				The following example shows an INI file with multiple servers specified.
+<pre>
+server=localhost,localhost:5455,myserver:9000
+</pre>
+				If a port is not specified it uses the default of 5454.
 			</div>
 		</div>
 		
@@ -310,9 +314,12 @@ args[0] * args[1];
 			<div class="section-title">JSON over HTTP Protocol</div>
 			<div class="section-content">
 				The addin supports a JSON over HTTP protocol. Each function invocation is a separate HTTP request.
-				The input data is sent via a POST method. The result is a single xloper object encoded in JSON.
-				
-				<br/><br/>
+				The input data is sent via a POST method. The result is a single xloper object encoded in JSON. 
+				To enable this feature setup the INI file as follows:
+<pre>
+protocol=http
+url=http://localhost:8000/FunctionServer
+</pre>
 				The JSON input request looks like:
 				<pre>
 {
@@ -327,6 +334,7 @@ args[0] * args[1];
     "num": 0.8091614905358369,
     "type": 1
 }</pre>
+	
 			</div>
 		</div>
 	

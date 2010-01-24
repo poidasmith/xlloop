@@ -21,9 +21,9 @@
 		<javac debug="off" srcdir="java/src" destdir="build" source="1.4">
 			<classpath>
 				<pathelement location="build"/>
-				<pathelement location="java/ext_jars/bsf.jar"/>
-				<pathelement location="java/ext_jars/jatha-2.8.jar"/>
-				<pathelement location="java/ext_jars/js.jar"/>
+				<pathelement location="lib/bsf.jar"/>
+				<pathelement location="lib/jatha-2.8.jar"/>
+				<pathelement location="lib/js.jar"/>
 			</classpath>
 		</javac>
 		<jar destfile="${deploy.dir}/bin/xlloop-${release.version}.jar">
