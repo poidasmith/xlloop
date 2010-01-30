@@ -1,13 +1,6 @@
 <?php
 
-XLLoop_Handler();
-
-function RandTest()
-{
-	return "Hello there " . rand();
-}
-
-function XLLoop_Handler()
+function XLLoop_reflection_handler()
 {
 	try {
 		$input = file_get_contents('php://input');
@@ -18,9 +11,16 @@ function XLLoop_Handler()
 			$args[$i] = XLLoop_decode($value->args[$i]);
 		}
 		$function = new ReflectionFunction($value->name);
-		$result = $function->invokeArgs($args);
-		$enc = XLLoop_encode($result);
-		print json_encode($enc);
+		if($function->isUserDefined()) {
+			$reqArgc = $function->getNumberOfParameters();
+			for($i = $argc; $i < $reqArgc; $i++)
+				$args[$i] = 0;
+			$result = $function->invokeArgs($args);
+			$enc = XLLoop_encode($result);
+			print json_encode($enc);
+		} else {
+			print json_encode(XLLoop_encode("#Function " . $value->name . "() does not exist"));
+		}
 	} catch (Exception $e) {
 		print json_encode(XLLoop_encode("#" . $e->getMessage()));
 	}
@@ -101,8 +101,20 @@ function XLLoop_encode($value)
 		return array("type" => 1, "num" => $value);
 	} else if(is_bool($value)) {
 		return array("type" => 3, "bool" => $value);
+	} else if(get_class($value) == "XLLoop_XLError") {
+		return array("type" => 4, "error" => $value->code);
+	} else if(get_class($value) == "XLLoop_XLSRef") {
+		return array("type" => 9, "colFirst" => $value->colFirst, "colLast" => $value->colLast, "rowFirst" => $value->rowFirst, "rowLast" => $value->rowLast);
+	} else if(get_class($value) == "XLLoop_XLArray") {
+		$c = count($value->array);
+		$arr = array();
+		for($i = 0; $i < $c; $i++) {
+			$arr($i) = XLLoop_encode($value->array($i));
+		}
+		return array("type" => 5, "rows" => $value->rows, "cols" => $value->cols, "array" => $value->array);
 	} else {
 		return XLLoop_encode("#Unknown object");
 	}
 }
+
 ?>
