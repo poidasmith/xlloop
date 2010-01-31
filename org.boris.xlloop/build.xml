@@ -24,6 +24,9 @@
 				<pathelement location="lib/bsf.jar"/>
 				<pathelement location="lib/jatha-2.8.jar"/>
 				<pathelement location="lib/js.jar"/>
+				<pathelement location="lib/rupy-0.3.3.jar"/>
+				<pathelement location="lib/json.jar"/>
+				<pathelement location="lib/servlet-api-2.5.jar"/>
 			</classpath>
 		</javac>
 		<jar destfile="${deploy.dir}/bin/xlloop-${release.version}.jar">
@@ -60,6 +63,9 @@
 			</fileset>
 			<fileset dir="servers/python">
 				<include name="**/*.py"/>
+			</fileset>
+			<fileset dir="servers/php">
+				<include name="**/*.php"/>
 			</fileset>
 		</copy>
 		<jar destfile="${deploy.dir}/src/xlloop-cppsrc.zip">

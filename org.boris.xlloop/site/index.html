@@ -81,12 +81,13 @@
 				The following table summarizes the current support for different languages.<br/><br/>
 				<table width="400">
 					<tr><th>Language</th><th>Supported?</th></tr>
-					<tr><td>Java</td><td>Yes, native server</td></tr>
+					<tr><td>Java</td><td>Yes, native server (binary and json)</td></tr>
 					<tr><td>C++</td><td>Yes, via XLLServer (included in download)</td></tr>
 					<tr><td>Erlang</td><td>Yes, <a href="erlangserver.html">native server</a></td></tr>
 					<tr><td>Lisp</td><td><a href="lisphandler.html">Yes</a>, using <a href="http://jatha.sourceforge.net/">Jatha</a></td></tr>
 					<tr><td>Ruby</td><td>Yes, a native <a href="rubyserver.html">ruby server</a> is included in the download.</td></tr>
 					<tr><td>Python</td><td>Yes, a native <a href="pythonserver.html">python server</a> is included in the download.</td></tr>
+					<tr><td>PHP</td><td>Yes, a native server (json) is included in the download.</td></tr>
 					<tr><td>Javascript</td><td>Yes, using <a href="http://www.mozilla.org/rhino/">Rhino</a></td></tr>
 					<tr><td>R</td><td>Yes, a native <a href="rserver.html">R server</a> is included in the download.</td></tr>
 				</table>
@@ -344,6 +345,7 @@ url=http://localhost:8000/FunctionServer
 				V0.3.0
 				<ul>
 				<li>Added JSON over HTTP(S) protocol support</li>
+				<li>Added native PHP server</li>
 				<li>Added support for multiple servers in binary protocol mode</li>
 				<li>Functions can now support up to 30 arguments (and variable length)</li>
 				<li>Added ability to send caller information (sending sheet and cell)</li>
