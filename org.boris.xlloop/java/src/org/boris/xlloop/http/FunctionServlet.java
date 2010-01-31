@@ -27,6 +27,10 @@ public class FunctionServlet extends HttpServlet
 {
     private IFunctionHandler handler;
 
+    public void setHandler(IFunctionHandler handler) {
+        this.handler = handler;
+    }
+
     public void init(ServletConfig config) throws ServletException {
         String cls = config.getInitParameter("FunctionServlet.handlerClass");
         try {

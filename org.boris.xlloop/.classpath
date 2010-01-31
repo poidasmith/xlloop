@@ -9,7 +9,7 @@
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/jatha-2.8.jar"/>
 	<classpathentry kind="lib" path="lib/js.jar"/>
-	<classpathentry kind="lib" path="lib/rupy-0.3.3.jar"/>
+	<classpathentry kind="lib" path="lib/rupy-0.3.3.jar" sourcepath="lib/rupy-0.3.3-src.zip"/>
 	<classpathentry kind="lib" path="lib/json.jar"/>
 	<classpathentry kind="lib" path="lib/servlet-api-2.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
