@@ -53,78 +53,59 @@ public class JSONCodec
         }
     }
 
-    public static FunctionRequest decodeRequest(Reader r) throws IOException {
-        try {
-            JSONTokener t = new JSONTokener(r);
-            JSONObject jo = new JSONObject(t);
-            String name = jo.getString("name");
-            JSONArray args = jo.getJSONArray("args");
-            String sheetName = (String) jo.opt("sheetName");
-            JSONObject caller = (JSONObject) jo.opt("caller");
-            XLSRef cref = null;
-            if (caller != null) {
-                cref = (XLSRef) decode(caller);
-            }
-            XLoper[] xargs = new XLoper[args.length()];
+    public static FunctionRequest decodeRequest(Reader r) throws IOException, JSONException {
+        JSONTokener t = new JSONTokener(r);
+        JSONObject jo = new JSONObject(t);
+        String name = jo.getString("name");
+        JSONArray args = jo.getJSONArray("args");
+        String sheetName = (String) jo.opt("sheetName");
+        JSONObject caller = (JSONObject) jo.opt("caller");
+        XLSRef cref = null;
+        if (caller != null) {
+            cref = (XLSRef) decode(caller);
+        }
+        XLoper[] xargs = new XLoper[args.length()];
+        for (int i = 0; i < xargs.length; i++) {
+            xargs[i] = decode(args.getJSONObject(i));
+        }
+
+        return new FunctionRequest(name, xargs, cref, sheetName);
+
+    }
+
+    public static XLoper decodeXLoper(Reader r) throws IOException, JSONException {
+        JSONTokener t = new JSONTokener(r);
+        JSONObject jo = new JSONObject(t);
+        return decode(jo);
+    }
+
+    public static void encodeRequest(FunctionRequest fr, Writer w) throws IOException, JSONException {
+        encodeRequest(fr).write(w);
+    }
+
+    public static JSONObject encodeRequest(FunctionRequest fr) throws IOException, JSONException {
+        JSONObject o = new JSONObject();
+        o.put("request", "XLLoop");
+        o.put("version", "0.1.0");
+        o.put("name", fr.getName());
+        if (fr.getSheetName() != null)
+            o.put("sheetName", fr.getSheetName());
+        if (fr.getCaller() != null)
+            o.put("caller", encode(fr.getCaller()));
+        JSONArray a = new JSONArray();
+        XLoper[] xargs = fr.getArgs();
+        if (xargs != null) {
             for (int i = 0; i < xargs.length; i++) {
-                xargs[i] = decode(args.getJSONObject(i));
+                a.put(encode(xargs[i]));
             }
-
-            return new FunctionRequest(name, xargs, cref, sheetName);
-        } catch (JSONException e) {
-            throw new IOException(e);
         }
+        o.put("args", a);
+        return o;
     }
 
-    public static XLoper decodeXLoper(Reader r) throws IOException {
-        try {
-            JSONTokener t = new JSONTokener(r);
-            JSONObject jo = new JSONObject(t);
-            return decode(jo);
-        } catch (JSONException e) {
-            throw new IOException(e);
-        }
-    }
-
-    public static void encodeRequest(FunctionRequest fr, Writer w) throws IOException {
-        try {
-            encodeRequest(fr).write(w);
-        } catch (JSONException e) {
-            throw new IOException(e);
-        }
-    }
-
-    public static JSONObject encodeRequest(FunctionRequest fr) throws IOException {
-        try {
-            JSONObject o = new JSONObject();
-            o.put("request", "XLLoop");
-            o.put("version", "0.1.0");
-            o.put("name", fr.getName());
-            if (fr.getSheetName() != null)
-                o.put("sheetName", fr.getSheetName());
-            if (fr.getCaller() != null)
-                o.put("caller", encode(fr.getCaller()));
-            JSONArray a = new JSONArray();
-            XLoper[] xargs = fr.getArgs();
-            if (xargs != null) {
-                for (int i = 0; i < xargs.length; i++) {
-                    a.put(encode(xargs[i]));
-                }
-            }
-            o.put("args", a);
-            return o;
-        } catch (JSONException e) {
-            throw new IOException(e);
-        }
-    }
-
-    public static void encodeXLoper(XLoper x, Writer w) throws IOException {
-        try {
-            JSONObject o = encode(x);
-            o.write(w);
-        } catch (JSONException e) {
-            throw new IOException(e);
-        }
+    public static void encodeXLoper(XLoper x, Writer w) throws IOException, JSONException {
+        JSONObject o = encode(x);
+        o.write(w);
     }
 
     public static JSONObject encode(XLoper x) throws JSONException {

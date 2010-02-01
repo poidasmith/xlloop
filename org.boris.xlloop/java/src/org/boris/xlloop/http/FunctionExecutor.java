@@ -31,18 +31,19 @@ public class FunctionExecutor
         FunctionRequest fr = new FunctionRequest(name, args, null, null);
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(huc.getOutputStream()));
         StringWriter debug = new StringWriter();
-        JSONCodec.encodeRequest(fr, debug);
-        System.out.println(debug.toString());
-        JSONCodec.encodeRequest(fr, bw);
-        bw.flush();
-        bw.close();
-        StringWriter sw = new StringWriter();
         try {
+            JSONCodec.encodeRequest(fr, debug);
+            System.out.println(debug.toString());
+            JSONCodec.encodeRequest(fr, bw);
+            bw.flush();
+            bw.close();
+            StringWriter sw = new StringWriter();
             IO.copy(new InputStreamReader(huc.getInputStream()), sw, false);
             System.out.println(sw.toString());
             return JSONCodec.decodeXLoper(new StringReader(sw.toString()));
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
+            StringWriter sw = new StringWriter();
             IO.copy(new InputStreamReader(huc.getErrorStream()), sw, false);
             System.out.println(sw.toString());
             return null;
