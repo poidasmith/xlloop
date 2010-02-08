@@ -9,39 +9,23 @@
  *******************************************************************************/
 package org.boris.xlloop.util;
 
-import org.boris.xlloop.FunctionServer;
-import org.boris.xlloop.handler.CompositeFunctionHandler;
-import org.boris.xlloop.handler.DebugFunctionHandler;
-import org.boris.xlloop.handler.FunctionInformationFunctionHandler;
 import org.boris.xlloop.reflect.Reflect;
-import org.boris.xlloop.reflect.ReflectFunctionHandler;
 
 public class ServerExample
 {
     public static void main(String[] args) throws Exception {
         // Create function server on the default port
-        FunctionServer fs = new FunctionServer();
+        FunctionHandlerServer fhs = new FunctionHandlerServer();
 
-        // Create a reflection function handler and add the Math methods
-        ReflectFunctionHandler rfh = new ReflectFunctionHandler();
-        rfh.addMethods("Math.", Math.class);
-        rfh.addMethods("Math.", Maths.class);
-        rfh.addMethods("CSV.", CSV.class);
-        rfh.addMethods("Reflect.", Reflect.class);
-
-        // Create a function information handler to register our functions
-        FunctionInformationFunctionHandler firh = new FunctionInformationFunctionHandler();
-        firh.add(rfh.getFunctions());
-        firh.add(CSVFunctionInformationReader.read(ServerExample.class.getResourceAsStream("math.csv")));
-
-        // Set the handlers
-        CompositeFunctionHandler cfh = new CompositeFunctionHandler();
-        cfh.add(rfh);
-        cfh.add(firh);
-        fs.setFunctionHandler(new DebugFunctionHandler(cfh));
+        // Add methods and infor
+        fhs.addMethods("Math.", Math.class);
+        fhs.addMethods("Math.", Maths.class);
+        fhs.addMethods("CSV.", CSV.class);
+        fhs.addMethods("Reflect.", Reflect.class);
+        fhs.addInfo(CSVFunctionInformationReader.read(ServerExample.class.getResourceAsStream("math.csv")));
 
         // Run the engine
-        System.out.println("Listening on port " + fs.getPort() + "...");
-        fs.run();
+        System.out.println("Listening on port " + fhs.getPort() + "...");
+        fhs.run();
     }
 }
