@@ -44,6 +44,38 @@ public class FunctionInformation
         this.category = category;
     }
 
+    public String getCategory() {
+        return category;
+    }
+
+    public String getFunctionName() {
+        return functionName;
+    }
+
+    public String getFunctionHelp() {
+        return functionHelp;
+    }
+
+    public String getShortcutText() {
+        return shortcutText;
+    }
+
+    public String getHelpTopic() {
+        return helpTopic;
+    }
+
+    public List getArguments() {
+        return arguments;
+    }
+
+    public List getArgumentHelp() {
+        return argumentHelp;
+    }
+
+    public boolean isVolatile() {
+        return isVolatile;
+    }
+
     public void setShortcutText(String shortcutText) {
         this.shortcutText = shortcutText;
     }
@@ -73,8 +105,7 @@ public class FunctionInformation
         if (helpTopic != null)
             s.add("helpTopic", helpTopic);
         if (arguments.size() > 0) {
-            s.add("argumentText", CSV.toCSV((String[]) arguments
-                    .toArray(new String[0])));
+            s.add("argumentText", CSV.toCSV((String[]) arguments.toArray(new String[0])));
             XLList c = new XLList();
             for (int i = 0; i < argumentHelp.size(); i++) {
                 c.add((String) argumentHelp.get(i));

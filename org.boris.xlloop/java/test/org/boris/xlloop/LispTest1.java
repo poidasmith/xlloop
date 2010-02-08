@@ -4,7 +4,7 @@ import java.io.File;
 
 import org.boris.xlloop.handler.CompositeFunctionHandler;
 import org.boris.xlloop.handler.DebugFunctionHandler;
-import org.boris.xlloop.handler.FunctionInformationFunctionHandler;
+import org.boris.xlloop.handler.FunctionInformationHandler;
 import org.boris.xlloop.script.LispFunctionHandler;
 
 public class LispTest1
@@ -20,7 +20,7 @@ public class LispTest1
         lfh.eval(new File("functions"), true);
 
         // Expose a function called "Eval" for the lisp handler
-        FunctionInformationFunctionHandler firh = new FunctionInformationFunctionHandler();
+        FunctionInformationHandler firh = new FunctionInformationHandler();
         firh.add(lfh.getInformation());
 
         // Create a composite function handler

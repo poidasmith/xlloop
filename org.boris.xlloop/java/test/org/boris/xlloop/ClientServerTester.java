@@ -15,7 +15,7 @@ import java.net.ServerSocket;
 
 import org.boris.xlloop.handler.CompositeFunctionHandler;
 import org.boris.xlloop.handler.DebugFunctionHandler;
-import org.boris.xlloop.handler.FunctionInformationFunctionHandler;
+import org.boris.xlloop.handler.FunctionInformationHandler;
 import org.boris.xlloop.reflect.ReflectFunctionHandler;
 import org.boris.xlloop.xloper.XLoper;
 
@@ -30,7 +30,7 @@ public class ClientServerTester extends FunctionServer
         cfh = new CompositeFunctionHandler();
         rfh = new ReflectFunctionHandler();
         cfh.add(rfh);
-        FunctionInformationFunctionHandler fifh = new FunctionInformationFunctionHandler();
+        FunctionInformationHandler fifh = new FunctionInformationHandler();
         fifh.add(rfh);
         cfh.add(fifh);
         socket = new ServerSocket(getPort());

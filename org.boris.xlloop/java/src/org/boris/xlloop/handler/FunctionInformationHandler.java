@@ -23,10 +23,11 @@ import org.boris.xlloop.RequestException;
 import org.boris.xlloop.util.XLList;
 import org.boris.xlloop.xloper.XLoper;
 
-public class FunctionInformationFunctionHandler implements IFunctionHandler
+public class FunctionInformationHandler implements IFunctionHandler
 {
     private ArrayList functions = new ArrayList();
     private Set functionProviders = new HashSet();
+    private String category;
 
     public void add(FunctionInformation fi) {
         functions.add(fi);
@@ -42,6 +43,14 @@ public class FunctionInformationFunctionHandler implements IFunctionHandler
 
     public void remove(FunctionProvider prov) {
         functionProviders.remove(prov);
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public String getCategory() {
+        return category;
     }
 
     public XLoper execute(IFunctionContext context, String name, XLoper[] args) throws RequestException {
@@ -66,6 +75,9 @@ public class FunctionInformationFunctionHandler implements IFunctionHandler
 
         for (Iterator i = m.keySet().iterator(); i.hasNext();) {
             FunctionInformation fi = (FunctionInformation) m.get(i.next());
+            if (category != null && fi.getCategory() == null) {
+                fi.setCategory(category);
+            }
             c.add(fi.encode());
         }
 

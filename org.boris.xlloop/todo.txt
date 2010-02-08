@@ -203,5 +203,22 @@ function.1=MyFunc,"Test a function",arg1,arg2,etc...
 function.2=etc...
 
 
+Random
+
+
+- utilties for printing xl arrays
+- array joinging, transposing
+- handle method overloding
+- tidy up deployment
+	- remove jxll from xlloop jar
+	- 1.5 compile
+- add set(row, col, Object) to XLArray
+- allow refelction function to take an array of XLoper (ie. like delegate setup)
+- DelegateFunction, DelegateFunctionHandler
+- set of unit tests for xll
+- vbscript for excel (allow server to send register vbscript against toolbar command or function)
+
+
+
 
 

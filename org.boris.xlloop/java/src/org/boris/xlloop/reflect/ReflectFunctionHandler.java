@@ -47,6 +47,12 @@ public class ReflectFunctionHandler implements IFunctionHandler, FunctionProvide
     public void addMethod(String name, Class c, Object instance, Method m) {
         if (!m.getDeclaringClass().equals(c))
             return;
+        XLFunction xf = m.getAnnotation(XLFunction.class);
+        FunctionInformation fi = AnnotationHelper.extract(name, xf);
+        if (fi != null) {
+            name = fi.getName();
+            information.put(name, fi);
+        }
         IFunction f = (IFunction) methods.get(name);
         if (f instanceof InstanceMethod) {
             OverloadedMethod om = new OverloadedMethod();
