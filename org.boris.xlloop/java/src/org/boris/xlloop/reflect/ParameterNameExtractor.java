@@ -48,8 +48,7 @@ public class ParameterNameExtractor
             methodName = ((Method) methodOrCtor).getName();
             returnType = ((Method) methodOrCtor).getReturnType();
             params = ((Method) methodOrCtor).getParameterTypes();
-            isStatic = Modifier
-                    .isStatic(((Method) methodOrCtor).getModifiers());
+            isStatic = Modifier.isStatic(((Method) methodOrCtor).getModifiers());
         } else if (methodOrCtor instanceof Constructor) {
             methodName = "<init>";
             returnType = Void.TYPE;
@@ -74,9 +73,7 @@ public class ParameterNameExtractor
                                 if (cas[k] instanceof LocalVariableTableAttribute) {
                                     LocalVariableTable[] lvt = ((LocalVariableTableAttribute) cas[k]).localVariableTable;
                                     for (int l = 0; l < params.length; l++) {
-                                        paramNames
-                                                .add(constants[lvt[l +
-                                                        paramOffset].nameIndex - 1].string);
+                                        paramNames.add(constants[lvt[l + paramOffset].nameIndex - 1].string);
                                     }
                                     found = true;
                                 }
@@ -135,8 +132,7 @@ public class ParameterNameExtractor
 
     private void parse() throws IOException {
         String name = '/' + clazz.getName().replace('.', '/') + ".class";
-        DataInputStream dis = new DataInputStream(ParameterNameExtractor.class
-                .getResourceAsStream(name));
+        DataInputStream dis = new DataInputStream(ParameterNameExtractor.class.getResourceAsStream(name));
         /* int magic = */dis.readInt();
         /* int minorVersion = */dis.readUnsignedShort();
         /* int majorVersion = */dis.readUnsignedShort();
@@ -165,8 +161,7 @@ public class ParameterNameExtractor
         }
     }
 
-    private ConstantInfo parseConstantInfo(DataInputStream dis)
-            throws IOException {
+    private ConstantInfo parseConstantInfo(DataInputStream dis) throws IOException {
         ConstantInfo cinfo = new ConstantInfo();
         cinfo.tag = dis.readUnsignedByte();
         switch (cinfo.tag) {
@@ -228,8 +223,7 @@ public class ParameterNameExtractor
         return minfo;
     }
 
-    private Attribute parseAttributeInfo(DataInputStream dis)
-            throws IOException {
+    private Attribute parseAttributeInfo(DataInputStream dis) throws IOException {
         Attribute ainfo = null;
         int nameIndex = dis.readUnsignedShort();
         int length = dis.readInt();
@@ -255,15 +249,13 @@ public class ParameterNameExtractor
             ainfo = mai;
         } else if ("LocalVariableTable".equals(type)) {
             LocalVariableTableAttribute lvta = new LocalVariableTableAttribute();
-            lvta.localVariableTable = new LocalVariableTable[dis
-                    .readUnsignedShort()];
+            lvta.localVariableTable = new LocalVariableTable[dis.readUnsignedShort()];
             for (int i = 0; i < lvta.localVariableTable.length; i++) {
                 lvta.localVariableTable[i] = new LocalVariableTable();
                 lvta.localVariableTable[i].startPC = dis.readUnsignedShort();
                 lvta.localVariableTable[i].length = dis.readUnsignedShort();
                 lvta.localVariableTable[i].nameIndex = dis.readUnsignedShort();
-                lvta.localVariableTable[i].descriptorIndex = dis
-                        .readUnsignedShort();
+                lvta.localVariableTable[i].descriptorIndex = dis.readUnsignedShort();
                 lvta.localVariableTable[i].index = dis.readUnsignedShort();
             }
             ainfo = lvta;
@@ -277,7 +269,7 @@ public class ParameterNameExtractor
         return ainfo;
     }
 
-    private static class ConstantInfo
+    public static class ConstantInfo
     {
         public int descriptorIndex;
         public int lowBytes;
@@ -291,7 +283,7 @@ public class ParameterNameExtractor
         public String string;
     }
 
-    private static class FieldInfo
+    public static class FieldInfo
     {
         public int accessFlags;
         public int nameIndex;
@@ -299,7 +291,7 @@ public class ParameterNameExtractor
         public Attribute[] attributes;
     }
 
-    private static class MethodInfo
+    public static class MethodInfo
     {
         public int accessFlags;
         public int nameIndex;
@@ -307,13 +299,13 @@ public class ParameterNameExtractor
         public Attribute[] attributes;
     }
 
-    private static class Attribute
+    public static class Attribute
     {
         public int nameIndex;
         public int length;
     }
 
-    private static class CodeAttribute extends Attribute
+    public static class CodeAttribute extends Attribute
     {
         public int maxStack;
         public int maxLocals;
@@ -322,12 +314,12 @@ public class ParameterNameExtractor
         public Attribute[] attributes;
     }
 
-    private static class LocalVariableTableAttribute extends Attribute
+    public static class LocalVariableTableAttribute extends Attribute
     {
         public LocalVariableTable[] localVariableTable;
     }
 
-    private static class LocalVariableTable
+    public static class LocalVariableTable
     {
         public int startPC;
         public int length;
@@ -336,7 +328,7 @@ public class ParameterNameExtractor
         public int index;
     }
 
-    private static class ExceptionTable
+    public static class ExceptionTable
     {
         public int startPC;
         public int endPC;
@@ -344,7 +336,7 @@ public class ParameterNameExtractor
         public int catchType;
     }
 
-    private static class ConstantType
+    public static class ConstantType
     {
         public static final int Class = 7;
         public static final int FieldRef = 9;
