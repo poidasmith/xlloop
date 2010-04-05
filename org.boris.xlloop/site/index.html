@@ -267,10 +267,25 @@ public class ServerExample
 				an example see the <code>ServerExample</code> class in the Java source.		
 				<br/><br/>
 				The following code example shows how to uses annotations to add function information when using 
-				reflection-based function handler:
+				the <code>ReflectFunctionHandler</code> handler:
 				<pre>
+package org.boris.xlloop;
+
+import java.io.File;
+
+import org.boris.xlloop.reflect.XLFunction;
 				
-				</pre>						
+public class AnnotationsTest
+{
+    @XLFunction(name = "ListFiles", 
+            help = "List the files contained within a directory", 
+            args = { "dir" }, 
+            argHelp = { "The directory" }, 
+            category = "Files")
+    public static String[] listFiles(String dir) {
+        return new File(dir).list();
+    }
+}</pre>						
 			</div>
 		</div>
 
