@@ -5,7 +5,6 @@
 	<property name="release.name" value="xlloop"/>
 	<property name="release.version" value="0.3.1"/>
 	<property name="deploy.dir" value="${release.dir}/${release.name}-${release.version}/xlloop"/>
-	<property name="jxll.version" value="0.0.3"/>
 	
 	<target name="build-jxll">
 		<mkdir dir="build-jxll"/>
@@ -49,6 +48,7 @@
 			</fileset>
 		</jar>
 		<delete dir="build"/>
+		<delete dir="build-jxll"/>
 		<copy todir="${deploy.dir}/bin">
 			<fileset dir="servers/c++">
 				<include name="**"/>

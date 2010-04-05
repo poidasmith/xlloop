@@ -264,7 +264,13 @@ public class ServerExample
 				<br/><br/>
 				Note that the Java server framework has a handler called <code>FunctionInformationFunctionHandler</code>,
 				which accepts <code>FunctionInformation</code> objects. This handler implements the special function above. For
-				an example see the <code>ServerExample</code> class in the Java source.				
+				an example see the <code>ServerExample</code> class in the Java source.		
+				<br/><br/>
+				The following code example shows how to uses annotations to add function information when using 
+				reflection-based function handler:
+				<pre>
+				
+				</pre>						
 			</div>
 		</div>
 
@@ -370,6 +376,8 @@ url=http://localhost:8000/FunctionServer
 				<ul>
 				<li>Added round-robin connection mode for multiple servers in binary mode</li>
 				<li>Added retry ability to binary mode</li>
+				<li>Added annotation support for function information to reflection-based java functions</li>
+				<li>Java server framework now requires Java 1.5 (for annotations)</li>
 				<li>Generic function category can be customized</li>
 				<li>added ability to load INI keys from an external file</li>
 				<li>added ability to load INI keys from the registry</li>
