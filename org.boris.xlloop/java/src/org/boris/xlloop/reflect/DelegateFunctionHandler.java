@@ -47,6 +47,6 @@ public class DelegateFunctionHandler extends FunctionMap implements FunctionProv
     }
 
     public FunctionInformation[] getFunctions() {
-        return null;
+        return functions.toArray(new FunctionInformation[functions.size()]);
     }
 }

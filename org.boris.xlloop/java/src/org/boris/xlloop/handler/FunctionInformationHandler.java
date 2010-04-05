@@ -34,7 +34,8 @@ public class FunctionInformationHandler implements IFunctionHandler
     }
 
     public void add(FunctionInformation[] fis) {
-        functions.addAll(Arrays.asList(fis));
+        if (fis != null)
+            functions.addAll(Arrays.asList(fis));
     }
 
     public void add(FunctionProvider prov) {
