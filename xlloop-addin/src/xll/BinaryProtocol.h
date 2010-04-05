@@ -15,6 +15,9 @@
 #include "XLCodec.h"
 #include "../Common/Dictionary.h"
 
+#define SERVER_SELECT_MODE_RANDOM 0
+#define SERVER_SELECT_MODE_ROUND_ROBIN 1
+
 class Protocol {
 public:
 	virtual ~Protocol() {}
@@ -40,6 +43,8 @@ public:
 	LPXLOPER execute(const char* name, bool sendCaller, int count, LPXLOPER far opers[]);
 
 private:
+	int connect(int selectionMode);
+	int connect(char* hostname, int port);
 	int send(const char* name, bool sendSource, int count, LPXLOPER far opers[]);
 	LPXLOPER receive(const char* name);
 	void ParseServerList(char* server);
@@ -51,6 +56,8 @@ private:
 	int* serverPorts;
 	int serverCount;
 	int selectedServer;
+	int selectionMode;
+	int retryCount;
 	SOCKET conn;
 	XIStream is;
 	XOStream os;

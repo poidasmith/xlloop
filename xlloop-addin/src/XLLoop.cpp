@@ -42,6 +42,7 @@ static XLOPER g_errorMessage;
 #define FS_FUNCTION_NAME ":function.name"
 #define FS_INCLUDE_VOLATILE ":include.volatile"
 #define FS_FUNCTION_NAME_VOLATILE ":function.name.volatile"
+#define FS_FUNCTION_CATEGORY ":generic.function.category"
 #define FS_DISABLE_FUNCTION_LIST ":disable.function.list"
 #define FS_SEND_USER_INFO ":send.user.info"
 #define FS_USER_KEY ":user.key"
@@ -142,6 +143,7 @@ void RegisterFunctions()
 	int rows = farr->val.array.rows;
 	int cols = farr->val.array.columns;
 	if(farr != NULL && t == xltypeMulti && cols == 1 && rows > 0) {
+		g_functionCount = 0;
 		for(int i = 0, findex = 0; i < rows; i++) {
 			LPXLOPER earr = &farr->val.array.lparray[i];
 			t = earr->xltype & ~(xlbitXLFree | xlbitDLLFree);
@@ -214,23 +216,19 @@ __declspec(dllexport) int WINAPI xlAutoOpen(void)
 	// Register execute function (if requested)
 	bool inclGeneric = iniparser_getboolean(g_ini, FS_INCLUDE_GENERIC, true);
 	if(inclGeneric) {
-		char* fsName = iniparser_getstr(g_ini, FS_FUNCTION_NAME);
-		if(fsName == NULL) {
-			fsName = "FS";
-		}
+		char* fsName = iniparser_getstring(g_ini, FS_FUNCTION_NAME, "FS");
+		char* fsCategory = iniparser_getstring(g_ini, FS_FUNCTION_CATEGORY, "General");
 		XLUtil::RegisterFunction(&xDLL, "FSExecute", "RCPPPPPPPPPPPPPPPPPPPP", fsName, 
-			NULL, "1", "General", NULL, NULL, NULL, NULL);
+			NULL, "1", fsCategory, NULL, NULL, NULL, NULL);
 	}
 
 	// Register execute function - volatile version (if requested)
 	bool inclVol = iniparser_getboolean(g_ini, FS_INCLUDE_VOLATILE, true);
 	if(inclVol) {
-		char* fsvName = iniparser_getstr(g_ini, FS_FUNCTION_NAME_VOLATILE);
-		if(fsvName == NULL) {
-			fsvName = "FSV";
-		}
+		char* fsvName = iniparser_getstring(g_ini, FS_FUNCTION_NAME_VOLATILE, "FSV");
+		char* fsCategory = iniparser_getstring(g_ini, FS_FUNCTION_CATEGORY, "General");
 		XLUtil::RegisterFunction(&xDLL, "FSExecuteVolatile", "RCPPPPPPPPPPPPPPPPPPPP!", fsvName, 
-			NULL, "1", "General", NULL, NULL, NULL, NULL);
+			NULL, "1", fsCategory, NULL, NULL, NULL, NULL);
 	}
 
 	// Now ask server for a list of functions to register

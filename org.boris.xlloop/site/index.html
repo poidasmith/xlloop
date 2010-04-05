@@ -40,7 +40,7 @@
             	<ul>
             	<li>Extensible <b>Java</b> server framework.</li>
             	<li>Native server frameworks written in many other languages (see <a href="#Languages">languages section</a>).</li>
-            	<li>Popup for long running operations (with option to cancel)<li>
+            	<li>Popup for long running operations (with option to cancel)</li>
 				<li>Support for hosting C++ XLLs via <b><a href="http://jxll.sourceforge.net">JXLL</a></b>.
             	<li>Reflection-based function adaptor for extremely quick deployment of java methods.</li>
             	<li>Bean scripting framework adaptor so functions can be written in any BSF-supported language (eg. Ruby, Python, Javascript).</li>
@@ -56,7 +56,10 @@
             	<li>A server and framework written in java (and in many other languages - see <a href="#Languages">languages section</a>).</li>
             	</ul>
             	The addin and server communicate via a simple socket-based protocol, sending and
-            	receiving (binary) serialised excel objects (called xlopers).
+            	receiving (binary) serialised excel objects (called xlopers). 
+            	<br/><br/>
+            	In JSON mode the addin and server communicate over http(s), sending and receiving
+            	JSON serialised excel objects.
             	<br/><br/>
                 XLLoop is licensed under the <a href="http://www.eclipse.org/legal/cpl-v10.html">Common Public License (CPL)</a>.
             </td>
@@ -157,6 +160,15 @@ public class ServerExample
 						<td>When in binary mode, this is a list of servers to connect to (eg. "<code>server=localhost:5454,localhost:5455</code>")</td>
 					</tr>
 					<tr>
+						<td>server.selection.mode</td>
+						<td>Set this to "round-robin" to use a connect to servers in the order which they appear in the server list (the default is random).</td>
+					</tr>
+					<tr>
+						<td>server.retry.count</td>
+						<td>This will cause the addin to attempt to connect to subsequent servers in the list if the first
+						    connection attempt fails</td>
+					</tr>
+					<tr>
 						<td>url</td>
 						<td>The URL to connect to when in "http" mode (eg. "<code>url=http://localhost:8080/functionserver</code>")</td>
 					<tr>
@@ -176,12 +188,16 @@ public class ServerExample
 						<td>This is the name of the volatile version of the function (default is "FSV").</td>
 					</tr>
 					<tr>
+						<td>generic.function.category</td>
+						<td>The category under which the generic functions will be registered (default is "General").</td>
+					</tr>
+					<tr>
 						<td>disable.function.list</td>
 						<td>Set this to "true" to switch off dynamic excel function registration.</td>
 					</tr>
 					<tr>
 						<td>send.user.info</td>
-						<td>Set this to "true" to send username/hostname to server when session initializes (default is false).</td>
+						<td>Set this to "true" to send username/hostname to server when session initializes (default is true).</td>
 					</tr>
 					<tr>
 						<td>user.key</td>
@@ -198,6 +214,14 @@ public class ServerExample
 					<tr>
 						<td>disable.calc.cancel</td>
 						<td>Set this to "true" to disable to 'click to cancel' feature.</td>
+					</tr>
+					<tr>
+						<td>ini.file.location</td>
+						<td>The addin will include INI keys from the file location specified and can be a UNC path</td>
+					</tr>
+					<tr>
+						<td>ini.registry.location</td>
+						<td>The addin will include INI keys from the registry location specified (only string values)</td>
 					</tr>
 				</table>						
 		</div>
@@ -342,6 +366,14 @@ url=http://localhost:8000/FunctionServer
 		<div class="section">
 			<div class="section-title">Change History</div>
 			<div class="section-content">
+				V0.3.1
+				<ul>
+				<li>Added round-robin connection mode for multiple servers in binary mode</li>
+				<li>Added retry ability to binary mode</li>
+				<li>Generic function category can be customized</li>
+				<li>added ability to load INI keys from an external file</li>
+				<li>added ability to load INI keys from the registry</li>
+				</ul>
 				V0.3.0
 				<ul>
 				<li>Added JSON over HTTP(S) protocol support</li>
@@ -373,15 +405,6 @@ url=http://localhost:8000/FunctionServer
 				<li>Improvements to reliability on binary protocol</li>
 				<li>Support up to 512 registered functions</li>
 				<li>Reduced xll size by using wcrt</li>
-				</ul>
-				V0.1.0
-				<ul>
-					<li>Refactored protocol to directly marshal xloper objects</li>
-					<li>FunctionServer can now return excel errors, integers and booleans.</li>
-					<li>Added support for C++ via <b><a href="http://jxll.sourceforge.net">JXLL</a></b>.</li>
-					<li>New demo, XLLServer, loads and exposes functions from other XLLs.</li>
-					<li>Note: Erlang server not currently supported due to change in protocol. This is TBD.</li>
-					<li>Included a CSV reader utility for function information.</li>
 				</ul>
 				
 				<a href="oldchangehistory.html">Older Change History</a>

@@ -11,10 +11,13 @@
 #include "BinaryProtocol.h"
 #include "XLUtil.h"
 #include <stdio.h>
+#include "../Common/Log.h"
 
 #define PROTOCOL_VERSION 20
 #define MAX_SERVERS 20
 #define FS_SERVER_LIST ":server"
+#define FS_SERVER_SELECTION_MODE ":server.selection.mode"
+#define FS_SERVER_RETRY_COUNT ":server.retry.count"
 
 void BinaryProtocol::initialize(dictionary* ini)
 {
@@ -23,27 +26,69 @@ void BinaryProtocol::initialize(dictionary* ini)
 	char* server = iniparser_getstr(ini, FS_SERVER_LIST);
 	this->servers = (char**) malloc(sizeof(char*) * MAX_SERVERS);
 	this->serverPorts = (int*) malloc(sizeof(int) * MAX_SERVERS);
+	this->selectedServer = 0;
+	this->selectionMode = SERVER_SELECT_MODE_RANDOM;
+	this->retryCount = iniparser_getint(ini, FS_SERVER_RETRY_COUNT, 0);
+	char* selMode = iniparser_getstr(ini, FS_SERVER_SELECTION_MODE);
+	if(selMode) {
+		if(strcmp("round-robin", selMode) == 0) {
+			this->selectionMode = SERVER_SELECT_MODE_ROUND_ROBIN;
+			Log::Info("BinaryProtocol - using round-robin server selection mode");
+		} else {
+			Log::Info("BinaryProtocol - unrecognized server selection mode: %s", selMode);
+		}
+	}
 	ParseServerList(server);
 }
 
 int BinaryProtocol::connect()
 {
+	// Check if we are already connected
 	if(conn != NULL) return 0;
+	if(serverCount == 0) return 1;
+	if(serverCount == 1) return connect(servers[0], serverPorts[0]);
 
-	// If not connected then choose a random server to connect to
-	if(serverCount > 0) 
-	{
-		selectedServer = GetTickCount() % serverCount;
-		char temp[MAX_PATH];
-		sprintf(temp, "#Cannot connect to server [%d] - %s:%d", selectedServer+1, 
-			servers[selectedServer], serverPorts[selectedServer]);
-		if(errorMessage.val.str) free(errorMessage.val.str);
-		errorMessage.val.str= XLUtil::MakeExcelString(temp);
+	int res = connect(selectionMode);
+
+	// Any further selections go round the list
+	int retry = this->retryCount;
+	while(res && retry--)
+		res = connect(SERVER_SELECT_MODE_ROUND_ROBIN);
+
+	return res;
+}
+
+int BinaryProtocol::connect(int selectionMode)
+{
+	// If not connected then choose a server to connect to
+	switch(selectionMode) {
+	case 0:
+		this->selectedServer = GetTickCount() % this->serverCount;
+		break;
+	case 1:
+		if(this->selectedServer >= this->serverCount)
+			this->selectedServer = 0;
+		break;
 	}
+
+	char temp[MAX_PATH];
+	sprintf(temp, "#Cannot connect to server [%d] - %s:%d", selectedServer+1, 
+		servers[selectedServer], serverPorts[selectedServer]);
+	if(errorMessage.val.str) free(errorMessage.val.str);
+	errorMessage.val.str= XLUtil::MakeExcelString(temp);
 
 	char* hostname = servers[selectedServer];
 	int port = serverPorts[selectedServer];
+	Log::Info("Using server: %s:%d", hostname, port);
 
+	// Update the selected server for next time
+	this->selectedServer++;
+
+	return connect(hostname, port);
+}
+
+int BinaryProtocol::connect(char* hostname, int port)
+{
 	WSADATA wsData;
 	int wsaret = WSAStartup(0x101, &wsData);
 	if(wsaret)
