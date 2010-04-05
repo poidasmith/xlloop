@@ -57,6 +57,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 		// Store reference to handle for later use
 		g_hinstance = hinstDLL;
 
+		// Initialise the logger using std streams
+		Log::Init(hinstDLL, NULL, NULL, NULL);
+
 		// Load our (optional) ini file
 		g_ini = INI::LoadIniFile(hinstDLL);
 

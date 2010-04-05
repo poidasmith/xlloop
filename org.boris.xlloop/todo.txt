@@ -1,4 +1,15 @@
 
+updates for 0.3.1
+=================
+
+- added round-robin connection mode for multiple servers in binary mode
+- added retry ability to binary mode
+- generic function category can be customized
+- added ability to load INI keys from an external file
+- added ability to load INI keys from the registry
+
+
+
 - need to make popup a dialog that isn't toplevel or on top of everything - just modal to the
   excel window
   
@@ -12,13 +23,6 @@
 	server.2.url=http://xlloop.appspot.com/functionserver
 	server.2.function=GFS
 	server.2.function.help=Generic function executor for Google deployment
-
-- php support on json mode
-
-
-- INI option to switch off generic functions (FS, FSV)
-
-- also make FS,FSV functions accept much more arguments (30) as workaround
 
 
 - fix proxy support with auto config url (proxy.pac)
