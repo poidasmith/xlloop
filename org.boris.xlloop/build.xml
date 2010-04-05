@@ -1,25 +1,31 @@
 <project name="XLLoop" default="build">
 	
-	<property name="release.dir" value="F:/Development/Releases/"/>
-	<property name="src.dir" value="F:\eclipse\workspace\WinRun4J"/>
+	<property name="release.dir" value="c:/Development/Releases/"/>
+	<property name="src.dir" value="c:\eclipse\workspace\WinRun4J"/>
 	<property name="release.name" value="xlloop"/>
-	<property name="release.version" value="0.3.0"/>
+	<property name="release.version" value="0.3.1"/>
 	<property name="deploy.dir" value="${release.dir}/${release.name}-${release.version}/xlloop"/>
+	<property name="jxll.version" value="0.0.3"/>
 	
-	<target name="build">
+	<target name="build-jxll">
+		<mkdir dir="build-jxll"/>
+		<javac debug="off" srcdir="../org.boris.jxll/java/src" destdir="build-jxll" source="1.4">
+			<classpath>
+				<pathelement location="build"/>
+			</classpath>
+		</javac>
+	</target>
+	
+	<target name="build" depends="build-jxll">
 		<mkdir dir="${deploy.dir}"/>
 		<mkdir dir="${deploy.dir}/bin"/>
 		<copy tofile="${deploy.dir}/bin/xlloop-${release.version}.xll" file="${src.dir}/build/XLLoop-Release/XLLoop.xll"/>
 		<copy todir="${deploy.dir}" file="${src.dir}/cpl-v10.html"/>
 		<mkdir dir="${deploy.dir}/src"/>
 		<mkdir dir="build"/>
-		<javac debug="off" srcdir="../org.boris.jxll/java/src" destdir="build" source="1.4">
+		<javac debug="off" srcdir="java/src" destdir="build" source="1.5">
 			<classpath>
-				<pathelement location="build"/>
-			</classpath>
-		</javac>
-		<javac debug="off" srcdir="java/src" destdir="build" source="1.4">
-			<classpath>
+				<pathelement location="build-jxll"/>
 				<pathelement location="build"/>
 				<pathelement location="lib/bsf.jar"/>
 				<pathelement location="lib/jatha-2.8.jar"/>
@@ -70,13 +76,14 @@
 		</copy>
 		<jar destfile="${deploy.dir}/src/xlloop-cppsrc.zip">
 			<fileset dir="${src.dir}">
-				<include name="**/*.def"/>
-				<include name="**/*.cpp"/>
-				<include name="**/*.h"/>
-				<include name="**/*.vcproj"/>
+				<include name="src/**/*.def"/>
+				<include name="src/**/*.cpp"/>
+				<include name="src/**/*.h"/>
 				<include name="**/*.sln"/>
-				<include name="**/*.rc"/>
-				<include name="**/*.ico"/>
+				<include name="build/**/*.vcproj"/>
+				<include name="src/**/*.rc"/>
+				<include name="src/**/*.ico"/>
+				<include name="resources/*.gif"/>
 				<exclude name="xlcall.h"/>
 			</fileset>
 		</jar>
