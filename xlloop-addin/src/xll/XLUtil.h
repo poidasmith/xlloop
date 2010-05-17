@@ -18,6 +18,12 @@
 #include <jni.h>
 #endif
 
+typedef struct {
+	char* menuName;
+	char* menuCommand;
+	char* helpText;
+} MENU_ITEM;
+
 class XLUtil {
 public:
 	static LPSTR MakeExcelString(const char* string);
@@ -36,6 +42,9 @@ public:
 					  const char* argumentText, const char* macroType, const char* category,
 					  const char* shortcutText);
 
+	static int AddMenu(LPXLOPER xllName, MENU_ITEM* items, int itemCount, 
+		char* menuPosition, char* subMenuPosition = NULL);
+
 	static void CopyValue(LPXLOPER xloperSrc, LPXLOPER xloperDst);
 	static void FreeContents(LPXLOPER px);
 	//static char* GetCurrentSheetName();
@@ -46,6 +55,7 @@ class XLMap {
 public:
 	static LPXLOPER get(LPXLOPER pmap, const char* key);
 	static char* getString(LPXLOPER pmap, const char* key);
+	static char* getNTString(LPXLOPER pmap, const char* key);
 	static bool getBoolean(LPXLOPER pmap, const char* key);
 	static int getInteger(LPXLOPER pmap, const char* key);
 };

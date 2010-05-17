@@ -56,7 +56,7 @@ int XLUtil::RegisterFunction(LPXLOPER xllName,
 					  const char* shortcutText, const char* helpTopic, 
 					  const char* functionHelp, const char* argumentHelp, bool command)
 {
-	static XLOPER args[10];
+	XLOPER args[10];
 	for(int i = 0; i < 10; i++) {
 		args[i].val.str = NULL;
 		args[i].xltype = xltypeStr;
@@ -114,6 +114,67 @@ int XLUtil::RegisterCommand(LPXLOPER xllName,
 		macroType, category, shortcutText, NULL, NULL, NULL, true);
 }
 
+int XLUtil::AddMenu(LPXLOPER xllName, MENU_ITEM* items, int itemCount, 
+					char* menuPosition, char* subMenuPosition)
+{
+	HGLOBAL hMenu = GlobalAlloc( GMEM_MOVEABLE, sizeof(XLOPER) * itemCount * 5 );
+	LPXLOPER args = (LPXLOPER) GlobalLock( hMenu );
+
+	for(int i = 0; i < itemCount*5; i++)
+		args[i].xltype = xltypeStr;
+
+	for(int i = 0; i < itemCount; i++) {
+		int offset = i*5;
+		items[i].menuCommand = 0;
+		items[i].helpText = 0;
+		args[offset + 0].val.str = MakeExcelString(items[i].menuName);
+		args[offset + 1].val.str = MakeExcelString(items[i].menuCommand ? items[i].menuCommand : "");
+		args[offset + 2].val.str = MakeExcelString("");
+		args[offset + 3].val.str = MakeExcelString(items[i].helpText ? items[i].helpText : "");
+		args[offset + 4].val.str = MakeExcelString("");
+	}
+
+	XLOPER menu;
+	menu.xltype = xltypeMulti;
+	menu.val.array.rows = itemCount;
+	menu.val.array.columns = 5;
+	menu.val.array.lparray = args;
+
+	XLOPER unk;
+	unk.xltype = xltypeNum;
+	unk.val.num = 10;
+
+	int res = 0;
+
+	if(menuPosition) {
+		XLOPER menuPos;
+		menuPos.xltype = xltypeStr;
+		menuPos.val.str = MakeExcelString(menuPosition);
+
+		if(subMenuPosition) {
+			XLOPER sub;
+			if((int) subMenuPosition > 1000) {
+				sub.xltype = xltypeStr;
+				sub.val.str = MakeExcelString(subMenuPosition);
+			} else {
+				sub.xltype = xltypeInt;
+				sub.val.w = (int) subMenuPosition;
+			}
+
+			res = Excel4(xlfAddMenu, 0, 4, &unk, &menu, &menuPos, &sub);
+		} else {
+			res = Excel4(xlfAddMenu, 0, 3, &unk, &menu, &menuPos);
+		}
+	} else {
+		res = Excel4(xlfAddMenu, 0, 2, &unk, &menu);
+	}
+
+	GlobalUnlock( hMenu );
+	GlobalFree( hMenu );
+
+	return res;
+};
+
 void XLUtil::CopyValue(LPXLOPER xloperSrc, LPXLOPER xloperDst)
 {
 	memcpy(xloperDst, xloperSrc, sizeof(XLOPER));
@@ -167,6 +228,18 @@ char* XLMap::getString(LPXLOPER pmap, const char* key)
 		return px->val.str;
 	}
 	return NULL;
+}
+
+char* XLMap::getNTString(LPXLOPER pmap, const char* key)
+{
+	char* res = getString(pmap, key);
+	if(!res)
+		return res;
+	int len = res[0];
+	char* res2 = (char*) malloc(len+1);
+	memcpy(res2, &res[1], len);
+	res2[len] = 0;
+	return res2;
 }
 
 bool XLMap::getBoolean(LPXLOPER pmap, const char* key)
