@@ -40,10 +40,9 @@ char* RegisterCommand(LPXLOPER xllName, const char* menu, const char* submenu, c
 	}
 	sprintf(tmp2, "FSC%d", g_cmdCount);
 	XLUtil::RegisterCommand(xllName, tmp2, "", tmp2, "", "3", "", "");
-	char* cmdName = strdup(temp);
-	g_cmdNames[g_cmdCount] = cmdName;
+	g_cmdNames[g_cmdCount] = strdup(temp);
 	g_cmdCount++;
-	return cmdName;
+	return strdup(tmp2);
 }
 
 MENU_ITEM* GenerateMenu(LPXLOPER xllName, char* menuName, char* subMenu, LPXLOPER items)
@@ -56,7 +55,7 @@ MENU_ITEM* GenerateMenu(LPXLOPER xllName, char* menuName, char* subMenu, LPXLOPE
 	for(int i = 0; i < itemCount; i++) {
 		LPXLOPER x = &items->val.array.lparray[i];
 		mi[i+1].menuName = XLMap::getNTString(x, "name");
-		mi[i+1].helpText = "";
+		mi[i+1].helpText = XLMap::getNTString(x, "help");
 		mi[i+1].menuCommand = RegisterCommand(xllName, menuName, subMenu, mi[i+1].menuName);
 	}
 	return mi;
@@ -64,10 +63,19 @@ MENU_ITEM* GenerateMenu(LPXLOPER xllName, char* menuName, char* subMenu, LPXLOPE
 
 void SheetGenerator::Execute(Protocol* protocol, const char* name)
 {
+	XLOPER mn;
+	mn.xltype = xltypeStr;
+	mn.val.str = XLUtil::MakeExcelString(name);
+	LPXLOPER res = protocol->execute(AF_EXEC_COMMAND, false, 1, &mn);
+	free(mn.val.str);
+	XLUtil::FreeContents(res);
 }
 
 void SheetGenerator::Register(LPXLOPER xllName, Protocol* protocol, dictionary* ini)
 {
+	// Need to save a reference for commands
+	g_protocol = protocol;
+
 	LPXLOPER res = protocol->execute(AF_GET_MENU, true, 0);
 	if(!res) 
 		return;
@@ -87,7 +95,7 @@ void SheetGenerator::Register(LPXLOPER xllName, Protocol* protocol, dictionary* 
 	MENU_ITEM* toplevel = GenerateMenu(xllName, menuName, NULL, items);
 	XLUtil::AddMenu(xllName, toplevel, items->val.array.rows+1, "Help");
 
-	LPXLOPER submenus = XLMap::get(res, "submenus");
+	LPXLOPER submenus = XLMap::get(res, "submenus"); 
 	int subc = submenus->val.array.rows;
 	int posCount = 1;
 	for(int i = 0; i < subc; i++) {

@@ -125,8 +125,6 @@ int XLUtil::AddMenu(LPXLOPER xllName, MENU_ITEM* items, int itemCount,
 
 	for(int i = 0; i < itemCount; i++) {
 		int offset = i*5;
-		items[i].menuCommand = 0;
-		items[i].helpText = 0;
 		args[offset + 0].val.str = MakeExcelString(items[i].menuName);
 		args[offset + 1].val.str = MakeExcelString(items[i].menuCommand ? items[i].menuCommand : "");
 		args[offset + 2].val.str = MakeExcelString("");

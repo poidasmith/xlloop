@@ -5,6 +5,7 @@ import java.io.File;
 import org.boris.xlloop.handler.CompositeFunctionHandler;
 import org.boris.xlloop.handler.DebugFunctionHandler;
 import org.boris.xlloop.handler.FunctionInformationHandler;
+import org.boris.xlloop.menu.MenuHandler;
 import org.boris.xlloop.reflect.Reflect;
 import org.boris.xlloop.reflect.ReflectFunctionHandler;
 import org.boris.xlloop.script.LispFunctionHandler;
@@ -44,6 +45,7 @@ public class ServerTest1
         firh.add(lfh.getInformation());
         firh.add(srep); // add script repository as a function provider
         cfh.add(firh);
+        cfh.add(new MenuHandler(new TestMenu()));
         cfh.add(new CompTest1());
         return cfh;
     }
