@@ -17,13 +17,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.boris.xlloop.IBuiltinFunctions;
 import org.boris.xlloop.IFunctionContext;
 import org.boris.xlloop.IFunctionHandler;
 import org.boris.xlloop.RequestException;
 import org.boris.xlloop.util.XLList;
 import org.boris.xlloop.xloper.XLoper;
 
-public class FunctionInformationHandler implements IFunctionHandler
+public class FunctionInformationHandler implements IFunctionHandler, IBuiltinFunctions
 {
     private ArrayList functions = new ArrayList();
     private Set functionProviders = new HashSet();
@@ -86,6 +87,6 @@ public class FunctionInformationHandler implements IFunctionHandler
     }
 
     public boolean hasFunction(String name) {
-        return "org.boris.xlloop.GetFunctions".equals(name);
+        return GET_FUNCTIONS.equals(name);
     }
 }

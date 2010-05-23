@@ -14,6 +14,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import org.boris.xlloop.codec.BinaryRequestProtocol;
+import org.boris.xlloop.util.XLList;
 import org.boris.xlloop.xloper.XLBool;
 import org.boris.xlloop.xloper.XLError;
 import org.boris.xlloop.xloper.XLInt;
@@ -21,7 +22,7 @@ import org.boris.xlloop.xloper.XLSRef;
 import org.boris.xlloop.xloper.XLString;
 import org.boris.xlloop.xloper.XLoper;
 
-public class FunctionServer
+public class FunctionServer implements IBuiltinFunctions
 {
     protected int port;
     protected IFunctionHandler handler;
@@ -93,7 +94,7 @@ public class FunctionServer
         }
     }
 
-    public static void handleRequest(IFunctionHandler handler, IRequestProtocol protocol, Socket socket) {
+    public static void handleRequest(IFunctionHandler handler, IRequestProtocol protocol, Socket socket, Session session) {
         try {
             XLoper nameOrVersion = protocol.receive(socket);
             XLString name = null;
@@ -111,7 +112,7 @@ public class FunctionServer
                         String namestr = null;
                         if (sheetName instanceof XLString)
                             namestr = ((XLString) sheetName).str;
-                        context = new FunctionContext(handler, cref, namestr);
+                        context = new FunctionContext(handler, session, cref, namestr);
                     }
                 } else {
                     protocol.send(socket, new XLString("#Unknown protocol version"));
@@ -127,6 +128,13 @@ public class FunctionServer
             for (int i = 0; i < argCount.w; i++) {
                 args[i] = protocol.receive(socket);
             }
+            if (!session.init && name.str.equals(INITIALIZE)) {
+                initializeSession(session, args);
+            }
+
+            if (session.init && context == null)
+                context = new FunctionContext(handler, session, null, null);
+
             XLoper res = handler.execute(context, name.str, args);
             if (res == null)
                 res = XLError.NULL;
@@ -150,11 +158,29 @@ public class FunctionServer
         }
     }
 
+    private static void initializeSession(Session session, XLoper[] args) {
+        session.init = true;
+        XLList l = new XLList(args);
+        int size = l.size();
+        switch (size) {
+        default:
+        case 3:
+            session.key = l.getString(2);
+        case 2:
+            session.host = l.getString(1);
+        case 1:
+            session.user = l.getString(0);
+        case 0:
+            break;
+        }
+    }
+
     public static class HandlerThread extends Thread
     {
         private Socket socket;
         private IRequestProtocol protocol = new BinaryRequestProtocol();
         private IFunctionHandler handler;
+        private Session session = new Session();
 
         public HandlerThread(IFunctionHandler handler, Socket socket) {
             super("XLLoop Function Server Handler");
@@ -168,7 +194,7 @@ public class FunctionServer
             } catch (IOException e) {
             }
             while (!socket.isClosed()) {
-                handleRequest(handler, protocol, socket);
+                handleRequest(handler, protocol, socket, session);
             }
         }
 
@@ -185,14 +211,28 @@ public class FunctionServer
 
     public static class FunctionContext implements IFunctionContext
     {
+        private IFunctionHandler handler;
+        private Session session;
         private XLSRef caller;
         private String sheetName;
-        private IFunctionHandler handler;
 
-        public FunctionContext(IFunctionHandler handler, XLSRef caller, String sheetName) {
+        public FunctionContext(IFunctionHandler handler, Session session, XLSRef caller, String sheetName) {
             this.handler = handler;
+            this.session = session;
             this.caller = caller;
             this.sheetName = sheetName;
+        }
+
+        public String getHost() {
+            return session.host;
+        }
+
+        public String getUser() {
+            return session.user;
+        }
+
+        public String getUserKey() {
+            return session.key;
         }
 
         public XLSRef getCaller() {
@@ -206,5 +246,13 @@ public class FunctionServer
         public XLoper execute(String name, XLoper[] args) throws RequestException {
             return handler.execute(this, name, args);
         }
+    }
+
+    private static class Session
+    {
+        private String user;
+        private String host;
+        private String key;
+        private boolean init;
     }
 }

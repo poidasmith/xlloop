@@ -7,7 +7,7 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.xlloop.menu;
+package org.boris.xlloop.command;
 
 import org.boris.xlloop.xloper.XLString;
 import org.boris.xlloop.xloper.XLoper;

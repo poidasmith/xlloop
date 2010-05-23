@@ -29,11 +29,13 @@ public class XLList
     }
 
     public XLList(XLArray value) {
-        list.addAll(Arrays.asList(value.array));
+        if (value != null)
+            list.addAll(Arrays.asList(value.array));
     }
 
     public XLList(XLoper[] value) {
-        list.addAll(Arrays.asList(value));
+        if (value != null)
+            list.addAll(Arrays.asList(value));
     }
 
     public void add(XLoper xl) {
@@ -70,6 +72,13 @@ public class XLList
 
     public XLoper get(int index) {
         return (XLoper) list.get(index);
+    }
+
+    public String getString(int index) {
+        XLoper x = get(index);
+        if (x instanceof XLString)
+            return ((XLString) x).str;
+        return null;
     }
 
     public XLArray toXLoper() {

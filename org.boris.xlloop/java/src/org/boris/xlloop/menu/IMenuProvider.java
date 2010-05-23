@@ -9,6 +9,8 @@
  *******************************************************************************/
 package org.boris.xlloop.menu;
 
+import org.boris.xlloop.command.CommandResult;
+
 public interface IMenuProvider
 {
     Menu getMenu();

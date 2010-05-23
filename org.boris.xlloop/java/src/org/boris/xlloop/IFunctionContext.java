@@ -14,6 +14,12 @@ import org.boris.xlloop.xloper.XLoper;
 
 public interface IFunctionContext
 {
+    String getUser();
+
+    String getHost();
+
+    String getUserKey();
+
     XLSRef getCaller();
 
     String getSheetName();

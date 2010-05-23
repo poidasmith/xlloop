@@ -9,7 +9,7 @@
  *******************************************************************************/
 package org.boris.xlloop;
 
-import org.boris.xlloop.menu.CommandResult;
+import org.boris.xlloop.command.CommandResult;
 import org.boris.xlloop.menu.IMenuProvider;
 import org.boris.xlloop.menu.Menu;
 import org.boris.xlloop.menu.MenuItem;
