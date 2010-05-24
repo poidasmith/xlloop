@@ -8,7 +8,7 @@
 	
 	<target name="build-jxll">
 		<mkdir dir="build-jxll"/>
-		<javac debug="off" srcdir="../org.boris.jxll/java/src" destdir="build-jxll" source="1.4">
+		<javac srcdir="../org.boris.jxll/java/src" destdir="build-jxll" source="1.4">
 			<classpath>
 				<pathelement location="build"/>
 			</classpath>
