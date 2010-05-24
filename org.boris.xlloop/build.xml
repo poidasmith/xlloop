@@ -22,7 +22,7 @@
 		<copy todir="${deploy.dir}" file="${src.dir}/cpl-v10.html"/>
 		<mkdir dir="${deploy.dir}/src"/>
 		<mkdir dir="build"/>
-		<javac debug="off" srcdir="java/src" destdir="build" source="1.5">
+		<javac srcdir="java/src" destdir="build" source="1.5">
 			<classpath>
 				<pathelement location="build-jxll"/>
 				<pathelement location="build"/>
