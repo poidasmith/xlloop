@@ -15,6 +15,7 @@
 #include "xll/BinaryProtocol.h"
 #include "xll/HttpProtocol.h"
 #include "xll/Timeout.h"
+#include "xll/SheetGenerator.h"
 
 // The DLL instance
 static HINSTANCE g_hinstance = NULL;
@@ -50,6 +51,7 @@ static XLOPER g_errorMessage;
 
 // Admin function names
 #define AF_GET_FUNCTIONS "org.boris.xlloop.GetFunctions"
+#define AF_INITIALIZE "org.boris.xlloop.Initialize"
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
@@ -94,11 +96,11 @@ void InitializeSession()
 		char* userKey = iniparser_getstr(g_ini, FS_USER_KEY);
 		if(userKey) {
 			LPXLOPER ukey = XLUtil::MakeExcelString2(userKey);
-			g_protocol->execute("org.boris.xlloop.Initialize", false, 3, uname, hostname, ukey);
+			g_protocol->execute(AF_INITIALIZE, false, 3, uname, hostname, ukey);
 			XLUtil::FreeContents(ukey);
 			free(ukey);
 		} else {
-			g_protocol->execute("org.boris.xlloop.Initialize", false, 2, uname, hostname);
+			g_protocol->execute(AF_INITIALIZE, false, 2, uname, hostname);
 		}
 		XLUtil::FreeContents(uname);
 		XLUtil::FreeContents(hostname);
@@ -141,7 +143,7 @@ void RegisterFunctions()
 	Excel4(xlGetName, &xDLL, 0);
 
 	// Ask the server for a list of functions and register them
-	LPXLOPER farr = g_protocol->execute("org.boris.xlloop.GetFunctions", false, 0);
+	LPXLOPER farr = g_protocol->execute(AF_GET_FUNCTIONS, false, 0);
 	int t = farr->xltype & ~(xlbitXLFree | xlbitDLLFree);
 	int rows = farr->val.array.rows;
 	int cols = farr->val.array.columns;
@@ -239,6 +241,9 @@ __declspec(dllexport) int WINAPI xlAutoOpen(void)
 	if(disableFunctionList == NULL || strcmp(disableFunctionList, "true")) {
 		RegisterFunctions();
 	}
+
+	// Sheet Generator
+	SheetGenerator::Register(&xDLL, g_protocol, g_ini);
 
 	// Free the XLL filename
 	Excel4(xlFree, 0, 1, (LPXLOPER) &xDLL);

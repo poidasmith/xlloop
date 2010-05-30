@@ -166,13 +166,18 @@ void Timeout::Show(const char* function)
 
 	// Get the sheet name
 	XLOPER xlSheetName;
-	Excel4(xlSheetNm, &xlSheetName, 1, &x);
+	int res = Excel4(xlSheetNm, &xlSheetName, 1, &x);
 	char sheetName[MAX_PATH];
-	memcpy(sheetName, &xlSheetName.val.str[1], xlSheetName.val.str[0]);
-	sheetName[xlSheetName.val.str[0]] = 0;
+	sheetName[0] = 0;
+	if(!res) {
+		memcpy(sheetName, &xlSheetName.val.str[1], xlSheetName.val.str[0]);
+		sheetName[xlSheetName.val.str[0]] = 0;
+	}
 
 	// Now format the message 
-	if(x.val.sref.ref.rwLast > x.val.sref.ref.rwFirst || x.val.sref.ref.colLast > x.val.sref.ref.colFirst) {
+	if(res) {
+		sprintf(g_Message, "Calculating %s()", function);
+	} else if(x.val.sref.ref.rwLast > x.val.sref.ref.rwFirst || x.val.sref.ref.colLast > x.val.sref.ref.colFirst) {
 		char c1[5], c2[5];
 		ToColumnName(x.val.sref.ref.colFirst, c1);
 		ToColumnName(x.val.sref.ref.colLast, c2);
