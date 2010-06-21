@@ -57,7 +57,7 @@ class XLCodec:
                     aa = []
                     for j in xrange(cols):
                         aa.append(XLCodec.decode(socket))
-                    a.append(a)
+                    a.append(aa)
             else:
                 for i in xrange(rows):
                     a.append(XLCodec.decode(socket))
