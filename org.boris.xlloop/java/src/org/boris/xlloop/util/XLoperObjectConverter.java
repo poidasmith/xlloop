@@ -11,6 +11,7 @@ package org.boris.xlloop.util;
 
 import org.boris.xlloop.xloper.XLArray;
 import org.boris.xlloop.xloper.XLBool;
+import org.boris.xlloop.xloper.XLError;
 import org.boris.xlloop.xloper.XLInt;
 import org.boris.xlloop.xloper.XLNil;
 import org.boris.xlloop.xloper.XLNum;
@@ -73,6 +74,8 @@ public class XLoperObjectConverter
             return new XLArray(array, arr.length, 1);
         } else if (obj instanceof String[][]) {
             String[][] arr = (String[][]) obj;
+            if (arr.length == 0 || arr[0] == null)
+                return XLError.NA;
             XLArray array = new XLArray(arr.length, arr[0].length);
 
             for (int i = 0; i < arr.length; i++) {
@@ -93,6 +96,8 @@ public class XLoperObjectConverter
             return new XLArray(array, array.length, 1);
         } else if (obj instanceof double[][]) {
             double[][] arr = (double[][]) obj;
+            if (arr.length == 0 || arr[0] == null)
+                return XLError.NA;
             XLArray array = new XLArray(arr.length, arr[0].length);
 
             for (int i = 0; i < arr.length; i++) {
@@ -114,6 +119,8 @@ public class XLoperObjectConverter
             return new XLArray(array, arr.length, 1);
         } else if (obj instanceof Double[][]) {
             Double[][] arr = (Double[][]) obj;
+            if (arr.length == 0 || arr[0] == null)
+                return XLError.NA;
             XLArray array = new XLArray(arr.length, arr[0].length);
 
             for (int i = 0; i < arr.length; i++) {
@@ -134,6 +141,8 @@ public class XLoperObjectConverter
             return new XLArray(array, arr.length, 1);
         } else if (obj instanceof int[][]) {
             int[][] arr = (int[][]) obj;
+            if (arr.length == 0 || arr[0] == null)
+                return XLError.NA;
             XLArray array = new XLArray(arr.length, arr[0].length);
 
             for (int i = 0; i < arr.length; i++) {
@@ -155,6 +164,8 @@ public class XLoperObjectConverter
             return new XLArray(array, arr.length, 1);
         } else if (obj instanceof Integer[][]) {
             Integer[][] arr = (Integer[][]) obj;
+            if (arr.length == 0 || arr[0] == null)
+                return XLError.NA;
             XLArray array = new XLArray(arr.length, arr[0].length);
 
             for (int i = 0; i < arr.length; i++) {
@@ -175,6 +186,8 @@ public class XLoperObjectConverter
             return new XLArray(array, arr.length, 1);
         } else if (obj instanceof boolean[][]) {
             boolean[][] arr = (boolean[][]) obj;
+            if (arr.length == 0 || arr[0] == null)
+                return XLError.NA;
             XLArray array = new XLArray(arr.length, arr[0].length);
 
             for (int i = 0; i < arr.length; i++) {
@@ -196,6 +209,8 @@ public class XLoperObjectConverter
             return new XLArray(array, arr.length, 1);
         } else if (obj instanceof Boolean[][]) {
             Boolean[][] arr = (Boolean[][]) obj;
+            if (arr.length == 0 || arr[0] == null)
+                return XLError.NA;
             XLArray array = new XLArray(arr.length, arr[0].length);
 
             for (int i = 0; i < arr.length; i++) {
@@ -207,6 +222,8 @@ public class XLoperObjectConverter
             return array;
         } else if (obj instanceof Object[][]) {
             Object[][] arr = (Object[][]) obj;
+            if (arr.length == 0 || arr[0] == null)
+                return XLError.NA;
             XLArray array = new XLArray(arr.length, arr[0].length);
 
             for (int i = 0; i < arr.length; i++) {
