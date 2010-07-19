@@ -128,6 +128,6 @@ public class XLMap
     }
 
     public String toString() {
-        return map.toString();
+        return toXloper().toString();
     }
 }
