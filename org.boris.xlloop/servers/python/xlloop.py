@@ -98,6 +98,12 @@ class XLCodec:
             socket.send(struct.pack('>i', value.col_last))
             socket.send(struct.pack('>i', value.rw_first))
             socket.send(struct.pack('>i', value.rw_last))
+        elif isinstance(value, types.BooleanType):
+            socket.send(struct.pack('B', XL_TYPE_BOOL))
+            if(value == True):
+                socket.send(struct.pack('B', 1))
+            else:
+                socket.send(struct.pack('B', 0))
         elif isinstance(value, types.IntType):
             socket.send(struct.pack('B', XL_TYPE_NUM))
             socket.send(struct.pack('>d', float(value)))

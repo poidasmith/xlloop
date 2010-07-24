@@ -9,17 +9,15 @@
  *******************************************************************************/
 package org.boris.xlloop.menu;
 
+import org.boris.xlloop.IBuiltinFunctions;
 import org.boris.xlloop.IFunctionContext;
 import org.boris.xlloop.IFunctionHandler;
 import org.boris.xlloop.RequestException;
 import org.boris.xlloop.xloper.XLString;
 import org.boris.xlloop.xloper.XLoper;
 
-public class MenuHandler implements IFunctionHandler
+public class MenuHandler implements IFunctionHandler, IBuiltinFunctions
 {
-    public static final String AF_GET_MENU = "org.boris.xlloop.GetMenu";
-    public static final String AF_EXEC_COMMAND = "org.boris.xlloop.ExecuteCommand";
-
     private IMenuProvider provider;
 
     public MenuHandler(IMenuProvider provider) {
@@ -27,17 +25,17 @@ public class MenuHandler implements IFunctionHandler
     }
 
     public XLoper execute(IFunctionContext context, String name, XLoper[] args) throws RequestException {
-        if (AF_EXEC_COMMAND.equals(name)) {
+        if (EXEC_COMMAND.equals(name)) {
             String item = null;
             String submenu = null;
             return provider.execute(item, submenu).toXLoper();
-        } else if (AF_GET_MENU.equals(name)) {
+        } else if (GET_MENU.equals(name)) {
             return MenuCodec.toXLoper(provider.getMenu());
         }
         return new XLString("#Unknown function: " + name);
     }
 
     public boolean hasFunction(String name) {
-        return AF_EXEC_COMMAND.equals(name) || AF_GET_MENU.equals(name);
+        return EXEC_COMMAND.equals(name) || GET_MENU.equals(name);
     }
 }

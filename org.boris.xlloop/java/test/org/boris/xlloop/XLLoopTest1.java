@@ -9,27 +9,26 @@
  *******************************************************************************/
 package org.boris.xlloop;
 
-import org.boris.xlloop.util.XLList;
-import org.boris.xlloop.xloper.XLNum;
+import org.boris.xlloop.framework.XLLoopTestCase;
 
 public class XLLoopTest1 extends XLLoopTestCase
 {
     private FunctionServer server;
 
     protected void setUp() throws Exception {
-        server = ServerTest1.createServer(5454);
-        server.start();
+        // server = ServerTest1.createServer(5454);
+        // server.start();
         super.setUp();
     }
 
     protected void tearDown() throws Exception {
-        server.stop();
+        // server.stop();
         super.tearDown();
     }
 
     public void test1() throws Exception {
         // System.out.println(executeFunction("org.boris.xlloop.GetFunctions",
         // new XLList()));
-        System.out.println(executeFunction("Math.sin", XLList.make(new XLNum(Math.PI / 2)).toArray()));
+        System.out.println(execute("Math.sin", Math.PI / 2));
     }
 }
