@@ -20,7 +20,7 @@ public class PythonServerTest extends XLLoopTestCase
         xpa.set(0, 0, Math.PI);
         xpa.set(0, 1, "test");
         xpa.set(1, 0, 10);
-        xpa.set(1, 1, true);
+        // xpa.set(1, 1, true);
         XLoper res = execute("ArgsTest", xpa.toXLoper());
         System.out.println(res);
     }

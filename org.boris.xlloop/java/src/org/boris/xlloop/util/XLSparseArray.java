@@ -27,7 +27,15 @@ public class XLSparseArray
     private int minCol = Integer.MAX_VALUE;
     private int maxRow = 0;
     private int maxCol = 0;
-    private Map values = new HashMap();
+    private Map<ArrayRef, XLoper> values = new HashMap();
+
+    public int columns() {
+        return maxCol;
+    }
+
+    public int rows() {
+        return maxRow;
+    }
 
     public void set(int row, int column, String value) {
         set(row, column, new XLString(value));
@@ -59,6 +67,28 @@ public class XLSparseArray
         values.put(new ArrayRef(row, column), value);
     }
 
+    public String getString(int row, int column) {
+        XLoper x = get(row, column);
+        if (x instanceof XLString)
+            return ((XLString) x).str;
+        return null;
+    }
+
+    public Double getDouble(int row, int column) {
+        XLoper x = get(row, column);
+        if (x instanceof XLNum)
+            return ((XLNum) x).num;
+        else if (x instanceof XLInt)
+            return (double) ((XLInt) x).w;
+        else if (x instanceof XLBool)
+            return ((XLBool) x).bool ? 1. : 0.;
+        return null;
+    }
+
+    public XLoper get(int row, int column) {
+        return values.get(new ArrayRef(row, column));
+    }
+
     public XLoper toXLoper() {
         XLArray a = new XLArray(maxRow - minRow + 1, maxCol - minCol + 1);
         for (Iterator i = values.keySet().iterator(); i.hasNext();) {
@@ -66,6 +96,10 @@ public class XLSparseArray
             a.set(r.row - minRow, r.column - minCol, (XLoper) values.get(r));
         }
         return a;
+    }
+
+    public XLArray toArray() {
+        return (XLArray) toXLoper();
     }
 
     private class ArrayRef
