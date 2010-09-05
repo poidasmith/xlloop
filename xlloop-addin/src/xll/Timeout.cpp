@@ -169,9 +169,15 @@ void Timeout::Show(const char* function)
 	int res = Excel4(xlSheetNm, &xlSheetName, 1, &x);
 	char sheetName[MAX_PATH];
 	sheetName[0] = 0;
-	if(!res) {
+
+	// Temp disable showing timer on startup calls
+	if(res != 0)
+		return;
+
+	if(res == 0) {
 		memcpy(sheetName, &xlSheetName.val.str[1], xlSheetName.val.str[0]);
 		sheetName[xlSheetName.val.str[0]] = 0;
+		Excel4(xlFree, 0, 1, &xlSheetName);
 	}
 
 	// Now format the message 
@@ -189,9 +195,6 @@ void Timeout::Show(const char* function)
 		sprintf(g_Message, "Calculating %s %s%d: %s()", sheetName, c1, 
 			x.val.sref.ref.rwFirst + 1, function);
 	}
-
-	// Free sheetname
-	Excel4(xlFree, 0, 1, &xlSheetName);
 
 	g_CurrentImage = 0;
 	g_Shutdown = false;
@@ -244,6 +247,9 @@ void Timeout::Draw()
 
 void Timeout::Initialise(HINSTANCE hInstance, dictionary* ini)
 {
+	if(g_Initialised)
+		return;
+
 	// Check if the user wants this feature
 	bool disable = iniparser_getboolean(ini, DISABLE_OPTION, false);
 	if(disable) return;
