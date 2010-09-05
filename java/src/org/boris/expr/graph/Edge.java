@@ -7,7 +7,7 @@
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
-package org.boris.expr.util;
+package org.boris.expr.graph;
 
 public class Edge
 {

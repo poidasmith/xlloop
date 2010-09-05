@@ -16,11 +16,11 @@ import org.boris.expr.ExprEvaluatable;
 import org.boris.expr.ExprException;
 import org.boris.expr.ExprVariable;
 import org.boris.expr.IEvaluationCallback;
+import org.boris.expr.graph.Edge;
+import org.boris.expr.graph.Graph;
+import org.boris.expr.graph.GraphCycleException;
+import org.boris.expr.graph.GraphTraversalListener;
 import org.boris.expr.parser.IParserVisitor;
-import org.boris.expr.util.Edge;
-import org.boris.expr.util.Graph;
-import org.boris.expr.util.GraphCycleException;
-import org.boris.expr.util.GraphTraversalListener;
 
 public class DependencyEngine extends AbstractCalculationEngine implements
         IParserVisitor, IEvaluationCallback, GraphTraversalListener
