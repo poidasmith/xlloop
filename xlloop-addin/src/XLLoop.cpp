@@ -77,7 +77,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 		// Initialise timeout feature
 		Timeout::Initialise(hinstDLL, g_ini);
-	}
+	} 
 
 	// OK
 	return TRUE;
