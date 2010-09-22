@@ -176,7 +176,7 @@ class XLLoopHandler(SocketServer.BaseRequestHandler):
                     name = XLCodec.decode(self.request)
                 argc = XLCodec.decode(self.request)
                 args = []
-                for i in xrange(0, argc):
+                for i in xrange(argc):
                     args.append(XLCodec.decode(self.request))
                 res = self.server.handler.invoke(context, name, args)
                 XLCodec.encode(res, self.request)

@@ -1,14 +1,19 @@
 from xlloop import *
-import string, random
+import string, random, array
 
 class TestHandler:
     def invoke(self, context, name, args):
+        print(name)
         if name == 'ArgsTest':
-            return args
+            if(len(args) > 0):
+                print(args[0])
+                return args[0]
+            else:
+                return XLError(XL_ERROR_NA)
         elif name == 'RandTest':
-            len = int(random.random() * 50 + 2)
+            rlen = int(random.random() * 50 + 2)
             a = []
-            for i in xrange(len):
+            for i in xrange(rlen):
                 v = int(random.random() * 4)
                 if v == 0:
                     a.append("".join(random.sample(string.letters+string.digits, 50)))
