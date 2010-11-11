@@ -138,7 +138,7 @@ class XLCodec:
                     socket.send(struct.pack('>i', 1))
                     for i in xrange(rows):
                         XLCodec.encode(value[i], socket)
-        elif isintance(value, types.TupleType):
+        elif isinstance(value, types.TupleType):
             socket.send(struct.pack('B', XL_TYPE_MULTI))
             rows = len(value)
             socket.send(struct.pack('>i', rows))
