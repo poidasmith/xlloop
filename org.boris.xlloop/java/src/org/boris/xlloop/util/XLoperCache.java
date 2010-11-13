@@ -28,7 +28,7 @@ public class XLoperCache
     }
 
     public String toId(Object... ids) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         for (Object o : ids) {
             sb.append(File.separatorChar);
             sb.append(cleanFile(String.valueOf(o)));

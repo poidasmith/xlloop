@@ -95,7 +95,7 @@ public class ParameterNameExtractor
     }
 
     private static String generateDescriptor(Class returnType, Class[] params) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("(");
         for (int i = 0; i < params.length; i++) {
             sb.append(generateDescriptor(params[i]));

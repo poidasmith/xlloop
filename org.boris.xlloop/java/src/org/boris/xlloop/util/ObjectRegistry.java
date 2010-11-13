@@ -85,7 +85,7 @@ public class ObjectRegistry
      * @return String.
      */
     private String createKey(Object obj) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append((obj == null) ? "null" : obj.getClass().getName());
         sb.append("@");
 
