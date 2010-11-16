@@ -1,4 +1,5 @@
 import random, socket, select, struct, threading, traceback, types, SocketServer
+import inspect
 
 #  Defines the XLoper types
 XL_TYPE_NUM = 1
@@ -23,15 +24,15 @@ XL_ERROR_NA = 42
 class XLError:
     def __init__(self, err):
         self.err = err
-        
+
 class XLSRef:
     def __init__(self, col_first, col_last, rw_first, rw_last):
         self.col_first = col_first
         self.col_last = col_last
         self.rw_first = rw_first
         self.rw_last = rw_last
-    
-class XLCodec:    
+
+class XLCodec:
     def decode(socket):
         type = ord(socket.recv(1))
         if type == XL_TYPE_NUM:
@@ -73,12 +74,12 @@ class XLCodec:
         else:
             raise TypeError("Invalid XLoper type encountered")
     decode = staticmethod(decode)
-    
+
     def decodeInt(socket):
         l = socket.recv(4)
         return ord(l[0]) << 24 | ord(l[1]) << 16 | ord(l[2]) << 8 | ord(l[3])
     decodeInt = staticmethod(decodeInt)
-    
+
     def encode(value, socket):
         if isinstance(value, types.StringType):
             socket.send(struct.pack('B', XL_TYPE_STR))
@@ -149,9 +150,9 @@ class XLCodec:
             for i in xrange(rows):
                 XLCodec.encode(value[i], socket)
         else:
-            XLCodec.encode(str(value), socket)   
+            XLCodec.encode(str(value), socket)
     encode = staticmethod(encode)
-    
+
 class FunctionContext:
     def __init__(self, caller, sheet_name):
         self.caller = caller
@@ -184,22 +185,66 @@ class XLLoopHandler(SocketServer.BaseRequestHandler):
                 traceback.print_exc()
                 self.request.shutdown
                 break
-            
+
 class XLLoopServer:
     def __init__(self, handler, port=5454):
         self.handler = handler
         self.port = port
-        
+
     def start(self):
         self.server = SocketServer.ThreadingTCPServer(('localhost', self.port), XLLoopHandler)
         self.server.handler = self.handler
         self.server.serve_forever()
-    
+
     def stop(self):
         self.server.shutdown()
-    
 
+class FnServer(object):
+    def __init__(self):
+        self.exposed_fns = {}
+        self._get_fns = []
 
+    def add_fn(self, excel_name, fn_to_call, doc=None, arg_descrs=[], args='', register=True):
+        self.exposed_fns[excel_name] = fn_to_call
+        if register:
+            excel_info = [
+                    ["functionName", excel_name],
+                    ["functionHelp", doc],
+                    ["category", "PYTHON"],
+                    ["argumentHelp", arg_descrs],
+                    ["argumentText", args]
+                ]
+            self._get_fns.append(excel_info)
 
+    def invoke(self, context, name, args):
+        if name in self.exposed_fns:
+            try:
+                return self.exposed_fns[name](*args)
+            except TypeError, msg:
+                print msg
+                return
+        else:
+            return XLError(XL_ERROR_NAME)
 
-        
+    def get_fns(self):
+        return tuple(self._get_fns,)
+
+fn_server = FnServer()
+fn_server.add_fn("org.boris.xlloop.GetFunctions", fn_server.get_fns, register=False)
+
+def expose(excel_name=None, arg_descrs=[]):
+    def decorator(fn):
+        xln = excel_name # Need local reference, otherwise get exception
+        if xln is None:
+            xln = fn.__name__
+        d = fn.func_doc
+        args = ", ".join([x.title() for x in inspect.getargspec(fn)[0]])
+        argd = arg_descrs
+        fn_server.add_fn(xln, fn, doc=d, arg_descrs=argd, args=args)
+        return fn
+    return decorator
+
+def run():
+    print("Starting Function Server on port 5454 ...")
+    xs = XLLoopServer(fn_server)
+    xs.start()
