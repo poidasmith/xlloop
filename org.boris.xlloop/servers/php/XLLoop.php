@@ -22,7 +22,7 @@ function XLLoop_reflection_handler()
 			print json_encode(XLLoop_encode("#Function " . $value->name . "() does not exist"));
 		}
 	} catch (Exception $e) {
-		print json_encode(XLLoop_encode("#" . $e->getTraceAsString()));
+		print json_encode(XLLoop_encode("#" . $e->getMessage()));
 	}
 }
 
@@ -109,7 +109,7 @@ function XLLoop_encode($value)
 		$c = count($value->array);
 		$arr = array();
 		for($i = 0; $i < $c; $i++) {
-			$arr[$i] = XLLoop_encode($value->array($i));
+			$arr[$i] = XLLoop_encode($value->array[$i]);
 		}
 		return array("type" => 5, "rows" => $value->rows, "cols" => $value->cols, "array" => $value->array);
 	} else {
