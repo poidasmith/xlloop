@@ -5,21 +5,25 @@ function XLLoop_reflection_handler()
 	try {
 		$input = file_get_contents('php://input');
 		$value = json_decode($input);
-		$argc = count($value->args);
-		$args = array();
-		for($i = 0; $i < $argc; $i++) {
-			$args[$i] = XLLoop_decode($value->args[$i]);
-		}
-		$function = new ReflectionFunction($value->name);
-		if($function->isUserDefined()) {
-			$reqArgc = $function->getNumberOfParameters();
-			for($i = $argc; $i < $reqArgc; $i++)
-				$args[$i] = 0;
-			$result = $function->invokeArgs($args);
-			$enc = XLLoop_encode($result);
-			print json_encode($enc);
+		if( $value != NULL ) {
+			$argc = count($value->args);
+			$args = array();
+			for($i = 0; $i < $argc; $i++) {
+				$args[$i] = XLLoop_decode($value->args[$i]);
+			}
+			$function = new ReflectionFunction($value->name);
+			if($function->isUserDefined()) {
+				$reqArgc = $function->getNumberOfParameters();
+				for($i = $argc; $i < $reqArgc; $i++)
+					$args[$i] = 0;
+				$result = $function->invokeArgs($args);
+				$enc = XLLoop_encode($result);
+				print json_encode($enc);
+			} else {
+				print json_encode(XLLoop_encode("#Function " . $value->name . "() does not exist"));
+			}
 		} else {
-			print json_encode(XLLoop_encode("#Function " . $value->name . "() does not exist"));
+			print "<html><body><code>XLLoop function handler alive</code></body></html>";
 		}
 	} catch (Exception $e) {
 		print json_encode(XLLoop_encode("#" . $e->getMessage()));
