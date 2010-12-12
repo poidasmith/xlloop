@@ -19,11 +19,11 @@
 #define FS_SERVER_SELECTION_MODE ":server.selection.mode"
 #define FS_SERVER_RETRY_COUNT ":server.retry.count"
 
-void BinaryProtocol::initialize(dictionary* ini)
+void BinaryProtocol::initialize(dictionary* ini, const char* section)
 {
 	errorMessage.xltype = xltypeStr;
 	errorMessage.val.str = XLUtil::MakeExcelString("#Cannot connect to server");
-	char* server = iniparser_getstr(ini, FS_SERVER_LIST);
+	char* server = INI::GetString(ini, section, FS_SERVER_LIST, NULL);
 	this->servers = (char**) malloc(sizeof(char*) * MAX_SERVERS);
 	this->serverPorts = (int*) malloc(sizeof(int) * MAX_SERVERS);
 	this->selectedServer = 0;

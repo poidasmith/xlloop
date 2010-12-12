@@ -87,9 +87,9 @@ HttpProtocol::~HttpProtocol()
 	if(path) free(path);
 }
 
-void HttpProtocol::initialize(dictionary* ini)
+void HttpProtocol::initialize(dictionary* ini, const char* section)
 {
-	char* url = iniparser_getstr(ini, FS_URL);
+	char* url = INI::GetString(ini, section, FS_URL, NULL);
 	if(!url) {
 		Log::Error("Missing URL for HTTP protocol");
 		return;
@@ -116,7 +116,7 @@ void HttpProtocol::initialize(dictionary* ini)
 	this->path[urlc.dwUrlPathLength] = 0;
 
 	// Determine proxy
-	char* proxy = iniparser_getstr(ini, FS_PROXY);
+	char* proxy = INI::GetString(ini, section, FS_PROXY, NULL);
 	if(proxy) {
 		Log::Info("Using proxy: %s", proxy);
 		int psz = MultiByteToWideChar(CP_ACP, 0, url, strlen(url), 0, 0);

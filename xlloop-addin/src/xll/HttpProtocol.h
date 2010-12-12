@@ -19,7 +19,7 @@ class HttpProtocol : public Protocol {
 public:
 	HttpProtocol() {}
 	virtual ~HttpProtocol();
-	virtual void initialize(dictionary *ini);
+	virtual void initialize(dictionary *ini, const char* section);
 	virtual int connect() { return 0; }
 	virtual void disconnect() {}
 	virtual bool isConnected() { return true; }

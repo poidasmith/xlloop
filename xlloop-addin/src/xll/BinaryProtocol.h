@@ -21,7 +21,7 @@
 class Protocol {
 public:
 	virtual ~Protocol() {}
-	virtual void initialize(dictionary* ini) = 0;
+	virtual void initialize(dictionary* ini, const char* section) = 0;
 	virtual int connect() = 0;
 	virtual void disconnect() = 0;
 	virtual bool isConnected() = 0;
@@ -34,7 +34,7 @@ class BinaryProtocol : public Protocol {
 public:
 	BinaryProtocol() : servers(0), serverPorts(0), serverCount(0), conn(0), is(conn), os(conn) {}
 	virtual ~BinaryProtocol() { disconnect(); }
-	void initialize(dictionary* ini);
+	void initialize(dictionary* ini, const char* section);
 	int connect();
 	void disconnect();
 	bool isConnected() { return conn != NULL; }
