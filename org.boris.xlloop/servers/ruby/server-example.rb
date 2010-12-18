@@ -7,7 +7,7 @@ class TestHandler
 	end
 	
 	def invoke(context, name, args)
-	  puts "Invoking #{name}"
+	  print "Invoking #{name} ", args.inspect, "\n"
 		case name
 		when "RandTest" then # Test encoding of different types and different lengths
 			a = Array.new
@@ -31,7 +31,7 @@ class TestHandler
 			end
 			return a
 		when "ArgsTest" then
-			return args
+			return args[0]
 		when "org.boris.xlloop.GetFunctions" then # Registers functions in excel 
 			return @functionInfo
 		else
@@ -53,6 +53,6 @@ class TestHandler
 	end
 end
 
-f = XLLoopServer.new(TestHandler.new)
+f = XLLoopServer.new(TestHandler.new, 5470)
 puts "XLLoop Ruby Server Example..."
 f.start
