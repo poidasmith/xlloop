@@ -10,6 +10,7 @@ class TestHandler:
                 return args[0]
             else:
                 return XLError(XL_ERROR_NA)
+        
         elif name == 'RandTest':
             rlen = int(random.random() * 50 + 2)
             a = []
@@ -31,6 +32,6 @@ class TestHandler:
             return [random.random() * 1000, 'Hello World!', 23.3, 11111]
         
 h = TestHandler()
-xs = XLLoopServer(h)
+xs = XLLoopServer(h, 5460)
 xs.start()
 

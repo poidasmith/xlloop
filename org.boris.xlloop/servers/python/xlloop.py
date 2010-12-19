@@ -244,7 +244,7 @@ def expose(excel_name=None, arg_descrs=[]):
         return fn
     return decorator
 
-def run():
-    print("Starting Function Server on port 5454 ...")
-    xs = XLLoopServer(fn_server)
+def run(port=5454):
+    print 'Starting Function Server on port %d...' %port
+    xs = XLLoopServer(fn_server, port)
     xs.start()
