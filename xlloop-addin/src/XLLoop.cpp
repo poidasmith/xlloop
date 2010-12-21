@@ -166,7 +166,7 @@ void RegisterFunctions(LPXLOPER xDLL, int index)
 	int rows = farr->val.array.rows;
 	int cols = farr->val.array.columns;
 	if(farr != NULL && t == xltypeMulti && cols == 1 && rows > 0) {
-		for(int i = 0, findex = 0; i < rows; i++) {
+		for(int i = 0; i < rows; i++) {
 			LPXLOPER earr = &farr->val.array.lparray[i];
 			t = earr->xltype & ~(xlbitXLFree | xlbitDLLFree);
 			if(t != xltypeMulti)
@@ -182,7 +182,7 @@ void RegisterFunctions(LPXLOPER xDLL, int index)
 			bool isVolatile = XLMap::getBoolean(earr, "isVolatile");
 			if(functionName != NULL) {
 				char tmp[MAX_PATH];
-				sprintf(tmp, "FS%d", findex);
+				sprintf(tmp, "FS%d", g_functionCount);
 				char* argHelp[100];
 				int argHelpCount=0;
 				if(argumentHelp != NULL) {
@@ -215,7 +215,6 @@ void RegisterFunctions(LPXLOPER xDLL, int index)
 					tmp[functionName[0]] = 0;
 					g_functionServer[g_functionCount] = index;
 					g_functionNames[g_functionCount++] = strdup(tmp);
-					findex++;
 				}
 			}		
 		}
