@@ -85,8 +85,10 @@ class XLCodec:
     def encode(value, socket):
         if isinstance(value, types.StringType):
             socket.send(struct.pack('B', XL_TYPE_STR))
-            socket.send(struct.pack('B', len(value)))
-            socket.send(value)
+            l = len(value)
+            socket.send(struct.pack('B', l))
+            if l > 0:
+                socket.send(value)
         elif isinstance(value, types.FloatType):
             socket.send(struct.pack('B', XL_TYPE_NUM))
             socket.send(struct.pack('>d', value))
