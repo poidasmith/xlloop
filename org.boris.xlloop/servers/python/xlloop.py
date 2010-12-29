@@ -39,6 +39,8 @@ class XLCodec:
             return struct.unpack('>d', socket.recv(8))[0]
         elif type == XL_TYPE_STR:
             len = ord(socket.recv(1))
+            if len == 0:
+                return ''
             return socket.recv(len)
         elif type == XL_TYPE_BOOL:
             if ord(socket.recv(1)) == 0:

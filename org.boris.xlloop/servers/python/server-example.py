@@ -28,6 +28,8 @@ class TestHandler:
                 else:
                     a.append(random.random() * 1000)
             return a
+        elif name == 'GetEmptyString':
+            return ''
         else:
             return [random.random() * 1000, 'Hello World!', 23.3, 11111]
         
