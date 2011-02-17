@@ -9,17 +9,22 @@
  *******************************************************************************/
 package org.boris.jxll;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-public class XLL
+public class JXLL
 {
     private static IXLLHost callback;
     private static Addin current;
     private static Map libraries = new HashMap();
 
     public static void setCallback(IXLLHost callback) {
-        XLL.callback = callback;
+        JXLL.callback = callback;
+    }
+
+    public static Addin load(File xll) {
+        return load(xll.getAbsoluteFile().toString());
     }
 
     public static Addin load(String filename) {
@@ -27,10 +32,12 @@ public class XLL
         if (library == 0)
             return null;
         Addin a = new Addin(library, filename);
-        current = a;
-        libraries.put(filename, current);
-        JNI.xlAutoOpen(library);
-        current = null;
+        synchronized (libraries) {
+            current = a;
+            libraries.put(filename, current);
+            JNI.xlAutoOpen(library);
+            current = null;
+        }
         return a;
     }
 

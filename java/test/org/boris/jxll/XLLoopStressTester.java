@@ -16,8 +16,8 @@ public class XLLoopStressTester implements IXLLHost
 
     public static void main(String[] args) throws Exception {
         XLLoopStressTester t = new XLLoopStressTester();
-        XLL.setCallback(t);
-        Addin xlloop = XLL.load("../WinRun4J/build/XLLoop-Debug/XLLoop-Debug.xll");
+        JXLL.setCallback(t);
+        Addin xlloop = JXLL.load("../WinRun4J/build/XLLoop-Debug/XLLoop-Debug.xll");
         for (int i = 0; i < 10000; i++) {
             XLOper res = xlloop.invoke("FS", new XLOper[] { new XLOper("Math.random") }, true);
             System.out.println(res);

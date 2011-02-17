@@ -14,7 +14,7 @@ import org.boris.jxll.util.Reflection;
 public class XLLTester
 {
     public static void main(String[] args) throws Exception {
-        Addin test = XLL.load("jni\\build\\TestXLL-Debug\\TestXLL.dll");
+        Addin test = JXLL.load("jni\\build\\TestXLL-Debug\\TestXLL.dll");
         XLOper s = test.invoke("TestSum", new Double(30), new Double(12));
         System.out.println(Reflection.toString(s));
         XLOper t = test.invoke("TestChar", new Integer(32), "Sample",

@@ -12,7 +12,7 @@ package org.boris.jxll.util;
 import java.io.File;
 
 import org.boris.jxll.Addin;
-import org.boris.jxll.XLL;
+import org.boris.jxll.JXLL;
 
 public class JXLLTestCase // extends TestCase
 {
@@ -23,10 +23,10 @@ public class JXLLTestCase // extends TestCase
     }
 
     protected void loadAddin(File file) {
-        addin = XLL.load(file.toString());
+        addin = JXLL.load(file.toString());
     }
 
     protected void unloadAddin() {
-        XLL.dispose(addin);
+        JXLL.dispose(addin);
     }
 }

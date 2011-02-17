@@ -11,7 +11,7 @@ package org.boris.jxll.util;
 
 import org.boris.jxll.Addin;
 import org.boris.jxll.FunctionInformation;
-import org.boris.jxll.XLL;
+import org.boris.jxll.JXLL;
 import org.boris.jxll.XLOper;
 
 /**
@@ -23,7 +23,7 @@ public class ManualExample
 
     public static void main(String[] args) throws Exception {
         // Load the addin
-        Addin a = XLL.load(ADDIN);
+        Addin a = JXLL.load(ADDIN);
 
         // Register the double arg function
         a.registerFunction(new FunctionInformation("DoubleArg", "BB"));
@@ -35,6 +35,6 @@ public class ManualExample
         System.out.println(res.num);
 
         // Free the addin
-        XLL.dispose(a);
+        JXLL.dispose(a);
     }
 }

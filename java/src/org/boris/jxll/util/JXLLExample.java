@@ -10,14 +10,14 @@
 package org.boris.jxll.util;
 
 import org.boris.jxll.Addin;
-import org.boris.jxll.XLL;
+import org.boris.jxll.JXLL;
 import org.boris.jxll.XLOper;
 
 public class JXLLExample
 {
     public static void main(String[] args) throws Exception {
         System.out.println("Loading TestXLL.dll...");
-        Addin a = XLL.load("TestXLL.dll");
+        Addin a = JXLL.load("TestXLL.dll");
         if (a == null) {
             System.out.println("Failed to load addin");
             return;
