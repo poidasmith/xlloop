@@ -9,6 +9,9 @@ updates for 0.3.1
 - added ability to load INI keys from the registry
 
 
+todo
+====
+
 
 - need to make popup a dialog that isn't toplevel or on top of everything - just modal to the
   excel window
@@ -25,8 +28,19 @@ updates for 0.3.1
 	server.2.function.help=Generic function executor for Google deployment
 
 
+Perhaps a better option:
+
+providers=default,MDS,Test
+
+[MDS]
+hostname=...
+
+[Test]
+server=
+
+
 - fix proxy support with auto config url (proxy.pac)
-- to real method overload support using defined overload resolution from java language spec
+- implement real method overload support using defined overload resolution from java language spec
 - 
 
 INI option:

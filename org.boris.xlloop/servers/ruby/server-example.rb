@@ -32,6 +32,8 @@ class TestHandler
 			return a
 		when "ArgsTest" then
 			return args[0]
+    when "GetEmptyString" then
+      return ""
 		when "org.boris.xlloop.GetFunctions" then # Registers functions in excel 
 			return @functionInfo
 		else

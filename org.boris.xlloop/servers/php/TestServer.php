@@ -2,9 +2,15 @@
 
 require "XLLoop.php";
 
+function ArgsTest($arg)
+{
+	return $arg;
+}
+
 function RandTest()
 {
-	return "=rand(" . rand() . ")";
+	$len = rand(1) * 50 + 2;
+	return "=rand(" . $len . ")";
 }
 
 function Random()

@@ -66,7 +66,9 @@ class String
       end
     else
       io.putc(self.length & 0xff)
-      io.write(self)
+      if self.length > 0
+        io.write(self)
+      end
     end
   end
 end
