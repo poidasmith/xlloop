@@ -65,6 +65,15 @@ public class XLOper
         case XLOperType.xltypeMissing:
             return "#(missing)";
         case XLOperType.xltypeMulti: {
+            StringBuilder sb = new StringBuilder();
+            sb.append("[");
+            for (int i = 0; i < array.length; i++) {
+                if (i > 0)
+                    sb.append(", ");
+                sb.append(array[i].toString());
+            }
+            sb.append("]");
+            return sb.toString();
         }
         case XLOperType.xltypeNil:
             return "#(null)";

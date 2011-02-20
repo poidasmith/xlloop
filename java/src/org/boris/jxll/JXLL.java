@@ -65,7 +65,7 @@ public class JXLL
                 return callback.excel4(xlfn, operRes, opers);
             System.out.println("excel4 unhandled: " + xlfn);
         }
-        return 0;
+        return 32; // xlretFailed
     }
 
     private static int registerFunction(XLOper[] opers) {

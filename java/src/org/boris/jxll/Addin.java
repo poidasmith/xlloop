@@ -97,7 +97,7 @@ public class Addin
         if (fi == null)
             return null;
         if (args.length != fi.type.types.length)
-            return null;
+            args = normalizeArgs(args, fi.type);
         return JNI.invoke(library, fi.procedure, fi.type.returnType, fi.type.types, args);
     }
 

@@ -221,7 +221,7 @@ void CacheHandles(JNIEnv* env)
 	SetFP((void**)Excel4v, (void**)XLCallVer);
 
 	// Cache fields for XLL class
-	XLL_CLASS = env->FindClass("org/boris/jxll/XLL");
+	XLL_CLASS = env->FindClass("org/boris/jxll/JXLL");
 	XLL_XLCALLVER_METHOD = env->GetStaticMethodID(XLL_CLASS, "xlCallVer", "()I");
 	XLL_EXCEL4_METHOD = env->GetStaticMethodID(XLL_CLASS, "excel4", "(ILorg/boris/jxll/XLOperHolder;[Lorg/boris/jxll/XLOper;)I");
 
@@ -262,8 +262,6 @@ void CacheHandles(JNIEnv* env)
 JNIEXPORT jint JNICALL
 JNI_OnLoad(JavaVM *vm, void *reserved)
 {
-	DebugBreak();
-
 	jvm = vm;
 	JNIEnv* env;
 	vm->AttachCurrentThread((void**) &env, NULL);
