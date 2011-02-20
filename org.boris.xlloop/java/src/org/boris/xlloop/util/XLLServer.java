@@ -12,7 +12,7 @@ package org.boris.xlloop.util;
 import java.io.File;
 
 import org.boris.jxll.Addin;
-import org.boris.jxll.XLL;
+import org.boris.jxll.JXLL;
 import org.boris.xlloop.FunctionServer;
 import org.boris.xlloop.handler.AddinFunctionHandler;
 import org.boris.xlloop.handler.CompositeFunctionHandler;
@@ -48,7 +48,7 @@ public class XLLServer
             CompositeFunctionHandler cfh) {
         String n = f.getName().toLowerCase();
         if (n.indexOf("xlloop-") == -1 && n.endsWith("xll")) {
-            Addin a = XLL.load(f.getAbsolutePath());
+            Addin a = JXLL.load(f.getAbsolutePath());
             if (a == null) {
                 System.out.println("Could not load addin: " + f);
                 return;

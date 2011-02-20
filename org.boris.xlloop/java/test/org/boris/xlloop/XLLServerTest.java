@@ -10,12 +10,12 @@
 package org.boris.xlloop;
 
 import org.boris.jxll.Addin;
-import org.boris.jxll.XLL;
+import org.boris.jxll.JXLL;
 
 public class XLLServerTest
 {
     public static void main(String[] args) throws Exception {
-        Addin a = XLL.load("F:/Development/xll/XLLserverTest.xll");
+        Addin a = JXLL.load("F:/Development/xll/XLLserverTest.xll");
         for (int i = 0; i < a.getFunctionCount(); i++) {
             String fn = a.getFunctionName(i);
             System.out.println(fn);
