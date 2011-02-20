@@ -262,6 +262,8 @@ void CacheHandles(JNIEnv* env)
 JNIEXPORT jint JNICALL
 JNI_OnLoad(JavaVM *vm, void *reserved)
 {
+	DebugBreak();
+
 	jvm = vm;
 	JNIEnv* env;
 	vm->AttachCurrentThread((void**) &env, NULL);
