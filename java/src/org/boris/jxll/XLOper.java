@@ -24,12 +24,16 @@ public class XLOper
     public XLRef[] mref;
     public int idSheet;
 
-    public static final XLOper MISSING = new XLOper();
-    public static final XLOper NULL = new XLOper();
-    static {
-        MISSING.type = XLOperType.xltypeMissing;
-        NULL.type = XLOperType.xltypeNil;
-    }
+    // Known constants
+    public static final XLOper MISSING = makeType(XLOperType.xltypeMissing);
+    public static final XLOper NULL = makeType(XLOperType.xltypeNil);
+    public static final XLOper ERR_DIV0 = makeError(XLErrType.xlerrDiv0);
+    public static final XLOper ERR_NA = makeError(XLErrType.xlerrNA);
+    public static final XLOper ERR_NAME = makeError(XLErrType.xlerrName);
+    public static final XLOper ERR_NULL = makeError(XLErrType.xlerrNull);
+    public static final XLOper ERR_NUM = makeError(XLErrType.xlerrNum);
+    public static final XLOper ERR_REF = makeError(XLErrType.xlerrRef);
+    public static final XLOper ERR_VALUE = makeError(XLErrType.xlerrValue);
 
     public XLOper() {
     }
@@ -54,6 +58,20 @@ public class XLOper
         bool = b;
     }
 
+    public XLOper(int rows, int cols) {
+        this.type = XLOperType.xltypeMulti;
+        this.rows = rows;
+        this.cols = cols;
+        this.array = new XLOper[rows * cols];
+    }
+
+    public XLOper(XLOper[] arr) {
+        this.type = XLOperType.xltypeMulti;
+        this.rows = arr.length;
+        this.cols = 1;
+        this.array = arr;
+    }
+
     public String toString() {
         switch (type) {
         case XLOperType.xltypeBool:
@@ -70,7 +88,10 @@ public class XLOper
             for (int i = 0; i < array.length; i++) {
                 if (i > 0)
                     sb.append(", ");
-                sb.append(array[i].toString());
+                if (array[i] == null)
+                    sb.append(XLOper.NULL.toString());
+                else
+                    sb.append(array[i].toString());
             }
             sb.append("]");
             return sb.toString();
@@ -87,5 +108,18 @@ public class XLOper
         }
 
         return null;
+    }
+
+    public static XLOper makeError(int errNum) {
+        XLOper err = new XLOper();
+        err.type = XLOperType.xltypeErr;
+        err.err = errNum;
+        return err;
+    }
+
+    public static XLOper makeType(int type) {
+        XLOper x = new XLOper();
+        x.type = type;
+        return x;
     }
 }

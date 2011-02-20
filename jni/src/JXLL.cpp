@@ -82,13 +82,15 @@ LPSTR MakeExcelString(const char* string)
 	size_t len = strlen(string);
 	if(len > 255) len = 255; // Excel strings are limited tvio 255 chars
 	char* temp = (char *) malloc(len + 2);
-	memcpy(temp + 1, string, len);
+	if(len) memcpy(temp + 1, string, len);
 	temp[0] = (BYTE) len;
 	return temp;
 }
 
 void Convert(JNIEnv* env, LPXLOPER oper, jobject o)
 {
+	char chars[MAX_PATH + 4];
+
 	if(!oper) {
 		env->SetIntField(o,  XLOPER_TYPE_FIELD, xltypeNil);
 		return;
@@ -109,14 +111,14 @@ void Convert(JNIEnv* env, LPXLOPER oper, jobject o)
 			break;
 		case xltypeStr:
 			if(oper->val.str) {
-				char chars[MAX_PATH];
-				int len = oper->val.str[0];
+				DWORD len = (oper->val.str[0] & 0xff);
+				DWORD old = len;
 				if(len > 254 || len < 0) {
 					len = 254;
 				}
-				memcpy(chars, &oper->val.str[1], len);
-				chars[len] = 0;
-				env->SetObjectField(o, XLOPER_STR_FIELD, env->NewStringUTF(chars));
+				memcpy(&chars[4], &(oper->val.str[1]), len);
+				chars[len+4] = 0;
+				env->SetObjectField(o, XLOPER_STR_FIELD, env->NewStringUTF(&chars[4]));
 			}
 			break;
 		case xltypeRef:
@@ -171,12 +173,44 @@ void Convert(JNIEnv* env, jobject o, LPXLOPER oper)
 		case xltypeBool:
 			oper->val.boolean = env->GetBooleanField(o, XLOPER_BOOL_FIELD);
 			break;
+		case xltypeStr: 
+			{
+				jstring s = (jstring) env->GetObjectField(o, XLOPER_STR_FIELD);
+				jboolean iscopy = false;
+				const char* cs = env->GetStringUTFChars(s, &iscopy);
+				oper->val.str = MakeExcelString(cs);
+				env->ReleaseStringUTFChars(s, cs);
+			}
+			break;
+		case xltypeMulti:
+			{
+				int rows = oper->val.array.rows = env->GetIntField(o, XLOPER_ROWS_FIELD);
+				int cols = oper->val.array.columns = env->GetIntField(o, XLOPER_COLS_FIELD);
+				int size = rows * cols;
+				jobjectArray arr = (jobjectArray) env->GetObjectField(o, XLOPER_ARRAY_FIELD);
+				oper->val.array.lparray = (LPXLOPER) malloc(sizeof(XLOPER) * rows * cols);
+				for(int i = 0; i < size; i++) {
+					jobject o = env->GetObjectArrayElement(arr, i);
+					Convert(env, o, &(oper->val.array.lparray[i]));
+				}
+			}
+			break;
+	}
+}
+
+void FreeContents(LPXLOPER px)
+{
+	switch(px->xltype & ~(xlbitXLFree | xlbitDLLFree)) {
+		case xltypeMulti:
+			for(int i = px->val.array.rows*px->val.array.columns - 1; i >=0; i--) {
+				FreeContents(&px->val.array.lparray[i]);
+			}
+			free(px->val.array.lparray);
+			break;
 		case xltypeStr:
-			jstring s = (jstring) env->GetObjectField(o, XLOPER_STR_FIELD);
-			jboolean iscopy = false;
-			const char* cs = env->GetStringUTFChars(s, &iscopy);
-			oper->val.str = MakeExcelString(cs);
-			env->ReleaseStringUTFChars(s, cs);
+			free(px->val.str);
+			break;
+		default:
 			break;
 	}
 }
@@ -221,7 +255,7 @@ void CacheHandles(JNIEnv* env)
 	SetFP((void**)Excel4v, (void**)XLCallVer);
 
 	// Cache fields for XLL class
-	XLL_CLASS = env->FindClass("org/boris/jxll/JXLL");
+	XLL_CLASS = (jclass) env->NewGlobalRef(env->FindClass("org/boris/jxll/JXLL"));
 	XLL_XLCALLVER_METHOD = env->GetStaticMethodID(XLL_CLASS, "xlCallVer", "()I");
 	XLL_EXCEL4_METHOD = env->GetStaticMethodID(XLL_CLASS, "excel4", "(ILorg/boris/jxll/XLOperHolder;[Lorg/boris/jxll/XLOper;)I");
 
@@ -323,6 +357,7 @@ Java_org_boris_jxll_JNI_invoke(JNIEnv *env, jobject obj, jlong library, jstring 
 	void* rdw;
 	double rdo;
 	XLOPER xargs[MAX_XLL_ARGS];
+	int atypes[MAX_XLL_ARGS];
 	jboolean iscopy=false;
 	const char* fn = env->GetStringUTFChars(function, &iscopy);
 	FARPROC fp = GetProcAddress((HMODULE) library, fn);
@@ -332,11 +367,13 @@ Java_org_boris_jxll_JNI_invoke(JNIEnv *env, jobject obj, jlong library, jstring 
 	jobject ro = env->NewObject(XLOPER_CLASS, XLOPER_CONSTRUCTOR);
 	int len = env->GetArrayLength(argTypes);
 	int* ar = (int *) env->GetPrimitiveArrayCritical(argTypes, &iscopy);
+	memcpy(atypes, ar, sizeof(int) * len);
+	env->ReleasePrimitiveArrayCritical(argTypes, ar, iscopy);
 	for(int i = len-1; i >=0; i--) {
 		jobject elem = env->GetObjectArrayElement(args, i);
 		LPXLOPER p = &xargs[i];
 		p->xltype = 0;
-		switch(ar[i]) {
+		switch(atypes[i]) {
 			case argDouble:
 				EB a;
 				a.dbl = env->GetDoubleField(elem, XLOPER_NUM_FIELD);
@@ -422,7 +459,9 @@ Java_org_boris_jxll_JNI_invoke(JNIEnv *env, jobject obj, jlong library, jstring 
 			Convert(env, (LPXLOPER) rdw, ro);
 			break;
 	}
-	// TODO cleanup
+	for(int i = 0; i < len; i++) 
+		FreeContents(&xargs[i]);
+	// TODO cleanup returned values
 	return ro;
 }
 
