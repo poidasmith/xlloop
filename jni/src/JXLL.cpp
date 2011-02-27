@@ -452,16 +452,18 @@ Java_org_boris_jxll_JNI_invoke(JNIEnv *env, jobject obj, jlong library, jstring 
 			break;
 		case argString:
 			env->SetIntField(ro, XLOPER_TYPE_FIELD, xltypeStr);
-			env->SetObjectField(ro, XLOPER_STR_FIELD, env->NewStringUTF((const char*) rdw));
+			if(rdw)
+				env->SetObjectField(ro, XLOPER_STR_FIELD, env->NewStringUTF((const char*) rdw));
 			break;
 		case argXLOper:
 		case argXLOperRef:
 			Convert(env, (LPXLOPER) rdw, ro);
+			if(rdw && ((LPXLOPER) rdw)->xltype & xlbitXLFree)
+				FreeContents((LPXLOPER) rdw);
 			break;
 	}
 	for(int i = 0; i < len; i++) 
 		FreeContents(&xargs[i]);
-	// TODO cleanup returned values
 	return ro;
 }
 
