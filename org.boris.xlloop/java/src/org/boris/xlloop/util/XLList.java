@@ -62,6 +62,10 @@ public class XLList
         list.add(value ? XLBool.TRUE : XLBool.FALSE);
     }
 
+    public void addAll(XLoper[] args) {
+        list.addAll(Arrays.asList(args));
+    }
+
     public void clear() {
         list.clear();
     }

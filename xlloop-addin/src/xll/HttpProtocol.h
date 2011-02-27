@@ -17,12 +17,12 @@
 
 class HttpProtocol : public Protocol {
 public:
-	HttpProtocol() {}
+	HttpProtocol() : hasConnected(false) {}
 	virtual ~HttpProtocol();
 	virtual void initialize(dictionary *ini, const char* section);
 	virtual int connect() { return 0; }
 	virtual void disconnect() {}
-	virtual bool isConnected() { return true; }
+	virtual bool isConnected() { return hasConnected ? true : !(hasConnected=true); }
 	LPXLOPER getLastError() { return &errorMessage; }
 	LPXLOPER execute(const char* name, bool sendCaller, int count, ...);
 	LPXLOPER execute(const char* name, bool sendCaller, int count, LPXLOPER far opers[]);
@@ -36,6 +36,7 @@ private:
 	wchar_t* path;
 	HINTERNET hSession;
 	URL_COMPONENTS urlc;
+	bool hasConnected;
 	XLOPER errorMessage;
 };
 
