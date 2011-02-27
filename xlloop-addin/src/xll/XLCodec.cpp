@@ -227,9 +227,13 @@ void XLCodec::encode(const LPXLOPER xl, XOStream& os)
 void XLCodec::encode(const char* str, XOStream& os)
 {
 	os.put(XL_CODEC_TYPE_STR);
-	int len = strlen(str);
-	os.put(len);
-	os.write(str, len);
+	if(str) {
+		int len = strlen(str);
+		os.put(len);
+		os.write(str, len);
+	} else {
+		os.put(0);
+	}
 }
 
 void XLCodec::encode(bool b, XOStream& os)
