@@ -14,8 +14,6 @@
 #include <io.h>
 #include <iostream>
 #include <fstream>
-#include "../java/VM.h"
-#include "../java/JNI.h"
 
 namespace 
 {

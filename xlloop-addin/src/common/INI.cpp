@@ -10,7 +10,6 @@
 
 #include "INI.h"
 #include "Log.h"
-#include "../java/JNI.h"
 
 #define ALLOW_INI_OVERRIDE    ":ini.override"
 #define INI_FILE_LOCATION     ":ini.file.location"
