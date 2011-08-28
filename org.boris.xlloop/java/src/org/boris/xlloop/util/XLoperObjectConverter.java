@@ -9,6 +9,8 @@
  *******************************************************************************/
 package org.boris.xlloop.util;
 
+import java.lang.reflect.Array;
+
 import org.boris.xlloop.xloper.XLArray;
 import org.boris.xlloop.xloper.XLBool;
 import org.boris.xlloop.xloper.XLError;
@@ -260,6 +262,20 @@ public class XLoperObjectConverter
      * @return Object.
      */
     public Object createFrom(XLoper obj, Class hint) {
+        // If Excel passes a single value and the Java code expects an array,
+        // try to convert based on the component type, and then create the
+        // array.
+        if (obj.type != XLoper.xlTypeMulti && hint.isArray()) {
+            Object value = doTypeSwitch(obj, hint.getComponentType());
+            Object array = Array.newInstance(hint.getComponentType(), 1);
+            Array.set(array, 0, value);
+            return array;
+        } else {
+            return doTypeSwitch(obj, hint);
+        }
+    }
+
+    private Object doTypeSwitch(XLoper obj, Class hint) {
         switch (obj.type) {
         case XLoper.xlTypeStr:
             if (XLString.class.equals(hint)) {
