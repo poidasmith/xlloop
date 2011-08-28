@@ -62,10 +62,10 @@ int BinaryProtocol::connect(int selectionMode)
 {
 	// If not connected then choose a server to connect to
 	switch(selectionMode) {
-	case 0:
+	case SERVER_SELECT_MODE_RANDOM:
 		this->selectedServer = GetTickCount() % this->serverCount;
 		break;
-	case 1:
+	case SERVER_SELECT_MODE_ROUND_ROBIN:
 		if(this->selectedServer >= this->serverCount)
 			this->selectedServer = 0;
 		break;
