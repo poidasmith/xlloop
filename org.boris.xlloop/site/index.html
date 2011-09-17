@@ -47,8 +47,9 @@
             	<li><a href="lisphandler.html">Lisp Function Handler</a> for evaluating Lisp expressions on the fly.</li>
             	<li>Functions can be dynamically added to Excel without restart.</li>
             	<li>Functions can be registered as Excel functions (with help information).</li>
-            	<li>Fast binary protocol with multiple-server fail-over/scaleability.</li>
+            	<li>Fast binary protocol with multiple-server fail-over/scalability.</li>
             	<li>JSON over HTTP(S) protocol</li>
+            	<li><b>NEW: </b>Can be configured to connect to multiple function servers (providers)</li>
             	</ul> 
             	XLLoop consists of two main components:
             	<ul>
@@ -344,7 +345,7 @@ args[0] * args[1];
 			<div class="section-title">Multiple Server Support</div>
 			<div class="section-content">
 				The binary protocol supports connecting to multiple servers to improve reliability and
-				scaleability. 
+				scalability. 
 				
 				<br/><br/>
 				The approach is simple; it connects to a random server, if this fails it reports
@@ -388,8 +389,55 @@ url=http://localhost:8000/FunctionServer
 		</div>
 	
 		<div class="section">
+			<div class="section-title">Multiple Function Providers</div>
+			<div class="section-content">
+				XLLoop can be configured to connect to multiple function servers. The following shows an example of the INI file configuration to achieve this:
+<pre>
+providers=Java,Python,Ruby,PHP
+include.volatile=false
+
+[Java]
+server=localhost
+
+[Python]
+server=localhost:5460
+function.name=PY
+
+[Ruby]
+server=localhost:5470
+function.name=RB
+
+[Erlang]
+server=localhost:5480
+function.name=ERL
+
+[PHP]
+protocol=http
+url=http://xlloop.sourceforge.net/servers/php/TestServer.php
+send.caller.info=true
+function.name=LP
+
+</pre>				
+		Each provider specified in the <code>providers</code> property (comma-separated list) refers to a section in the INI file. Each section accepts all the INI properties listed in the table above (apart from global properties).
+		<br/><br/>
+		This will setup connections to multiple servers. The <code>function.name</code> property is used to set the generic function name registered for that server. For example, to invoke a python function from the server at <code>localhost:5460</code> you could write the following formula:
+<pre>
+=PY("ArgsTest", "Hello World!")
+</pre>			
+		
+		Note that difference between configuring multiple servers for one function provider and configuring mutiple function providers. Multiple function server instances serve up the same functions whereas multiple function providers each provide a different set of functions. Also note that no attempt is made to reconcile function name clashes between function providers.
+		
+			</div>
+		</div>
+
+		<div class="section">
 			<div class="section-title">Change History</div>
 			<div class="section-content">
+				V0.3.2
+				<ul>
+				<li>Added support for multiple servers (providers)</li>
+				<li>Moved source code to github and refactored addin source folders</li>
+				</ul>
 				V0.3.1
 				<ul>
 				<li>Added round-robin connection mode for multiple servers in binary mode</li>
