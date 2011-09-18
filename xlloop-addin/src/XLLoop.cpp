@@ -258,7 +258,7 @@ void RegisterServer(LPXLOPER xDLL, int index)
 		RegisterFunctions(xDLL, index);
 	}
 
-	// Sheet Generator
+	// Sheet Generator - currently disabled
 	//SheetGenerator::Register(xDLL, g_protocol[index], g_ini);
 }
 
