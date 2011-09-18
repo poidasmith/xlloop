@@ -1,0 +1,8 @@
+LIBRARY	"JXLL"
+
+EXPORTS
+	Java_org_boris_jxll_JNI_loadLibrary
+	Java_org_boris_jxll_JNI_dispose
+	Java_org_boris_jxll_JNI_xlAutoOpen
+	Java_org_boris_jxll_JNI_xlAddInManagerInfo
+	Java_org_boris_jxll_JNI_invoke

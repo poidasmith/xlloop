@@ -1,0 +1,13 @@
+LIBRARY	"TestXLL"
+
+EXPORTS
+	xlAutoOpen
+	xlAutoClose
+	xlAutoRegister
+	xlAutoAdd
+	xlAutoRemove
+	xlAutoFree
+	xlAddInManagerInfo
+	TestSum
+	TestArgs
+	TestChar

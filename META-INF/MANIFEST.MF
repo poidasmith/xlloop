@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: JXLL
+Bundle-SymbolicName: org.boris.jxll
+Bundle-Version: 0.0.2
+Export-Package: org.boris.jxll,
+ org.boris.jxll.util
+Bundle-Vendor: Boris Inc.
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: org.junit

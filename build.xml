@@ -1,0 +1,51 @@
+<project name="JXLL" default="build">
+	
+	<property name="release.dir" value="F:/Development/Releases/"/>
+	<property name="src.dir" value="F:\eclipse\workspace\org.boris.jxll\jni"/>
+	<property name="release.name" value="jxll"/>
+	<property name="release.version" value="0.0.2"/>
+	<property name="deploy.dir" value="${release.dir}/${release.name}-${release.version}"/>
+	
+	<target name="build">
+		<mkdir dir="${deploy.dir}"/>
+		<copy todir="${deploy.dir}" file="cpl-v10.html"/>
+		<mkdir dir="build"/>
+		<mkdir dir="build/org/boris/jxll"/>
+		<copy tofile="build/org/boris/jxll/xlcall32.dll" file="${src.dir}\build\XLLstub-Release\xlcall32.dll"/>
+		<copy tofile="build/org/boris/jxll/${release.name}-${release.version}.dll" file="${src.dir}\build\JXLL-Release\JXLL.dll"/>
+		<javac srcdir="java/src" destdir="build" source="5">
+			<classpath>
+				<pathelement location="build"/>
+			</classpath>
+		</javac>
+		<jar destfile="${deploy.dir}/${release.name}-${release.version}.jar">
+			<fileset dir="build">
+				<include name="**/*.class"/>
+				<include name="**/*.dll"/>
+			</fileset>
+		</jar>
+		<jar destfile="${deploy.dir}/${release.name}-${release.version}-src.zip">
+			<fileset dir="java/src">
+				<include name="**/*.java"/>
+			</fileset>
+		</jar>
+		<delete dir="build"/>
+		<jar destfile="${deploy.dir}/${release.name}-${release.version}-cppsrc.zip">
+			<fileset dir="${src.dir}">
+				<include name="**/*.def"/>
+				<include name="**/*.cpp"/>
+				<include name="**/*.h"/>
+				<include name="**/*.vcproj"/>
+				<include name="**/*.sln"/>
+				<include name="**/*.rc"/>
+				<include name="**/*.ico"/>
+			</fileset>
+		</jar>
+		<zip destfile="${release.dir}/${release.name}-${release.version}.zip">
+			<fileset dir="${release.dir}/${release.name}-${release.version}">
+				<include name="**/*"/>
+			</fileset>
+		</zip>
+		<delete dir="${release.dir}/${release.name}-${release.version}"/>
+	</target>
+</project>

@@ -1,0 +1,4 @@
+
+- add more jni code to handle all xloper types in and out
+- clean up xloper resources
+- much more testing on xlls (need to search around for test targets)
