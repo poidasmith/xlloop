@@ -64,6 +64,8 @@ public class CompTest1 implements IFunctionHandler
             l.add(false);
             return l.toXLoper();
 
+        } else if (name.equals("MakeRandomString")) {
+            return new XLString(makeRandomString((int) ((XLNum) args[0]).num));
         } else if (name.equals("LongRunner")) {
             pause(8000);
             return new XLString("Finally...");
@@ -100,7 +102,7 @@ public class CompTest1 implements IFunctionHandler
         }
     }
 
-    private static String makeRandomString(int len) {
+    public static String makeRandomString(int len) {
         char[] c = new char[len];
         int cl = characters.length();
         for (int i = 0; i < len; i++) {
