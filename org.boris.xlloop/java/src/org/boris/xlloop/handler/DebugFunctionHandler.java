@@ -50,8 +50,10 @@ public class DebugFunctionHandler implements IFunctionHandler
                 System.out.print(caller);
             }
         }
-        System.out.println();
-        return h.execute(context, name, args);
+        System.out.print(" = ");
+        XLoper res = h.execute(context, name, args);
+        System.out.println(res);
+        return res;
     }
 
     public boolean hasFunction(String name) {

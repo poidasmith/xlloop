@@ -146,7 +146,9 @@ public class XLArray extends XLoper
                     sb.append(",");
                 sb.append(array[(i * columns) + j]);
             }
-            sb.append("]\n");
+            sb.append("]");
+            if (i < rows - 1)
+                sb.append("\n");
         }
         return sb.toString();
     }
