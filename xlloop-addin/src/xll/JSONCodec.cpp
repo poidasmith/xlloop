@@ -131,8 +131,7 @@ static int cb_double(void * ctx, double d)
 	return 1;
 }
 
-static int cb_string(void * ctx, const unsigned char * s,
-                           unsigned int len)
+static int cb_string(void * ctx, const unsigned char * s, unsigned int len)
 {
 	json_ctx* c = (json_ctx*) ctx;
 	json_value* v = to_apply(c);
@@ -144,8 +143,7 @@ static int cb_string(void * ctx, const unsigned char * s,
     return 1;
 }
 
-static int cb_map_key(void * ctx, const unsigned char * s,
-                            unsigned int len)
+static int cb_map_key(void * ctx, const unsigned char * s, unsigned int len)
 {
 	json_ctx* c = (json_ctx*) ctx;
 	if(c->key)

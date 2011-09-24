@@ -46,6 +46,9 @@ static int g_functionServer[MAX_FUNCTIONS];
 // Our standard error message
 static XLOPER g_errorMessage;
 
+// Cache the log level as we will use it a lot
+static bool g_debugLogging = false;
+
 // INI keys
 #define FS_PROTOCOL ":protocol"
 #define FS_URL ":url"
@@ -86,6 +89,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 		// Initialise the log
 		Log::Init(hinstDLL, iniparser_getstr(g_ini, LOG_FILE), iniparser_getstr(g_ini, LOG_LEVEL), g_ini);
+		g_debugLogging = Log::GetLevel() == debug;
 
 		// Initialise timeout feature
 		Timeout::Initialise(hinstDLL, g_ini);
@@ -215,6 +219,14 @@ void RegisterFunctions(LPXLOPER xDLL, int index)
 					tmp[functionName[0]] = 0;
 					g_functionServer[g_functionCount] = index;
 					g_functionNames[g_functionCount++] = strdup(tmp);
+
+					if(g_debugLogging) {
+						char* provider = g_serverSections[index];
+						if(provider)
+							Log::Debug("Registered function (%d) %s for server %s", g_functionCount, tmp, provider);
+						else
+							Log::Debug("Registered function (%d) %s", g_functionCount, tmp);
+					}
 				}
 			}		
 		}
@@ -415,6 +427,11 @@ LPXLOPER WINAPI FSExecute(int index, const char* name, LPXLOPER v0, LPXLOPER v1,
 			delete xres;
 		}
 		return g_protocol[index]->getLastError();
+	}
+
+	// Log function call
+	if(g_debugLogging) {
+		XLUtil::LogFunctionCall(g_serverSections[index], name, xres, 20, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19);
 	}
 
 	return xres;

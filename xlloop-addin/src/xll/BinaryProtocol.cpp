@@ -79,6 +79,7 @@ int BinaryProtocol::connect(int selectionMode)
 
 	char* hostname = servers[selectedServer];
 	int port = serverPorts[selectedServer];
+
 	Log::Info("Using server: %s:%d", hostname, port);
 
 	// Update the selected server for next time
@@ -162,6 +163,9 @@ LPXLOPER BinaryProtocol::execute(const char* name, bool sendCaller, int count, L
 	return receive(name);
 }
 
+/*
+ * Write the fulll function call to the network stream. 
+ */
 int BinaryProtocol::send(const char* name, bool sendCaller, int count, LPXLOPER far opers[])
 {
 	XLCodec::encode(PROTOCOL_VERSION, os);
@@ -210,6 +214,9 @@ int BinaryProtocol::ExtractPort(char* server)
 	return 5454;
 }
 
+/*
+ * Extract the list of servers (and ports) from the INI property.
+ */
 void BinaryProtocol::ParseServerList(char* server)
 {
 	if(server==NULL) {

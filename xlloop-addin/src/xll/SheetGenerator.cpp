@@ -12,7 +12,7 @@
 #include "XLUtil.h"
 
 // Admin function names
-#define AF_GET_MENU "org.boris.xlloop.GetMenu"
+#define AF_GET_MENU     "org.boris.xlloop.GetMenu"
 #define AF_EXEC_COMMAND "org.boris.xlloop.ExecuteCommand"
 
 namespace

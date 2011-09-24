@@ -13,19 +13,19 @@
 #include "../common/Log.h"
 #include "XLUtil.h"
 
-#define FS_URL ":url"
-#define FS_PROXY ":proxy"
-#define USER_AGENT L"XLLoop/Http v0.1.0"
-#define BUFFER_SIZE 8192
+#define FS_URL          ":url"
+#define FS_PROXY        ":proxy"
+#define USER_AGENT      L"XLLoop/Http v0.1.0"
+#define BUFFER_SIZE     8192
 
-#define REQ_TYPE_NAME "request"
-#define REQ_TYPE_VAL "XLLoop"
-#define REQ_VER_NAME "version"
-#define REQ_VER_VAL "0.1.0"
+#define REQ_TYPE_NAME   "request"
+#define REQ_TYPE_VAL    "XLLoop"
+#define REQ_VER_NAME    "version"
+#define REQ_VER_VAL     "0.1.0"
 #define REQ_CALLER_NAME "caller"
-#define REQ_SHEET_NAME "sheet"
-#define REQ_NAME_NAME "name"
-#define REQ_ARGS_NAME "args"
+#define REQ_SHEET_NAME  "sheet"
+#define REQ_NAME_NAME   "name"
+#define REQ_ARGS_NAME   "args"
 
 typedef struct _ctx {
 	HINTERNET hConnect;

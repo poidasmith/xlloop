@@ -49,6 +49,8 @@ void Log::Init(HINSTANCE hInstance, const char* logfile, const char* loglevel, d
 {
 	if(loglevel == NULL) {
 		g_logLevel = info;
+	} else if(strcmp(loglevel,"debug") == 0) {
+		g_logLevel = debug;
 	} else if(strcmp(loglevel,"none") == 0) {
 		g_logLevel = none;
 	} else if(strcmp(loglevel, "info") == 0) {
@@ -177,13 +179,17 @@ void Log::RollLog()
 	Log::Info("Rolled log name: %s", filename);
 }
 
-// enum LoggingLevel { info = 0, warning = 1, error = 2, none = 3 };
+/*
+ * Log to console/file/debug monitor.
+ * 
+ * Levels are { debug = -1, info = 0, warning = 1, error = 2, none = 3 }
+ */
 void Log::LogIt(LoggingLevel loggingLevel, const char* marker, const char* format, va_list args) 
 {
 	if(g_logLevel > loggingLevel) return;
 	if(!format) return;
 
-	char tmp[4096];
+	char tmp[MAX_LOG_LENGTH];
 	vsprintf(tmp, format, args);
 	if(g_logToDebugMonitor) {
 		char tmp2[4096];
@@ -236,7 +242,16 @@ void Log::SetLogFileAndConsole(bool logAndConsole)
 	g_logFileAndConsole = logAndConsole;
 }
 
-// enum LoggingLevel { info = 0, warning = 1, error = 2, none = 3 };
+void Log::Debug(const char* format, ...)
+{
+	if(g_logLevel <= debug) {
+		va_list args;
+		va_start(args, format);
+		LogIt(info, "[dbug]", format, args);
+		va_end(args);
+	}
+}
+
 void Log::Info(const char* format, ...)
 {
 	if(g_logLevel <= info) {

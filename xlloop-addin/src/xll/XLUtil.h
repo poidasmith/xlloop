@@ -49,6 +49,10 @@ public:
 	static void FreeContents(LPXLOPER px);
 	//static char* GetCurrentSheetName();
 	//static char* GetCurrentCellName();
+
+	static void LogFunctionCall(const char* serverName, const char* name, LPXLOPER res, int count, ...);
+	static void ToString(LPXLOPER px, char* dst);
+	static int FindLastArg(LPXLOPER* opers, int count);
 };
 
 class XLMap {
@@ -56,8 +60,8 @@ public:
 	static LPXLOPER get(LPXLOPER pmap, const char* key);
 	static char* getString(LPXLOPER pmap, const char* key);
 	static char* getNTString(LPXLOPER pmap, const char* key);
-	static bool getBoolean(LPXLOPER pmap, const char* key);
-	static int getInteger(LPXLOPER pmap, const char* key);
+	static bool getBoolean(LPXLOPER pmap, const char* key, const bool defValue = false);
+	static int getInteger(LPXLOPER pmap, const char* key, const int defValue = -1);
 };
 
 #endif // XLUTIL_H
