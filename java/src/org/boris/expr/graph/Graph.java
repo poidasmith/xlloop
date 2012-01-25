@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
 public class Graph implements Iterable
 {
     private boolean wantsEdges = true;
@@ -90,11 +89,11 @@ public class Graph implements Iterable
     }
 
     private void checkCycle(Edge e, HashSet visited) throws GraphCycleException {
-        if (visited.contains(e.target)) {
+        if (visited.contains(e)) {
             throw new GraphCycleException("Circular reference found: " +
                     e.source + " - " + e.target);
         }
-        visited.add(e.target);
+        visited.add(e);
         Set out = (Set) outbounds.get(e.target);
         if (out != null) {
             Iterator i = out.iterator();
