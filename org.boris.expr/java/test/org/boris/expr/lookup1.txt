@@ -1,0 +1,6 @@
+Frequency,Color
+4.14,red
+4.19,orange
+5.17,yellow
+5.77,green
+6.39,blue
