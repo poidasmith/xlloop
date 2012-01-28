@@ -1,0 +1,11 @@
+Fruit,Price,Count
+Apples,0.69,40
+Bananas,0.34,38
+Lemons,0.55,15
+Oranges,0.25,25
+Pears,0.59,40
+,,
+Almonds,2.8,10
+Cashews,3.55,16
+Peanuts,1.25,20
+Walnuts,1.75,12
