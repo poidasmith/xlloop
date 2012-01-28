@@ -32,5 +32,6 @@ public enum ExprType
     GreaterThanOrEqualTo,
     NotEqual,
     Equal,
-    Power
+    Power,
+    Map
 }
