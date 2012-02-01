@@ -10,7 +10,7 @@
 package org.boris.expr.engine;
 
 
-public class GridReference
+public class GridReference implements Comparable<GridReference>
 {
     private int column = -1;
     private int row = -1;
@@ -176,5 +176,12 @@ public class GridReference
             sb.append('$');
         sb.append(row);
         return sb.toString();
+    }
+
+    public int compareTo(GridReference o) {
+        int cd = o.column - column;
+        if(cd != 0)
+            return cd;
+        return o.row - row;
     }
 }

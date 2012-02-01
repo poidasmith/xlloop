@@ -74,9 +74,11 @@ public class DependencyEngine extends AbstractCalculationEngine implements
 
         // Always evaluate the expression entered
         if (expr.evaluatable) {
-            Expr eval = ((ExprEvaluatable) expr).evaluate();
-            provider.valueChanged(range, eval);
-            values.put(range, eval);
+            if(autoCalculate) {
+                Expr eval = ((ExprEvaluatable) expr).evaluate();
+                provider.valueChanged(range, eval);
+                values.put(range, eval);
+            }
         } else {
             provider.valueChanged(range, expr);
             values.put(range, expr);
@@ -90,7 +92,13 @@ public class DependencyEngine extends AbstractCalculationEngine implements
 
     private void updateDependencies(Range range, Expr expr)
             throws ExprException {
+        graph.add(range);
         graph.clearInbounds(range);
+        if(expr == null) {
+            graph.clearOutbounds(range);
+            graph.remove(range);
+            return;
+        } 
         ExprVariable[] vars = ExprVariable.findVariables(expr);
         for (ExprVariable var : vars) {
             Range source = (Range) var.getAnnotation();

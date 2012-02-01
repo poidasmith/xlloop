@@ -13,7 +13,7 @@ import org.boris.expr.ExprArray;
 import org.boris.expr.ExprException;
 import org.boris.expr.util.Reflect;
 
-public class Range
+public class Range implements Comparable<Range>
 {
     private String namespace;
     private String dim1Name;
@@ -199,5 +199,9 @@ public class Range
             }
         }
         return arr;
+    }
+
+    public int compareTo(Range o) {
+        return o.dim1.compareTo(dim1);
     }
 }
