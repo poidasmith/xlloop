@@ -9,6 +9,7 @@
  *******************************************************************************/
 package org.boris.expr;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,9 +17,13 @@ public class ExprMap extends Expr
 {
     private Map<String, Expr> values;
 
-    ExprMap(Map<String, Expr> values) {
+    public ExprMap(Map<String, Expr> values) {
         super(ExprType.Map, false);
         this.values = values;
+    }
+    
+    public ExprMap() {
+        this(new LinkedHashMap());
     }
     
     public Set<String> keys() {
