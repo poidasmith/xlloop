@@ -38,6 +38,22 @@ public class ExprMap extends Expr
         values.put(key, value);
     }
     
+    public void put(String key, String value) {
+        values.put(key, new ExprString(value));
+    }    
+    
+    public void put(String key, double value) {
+        values.put(key, new ExprDouble(value));
+    }
+    
+    public void put(String key, int value) {
+        values.put(key, new ExprInteger(value));
+    }
+    
+    public void put(String key, boolean value) {
+        values.put(key, new ExprBoolean(value));
+    }
+    
     public ExprArray toArray() {
         ExprArray a = new ExprArray(values.size(), 2);
         int idx = 0;
