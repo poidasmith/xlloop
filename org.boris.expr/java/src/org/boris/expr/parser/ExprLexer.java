@@ -93,7 +93,7 @@ public class ExprLexer
             return null;
         }
 
-        if (!Character.isJavaIdentifierStart(lastChar)) {
+        if (!Character.isJavaIdentifierStart(lastChar) && lastChar != '.') {
             throw new IOException("Invalid token found: " + lastChar);
         }
 
@@ -150,7 +150,7 @@ public class ExprLexer
 
     private boolean isVariablePart(int lastChar) {
         return Character.isJavaIdentifierPart(lastChar) || lastChar == '!' ||
-                lastChar == ':';
+                lastChar == ':' || lastChar == '.';
     }
 
     private ExprToken readString() throws IOException {
