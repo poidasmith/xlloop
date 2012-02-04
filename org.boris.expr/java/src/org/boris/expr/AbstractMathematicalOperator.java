@@ -15,6 +15,15 @@ public abstract class AbstractMathematicalOperator extends
     public AbstractMathematicalOperator(ExprType type, Expr lhs, Expr rhs) {
         super(type, lhs, rhs);
     }
+    
+    public Expr optimize() throws ExprException {
+        lhs = lhs == null ? ExprDouble.ZERO : lhs.optimize();
+        rhs = rhs.optimize();
+        if(lhs instanceof ExprNumber && rhs instanceof ExprNumber) {
+            return evaluate();
+        }
+        return this;
+    }
 
     protected double evaluateExpr(Expr e) throws ExprException {
         e = eval(e);

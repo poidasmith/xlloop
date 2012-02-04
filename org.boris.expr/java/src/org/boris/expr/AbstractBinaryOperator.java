@@ -47,7 +47,7 @@ public abstract class AbstractBinaryOperator extends ExprEvaluatable implements
             throw new ExprException("RHS of operator missing");
         rhs.validate();
     }
-
+    
     public int hashCode() {
         int hc = type.ordinal();
         if (lhs != null)
