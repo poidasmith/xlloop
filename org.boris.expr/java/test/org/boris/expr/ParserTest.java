@@ -26,9 +26,13 @@ public class ParserTest extends TH
         assertResult("2^2", 4.);
         assertResult("2^0.5", Math.sqrt(2));
     }
-
+    
     public void testNegative() throws Exception {
         assertResult("(2.0 + Max(2,5,6) -1)", 7.);
         assertResult("(2.0 + Max(2,5,6)-1)", 7.);
+    }
+    
+    public void testUnary() throws Exception {
+        assertResult("-1^2", 1.);
     }
 }
