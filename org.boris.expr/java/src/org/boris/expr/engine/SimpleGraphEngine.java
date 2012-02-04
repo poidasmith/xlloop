@@ -11,7 +11,9 @@ package org.boris.expr.engine;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.boris.expr.Expr;
 import org.boris.expr.ExprBoolean;
@@ -40,12 +42,17 @@ public class SimpleGraphEngine
     private Graph<String> graph = new Graph();
     private Map<String, Expr> inputs = new HashMap<String, Expr>();
     private Map<String, Expr> results = new HashMap<String, Expr>();
+    private Set<IEngineListener> listeners = new HashSet<IEngineListener>();
     
     public SimpleGraphEngine() {
         addFunctions(new ExcelFunctionProvider());
         setValue("PI", ExprDouble.PI);
         setValue("TRUE", ExprBoolean.TRUE);
         setValue("FALSE", ExprBoolean.FALSE);
+    }
+    
+    public void addEngineListener(IEngineListener listener) {
+        listeners.add(listener);
     }
     
     public void addFunction(String name, IExprFunction function) {
@@ -87,7 +94,9 @@ public class SimpleGraphEngine
         for(String name : graph.sort()) {
             Expr input = inputs.get(name);
             if(input instanceof ExprEvaluatable) {
-                results.put(name, ((ExprEvaluatable) input).evaluate());
+                Expr result = ((ExprEvaluatable) input).evaluate();
+                results.put(name, result);
+                fireOnResult(name, result);
             }
         }
     }
@@ -114,9 +123,17 @@ public class SimpleGraphEngine
         inputs.put(name, value);
         if(value instanceof ExprEvaluatable)
             results.remove(name);
-        else
+        else {
             results.put(name, value);
+            fireOnResult(name, value);
+        }
         graph.clearInbounds(name);
+        graph.add(name);
+    }
+    
+    private void fireOnResult(String name, Expr value) {
+        for(IEngineListener l : listeners)
+            l.onResult(name, value);
     }
     
     private class EngineFunctionManager extends FunctionManager {

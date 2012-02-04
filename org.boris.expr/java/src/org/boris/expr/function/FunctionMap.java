@@ -9,12 +9,14 @@
  *******************************************************************************/
 package org.boris.expr.function;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import org.boris.expr.Expr;
+import org.boris.expr.ExprError;
 import org.boris.expr.ExprException;
 import org.boris.expr.ExprFunction;
 import org.boris.expr.IExprFunction;
@@ -22,7 +24,7 @@ import org.boris.expr.IExprFunction;
 public class FunctionMap implements IFunctionProvider
 {
     private Map<String, IExprFunction> functions;
-    private List<IFunctionProvider> providers;
+    private List<IFunctionProvider> providers = new ArrayList<IFunctionProvider>();
 
     public FunctionMap() {
         this(false);
@@ -49,7 +51,7 @@ public class FunctionMap implements IFunctionProvider
             if (p.hasFunction(function))
                 return p.evaluate(function);
         
-        return null;
+        return new ExprError(ExprError.NAME.getErrType(), String.format("Unknown function: %s", function.getName()));
     }
 
     public boolean hasFunction(ExprFunction function) {
