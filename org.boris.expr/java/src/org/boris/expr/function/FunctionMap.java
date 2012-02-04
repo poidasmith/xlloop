@@ -10,6 +10,7 @@
 package org.boris.expr.function;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -21,6 +22,7 @@ import org.boris.expr.IExprFunction;
 public class FunctionMap implements IFunctionProvider
 {
     private Map<String, IExprFunction> functions;
+    private List<IFunctionProvider> providers;
 
     public FunctionMap() {
         this(false);
@@ -34,14 +36,30 @@ public class FunctionMap implements IFunctionProvider
         functions.put(name, function);
     }
 
+    public void add(IFunctionProvider provider) {
+        providers.add(provider);
+    }
+
     public Expr evaluate(ExprFunction function) throws ExprException {
         IExprFunction f = functions.get(function.getName());
         if (f != null)
             return f.evaluate(function.getArgs());
+        
+        for (IFunctionProvider p : providers)
+            if (p.hasFunction(function))
+                return p.evaluate(function);
+        
         return null;
     }
 
     public boolean hasFunction(ExprFunction function) {
-        return functions.containsKey(function.getName());
+        if (functions.containsKey(function.getName()))
+            return true;
+        
+        for (IFunctionProvider p : providers)
+            if (p.hasFunction(function))
+                return true;
+        
+        return false;
     }
 }

@@ -19,7 +19,7 @@ import org.boris.expr.ExprVariable;
 import org.boris.expr.IEvaluationCallback;
 import org.boris.expr.IExprFunction;
 
-public class FunctionManager implements IEvaluationCallback
+public class FunctionManager implements IEvaluationCallback, IFunctionProvider
 {
     private FunctionMap functionMap;
     private Set<IFunctionProvider> providers = new LinkedHashSet();
@@ -38,18 +38,22 @@ public class FunctionManager implements IEvaluationCallback
     }
 
     public void add(IFunctionProvider provider) {
-        providers.add(provider);
+        functionMap.add(provider);
     }
 
     public Expr evaluateFunction(ExprFunction function) throws ExprException {
-        for (IFunctionProvider p : providers) {
-            if (p.hasFunction(function))
-                return p.evaluate(function);
-        }
-        return null;
+        return functionMap.evaluate(function);
     }
 
     public Expr evaluateVariable(ExprVariable variable) throws ExprException {
         return null;
+    }
+
+    public boolean hasFunction(ExprFunction function) {
+        return functionMap.hasFunction(function);
+    }
+
+    public Expr evaluate(ExprFunction function) throws ExprException {
+        return evaluateFunction(function);
     }
 }
