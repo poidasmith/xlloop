@@ -9,8 +9,6 @@
  *******************************************************************************/
 package org.boris.expr.engine;
 
-import java.util.Iterator;
-
 import org.boris.expr.Expr;
 import org.boris.expr.ExprEvaluatable;
 import org.boris.expr.ExprException;
@@ -23,23 +21,19 @@ import org.boris.expr.graph.GraphTraversalListener;
 import org.boris.expr.parser.IParserVisitor;
 
 public class DependencyEngine extends AbstractCalculationEngine implements
-        IParserVisitor, IEvaluationCallback, GraphTraversalListener
+        IParserVisitor, IEvaluationCallback, GraphTraversalListener<Range>
 {
-    private Graph graph = new Graph();
+    private Graph<Range> graph = new Graph();
 
     public DependencyEngine(EngineProvider provider) {
         super(provider);
-        this.graph.setIncludeEdges(false);
     }
 
     public void calculate(boolean force) throws ExprException {
         if (autoCalculate && !force)
             return;
 
-        graph.sort();
-        Iterator i = graph.iterator();
-        while (i.hasNext()) {
-            Range r = (Range) i.next();
+        for(Range r : graph.sort()) {
             Expr input = inputs.get(r);
             if (input instanceof ExprEvaluatable) {
                 Expr eval = ((ExprEvaluatable) input).evaluate();
@@ -136,7 +130,7 @@ public class DependencyEngine extends AbstractCalculationEngine implements
         }
     }
 
-    public void traverse(Object node) {
+    public void traverse(Range node) {
         // FIXME : broken on range dependencies - need to think about
         // a range element pointing to an element of a calced ExprArray...
         Range r = (Range) node;

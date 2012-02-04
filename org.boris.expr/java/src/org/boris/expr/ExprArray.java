@@ -52,6 +52,22 @@ public class ExprArray extends Expr
         array[row * columns + column] = value;
     }
 
+    public void set(int row, int column, String value) {
+        set(row, column, new ExprString(value));
+    }
+
+    public void set(int row, int column, double value) {
+        set(row, column, new ExprDouble(value));
+    }
+
+    public void set(int row, int column, int value) {
+        set(row, column, new ExprInteger(value));
+    }
+
+    public void set(int row, int column, boolean value) {
+        set(row, column, new ExprBoolean(value));
+    }
+
     public Expr[] getInternalArray() {
         return array;
     }
@@ -67,5 +83,19 @@ public class ExprArray extends Expr
         ExprArray a = (ExprArray) obj;
         return a.rows == rows && a.columns == columns &&
                 Arrays.equals(a.array, array);
+    }
+    
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < rows; i++) {
+            sb.append("[");
+            for(int j = 0; j < columns; j++) {
+                if(j>0)
+                    sb.append(",");
+                sb.append(get(i, j));
+            }
+            sb.append("]\n");
+        }
+        return sb.toString();
     }
 }

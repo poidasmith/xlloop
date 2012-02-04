@@ -9,22 +9,14 @@
  *******************************************************************************/
 package org.boris.expr.graph;
 
-public class Edge
+public class Edge<N>
 {
-    public final Object source;
-    public final Object target;
-    public final Object data;
+    public final N source;
+    public final N target;
 
-    public Edge(Object source, Object target, Object data) {
+    public Edge(N source, N target) {
         this.source = source;
         this.target = target;
-        this.data = data;
-    }
-
-    public Edge(Object source, Object target) {
-        this.source = source;
-        this.target = target;
-        this.data = null;
     }
 
     public boolean equals(Object obj) {
@@ -32,22 +24,11 @@ public class Edge
             return false;
 
         Edge e = (Edge) obj;
-        boolean same = e.source.equals(source) && e.target.equals(target);
-        if (!same)
-            return false;
-        if (data != null) {
-            return data.equals(e.data);
-        } else if (e.data != null) {
-            return e.data.equals(data);
-        }
-        return true;
+        return e.source.equals(source) && e.target.equals(target);
     }
 
     public int hashCode() {
-        int h = source.hashCode() ^ target.hashCode();
-        if (data != null)
-            h ^= data.hashCode();
-        return h;
+        return source.hashCode() ^ target.hashCode();
     }
 
     public String toString() {

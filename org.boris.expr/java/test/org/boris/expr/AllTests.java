@@ -22,6 +22,7 @@ public class AllTests
         suite.addTestSuite(ExcelLookupAndReferenceFunctionsTest.class);
         suite.addTestSuite(ExcelCompatTest.class);
         suite.addTestSuite(ParserTest.class);
+        suite.addTestSuite(OptimizeTest.class);
         suite.addTestSuite(ExcelStatisticalFunctionsTest.class);
         suite.addTestSuite(ExcelMathAndTrigFunctionsTest.class);
         suite.addTestSuite(ExcelDateTest.class);

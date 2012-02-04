@@ -11,6 +11,7 @@ package org.boris.expr.function;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.boris.expr.Expr;
 import org.boris.expr.ExprException;
@@ -19,18 +20,18 @@ import org.boris.expr.IExprFunction;
 
 public class FunctionMap implements IFunctionProvider
 {
-    private boolean caseSensitive;
-    private Map<String, IExprFunction> functions = new HashMap();
+    private Map<String, IExprFunction> functions;
 
     public FunctionMap() {
+        this(false);
     }
 
     public FunctionMap(boolean caseSensitive) {
-        this.caseSensitive = caseSensitive;
+        functions = caseSensitive ? new HashMap() : new TreeMap(String.CASE_INSENSITIVE_ORDER);
     }
 
     public void add(String name, IExprFunction function) {
-        functions.put(caseSensitive ? name : name.toUpperCase(), function);
+        functions.put(name, function);
     }
 
     public Expr evaluate(ExprFunction function) throws ExprException {

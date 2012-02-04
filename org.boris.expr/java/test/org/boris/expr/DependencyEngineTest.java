@@ -61,7 +61,7 @@ public class DependencyEngineTest extends TestCase
         e.addAlias("x", Range.valueOf("A1:B3"));
         e.addAlias("alias1", Range.valueOf("A1"));
         e.set("A1", "45");
-        e.set("B1", "=alias1:x");
+        e.set("B1", "=alias1");
         e.set("B2", "=x");
         assertResult(e, "B1", 45);
         assertResult(e, "B2", 45);

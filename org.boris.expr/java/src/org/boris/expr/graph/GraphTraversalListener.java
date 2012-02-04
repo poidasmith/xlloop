@@ -9,7 +9,7 @@
  *******************************************************************************/
 package org.boris.expr.graph;
 
-public interface GraphTraversalListener
+public interface GraphTraversalListener<N>
 {
-    void traverse(Object node);
+    void traverse(N node);
 }

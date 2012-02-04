@@ -107,6 +107,10 @@ public class TH extends TestCase
     public static void assertEquals(Expr e, Object o) throws ExprException {
         assertEquals(Exprs.convertExpr(e), o);
     }
+    
+    public static void assertEquals(Expr e, Double o) throws ExprException {
+        assertEquals(Exprs.convertExpr(e), o);
+    }
 
     public static void assertEquals(Object o, Double val) {
         if (o instanceof Double)

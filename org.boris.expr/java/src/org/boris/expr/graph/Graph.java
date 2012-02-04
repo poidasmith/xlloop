@@ -17,57 +17,50 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class Graph implements Iterable
+public class Graph<N>
 {
-    private boolean wantsEdges = true;
-    private Set nodes = new HashSet();
-    private Set edges = new HashSet();
-    private Map outbounds = new HashMap();
-    private Map inbounds = new HashMap();
-    private List ordered = null;
-    private Set traversed = null;
+    private Set<N> nodes = new HashSet();
+    private Set<Edge<N>> edges = new HashSet();
+    private Map<N,Set<Edge<N>>> outbounds = new HashMap();
+    private Map<N,Set<Edge<N>>> inbounds = new HashMap();
 
-    public void setIncludeEdges(boolean include) {
-        this.wantsEdges = include;
-    }
-
-    public void add(Object node) {
+    public void add(N node) {
         nodes.add(node);
     }
 
-    public Set getInbounds(Object node) {
-        return (Set) inbounds.get(node);
+    public Set<Edge<N>> getInbounds(N node) {
+        return inbounds.get(node);
     }
 
-    public Set getOutbounds(Object node) {
-        return (Set) outbounds.get(node);
+    public Set<Edge<N>> getOutbounds(N node) {
+        return outbounds.get(node);
     }
 
-    public void clearOutbounds(Object node) {
-        Set s = (Set) outbounds.get(node);
+    public void clearOutbounds(N node) {
+        Set<Edge<N>> s = outbounds.get(node);
         if (s != null) {
-            Iterator i = s.iterator();
+            Iterator<Edge<N>> i = s.iterator();
             while (i.hasNext())
-                remove((Edge) i.next());
+                remove(i.next());
         }
     }
 
-    public void clearInbounds(Object node) {
-        Set s = (Set) inbounds.get(node);
+    public void clearInbounds(N node) {
+        Set<Edge<N>> s = inbounds.get(node);
         if (s != null) {
-            Iterator i = s.iterator();
+            Iterator<Edge<N>> i = s.iterator();
             while (i.hasNext())
-                remove((Edge) i.next());
+                remove(i.next());
         }
     }
 
-    public void remove(Object node) {
+    public void remove(N node) {
         nodes.remove(node);
         clearInbounds(node);
         clearOutbounds(node);
     }
 
-    public void add(Edge e) throws GraphCycleException {
+    public void add(Edge<N> e) throws GraphCycleException {
         checkCycle(e);
         nodes.add(e.source);
         nodes.add(e.target);
@@ -82,30 +75,30 @@ public class Graph implements Iterable
         out.add(e);
     }
 
-    public void checkCycle(Edge e) throws GraphCycleException {
-        HashSet visited = new HashSet();
+    public void checkCycle(Edge<N> e) throws GraphCycleException {
+        Set<N> visited = new HashSet();
         visited.add(e.source);
         checkCycle(e, visited);
     }
 
-    private void checkCycle(Edge e, HashSet visited) throws GraphCycleException {
-        if (visited.contains(e)) {
+    private void checkCycle(Edge<N> e, Set<N> visited) throws GraphCycleException {
+        if (visited.contains(e.target)) {
             throw new GraphCycleException("Circular reference found: " +
                     e.source + " - " + e.target);
         }
-        visited.add(e);
-        Set out = (Set) outbounds.get(e.target);
+        visited.add(e.target);
+        Set<Edge<N>> out = outbounds.get(e.target);
         if (out != null) {
-            Iterator i = out.iterator();
+            Iterator<Edge<N>> i = out.iterator();
             while (i.hasNext()) {
-                checkCycle((Edge) i.next(), visited);
+                checkCycle(i.next(), visited);
             }
         }
     }
 
-    public void remove(Edge e) {
+    public void remove(Edge<N> e) {
         edges.remove(e);
-        Set in = (Set) inbounds.get(e.target);
+        Set<Edge<N>> in = inbounds.get(e.target);
         if (in != null)
             in.remove(e);
         Set out = (Set) outbounds.get(e.source);
@@ -113,45 +106,74 @@ public class Graph implements Iterable
             out.remove(e);
     }
 
-    public void sort() {
-        ordered = new ArrayList();
-        traversed = new HashSet();
-        Iterator i = nodes.iterator();
-        Set remains = new HashSet(nodes);
+    public List<N> sort() {
+        List<N> ordered = new ArrayList();
+        Set<N> traversed = new HashSet();
+        Iterator<N> i = nodes.iterator();
+        Set<N> remains = new HashSet(nodes);
 
         // First traverse nodes without inbounds
         while (i.hasNext()) {
-            Object o = i.next();
-            Set in = (Set) inbounds.get(o);
+            N n = i.next();
+            Set in = (Set) inbounds.get(n);
             if (in == null || in.isEmpty()) {
-                traverse(o);
-                remains.remove(o);
+                traverse(n, traversed, ordered);
+                remains.remove(n);
             }
         }
 
         // Now traverse the rest
         i = remains.iterator();
         while (i.hasNext()) {
-            Object o = i.next();
-            if (!traversed.contains(o)) {
-                traverse(o);
+            N n = i.next();
+            if (!traversed.contains(n)) {
+                traverse(n, traversed, ordered);
+            }
+        }
+        
+        return ordered;
+    }
+
+
+
+    public void clear() {
+        edges.clear();
+        inbounds.clear();
+        outbounds.clear();
+        nodes.clear();
+    }
+
+    public void traverse(N node, GraphTraversalListener<N> listener) {
+        HashSet subgraph = new HashSet();
+        walk(node, subgraph);
+        HashSet hs = new HashSet();
+        hs.add(node);
+        traverse(node, listener, hs, subgraph);
+    }
+
+    private void walk(N node, Set<N> traversed) {
+        traversed.add(node);
+        Set<Edge<N>> out = outbounds.get(node);
+        if (out != null) {
+            Iterator<Edge<N>> i = out.iterator();
+            while (i.hasNext()) {
+                N n = i.next().target;
+                if(!traversed.contains(n))
+                    walk(n, traversed);
             }
         }
     }
 
-    private void traverse(Object node) {
-        Set in = (Set) inbounds.get(node);
+    private void traverse(N node, Set<N> traversed, List<N> ordered) {
+        Set<Edge<N>> in = inbounds.get(node);
         if (in != null) {
-            Iterator i = in.iterator();
+            Iterator<Edge<N>> i = in.iterator();
 
             // if all inbounds haven't been traversed we must stop
             while (i.hasNext()) {
-                Edge e = (Edge) i.next();
+                Edge<N> e = i.next();
                 if (!traversed.contains(e.source))
                     return;
-                else if (wantsEdges)
-                    ordered.add(e);
-
             }
         }
 
@@ -165,11 +187,11 @@ public class Graph implements Iterable
             return;
         }
 
-        Set avoid = new HashSet();
+        Set<N> avoid = new HashSet();
 
-        Iterator i = out.iterator();
+        Iterator<Edge<N>> i = out.iterator();
         while (i.hasNext()) {
-            Edge e = (Edge) i.next();
+            Edge<N> e = i.next();
             if (!traversed.contains(e)) {
                 if (traversed.contains(e.target)) {
                     avoid.add(e.target);
@@ -179,60 +201,25 @@ public class Graph implements Iterable
 
         i = out.iterator();
         while (i.hasNext()) {
-            Object n = ((Edge) i.next()).target;
+            N n = i.next().target;
             if (!avoid.contains(n)) {
-                traverse(n);
+                traverse(n, traversed, ordered);
             }
         }
     }
-
-    public void clear() {
-        edges.clear();
-        inbounds.clear();
-        outbounds.clear();
-        nodes.clear();
-        traversed = null;
-        ordered.clear();
-    }
-
-    public Iterator iterator() {
-        if (ordered == null)
-            sort();
-        return ordered.iterator();
-    }
-
-    public void traverse(Object node, GraphTraversalListener listener) {
-        HashSet subgraph = new HashSet();
-        walk(node, subgraph);
-        HashSet hs = new HashSet();
-        hs.add(node);
-        traverse(node, listener, hs, subgraph);
-    }
-
-    private void walk(Object node, Set traversed) {
-        traversed.add(node);
-        Set out = (Set) outbounds.get(node);
-        if (out != null) {
-            Iterator i = out.iterator();
-            while (i.hasNext()) {
-                Edge e = (Edge) i.next();
-                walk(e.target, traversed);
-            }
-        }
-    }
-
-    private void traverse(Object node, GraphTraversalListener listener,
-            Set traversed, Set subgraph) {
-        Set edges = (Set) outbounds.get(node);
+    
+    private void traverse(N node, GraphTraversalListener<N> listener,
+            Set<N> traversed, Set<N> subgraph) {
+        Set<Edge<N>> edges = outbounds.get(node);
         if (edges != null) {
-            Iterator i = edges.iterator();
+            Iterator<Edge<N>> i = edges.iterator();
             while (i.hasNext()) {
-                Edge e = (Edge) i.next();
-                Set ins = (Set) inbounds.get(e.target);
-                Iterator j = ins.iterator();
+                Edge<N> e = i.next();
+                Set<Edge<N>> ins = inbounds.get(e.target);
+                Iterator<Edge<N>> j = ins.iterator();
                 boolean traverse = true;
                 while (j.hasNext()) {
-                    Edge in = (Edge) j.next();
+                    Edge<N> in = j.next();
                     if (subgraph.contains(in.source) &&
                             !traversed.contains(in.source) &&
                             !node.equals(in.source)) {
