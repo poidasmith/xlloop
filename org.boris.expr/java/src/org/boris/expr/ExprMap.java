@@ -46,8 +46,18 @@ public class ExprMap extends Expr
         values.put(key, new ExprDouble(value));
     }
     
+    public void put(String key, Double value) {
+        if(value != null)
+            values.put(key, new ExprDouble(value));
+    }
+    
     public void put(String key, int value) {
         values.put(key, new ExprInteger(value));
+    }
+    
+    public void put(String key, Integer value) {
+        if(value != null)
+            values.put(key, new ExprInteger(value));
     }
     
     public void put(String key, boolean value) {
@@ -63,5 +73,9 @@ public class ExprMap extends Expr
             idx++;
         }
         return a;
+    }
+    
+    public String toString() {
+        return String.valueOf(values);
     }
 }

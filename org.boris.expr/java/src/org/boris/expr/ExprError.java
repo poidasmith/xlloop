@@ -24,11 +24,19 @@ public class ExprError extends Expr
 
     private String errType;
     private String message;
+    private Exception exception;
 
     public ExprError(String type, String message) {
         super(ExprType.Error, false);
         this.errType = type;
         this.message = message;
+    }
+    
+    public ExprError(Exception e) {
+        super(ExprType.Error, false);
+        this.errType = "#ERR!";
+        this.message = e.getMessage();
+        this.exception = e;
     }
 
     public String getErrType() {
@@ -37,6 +45,10 @@ public class ExprError extends Expr
 
     public String getMessage() {
         return message;
+    }
+    
+    public Exception getException() {
+        return exception;
     }
 
     public String toString() {

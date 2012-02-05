@@ -94,7 +94,12 @@ public class SimpleGraphEngine
         for(String name : graph.sort()) {
             Expr input = inputs.get(name);
             if(input instanceof ExprEvaluatable) {
-                Expr result = ((ExprEvaluatable) input).evaluate();
+                Expr result = null;
+                try {
+                    result = ((ExprEvaluatable) input).evaluate();
+                } catch(ExprException e) {
+                    result = new ExprError(e);
+                }
                 results.put(name, result);
                 fireOnResult(name, result);
             }
