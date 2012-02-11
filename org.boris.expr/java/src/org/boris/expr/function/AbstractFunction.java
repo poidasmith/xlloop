@@ -105,6 +105,43 @@ public abstract class AbstractFunction implements IExprFunction
         throw new ExprException("Invalid argument type for function " +
                 getClass().getSimpleName());
     }
+    
+    protected String asString(Expr[] args, int index, String defaultValue) throws ExprException {
+        Expr arg = getArg(args, index);
+        return arg == null ? defaultValue : arg.toString();
+    }
+    
+    protected int asInteger(Expr[] args, int index, int defaultValue) throws ExprException {
+        Expr arg = getArg(args, index);
+        if(arg instanceof ExprNumber)
+            return ((ExprNumber)arg).intValue();
+        return defaultValue;
+    }
+    
+    protected double asDouble(Expr[] args, int index, double defaultValue) throws ExprException {
+        Expr arg = getArg(args, index);
+        if(arg instanceof ExprNumber)
+            return ((ExprNumber)arg).doubleValue();
+        return defaultValue;
+    }
+    
+    protected Expr getArg(Expr[] args, int index) throws ExprException {
+        if(args == null || args.length <= index)
+            return null;
+        
+        Expr arg = args[index];
+        if(arg instanceof ExprArray) {
+            arg = ((ExprArray)arg).get(0);
+        } 
+        if (arg instanceof ExprEvaluatable) {
+            arg = ((ExprEvaluatable) arg).evaluate();
+        }
+        if(arg instanceof ExprArray) {
+            arg = ((ExprArray)arg).get(0);
+        }
+        
+        return arg;
+    }
 
     protected void assertArgType(Expr expr, ExprType type) throws ExprException {
         if (expr == null) {
