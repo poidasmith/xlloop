@@ -46,7 +46,7 @@ public abstract class ForEachFunction extends AbstractFunction
 
         if (e instanceof ExprArray) {
             ExprArray a = (ExprArray) e;
-            Expr[] ai = a.getInternalArray();
+            Expr[] ai = a.getArgs();
             for (Expr aie : ai) {
                 evalItem(aie, c);
                 if (!c.doit)

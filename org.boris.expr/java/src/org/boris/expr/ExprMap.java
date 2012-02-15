@@ -64,6 +64,10 @@ public class ExprMap extends Expr
         values.put(key, new ExprBoolean(value));
     }
     
+    public Expr[] getArgs() {
+        return values.values().toArray(EMPTY_ARGS);
+    }
+    
     public ExprArray toArray() {
         ExprArray a = new ExprArray(values.size(), 2);
         int idx = 0;

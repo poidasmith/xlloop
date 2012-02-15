@@ -16,7 +16,7 @@ public abstract class AbstractBinaryOperator extends ExprEvaluatable implements
 {
     protected Expr lhs;
     protected Expr rhs;
-
+    
     public AbstractBinaryOperator(ExprType type, Expr lhs, Expr rhs) {
         super(type);
         this.lhs = lhs;
@@ -37,6 +37,10 @@ public abstract class AbstractBinaryOperator extends ExprEvaluatable implements
 
     public void setRHS(Expr rhs) {
         this.rhs = rhs;
+    }
+    
+    public Expr[] getArgs() {
+        return new Expr[] { lhs, rhs };
     }
 
     public void validate() throws ExprException {

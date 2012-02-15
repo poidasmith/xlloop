@@ -13,5 +13,7 @@ import org.boris.expr.Expr;
 
 public interface IEngineListener
 {
-    void onResult(String name, Expr value);
+    void beforeCalculation(String name);
+
+    void afterCalculation(String name, Expr value);
 }

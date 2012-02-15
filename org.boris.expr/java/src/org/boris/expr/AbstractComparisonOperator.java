@@ -14,7 +14,7 @@ public abstract class AbstractComparisonOperator extends AbstractBinaryOperator
     public AbstractComparisonOperator(ExprType type, Expr lhs, Expr rhs) {
         super(type, lhs, rhs);
     }
-
+    
     protected double compare() throws ExprException {
         Expr l = eval(lhs);
         Expr r = eval(rhs);

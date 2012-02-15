@@ -43,26 +43,26 @@ public class SimpleGraphEngine
     private Map<String, Expr> inputs = new HashMap<String, Expr>();
     private Map<String, Expr> results = new HashMap<String, Expr>();
     private Set<IEngineListener> listeners = new HashSet<IEngineListener>();
-    
+
     public SimpleGraphEngine() {
         addFunctions(new ExcelFunctionProvider());
         setValue("PI", ExprDouble.PI);
         setValue("TRUE", ExprBoolean.TRUE);
         setValue("FALSE", ExprBoolean.FALSE);
     }
-    
+
     public void addEngineListener(IEngineListener listener) {
         listeners.add(listener);
     }
-    
+
     public void addFunction(String name, IExprFunction function) {
         evaluator.add(name, function);
     }
-    
+
     public void addFunctions(IFunctionProvider provider) {
         evaluator.add(provider);
     }
-    
+
     public void setValue(String name, String value) {
         setValue(name, new ExprString(value));
     }
@@ -74,42 +74,43 @@ public class SimpleGraphEngine
     public void setValue(String name, int value) throws GraphCycleException {
         setValue(name, new ExprInteger(value));
     }
-    
-    public void setValue(String name, boolean value)  {
+
+    public void setValue(String name, boolean value) {
         setValue(name, new ExprBoolean(value));
     }
-    
-    public void set(String name, Expr value) throws GraphCycleException  {
+
+    public void set(String name, Expr value) throws GraphCycleException {
         setValue(name, value);
-        for(ExprVariable v : ExprVariable.findVariables(value)) {
+        for (ExprVariable v : ExprVariable.findVariables(value)) {
             graph.add(new Edge<String>(v.getName(), name));
         }
     }
-    
+
     public void setFormula(String name, String expression) throws ExprException, GraphCycleException {
         set(name, parse(expression));
     }
 
     public void calculate() throws ExprException {
-        for(String name : graph.sort()) {
+        for (String name : graph.sort()) {
             Expr input = inputs.get(name);
-            if(input instanceof ExprEvaluatable) {
+            if (input instanceof ExprEvaluatable) {
                 Expr result = null;
                 try {
+                    fireBeforeCalculation(name);
                     result = ((ExprEvaluatable) input).evaluate();
-                } catch(ExprException e) {
+                } catch (ExprException e) {
                     result = new ExprError(e);
                 }
                 results.put(name, result);
-                fireOnResult(name, result);
+                fireAfterCalculation(name, result);
             }
         }
     }
-    
+
     public Expr get(String name) {
         return results.get(name);
     }
-    
+
     public Expr parse(String expression) throws ExprException {
         try {
             return ExprParser.parse(expression, evaluator).optimize();
@@ -117,31 +118,37 @@ public class SimpleGraphEngine
             throw new ExprException(e);
         }
     }
-    
+
     public void clear(String name) {
         inputs.remove(name);
         results.remove(name);
         graph.remove(name);
     }
-    
+
     private void setValue(String name, Expr value) {
         inputs.put(name, value);
-        if(value instanceof ExprEvaluatable)
+        if (value instanceof ExprEvaluatable)
             results.remove(name);
         else {
             results.put(name, value);
-            fireOnResult(name, value);
+            fireAfterCalculation(name, value);
         }
         graph.clearInbounds(name);
         graph.add(name);
     }
-    
-    private void fireOnResult(String name, Expr value) {
-        for(IEngineListener l : listeners)
-            l.onResult(name, value);
+
+    private void fireBeforeCalculation(String name) {
+        for (IEngineListener l : listeners)
+            l.beforeCalculation(name);
     }
-    
-    private class EngineFunctionManager extends FunctionManager {
+
+    private void fireAfterCalculation(String name, Expr value) {
+        for (IEngineListener l : listeners)
+            l.afterCalculation(name, value);
+    }
+
+    private class EngineFunctionManager extends FunctionManager
+    {
         public Expr evaluateVariable(ExprVariable variable) throws ExprException {
             Expr v = results.get(variable.getName());
             return v == null ? ExprError.NAME : v;

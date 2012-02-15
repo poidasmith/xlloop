@@ -17,7 +17,7 @@ public class COUNTIF extends AbstractFunction
         Condition cond = Condition.valueOf(args[1]);
         if (cond == null)
             return ExprError.VALUE;
-        Expr[] a = array.getInternalArray();
+        Expr[] a = array.getArgs();
         int count = 0;
         for (int i = 0; i < a.length; i++) {
             if (cond.eval(a[i]))

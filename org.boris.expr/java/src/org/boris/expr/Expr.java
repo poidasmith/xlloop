@@ -12,10 +12,12 @@ package org.boris.expr;
 
 public abstract class Expr
 {
+    public static final Expr[] EMPTY_ARGS = new Expr[0];
+    
     public final ExprType type;
     public final boolean evaluatable;
 
-    Expr(ExprType type, boolean evaluatable) {
+    public Expr(ExprType type, boolean evaluatable) {
         this.type = type;
         this.evaluatable = evaluatable;
     }
@@ -29,6 +31,10 @@ public abstract class Expr
 
     public Expr optimize() throws ExprException {
         return this;
+    }
+
+    public Expr[] getArgs() {
+        return EMPTY_ARGS;
     }
 
     protected Expr eval(Expr expr) throws ExprException {

@@ -41,7 +41,7 @@ public class MIN extends AbstractFunction
         }
 
         if (arg instanceof ExprArray) {
-            return min(((ExprArray) arg).getInternalArray());
+            return min(((ExprArray) arg).getArgs());
         }
 
         if (arg instanceof ExprError) {

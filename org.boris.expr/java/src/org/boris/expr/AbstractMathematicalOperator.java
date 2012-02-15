@@ -12,8 +12,11 @@ package org.boris.expr;
 public abstract class AbstractMathematicalOperator extends
         AbstractBinaryOperator
 {
+    private Expr[] args;
+    
     public AbstractMathematicalOperator(ExprType type, Expr lhs, Expr rhs) {
         super(type, lhs, rhs);
+        args = new Expr[] { lhs, rhs };
     }
     
     public Expr optimize() throws ExprException {
@@ -45,6 +48,10 @@ public abstract class AbstractMathematicalOperator extends
             return r;
         }
         return evaluate(evaluateExpr(l), evaluateExpr(r));
+    }
+    
+    public Expr[] getArgs() {
+        return args;
     }
 
     protected abstract Expr evaluate(double lhs, double rhs)

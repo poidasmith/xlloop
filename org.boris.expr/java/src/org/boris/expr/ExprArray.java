@@ -68,7 +68,7 @@ public class ExprArray extends Expr
         set(row, column, new ExprBoolean(value));
     }
 
-    public Expr[] getInternalArray() {
+    public Expr[] getArgs() {
         return array;
     }
 

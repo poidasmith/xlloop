@@ -29,6 +29,10 @@ public class ExprExpression extends ExprEvaluatable
     public Expr optimize() throws ExprException {
         return child.optimize();
     }
+    
+    public Expr[] getArgs() {
+        return new Expr[] { child };
+    }
 
     public Expr getChild() {
         return child;

@@ -83,8 +83,8 @@ public class IterationEngine extends AbstractCalculationEngine
         }
 
         if (nu instanceof ExprArray) {
-            Expr[] oldA = ((ExprArray) old).getInternalArray();
-            Expr[] nuA = ((ExprArray) nu).getInternalArray();
+            Expr[] oldA = old.getArgs();
+            Expr[] nuA = nu.getArgs();
 
             double change = 0;
             for (int i = 0; i < oldA.length && i < nuA.length; i++) {

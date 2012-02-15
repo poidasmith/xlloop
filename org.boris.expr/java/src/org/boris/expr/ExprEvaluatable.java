@@ -11,7 +11,7 @@ package org.boris.expr;
 
 public abstract class ExprEvaluatable extends Expr
 {
-    ExprEvaluatable(ExprType type) {
+    public ExprEvaluatable(ExprType type) {
         super(type, true);
     }
 

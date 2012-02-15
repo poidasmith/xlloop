@@ -41,7 +41,7 @@ public class MAX extends AbstractFunction
         }
 
         if (arg instanceof ExprArray) {
-            return max(((ExprArray) arg).getInternalArray());
+            return max(((ExprArray) arg).getArgs());
         }
 
         if (arg instanceof ExprError) {
