@@ -58,13 +58,7 @@ public class MultiThreadedDependencyEngine
             n.remove();
         }
 
-        if (input instanceof ExprFunction) {
-            n = new FunctionNode((ExprFunction) input);
-        } else if (input instanceof ExprVariable) {
-            n = new VariableNode((ExprVariable) input);
-        } else {
-            n = new ConstNode(input);
-        }
+        // Create evaluator
 
         // For each child we add ourself to 'after' Set
 
@@ -93,39 +87,6 @@ public class MultiThreadedDependencyEngine
         return nodes.keySet();
     }
 
-    public class ConstNode extends Node
-    {
-        public ConstNode(Expr input) {
-            this.result = input;
-        }
-
-        public Expr evaluate() {
-            return result;
-        }
-    }
-
-    public class VariableNode extends Node
-    {
-        public VariableNode(ExprVariable var) {
-            this.input = var;
-        }
-    }
-
-    public class FunctionNode extends Node
-    {
-        private ExprFunction function;
-        private Node[] nArgs;
-        private Expr[] vArgs;
-
-        public FunctionNode(ExprFunction function) {
-            this.function = function;
-        }
-
-        protected Expr innerEvaluate() throws ExprException {
-            return null;
-        }
-    }
-
     public class Node
     {
         /**
@@ -152,25 +113,30 @@ public class MultiThreadedDependencyEngine
         protected Set<Node> after = new HashSet<Node>();
 
         /**
-         * The input evaluatable. Each argument points to a child node (or
-         * value) We will wrap each arg in a delegate that
+         * Responsible for evaluating this node. 
+         * Can be replaced as node is created/modified. 
          */
-        protected ExprEvaluatable input;
-
+        protected NodeEvaluation evalautor;
+        
         /**
          * The result of our evaluation (or the input value)
          */
         protected Expr result;
-
+        
+        /**
+         * Indicates that the result value is dirty.
+         */
         protected AtomicBoolean dirtyFlag = new AtomicBoolean(true);
-
+        
         /**
          * Walk the tree to mark every downstream node as dirty.
          */
         public void markAsDirty() {
-            dirtyFlag.set(true);
-            for (Node n : after)
-                n.markAsDirty();
+            if(!dirtyFlag.get()) {
+                dirtyFlag.set(true);
+                for (Node n : after)
+                    n.markAsDirty();
+            }
         }
 
         /**
@@ -202,7 +168,7 @@ public class MultiThreadedDependencyEngine
                 if (isBeforeClean()) {
                     fireBeforeCalculation(name);
                     try {
-                        result = innerEvaluate();
+                        evalautor.evaluate();
                     } catch (ExprException e) {
                         result = new ExprError(e);
                     }
@@ -213,17 +179,31 @@ public class MultiThreadedDependencyEngine
             return result;
         }
 
-        protected Expr innerEvaluate() throws ExprException {
-            return input.evaluate();
-        }
-
+        /* (non-Javadoc)
+         * @see java.lang.Object#hashCode()
+         */
         public int hashCode() {
             return name.hashCode();
         }
 
+        /* (non-Javadoc)
+         * @see java.lang.Object#equals(java.lang.Object)
+         */
         public boolean equals(Object obj) {
             return ((Node) obj).name.equals(name);
         }
+    }
+    
+    private class NodeEvaluation {
+        /**
+         * The input evaluatable. Each argument points to a child node (or
+         * value) We will wrap each arg in a delegate that
+         */
+        protected ExprEvaluatable input;
+
+        protected Expr evaluate() throws ExprException {
+            return input.evaluate();
+        }        
     }
 
     private void fireBeforeCalculation(String name) {
