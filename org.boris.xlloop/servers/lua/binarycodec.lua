@@ -1,5 +1,9 @@
 
---module("binarycodec")
+require( "pack" )
+local math, string, type, pack, print, tostring = math, string, type, pack, print, tostring;
+
+module( "binarycodec" )
+_VERSION = "1.0"
 
 local xlTypeNum = 1
 local xlTypeStr = 2
@@ -11,52 +15,88 @@ local xlTypeNil = 7
 local xlTypeInt = 8
 local xlTypeSRef = 9
 
+local binarycodec = {}
+
 local encoders = {
-	string = function( value )
-		res = string.char(xlTypeStr)
-		len = value:len()
-		if( len > 255 ) then
-			len = 255
-		end
-		return res .. string.char( len ) .. string.sub( value, 1, len )
-	end
-}
-
-function encode(value)
-	return encoders[ type(value) ](value)
-end
-
-function encodeAsInt(value)
-	return string.char(
-		xlTypeInt,
-		math.floor( value / 256 ^ 3) % 256,
-		math.floor( value / 256 ^ 2) % 256,
-		math.floor( value / 256 ^ 1) % 256,
-		math.floor( value / 256 ^ 0) % 256
-	)
-end
-
-decoders = {
-	[ xlTypeNum ] = function( buffer )
+	number = function( value )
+		return string.pack( "b>d", xlTypeNum, value )
 	end,
-	[ xlTypeStr ] = function( buffer )
-		print( "decode str: " )
-		len = buffer:receive( 1 )
-		len = len:byte()
-		print( len )
-		return buffer:receive( len )
-	end
+	
+	string = function( value )
+		if( value:len() > 255 ) then
+			value = value.sub( value, 1, 255 )
+		end
+		return string.pack( "bp", xlTypeStr, value )
+	end,
+	
+	boolean = function( value )
+		return string.pack( "bb", xlTypeBool, value and 1 or 0 )
+	end,
+	
+	table = function( value )
+		local cols = value[ "cols" ] or 1
+		local rows = value[ "rows" ] or #value
+		local res  = string.pack( "b>i2", xlTypeMulti, rows, cols )
+		for i = 1, rows * cols do
+			res = res .. binarycodec.encode( value[ i ] )
+		end
+		return res			
+	end,
 }
 
-function decode(buffer)
-	type = buffer:receive(1)
-	type = type:byte();
-	print( "found type: " .. string.format("%d", type ) )
+function binarycodec.encode(value)
+	if( value == nill ) then
+		return string.pack( "b", xlTypeNil )
+	else
+		return encoders[ type(value) ](value)
+	end
+end
+
+function binarycodec.encodeInt(value)
+	return string.pack( "b>i", xlTypeInt, value ) 
+end
+
+local decodeInt = function( buffer )
+	local sz, val = string.unpack( buffer:receive( 4 ), ">i4" )
+	return val
+end
+
+local decodeNop = function( buffer )
+	return nil
+end
+
+local decoders = {
+	[ xlTypeNum ] = function( buffer )
+		local sz, val = string.unpack( buffer:receive( 8 ), ">d" )
+		return val
+	end,
+	
+	[ xlTypeStr ]  = function( buffer ) 
+		return buffer:receive( string.byte( buffer:receive( 1 ) ) )
+	end,
+	
+	[ xlTypeBool ] = function( buffer ) 
+		return string.byte( buffer:receive( 1 ) ) ~= 0
+	end,
+	
+	[ xlTypeErr ] = decodeInt,
+	
+	[ xlTypeMulti ] = function( buffer )
+		local array = { rows = decodeInt( buffer ), cols = decodeInt( buffer ) }
+		for i = 1, array.rows * array.cols do
+			array[ i ] = binarycodec.decode( buffer )
+		end 
+		return array
+	end,
+	
+	[ xlTypeMissing ] = decodeNop,
+	[ xlTypeNil     ] = decodeNop,
+	[ xlTypeInt     ] = decodeInt,	
+}
+
+function binarycodec.decode(buffer)
+	local type = string.byte( buffer:receive( 1 ) )
 	return decoders[ type ]( buffer )
 end
 
-return {
-	encode      = encode,
-	encodeAsInt = encodeAsInt,
-	decode      = decode,
-}
+return binarycodec
