@@ -71,8 +71,12 @@ local decoders = {
 		return val
 	end,
 	
-	[ xlTypeStr ]  = function( buffer ) 
-		return buffer:receive( string.byte( buffer:receive( 1 ) ) )
+	[ xlTypeStr ]  = function( buffer )
+		local len = string.byte( buffer:receive( 1 ) )
+		if len == 0 then 
+			return ""
+		end 
+		return buffer:receive( len )
 	end,
 	
 	[ xlTypeBool ] = function( buffer ) 
