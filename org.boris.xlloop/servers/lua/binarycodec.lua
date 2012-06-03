@@ -99,7 +99,11 @@ local decoders = {
 }
 
 function binarycodec.decode(buffer)
-	local type = string.byte( buffer:receive( 1 ) )
+	local recv = buffer:receive( 1 )
+	if recv == nil then
+		return nil
+	end
+	local type = string.byte( recv )
 	return decoders[ type ]( buffer )
 end
 
