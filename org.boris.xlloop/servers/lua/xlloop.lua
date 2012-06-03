@@ -20,6 +20,7 @@ function xlloop.invoke(client, name, args)
 	return codec.decode( client )
 end
 
+-- TODO: multiple client support
 function xlloop.server(table, port)
 	local t = table or globals
 	local p = port or 5454
