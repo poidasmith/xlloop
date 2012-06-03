@@ -12,6 +12,7 @@ package org.boris.xlloop;
 import org.boris.xlloop.util.XLList;
 import org.boris.xlloop.xloper.XLArray;
 import org.boris.xlloop.xloper.XLBool;
+import org.boris.xlloop.xloper.XLError;
 import org.boris.xlloop.xloper.XLInt;
 import org.boris.xlloop.xloper.XLMissing;
 import org.boris.xlloop.xloper.XLNil;
@@ -47,6 +48,10 @@ public class CompTest1 implements IFunctionHandler
             l.add(34.5);
             l.add(65);
             l.add("hello");
+            l.add(XLError.xlTypeMissing);
+            l.add(true);
+            l.add(false);
+            l.add(-1000);
             XLList p = new XLList();
             p.add(123.1213);
             p.add(234234.232);
