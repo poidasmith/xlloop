@@ -3,6 +3,9 @@ local socket = require( "socket" )
 local codec  = require( "binarycodec" )
 local ipairs = ipairs
 local type   = type
+require("base")
+local prettytostring = prettytostring
+local print = print
 
 local globals = _G
 
@@ -11,7 +14,7 @@ _VERSION = "1.0"
 
 xlloop = {}
 
-function xlloop.invoke(client, name, args)
+function xlloop.invoke( client, name, args )
 	client:send( codec.encode( name ) )
 	client:send( codec.encodeInt( #args ) )
 	for k, v in ipairs( args ) do
@@ -21,7 +24,7 @@ function xlloop.invoke(client, name, args)
 end
 
 -- TODO: multiple client support
-function xlloop.server(table, port)
+function xlloop.server( table, port )
 	local t = table or globals
 	local p = port or 5454
 	local server = socket.bind( "*", p )
@@ -32,10 +35,12 @@ function xlloop.server(table, port)
 			if name == nil then
 				break
 			end
+			local log = name .. "( "
 			local argc = codec.decode( client )
 			local args = {}
 			for i = 1, argc do
 				args[ i ] = codec.decode( client )
+				log = log .. prettytostring( args[ i ] ) .. ", "
 			end
 			local fn = t[ name ]
 			local res = nil
@@ -44,6 +49,8 @@ function xlloop.server(table, port)
 			else
 				res = t[ name ]( unpack( args ) )
 			end
+			log = log .. " ) = " .. res
+			print( log )
 			local enc = codec.encode( res )
 			client:send( enc )
 		end

@@ -7,4 +7,4 @@ function fns.echo(...)
 	return {...}
 end
 
-xlloop.server()
+xlloop.server(fns, 5454)
