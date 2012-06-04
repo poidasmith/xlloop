@@ -10,21 +10,24 @@
 
 #include <windows.h>
 #include "xlcall.h"
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
 
-// The DLL instance
-HINSTANCE g_hinstance = NULL;
+lua_State *l = NULL;
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
 	if(fdwReason == DLL_PROCESS_ATTACH) {
-		// Store reference to handle for later use
-		g_hinstance = hinstDLL;
-
-		// TODO:
-		// - initialize LUA environment
-		// - load extensions
-		// - call lua init function
-	} 
+		l = lua_open();
+		luaL_openlibs(l); // stdlibs
+		luaL_loadfile(l, "F:\\eclipse\\git\\xlloop.git\\xllua\\test\\addin1.lua");
+	} else if(fdwReason == DLL_PROCESS_DETACH) {
+		if(l != NULL) {
+			lua_close(l);
+			l = NULL;
+		}
+	}
 	
 	return TRUE;
 }
@@ -32,28 +35,19 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 __declspec(dllexport) 
 int WINAPI xlAutoOpen(void)
 {
-	// TODO: call LUA xlAutoOpen fn
-
-	// OK
 	return TRUE;
 }
 
 __declspec(dllexport) 
 int WINAPI xlAutoClose(void)
 {
-	// TODO
-
 	return TRUE;
 }
 
 __declspec(dllexport) 
 LPXLOPER WINAPI xlAutoRegister(LPXLOPER pxName)
 {
-	static XLOPER xDLL, xRegId;
-	xRegId.xltype = xltypeErr;
-	xRegId.val.err = xlerrValue;
-	
-	return (LPXLOPER) &xRegId;
+	return NULL;
 }
 
 __declspec(dllexport) 
@@ -65,7 +59,7 @@ int WINAPI xlAutoAdd(void)
 __declspec(dllexport) 
 int WINAPI xlAutoRemove(void)
 {
-	return 1;
+	return TRUE;
 }
 
 __declspec(dllexport) 
@@ -76,7 +70,7 @@ void WINAPI xlAutoFree(LPXLOPER px)
 __declspec(dllexport) 
 LPXLOPER WINAPI xlAddInManagerInfo(LPXLOPER xAction)
 {
-	return 0;
+	return NULL;
 }
 
 LPXLOPER WINAPI LuaF(int number, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, LPXLOPER v4, 
