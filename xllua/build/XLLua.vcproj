@@ -74,7 +74,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../lib/msvcrt.lib ../lib/xlcall32.lib"
+				AdditionalDependencies="../lib/msvcrt.lib ../lib/xlcall32.lib ../lib/lua51.lib"
 				OutputFile="$(OutDir)\$(ProjectName)-Debug.xll"
 				LinkIncremental="2"
 				SuppressStartupBanner="false"
@@ -162,7 +162,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="../lib/xlcall32.lib ../lib/msvcrt.lib ../lib/BufferOverflowU.lib"
+				AdditionalDependencies="../lib/xlcall32.lib ../lib/msvcrt.lib ../lib/BufferOverflowU.lib ../lib/lua51.lib"
 				OutputFile="$(OutDir)\$(ProjectName).xll"
 				GenerateManifest="false"
 				IgnoreAllDefaultLibraries="true"
