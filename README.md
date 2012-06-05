@@ -6,7 +6,7 @@ Excel User-Defined Functions in Java, Javascript, Ruby, Python, Erlang
 
 XLLoop is an open source framework for implementing Excel user-defined functions (UDFs) on a centralised server (a function server). 
 
-*Why is this useful?*
+**Why is this useful?**
 * Functions can be written in any language (e.g. Java, scripting languages etc..)
 * Functions can be added quickly and dynamically without users having to restart Excel.
 * Functions can be managed separately and centrally, which avoids the costly overhead of managing many XLLs and ensures all users are using the same functions.
