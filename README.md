@@ -9,7 +9,7 @@ XLLoop is an open source framework for implementing Excel user-defined functions
 *Why is this useful?*
 * Functions can be written in any language (e.g. Java, scripting languages etc..)
 * Functions can be added quickly and dynamically without users having to restart Excel.
-* Functions can be managed separately and centrally, which avoids the costly overhead of managing many XLLs and ensures all users * are using the same functions.
+* Functions can be managed separately and centrally, which avoids the costly overhead of managing many XLLs and ensures all users are using the same functions.
 * Data can be shared across excel sessions/users (e.g. current stock market prices can be stored on a single server and all Excel sessions could retrieve this data via a GetStock function).
 
 It has the following features:
