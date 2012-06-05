@@ -1,4 +1,6 @@
-# XLLoop - Excel User-Defined Functions in Java, Javascript, Ruby, Python, Erlang
+# XLLoop 
+
+Excel User-Defined Functions in Java, Javascript, Ruby, Python, Erlang
 
 ## About
 
