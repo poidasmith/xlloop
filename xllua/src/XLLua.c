@@ -163,7 +163,7 @@ LPXLOPER WINAPI xlFc(int number, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER
 	xllua_pushx(l, v17);
 	xllua_pushx(l, v18);
 	xllua_pushx(l, v19);
-	lua_pcall(l, 3, 1, 0);
+	lua_pcall(l, 21, 1, 0);
 	return xllua_popx(l, -1);
 }
 
@@ -227,10 +227,9 @@ LPXLOPER xllua_popx(lua_State *l, int idx)
 int xllua_calli(lua_State *l, const char* fn)
 {
 	int res = 0;
-	lua_settop(l, 0);
+	lua_settop(l, 0); // FIXME
 	lua_getglobal(l, "xllua");
 	lua_getfield(l, 1, fn);
-	xllua_dump_stack(l);
 	if(!lua_isfunction(l, 2))
 		return 1;
 	lua_pcall(l, 0, 1, 0);
@@ -253,7 +252,7 @@ int xllua_excel4(lua_State *l)
 {
 	int xlfn       = luaL_checkint(l, 1);
 	int num_args   = luaL_checkint(l, 2);
-	LPXLOPER opers = (LPXLOPER) malloc(sizeof(XLOPER) * num_args);
+	LPXLOPER opers = num_args ? (LPXLOPER) malloc(sizeof(XLOPER) * num_args) : NULL;
 	int rc         = 0;
 	int i          = 0;
 	XLOPER res;
