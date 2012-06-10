@@ -14,15 +14,35 @@
 #include <lauxlib.h>
 #include <lualib.h>
 
+// Our shared state
 lua_State *l = NULL;
+
+// Helper stubs
+void     xllua_pushx(lua_State *l, LPXLOPER px);
+LPXLOPER xllua_popx(lua_State *l, int idx);
+int      xllua_calli(lua_State *l, const char* fn);
+void     xllua_addlibs(lua_State *l);
+int      xllua_register_function(LPXLOPER xn, const char* proc, const char* types, const char* name, const char* args, const char* mt, const char* cat, const char* sc, const char* topic, const char* fnh, const char* argh);
+char*    xllua_make_excel_string(const char* string);
+void     xllua_dump_stack(lua_State *L);
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
+	int s;
 	if(fdwReason == DLL_PROCESS_ATTACH) {
 		l = lua_open();
 		luaL_openlibs(l); // stdlibs
-		luaL_loadfile(l, "F:\\eclipse\\git\\xlloop.git\\xllua\\test\\addin1.lua");
-	} else if(fdwReason == DLL_PROCESS_DETACH) {
+		xllua_addlibs(l);
+		s = luaL_loadfile(l, "F:\\eclipse\\git\\xlloop.git\\xllua\\test\\addin1.lua"); // TODO
+		if(s) {
+			OutputDebugString(lua_tostring(l, -1));
+		} else {
+			s = lua_pcall(l, 0, LUA_MULTRET, 0);
+			if(s) {
+				OutputDebugString(lua_tostring(l, -1));
+			}
+		}
+	} else if(fdwReason == DLL_PROCESS_DETACH && !lpvReserved) {
 		if(l != NULL) {
 			lua_close(l);
 			l = NULL;
@@ -32,34 +52,43 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 	return TRUE;
 }
 
+// ------ XLL Impl ------------
+
 __declspec(dllexport) 
 int WINAPI xlAutoOpen(void)
 {
-	return TRUE;
+	static XLOPER xDLL;
+	Excel4(xlGetName, &xDLL, 0);
+	xllua_register_function(&xDLL, "LuaFn", "RCPPPPPPPPPPPPPPPPPPPP",  "LF",  NULL, "1", "General", 0, 0, 0, 0);
+	xllua_register_function(&xDLL, "LuaFn", "RCPPPPPPPPPPPPPPPPPPPP!", "LFv", NULL, "1", "General", 0, 0, 0, 0);
+	return xllua_calli(l, "open");
 }
 
 __declspec(dllexport) 
 int WINAPI xlAutoClose(void)
 {
-	return TRUE;
+	return xllua_calli(l, "close");
 }
 
 __declspec(dllexport) 
 LPXLOPER WINAPI xlAutoRegister(LPXLOPER pxName)
 {
-	return NULL;
+	lua_getglobal(l, "register");
+	xllua_pushx(l, pxName);
+	lua_pcall(l, 1, 1, 0);
+	return xllua_popx(l, -1);
 }
 
 __declspec(dllexport) 
 int WINAPI xlAutoAdd(void)
 {
-	return 1;
+	return xllua_calli(l, "add");
 }
 
 __declspec(dllexport) 
 int WINAPI xlAutoRemove(void)
 {
-	return TRUE;
+	return xllua_calli(l, "remove");
 }
 
 __declspec(dllexport) 
@@ -70,16 +99,294 @@ void WINAPI xlAutoFree(LPXLOPER px)
 __declspec(dllexport) 
 LPXLOPER WINAPI xlAddInManagerInfo(LPXLOPER xAction)
 {
-	return NULL;
+	return 0;
 }
 
-LPXLOPER WINAPI LuaF(int number, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, LPXLOPER v4, 
+__declspec(dllexport) 
+LPXLOPER WINAPI LuaFn(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, LPXLOPER v4, 
 						LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, LPXLOPER v9, LPXLOPER v10,
 						LPXLOPER v11, LPXLOPER v12, LPXLOPER v13, LPXLOPER v14, LPXLOPER v15, LPXLOPER v16,
 						LPXLOPER v17, LPXLOPER v18, LPXLOPER v19)
 {
-	return NULL;
+	lua_getglobal(l, "xlFn");
+	if(!lua_isfunction(l, -1))
+		return NULL;
+	lua_pushstring(l, name);
+	xllua_pushx(l, v0);
+	xllua_pushx(l, v1);
+	xllua_pushx(l, v2);
+	xllua_pushx(l, v3);
+	xllua_pushx(l, v4);
+	xllua_pushx(l, v5);
+	xllua_pushx(l, v6);
+	xllua_pushx(l, v7);
+	xllua_pushx(l, v8);
+	xllua_pushx(l, v9);
+	xllua_pushx(l, v10);
+	xllua_pushx(l, v11);
+	xllua_pushx(l, v12);
+	xllua_pushx(l, v13);
+	xllua_pushx(l, v14);
+	xllua_pushx(l, v15);
+	xllua_pushx(l, v16);
+	xllua_pushx(l, v17);
+	xllua_pushx(l, v18);
+	xllua_pushx(l, v19);
+	lua_pcall(l, 21, 1, 0);
+	return xllua_popx(l, -1);
 }
+
+LPXLOPER WINAPI xlFc(int number, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, LPXLOPER v4, 
+						LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, LPXLOPER v9, LPXLOPER v10,
+						LPXLOPER v11, LPXLOPER v12, LPXLOPER v13, LPXLOPER v14, LPXLOPER v15, LPXLOPER v16,
+						LPXLOPER v17, LPXLOPER v18, LPXLOPER v19)
+{
+	lua_getglobal(l, "xlFc");
+	lua_pushinteger(l, number);
+	xllua_pushx(l, v0);
+	xllua_pushx(l, v1);
+	xllua_pushx(l, v2);
+	xllua_pushx(l, v3);
+	xllua_pushx(l, v4);
+	xllua_pushx(l, v5);
+	xllua_pushx(l, v6);
+	xllua_pushx(l, v7);
+	xllua_pushx(l, v8);
+	xllua_pushx(l, v9);
+	xllua_pushx(l, v10);
+	xllua_pushx(l, v11);
+	xllua_pushx(l, v12);
+	xllua_pushx(l, v13);
+	xllua_pushx(l, v14);
+	xllua_pushx(l, v15);
+	xllua_pushx(l, v16);
+	xllua_pushx(l, v17);
+	xllua_pushx(l, v18);
+	xllua_pushx(l, v19);
+	lua_pcall(l, 3, 1, 0);
+	return xllua_popx(l, -1);
+}
+
+// ------ Helpers -------------
+
+void xllua_pushx(lua_State *l, LPXLOPER px)
+{
+	LPXLOPER* udpx;
+	TCHAR dst[MAX_PATH];
+	switch(px->xltype & ~(xlbitXLFree | xlbitDLLFree)) {
+	case xltypeBool:
+		lua_pushboolean(l, px->val.xbool);
+		break;
+	case xltypeErr:
+		lua_pushnil(l); // FIXME
+		break;
+	case xltypeInt:
+		lua_pushinteger(l, px->val.w);
+		break;
+	case xltypeMulti:
+		udpx = (LPXLOPER*) lua_newuserdata(l, sizeof(LPXLOPER));
+		*udpx = px;
+		break;
+	case xltypeNum:
+		lua_pushnumber(l, px->val.num);
+		break;
+	case xltypeStr:
+		memcpy(dst, &px->val.str[1], (px->val.str[0]&0xff));
+		dst[px->val.str[0]&0xff] = 0;
+		lua_pushstring(l, dst);
+		break;
+	default:
+		lua_pushnil(l);
+	}	
+}
+
+void xllua_getx(lua_State *l, int idx, LPXLOPER xl)
+{
+	int xlbit   = xlbitXLFree;
+	if(lua_isboolean(l, idx)) {
+		xl->xltype    = xltypeBool | xlbit;
+		xl->val.xbool = lua_toboolean(l, idx);
+	} else if(lua_isnumber(l, idx)) {
+		xl->xltype    = xltypeNum | xlbit;
+		xl->val.num   = lua_tonumber(l, idx);
+	} else if(lua_isstring(l, idx)) {
+		xl->xltype    = xltypeStr | xlbit;
+		xl->val.str   = xllua_make_excel_string(lua_tostring(l, idx));
+	} else {
+		xl->xltype    = xltypeNil | xlbit;
+	}
+};
+
+LPXLOPER xllua_popx(lua_State *l, int idx)
+{
+	LPXLOPER xl = (LPXLOPER) malloc(sizeof(XLOPER));
+	xllua_getx(l, idx, xl);
+	return xl;
+}
+
+int xllua_calli(lua_State *l, const char* fn)
+{
+	int res = 0;
+	lua_settop(l, 0);
+	lua_getglobal(l, "xllua");
+	lua_getfield(l, 1, fn);
+	xllua_dump_stack(l);
+	if(!lua_isfunction(l, 2))
+		return 1;
+	lua_pcall(l, 0, 1, 0);
+	if(lua_isnumber(l, -1))
+		res = lua_tointeger(l, -1);
+	else if(lua_isboolean(l, -1))
+		res = lua_toboolean(l, -1);
+	return res;
+}
+
+int xllua_debug_print(lua_State *l)
+{	
+	const char* str = luaL_checkstring(l, 1);
+	if(str)
+		OutputDebugString(str);
+	return 0;
+}
+
+int xllua_excel4(lua_State *l)
+{
+	int xlfn       = luaL_checkint(l, 1);
+	int num_args   = luaL_checkint(l, 2);
+	LPXLOPER opers = (LPXLOPER) malloc(sizeof(XLOPER) * num_args);
+	int rc         = 0;
+	int i          = 0;
+	XLOPER res;
+
+	for(i = 0; i < num_args; i++)
+		xllua_getx(l, i + 3, &opers[i]);
+	rc = Excel4v(xlfn, &res, num_args, opers);
+	lua_pushinteger(l, rc);
+	if(rc) {
+		lua_pushnil(l);
+	} else {
+		xllua_pushx(l, &res);
+	}
+	return 2;
+}
+
+int xllua_to_table(lua_State *l)
+{
+	return 0;
+}
+
+int xllua_reg_fun(lua_State *l)
+{
+	const char* fname = luaL_checkstring(l, 1);
+
+	return 0;
+}
+
+void xllua_addlibs(lua_State *l)
+{
+	static const luaL_reg fns[] = 
+	{
+		{ "debug_print", xllua_debug_print },
+		{ "excel4",      xllua_excel4      },
+		{ "to_table",    xllua_to_table    },
+	    { NULL,          NULL              }
+	};
+
+	luaL_register(l, "xllua", fns);
+};
+
+int xllua_register_function(LPXLOPER xn,
+	const char* proc, const char* types, const char* name,
+	const char* args, const char* mt, const char* cat,
+	const char* sc, const char* topic, 
+	const char* fnh, const char* argh)
+{
+	int i, res;
+	XLOPER x[10];
+
+	// Init strings
+	for(i = 0; i < 10; i++) {
+		x[i].val.str = NULL;
+		x[i].xltype = xltypeStr;
+	}
+
+	x[0].val.str = xllua_make_excel_string(proc);
+	x[1].val.str = xllua_make_excel_string(types);
+	x[2].val.str = xllua_make_excel_string(name);
+	x[3].val.str = xllua_make_excel_string(args);
+	x[4].val.str = xllua_make_excel_string(mt);
+	x[5].val.str = xllua_make_excel_string(cat);
+	x[6].val.str = xllua_make_excel_string(sc);
+	x[7].val.str = xllua_make_excel_string(topic);
+	x[8].val.str = xllua_make_excel_string(fnh);
+	x[9].val.str = xllua_make_excel_string(argh);
+
+	// Check types for NULL
+	for(i = 0; i < 10; i++) {
+		if(x[i].val.str == NULL)
+			x[i].xltype = xltypeMissing;
+	}
+
+	res = Excel4(xlfRegister, 0, 11, xn, &x[0], &x[1], &x[2], &x[3], &x[4], &x[5], &x[6], &x[7], &x[8], &x[9]);
+
+	// Free strings
+	for(i = 0; i < 10; i++) {
+		if(!x[i].val.str == NULL)
+			free(x[i].val.str);
+	}
+
+	return res;
+}
+
+char* xllua_make_excel_string(const char* string)
+{
+	size_t len;
+	char* temp;
+
+	if(string == NULL) return NULL;
+	len = strlen(string);
+	if(len > 255) len = 255; // Excel strings are limited to 255 chars
+	temp = (char *) malloc(len + 2);
+	memcpy(temp + 1, string, len);
+	temp[0] = (BYTE) len;
+	temp[len+1] = 0;
+
+	return temp;
+}
+
+void xllua_dump_stack(lua_State *L) 
+{
+	char tmp[1000];
+	int i;
+	int top = lua_gettop(L);
+	for (i = 1; i <= top; i++) {  
+		int t = lua_type(L, i);
+		switch (t) 
+		{
+			case LUA_TBOOLEAN:  
+				sprintf(tmp, "d: %s\n", i, lua_toboolean(L, i) ? "true" : "false");
+				break;
+			case LUA_TNUMBER:  
+				sprintf(tmp, "%d: %g\n", i, lua_tonumber(L, i));
+				break;
+			case LUA_TSTRING:  
+				sprintf(tmp, "%d: `%s'\n", i, lua_tostring(L, i));
+				break;
+			default:  
+				sprintf(tmp, "%d: type(%s)\n", i, lua_typename(L, t));
+			break;
+		}
+
+		OutputDebugString(tmp);
+	}
+}
+
+int _cdecl _ftol2_sse()
+{
+	return 0;
+}
+
+// ------ LuaF# Functions ----------
 
 #define DECLARE_EXCEL_FUNCTION(number) \
 __declspec(dllexport) LPXLOPER WINAPI LuaF##number (LPXLOPER v0, LPXLOPER v1, LPXLOPER v2 \
@@ -87,7 +394,7 @@ __declspec(dllexport) LPXLOPER WINAPI LuaF##number (LPXLOPER v0, LPXLOPER v1, LP
 	,LPXLOPER v9, LPXLOPER v10, LPXLOPER v11, LPXLOPER v12, LPXLOPER v13, LPXLOPER v14, LPXLOPER v15, LPXLOPER v16 \
 	,LPXLOPER v17, LPXLOPER v18, LPXLOPER v19) \
 { \
-	return LuaF(number, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19); \
+	return xlFc(number, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19); \
 } 
 
 DECLARE_EXCEL_FUNCTION(0)
