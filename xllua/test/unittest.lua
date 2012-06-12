@@ -18,7 +18,9 @@ end
 xllua.open( "test " )
 print( stringit( xllua.funs ) )
 
-xllua.fn( "Test", "hello" )
-xllua.fc( 0, "test" )
+res = xllua.fn( "Test", "hello" )
+print( stringit( res ) )
+res = xllua.fc( 0, "test" )
+print( stringit( res ) )
 
 
