@@ -225,6 +225,10 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath="..\src\xllua.lua"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

@@ -9,7 +9,6 @@ EXPORTS
 	xlAutoFree @6
 	xlAddInManagerInfo @7
 	LuaFn @8
-	LuaF0 @9
 	LuaF1 @10
 	LuaF2 @11
 	LuaF3 @12
