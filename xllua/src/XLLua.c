@@ -41,7 +41,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
 	int s = 1;
 	HRSRC hi;
-	char *script;
+	char *script, *err;
 
 	if(fdwReason == DLL_PROCESS_ATTACH) {
 		l = lua_open();
@@ -56,8 +56,8 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 			s = luaL_dostring(l, script);	
 		}
 		if(s) {
-			script = lua_tostring(l, -1);
-			OutputDebugString(script == NULL ? "script could not be loaded\n" : script);
+			err = lua_tostring(l, 1);
+			OutputDebugString(err == NULL ? "script could not be loaded\n" : err);
 		} 
 	} else if(fdwReason == DLL_PROCESS_DETACH && !lpvReserved) {
 		if(l != NULL) {
@@ -119,7 +119,7 @@ LPXLOPER WINAPI xlAutoRegister(LPXLOPER pxName)
 		return NULL;
 	xllua_pushx(l, pxName);
 	lua_pcall(l, 1, 1, 0);
-	x = xllua_popx(l, 1);
+	x = xllua_popx(l, -1);
 	lua_settop(l, 0);
 
 	return x;
