@@ -80,10 +80,6 @@ int WINAPI xlAutoOpen(void)
 	// Get the name of this dll - we need it to register functions
 	Excel4(xlGetName, &xDLL, 0);
 
-	// Register to two standard functions
-	xllua_register_function(&xDLL, "LuaFn", "RCPPPPPPPPPPPPPPPPPPPP",  "LF",  0, "1", "General", 0, 0, 0, 0);
-	xllua_register_function(&xDLL, "LuaFn", "RCPPPPPPPPPPPPPPPPPPPP!", "LFv", 0, "1", "General", 0, 0, 0, 0);
-
 	// Call the lua open fn (if defined)
 	lua_settop(l, 0);
 	lua_getglobal(l, "xllua");
@@ -97,6 +93,10 @@ int WINAPI xlAutoOpen(void)
 	else if(lua_isboolean(l, -1))
 		res = lua_toboolean(l, -1);
 	lua_settop(l, 0);
+
+	// Register two standard functions - TODO: allow calling xllua.set_option to customize this
+	xllua_register_function(&xDLL, "LuaFn", "RCPPPPPPPPPPPPPPPPPPPP",  "LF",  0, "1", "General", 0, 0, 0, 0);
+	xllua_register_function(&xDLL, "LuaFn", "RCPPPPPPPPPPPPPPPPPPPP!", "LFv", 0, "1", "General", 0, 0, 0, 0);
 
 	return res;
 }

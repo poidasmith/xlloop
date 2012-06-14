@@ -1,0 +1,4 @@
+- add a 'set_option' function to allow customization of addin behaviour
+	- registration details of LF, LFv functions
+	- debug logging
+	- automatic conversion to tables (might want to allow enabling per LuaF0)
