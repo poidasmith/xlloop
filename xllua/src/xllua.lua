@@ -1,7 +1,11 @@
 
+xllua = xllua or {}
+
+xllua.debug = true
+
 function xllua.stringit( t ) -- should stick this somewhere common
 	local res = ""
-	if     type( t ) == "table" then
+	if type( t ) == "table" then
 		local first = true
 		res = "{"
 		for i, v in pairs(t) do
@@ -21,11 +25,9 @@ function xllua.stringit( t ) -- should stick this somewhere common
 	return res
 end
 
-local stringit = xllua.stringit
-
+local stringit    = xllua.stringit
 local xlfRegister = 149
-
-local procTypes = "RPPPPPPPPPPPPPPPPPPPP"
+local procTypes   = "RPPPPPPPPPPPPPPPPPPPP"
 
 xllua.funs = { }
 
@@ -40,30 +42,47 @@ function xllua.reg_fun( name, category, fn )
 	if rc == 0 then
 		xllua.funs[ index ] = { name = name, fn = fn }
 	end	
-	xllua.debug_printf( "reg: %d, %s\n", rc, stringit( res ) ); 
+	if xllua.debug then
+		xllua.debug_printf( "register( %s, %s, %s ) = %d, %s\n", stringit( name ), stringit( category ), stringit( proc ), rc, stringit( res ) );
+	end 
 end 
 
 function xllua.open( dll )
+	if xllua.debug then
+		xllua.debug_printf( "xllua.opening... (%s)\n", stringit( dll ) )
+	end
 	xllua.dll = dll
-	xllua.debug_printf( "xllua.opening... (%s)\n", stringit( dll ) )
-	-- FIXME
-	local res = dofile( "F:\\eclipse\\git\\xlloop.git\\xllua\\test\\addin1.lua" )
-	xllua.debug_printf( "addin invoked: %s\n", stringit( res ) )
+	local lua = string.sub( dll, 1, string.len( dll ) - 4 ) .. ".lua";
+	local res = dofile( lua )
 	return res or 1
 end
 
 function xllua.close()
-	xllua.debug_printf( "xllua.closing...\n" )
+	if xllua.debug then
+		xllua.debug_printf( "xllua.closing...\n" )
+	end
 	return 1
 end
 
 function xllua.fn( name, args )
-	xllua.debug_printf( "xllua.invoken: %s %s \n", name, stringit( args ) )
-	return 1
+	if xllua.debug then
+		xllua.debug_printf( "xllua.invoken: %s %s \n", name, stringit( args ) )
+	end
+	return "#Not implemented"
 end
 
 function xllua.fc( num, args )
-	local fn = stringit( xllua.funs[ num ].name )
-	xllua.debug_printf( "xllua.invokec: %d:%s %s \n", num, fn, stringit( args ) )
-	return "hello " .. fn
+	local f    = xllua.funs[ num ] or {}
+	local name = f.name
+	local fn   = f.fn
+	if xllua.debug then
+		xllua.debug_printf( "xllua.invokec: %s:%s %s \n", stringit( num ), stringit( name ), stringit( args ) )
+	end
+	if name == nil then
+		return "#Unknown function"
+	elseif fn == nil then
+		return "#Not implemented"
+	else
+		return fn( args )
+	end
 end
