@@ -73,8 +73,7 @@ function xllua.open( dll )
 	end
 	xllua.dll = dll
 	local lua = string.sub( dll, 1, string.len( dll ) - 4 ) .. ".lua";
-	local res = dofile( lua )
-	return res or 1
+	return xllua.file_exists( lua ) and dofile( lua ) or 0
 end
 
 --

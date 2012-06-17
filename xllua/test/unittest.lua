@@ -13,9 +13,13 @@ function xllua.excel4(...)
 	return 0
 end
 
+function xllua.file_exists( f )
+	return true
+end
+
 --dofile( "addin1.lua" )
 
-xllua.open( "test " )
+xllua.open( "../build/XLLua-Debug/XLLua-Debug.xll" )
 print( stringit( xllua.funs ) )
 
 res = xllua.fn( "Test", "hello" )

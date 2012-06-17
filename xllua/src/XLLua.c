@@ -327,6 +327,18 @@ int xllua_table_get(lua_State *l)
 	return 1;
 }
 
+int xllua_file_exists(lua_State *l)
+{
+	char* f = luaL_checkstring(l, 1);
+
+	if(f == NULL)
+		lua_pushboolean(l, 0);
+	else
+		lua_pushboolean(l, GetFileAttributes(f) != 0xfffffff);
+
+	return 1;
+}
+
 void xllua_addlibs(lua_State *l)
 {
 	static const luaL_reg fns[] = 
@@ -335,6 +347,7 @@ void xllua_addlibs(lua_State *l)
 		{ "excel4",      xllua_excel4      },
 		{ "to_table",    xllua_to_table    },
 		{ "table_get",   xllua_table_get   },
+		{ "file_exists", xllua_file_exists },
 	    { NULL,          NULL              }
 	};
 
