@@ -41,6 +41,10 @@ local procTypes   = "RPPPPPPPPPPPPPPPPPPPP"
 xllua.funn = { }
 xllua.func = { }
 
+-- Used to registered functions that are executed via the LF function but 
+-- aren't registered with Excel
+xllua.dynf = { }
+
 --
 -- A utility printf that will print to the dbg monitor (eg sysinternals DebugView)
 --
@@ -55,8 +59,8 @@ end
 --   @options for function registration
 -- 
 function xllua.reg_fun( name, fn, options )
-	local options  = options or {}
-	local category = options.category or "Lua" 
+	local opt      = options or {}
+	local category = opt.category or "Lua" 
 	local index    = #xllua.func + 1
 	local proc     = string.format( "LuaF%d", index )
 	local rc, res  = xllua.excel4( xlfRegister, 11, xllua.dll, proc, procTypes, name, nil, "1", category, nil, nil, nil, nil );
@@ -65,10 +69,33 @@ function xllua.reg_fun( name, fn, options )
 		xllua.funn[ name  ] = { index = index, fn = fn }
 	end	
 	if xllua.options.debug then
-		xllua.debug_printf( "register( %s, %s, %s ) = %d, %s\n", stringit( name ), stringit( category ), stringit( proc ), rc, stringit( res ) );
+		xllua.debug_printf( "register( %s::%s as %s ) = %d, %s\n", stringit( category ), stringit( name ), stringit( proc ), rc, stringit( res ) );
 	end 
 	return rc == 0 and index or -1
 end 
+
+--
+-- Register multiple functions at once
+--
+function xllua.reg_funs( fn_table, options )
+	local ft  = fn_table or {}
+	local opt = options or {}
+	local res = {}
+	for i, v in pairs( ft ) do
+		res[ i ] = xllua.reg_fun( i, v, options )
+	end
+	return res
+end
+
+--
+-- Register multiple dynamic functions
+--   @dyn_table is name -> fn
+--
+function xllua.reg_dyns( dyn_table )
+	for i, v in pairs( dyn_table ) do
+		xllua.funn[ i ] = { fn = v }
+	end
+end
 
 --
 -- Called by the addin from xlAutoOpen (when Excel asks it to initilize)
@@ -76,7 +103,7 @@ end
 -- addin and call dofile on this.
 --
 function xllua.open( dll )
-	xllua.debug_printf( "xllua.opening... (%s)\n", stringit( dll ) )
+	xllua.debug_printf( "xllua.opening... ( %s )\n", stringit( dll ) )
 	xllua.dll = dll
 	local lua = string.sub( dll, 1, string.len( dll ) - 4 ) .. ".lua";
 	return xllua.file_exists( lua ) and dofile( lua ) or 0
@@ -100,7 +127,7 @@ end
 --
 function xllua.fn( name, args )
 	local res = "#Not implemented"
-	local f   = xllua.funn[ name ] or {}
+	local f   = xllua.funn[ name ] or xllua.dynf[ name ] or {}
 	local fn  = f.fn
 	if fn ~= nil then
 		res = fn( args )
