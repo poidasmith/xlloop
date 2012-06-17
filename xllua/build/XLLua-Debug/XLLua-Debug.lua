@@ -8,7 +8,7 @@ end
 
 local function wallaby( args )
 	xllua.debug_printf( "wallaby: %s\n", xllua.stringit( args ) )
-	return "why"
+	return { random = 123, "why", "is", "this", "so", "easy?" }
 end
 
 

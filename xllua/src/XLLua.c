@@ -29,6 +29,8 @@ void     xllua_pushx(lua_State *l, LPXLOPER px, BOOL convert_multi);
 LPXLOPER xllua_popx(lua_State *l, int idx, BOOL convert_multi);
 void     xllua_getx(lua_State *l, int idx, LPXLOPER xl, BOOL convert_multi);
 void     xllua_settable(lua_State *l, int idx, LPXLOPER v, BOOL *pset);
+int      xllua_get_intopt(lua_State *l, const char *name, int def);
+char*    xllua_get_stropt(lua_State *l, const char *name, const char *def);
 int      xllua_calli(lua_State *l, const char* fn);
 int      xllua_register_function(LPXLOPER xn, const char* proc, const char* types, const char* name, const char* args, const char* mt, const char* cat, const char* sc, const char* topic, const char* fnh, const char* argh);
 char*    xllua_make_excel_string(const char* string);
@@ -56,7 +58,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 			s = luaL_dostring(l, script);	
 		}
 		if(s) {
-			err = lua_tostring(l, 1);
+			err = lua_tostring(l, -1);
 			OutputDebugString(err == NULL ? "script could not be loaded\n" : err);
 		} 
 	} else if(fdwReason == DLL_PROCESS_DETACH && !lpvReserved) {
@@ -75,6 +77,7 @@ __declspec(dllexport)
 int WINAPI xlAutoOpen(void)
 {
 	int res = 0;
+	char *general_fn, *general_fnv;
 	XLOPER xDLL;
 
 	// Get the name of this dll - we need it to register functions
@@ -94,9 +97,15 @@ int WINAPI xlAutoOpen(void)
 		res = lua_toboolean(l, -1);
 	lua_settop(l, 0);
 
-	// Register two standard functions - TODO: allow calling xllua.set_option to customize this
-	xllua_register_function(&xDLL, "LuaFn", "RCPPPPPPPPPPPPPPPPPPPP",  "LF",  0, "1", "General", 0, 0, 0, 0);
-	xllua_register_function(&xDLL, "LuaFn", "RCPPPPPPPPPPPPPPPPPPPP!", "LFv", 0, "1", "General", 0, 0, 0, 0);
+	// Get the runtime options
+	general_fn  = xllua_get_stropt(l, "general_fn", NULL);
+	general_fnv = xllua_get_stropt(l, "general_fnv", NULL);
+
+	// Register standard functions if required
+	if(general_fn)
+		xllua_register_function(&xDLL, "LuaFn", "RCPPPPPPPPPPPPPPPPPPPP", general_fn,  0, "1", "General", 0, 0, 0, 0);
+	if(general_fnv)
+		xllua_register_function(&xDLL, "LuaFn", "RCPPPPPPPPPPPPPPPPPPPP!", general_fnv, 0, "1", "General", 0, 0, 0, 0);
 
 	return res;
 }
@@ -112,10 +121,9 @@ LPXLOPER WINAPI xlAutoRegister(LPXLOPER pxName)
 {
 	LPXLOPER x;
 
-	lua_settop(l, 0); 
 	lua_getglobal(l, "xllua");
-	lua_getfield(l, 1, "register");
-	if(!lua_isfunction(l, 2))
+	lua_getfield(l, -1, "register");
+	if(!lua_isfunction(l, -1))
 		return NULL;
 	xllua_pushx(l, pxName, FALSE);
 	lua_pcall(l, 1, 1, 0);
@@ -158,10 +166,9 @@ LPXLOPER WINAPI LuaFn(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, L
 	LPXLOPER x;
 	BOOL set  = FALSE, *pset = &set;
 
-	lua_settop(l, 0);
 	lua_getglobal(l, "xllua");
-	lua_getfield(l, 1, "fn");
-	if(!lua_isfunction(l, 2))
+	lua_getfield(l, -1, "fn");
+	if(!lua_isfunction(l, -1))
 		return NULL;
 	lua_pushstring(l, name);
 	lua_newtable(l);
@@ -187,7 +194,6 @@ LPXLOPER WINAPI LuaFn(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, L
 	xllua_settable(l, 1, v0, pset);
 	lua_pcall(l, 2, 1, 0);
 	x = xllua_popx(l, -1, TRUE);
-	lua_settop(l, 0);
 
 	return x;
 }
@@ -200,10 +206,9 @@ LPXLOPER WINAPI LuaFc(int number, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPE
 	LPXLOPER x;
 	BOOL set  = FALSE, *pset = &set;
 
-	lua_settop(l, 0);
 	lua_getglobal(l, "xllua");
-	lua_getfield(l, 1, "fc");
-	if(!lua_isfunction(l, 2))
+	lua_getfield(l, -1, "fc");
+	if(!lua_isfunction(l, -1))
 		return NULL;
 	lua_pushinteger(l, number);
 	lua_newtable(l);
@@ -229,7 +234,6 @@ LPXLOPER WINAPI LuaFc(int number, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPE
 	xllua_settable(l, 1, v0, pset);
 	lua_pcall(l, 2, 1, 0);
 	x = xllua_popx(l, -1, TRUE);
-	lua_settop(l, 0);
 
 	return x;
 }
@@ -249,7 +253,7 @@ int xllua_debug_print(lua_State *l)
 int xllua_excel4(lua_State *l)
 {
 	int xlfn        = luaL_checkint(l, 1);
-	int num_args    = luaL_checkint(l, 2);
+	int num_args    = min(luaL_checkint(l, 2), 30);
 	int rc          = 0;
 	int i           = 0;
 	XLOPER   x[30];
@@ -276,12 +280,12 @@ int xllua_to_table(lua_State *l)
 {
 	LPXLOPER px;
 
-	xllua_dump_stack(l);
-	if(!lua_islightuserdata(l, 1))
-		return 0;
-
-	px = (LPXLOPER) lua_touserdata(l, 1);
-	xllua_pushx(l, px, TRUE);
+	if(lua_islightuserdata(l, 1)) {
+		px = (LPXLOPER) lua_touserdata(l, 1);
+		xllua_pushx(l, px, TRUE);
+	} else {
+		lua_pushnil(l);
+	}
 
 	return 1;
 }
@@ -340,7 +344,7 @@ void xllua_pushx(lua_State *l, LPXLOPER px, BOOL convert_multi)
 			lua_pushstring(l, "rows");
 			lua_pushinteger(l, px->val.array.rows);
 			lua_settable(l, -3);
-			lua_pushstring(l, "columns");
+			lua_pushstring(l, "cols");
 			lua_pushinteger(l, px->val.array.columns);
 			lua_settable(l, -3);
 			for(i = 0; i < len; i++)
@@ -365,7 +369,7 @@ void xllua_pushx(lua_State *l, LPXLOPER px, BOOL convert_multi)
 
 void xllua_getx(lua_State *l, int idx, LPXLOPER xl, BOOL convert_multi)
 {
-	int xlbit   = 0;
+	int xlbit = 0, i, rows = 0, cols = 0;
 
 	switch(lua_type(l, idx)) {
 		case LUA_TBOOLEAN:
@@ -373,16 +377,31 @@ void xllua_getx(lua_State *l, int idx, LPXLOPER xl, BOOL convert_multi)
 			xl->val.xbool = lua_toboolean(l, idx);
 			break;
 		case LUA_TSTRING:
-			xl->xltype    = xltypeStr | xlbit;
-			xl->val.str   = xllua_make_excel_string(lua_tostring(l, idx));
+			xl->xltype  = xltypeStr | xlbit;
+			xl->val.str = xllua_make_excel_string(lua_tostring(l, idx));
 			break;
 		case LUA_TNUMBER:
-			xl->xltype    = xltypeNum | xlbit;
-			xl->val.num   = lua_tonumber(l, idx);
+			xl->xltype  = xltypeNum | xlbit;
+			xl->val.num = lua_tonumber(l, idx);
 			break;
+		case LUA_TTABLE:
+			if(convert_multi) {
+				xllua_dump_stack(l);
+				xl->xltype            = xltypeMulti | xlbit;				
+				xl->val.array.rows    = lua_objlen(l, idx);
+				xl->val.array.columns = 1;
+				xl->val.array.lparray = (LPXLOPER) malloc(sizeof(XLOPER) * rows);
+				for(i = 0; i < xl->val.array.rows; i++) {
+					
+				}
+			} else {
+				xl->xltype = xltypeMissing | xlbit
+			}
+			break;
+		case LUA_TLIGHTUSERDATA:
 		case LUA_TNIL:
 		default:
-			xl->xltype    = xltypeMissing | xlbit;
+			xl->xltype = xltypeMissing | xlbit;
 	}
 }
 
@@ -407,6 +426,32 @@ void xllua_settable(lua_State *l, int idx, LPXLOPER v, BOOL *pset)
 	lua_settable(l, -3);
 	if(pset)
 		*pset = TRUE;
+}
+
+int xllua_get_intopt(lua_State *l, const char *name, int def)
+{
+	int res = 0;
+
+	lua_getglobal(l, "xllua");
+	lua_getfield(l, -1, "options");
+	lua_getfield(l, -1, name);
+	res = !lua_isnil(l, -1) && lua_isnumber(l, -1) ? lua_tointeger(l, -1) : def;
+	lua_settop(l, 0);
+
+	return res;
+}
+
+char* xllua_get_stropt(lua_State *l, const char *name, const char *def)
+{
+	char* res;
+
+	lua_getglobal(l, "xllua");
+	lua_getfield(l, -1, "options");
+	lua_getfield(l, -1, name);
+	res = lua_isstring(l, -1) ? lua_tostring(l, -1) : def;
+	lua_settop(l, 0);
+
+	return res;
 }
 
 int xllua_calli(lua_State *l, const char* fn)
