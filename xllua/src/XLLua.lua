@@ -1,9 +1,14 @@
 
 xllua = xllua or {}
+
+--
+-- Runtime options for the addin. Overwrite these when your addin intializes
+--
 xllua.options = {
-	debug       = true,
-	general_fn  = "LF",
-	general_fnv = nil,
+	debug         = false, -- debug output to debug monitor
+	general_fn    = "LF", -- the name of our general lua function
+	general_fnv   = nil,  -- the name of our general (volatile) lua function
+	convert_multi = true, -- disable to send multis as userdata
 }
 
 function xllua.stringit( t ) -- should stick this somewhere common
@@ -38,6 +43,12 @@ function xllua.debug_printf( fmt, ... )
 	xllua.debug_print( string.format( fmt, ... ) )
 end
 
+-- 
+-- Register a function with Excel
+--   @name is the Excel function name
+--   @category is the Excel category
+--   @fn is the function implementation
+-- 
 function xllua.reg_fun( name, category, fn )
 	local index   = #xllua.funs + 1
 	local proc    = string.format( "LuaF%d", index )
@@ -48,8 +59,14 @@ function xllua.reg_fun( name, category, fn )
 	if xllua.options.debug then
 		xllua.debug_printf( "register( %s, %s, %s ) = %d, %s\n", stringit( name ), stringit( category ), stringit( proc ), rc, stringit( res ) );
 	end 
+	return rc == 0 and index or -1
 end 
 
+--
+-- Called by the addin from xlAutoOpen (when Excel asks it to initilize)
+-- We look from a lua file with the same filename/path (sans extension) as the
+-- addin and call dofile on this.
+--
 function xllua.open( dll )
 	if xllua.options.debug then
 		xllua.debug_printf( "xllua.opening... (%s)\n", stringit( dll ) )
@@ -60,6 +77,10 @@ function xllua.open( dll )
 	return res or 1
 end
 
+--
+-- Called by the addin from xlAutoClose. Redefine this function to perform
+-- any cleanup required
+--
 function xllua.close()
 	if xllua.debug then
 		xllua.debug_printf( "xllua.closing...\n" )
@@ -67,6 +88,11 @@ function xllua.close()
 	return 1
 end
 
+--
+-- Our general named function 
+--   @name is the function name
+--   @args the args passed to the function
+--
 function xllua.fn( name, args )
 	local res = "#Not implemented"
 	if xllua.options.debug then
@@ -75,6 +101,11 @@ function xllua.fn( name, args )
 	return res
 end
 
+--
+-- Our indexed function
+--   @num is the function index (returned from reg_fun)
+--   @args the args passed to the function
+--
 function xllua.fc( num, args )
 	local f    = xllua.funs[ num ] or {}
 	local name = f.name

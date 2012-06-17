@@ -17,6 +17,7 @@
 #define RT_INI_FILE MAKEINTRESOURCE(687)
 #define RES_MAGIC_SIZE 4
 #define INI_RES_MAGIC MAKEFOURCC('I','N','I',' ')
+#define LPXLOPER_TYPE(x) (x->xltype & ~(xlbitXLFree | xlbitDLLFree))
 
 // Our shared state
 lua_State *l = NULL;
@@ -34,6 +35,7 @@ int      xllua_get_intopt(lua_State *l, const char *name, int def);
 char*    xllua_get_stropt(lua_State *l, const char *name, const char *def);
 int      xllua_calli(lua_State *l, const char* fn);
 int      xllua_register_function(LPXLOPER xn, const char* proc, const char* types, const char* name, const char* args, const char* mt, const char* cat, const char* sc, const char* topic, const char* fnh, const char* argh);
+void     xllua_free_contents(LPXLOPER px);
 char*    xllua_make_excel_string(const char* string);
 void     xllua_dump_stack(lua_State *L);
 void     xllua_dump_xloper(LPXLOPER x);
@@ -62,6 +64,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 			err = lua_tostring(l, -1);
 			OutputDebugString(err == NULL ? "script could not be loaded\n" : err);
 		} 
+		lua_settop(l, 0);
 	} else if(fdwReason == DLL_PROCESS_DETACH && !lpvReserved) {
 		if(l != NULL) {
 			lua_close(l);
@@ -96,7 +99,6 @@ int WINAPI xlAutoOpen(void)
 		res = lua_tointeger(l, -1);
 	else if(lua_isboolean(l, -1))
 		res = lua_toboolean(l, -1);
-	lua_settop(l, 0);
 
 	// Get the runtime options
 	general_fn    = xllua_get_stropt(l, "general_fn",    NULL);
@@ -108,6 +110,9 @@ int WINAPI xlAutoOpen(void)
 		xllua_register_function(&xDLL, "LuaFn", "RCPPPPPPPPPPPPPPPPPPPP", general_fn,  0, "1", "General", 0, 0, 0, 0);
 	if(general_fnv)
 		xllua_register_function(&xDLL, "LuaFn", "RCPPPPPPPPPPPPPPPPPPPP!", general_fnv, 0, "1", "General", 0, 0, 0, 0);
+
+	// Cleanup
+	lua_settop(l, 0);
 
 	return res;
 }
@@ -150,7 +155,9 @@ int WINAPI xlAutoRemove(void)
 __declspec(dllexport) 
 void WINAPI xlAutoFree(LPXLOPER px)
 {
-	 // TODO
+	if(!px) return;
+	xllua_free_contents(px);
+	free(px);
 }
 
 __declspec(dllexport) 
@@ -165,6 +172,7 @@ LPXLOPER WINAPI xlAddInManagerInfo(LPXLOPER xAction)
 	xllua_pushx(l, xAction, FALSE);
 	lua_pcall(l, 1, 1, 0);
 	x = xllua_popx(l, -1, FALSE);
+	lua_settop(l, 0);
 
 	return x;
 }
@@ -206,6 +214,7 @@ LPXLOPER WINAPI LuaFn(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, L
 	xllua_settable(l, 1, v0, convert_multi, pset);
 	lua_pcall(l, 2, 1, 0);
 	x = xllua_popx(l, -1, TRUE);
+	lua_settop(l, 0);
 
 	return x;
 }
@@ -246,6 +255,7 @@ LPXLOPER WINAPI LuaFc(int number, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPE
 	xllua_settable(l, 1, v0, convert_multi, pset);
 	lua_pcall(l, 2, 1, 0);
 	x = xllua_popx(l, -1, TRUE);
+	lua_settop(l, 0);
 
 	return x;
 }
@@ -276,6 +286,7 @@ int xllua_excel4(lua_State *l)
 	for(i = 0; i < num_args; i++) {
 		px[i] = &x[i];
 		xllua_getx(l, i + 3, px[i], FALSE);
+		px[i]->xltype &= ~(xlbitDLLFree | xlbitXLFree); // Must be set for Excel 2003
 	}
 	rc = Excel4v(xlfn, &res, num_args, px);
 	lua_pushinteger(l, rc);
@@ -308,7 +319,7 @@ int xllua_table_get(lua_State *l)
 	int row     = luaL_checkinteger(l, 2);
 	int col     = luaL_optinteger(l, 3, 1);
 	
-	if(px == NULL || (px->xltype & ~(xlbitXLFree | xlbitDLLFree)) != xltypeMulti)
+	if(px == NULL || LPXLOPER_TYPE(px) != xltypeMulti)
 		return 0;
 
 	xllua_pushx(l, &px->val.array.lparray[row * col], FALSE);
@@ -339,7 +350,7 @@ void xllua_pushx(lua_State *l, LPXLOPER px, BOOL convert_multi)
 	LPXLOPER* udpx;
 	TCHAR dst[MAX_PATH];
 
-	switch(px->xltype & ~(xlbitXLFree | xlbitDLLFree)) {
+	switch(LPXLOPER_TYPE(px)) {
 	case xltypeBool:
 		lua_pushboolean(l, px->val.xbool);
 		break;
@@ -381,7 +392,7 @@ void xllua_pushx(lua_State *l, LPXLOPER px, BOOL convert_multi)
 
 void xllua_getx(lua_State *l, int idx, LPXLOPER xl, BOOL convert_multi)
 {
-	int xlbit = 0, i, len, sz, top;
+	int xlbit = xlbitDLLFree, i, len, sz, top;
 
 	switch(lua_type(l, idx)) {
 		case LUA_TBOOLEAN:
@@ -421,17 +432,18 @@ void xllua_getx(lua_State *l, int idx, LPXLOPER xl, BOOL convert_multi)
 						xllua_getx(l, top+1, &xl->val.array.lparray[i], FALSE);
 						lua_settop(l, top);
 					} else {
-						xl->val.array.lparray[i].xltype = xltypeNil | xlbit;
+						xl->val.array.lparray[i].xltype  = xltypeErr | xlbit;
+						xl->val.array.lparray[i].val.err = xlerrNA;
 					}
 				}
 			} else {
-				xl->xltype = xltypeNil | xlbit;
+				xl->xltype = xltypeMissing | xlbit;
 			}
 			break;
 		case LUA_TLIGHTUSERDATA:
 		case LUA_TNIL:
 		default:
-			xl->xltype = xltypeNil | xlbit;
+			xl->xltype = xltypeMissing | xlbit;
 	}
 }
 
@@ -446,7 +458,7 @@ LPXLOPER xllua_popx(lua_State *l, int idx, BOOL convert_multi)
 
 void xllua_settable(lua_State *l, int idx, LPXLOPER v, BOOL convert_multi, BOOL *pset)
 {
-	if(v == NULL || (v->xltype & ~(xlbitXLFree | xlbitDLLFree)) == xltypeMissing && pset && !*pset)
+	if(v == NULL || LPXLOPER_TYPE(v) == xltypeMissing && pset && !*pset)
 		return;
 	if(v == NULL)
 		lua_pushnil(l);
@@ -464,6 +476,8 @@ int xllua_get_intopt(lua_State *l, const char *name, int def)
 	lua_getglobal(l, "xllua");
 	lua_getfield(l, -1, "options");
 	lua_getfield(l, -1, name);
+	if(lua_isboolean(l, -1))
+		return lua_toboolean(l, -1);
 	res = !lua_isnil(l, -1) && lua_isnumber(l, -1) ? lua_tointeger(l, -1) : def;
 	lua_settop(l, 0);
 
@@ -548,6 +562,24 @@ int xllua_register_function(LPXLOPER xn,
 	return res;
 }
 
+void xllua_free_contents(LPXLOPER px)
+{
+	int i, len;
+
+	switch(LPXLOPER_TYPE(px)) {
+	case xltypeMulti:
+		if(px->val.array.lparray) {
+			len = px->val.array.rows * px->val.array.columns;
+			for(i = 0; i < len; i++)
+				xllua_free_contents(&px->val.array.lparray[i]);
+		}
+		break;
+	case xltypeStr:
+		if(px->val.str) free(px->val.str);
+		break;
+	}
+}
+
 char* xllua_make_excel_string(const char* string)
 {
 	size_t len;
@@ -596,7 +628,7 @@ void xllua_dump_xloper(LPXLOPER px)
 {
 	char cb[MAX_PATH]; cb[0] = 0;
 
-	switch(px->xltype & ~(xlbitXLFree | xlbitDLLFree)) {
+	switch(LPXLOPER_TYPE(px)) {
 	case xltypeBool:
 		sprintf(cb, "xbool: %d\n", px->val.xbool);
 		break;
