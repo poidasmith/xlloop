@@ -68,24 +68,27 @@ function xllua.close()
 end
 
 function xllua.fn( name, args )
+	local res = "#Not implemented"
 	if xllua.options.debug then
-		xllua.debug_printf( "xllua.fn: %s %s \n", name, stringit( args ) )
+		xllua.debug_printf( "xllua.fn: %s %s = %s\n", name, stringit( args ), stringit( res ) )
 	end
-	return "#Not implemented"
+	return res
 end
 
 function xllua.fc( num, args )
 	local f    = xllua.funs[ num ] or {}
 	local name = f.name
 	local fn   = f.fn
-	if xllua.options.debug then
-		xllua.debug_printf( "xllua.fc: %s:%s %s \n", stringit( num ), stringit( name ), stringit( args ) )
-	end
+	local res = nil;
 	if name == nil then
-		return "#Unknown function"
+		res = "#Unknown function"
 	elseif fn == nil then
-		return "#Not implemented"
+		res = "#Not implemented"
 	else
-		return fn( args )
+		res = fn( args )
 	end
+	if xllua.options.debug then
+		xllua.debug_printf( "xllua.fc: %s:%s %s = %s\n", stringit( num ), stringit( name ), stringit( args ), stringit( res ) )
+	end
+	return res	
 end

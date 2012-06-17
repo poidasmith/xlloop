@@ -20,6 +20,7 @@
 
 // Our shared state
 lua_State *l = NULL;
+BOOL convert_multi = FALSE;
 
 // Lua function stubs
 void     xllua_addlibs(lua_State *l);
@@ -28,7 +29,7 @@ void     xllua_addlibs(lua_State *l);
 void     xllua_pushx(lua_State *l, LPXLOPER px, BOOL convert_multi);
 LPXLOPER xllua_popx(lua_State *l, int idx, BOOL convert_multi);
 void     xllua_getx(lua_State *l, int idx, LPXLOPER xl, BOOL convert_multi);
-void     xllua_settable(lua_State *l, int idx, LPXLOPER v, BOOL *pset);
+void     xllua_settable(lua_State *l, int idx, LPXLOPER v, BOOL convert_multi, BOOL *pset);
 int      xllua_get_intopt(lua_State *l, const char *name, int def);
 char*    xllua_get_stropt(lua_State *l, const char *name, const char *def);
 int      xllua_calli(lua_State *l, const char* fn);
@@ -98,8 +99,9 @@ int WINAPI xlAutoOpen(void)
 	lua_settop(l, 0);
 
 	// Get the runtime options
-	general_fn  = xllua_get_stropt(l, "general_fn", NULL);
-	general_fnv = xllua_get_stropt(l, "general_fnv", NULL);
+	general_fn    = xllua_get_stropt(l, "general_fn",    NULL);
+	general_fnv   = xllua_get_stropt(l, "general_fnv",   NULL);
+	convert_multi = xllua_get_intopt(l, "convert_multi", 0);
 
 	// Register standard functions if required
 	if(general_fn)
@@ -154,7 +156,17 @@ void WINAPI xlAutoFree(LPXLOPER px)
 __declspec(dllexport) 
 LPXLOPER WINAPI xlAddInManagerInfo(LPXLOPER xAction)
 {
-	return 0;
+	LPXLOPER x;
+
+	lua_getglobal(l, "xllua");
+	lua_getfield(l, -1, "addin_mananger_info");
+	if(!lua_isfunction(l, -1))
+		return NULL;
+	xllua_pushx(l, xAction, FALSE);
+	lua_pcall(l, 1, 1, 0);
+	x = xllua_popx(l, -1, FALSE);
+
+	return x;
 }
 
 __declspec(dllexport) 
@@ -172,26 +184,26 @@ LPXLOPER WINAPI LuaFn(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, L
 		return NULL;
 	lua_pushstring(l, name);
 	lua_newtable(l);
-	xllua_settable(l, 20, v19, pset);
-	xllua_settable(l, 19, v18, pset);
-	xllua_settable(l, 18, v17, pset);
-	xllua_settable(l, 17, v16, pset);
-	xllua_settable(l, 16, v15, pset);
-	xllua_settable(l, 15, v14, pset);
-	xllua_settable(l, 14, v13, pset);
-	xllua_settable(l, 13, v12, pset);
-	xllua_settable(l, 12, v11, pset);
-	xllua_settable(l, 11, v10, pset);
-	xllua_settable(l, 10, v9, pset);
-	xllua_settable(l, 9, v8, pset);
-	xllua_settable(l, 8, v7, pset);
-	xllua_settable(l, 7, v6, pset);
-	xllua_settable(l, 6, v5, pset);
-	xllua_settable(l, 5, v4, pset);
-	xllua_settable(l, 4, v3, pset);
-	xllua_settable(l, 3, v2, pset);
-	xllua_settable(l, 2, v1, pset);
-	xllua_settable(l, 1, v0, pset);
+	xllua_settable(l, 20, v19, convert_multi, pset);
+	xllua_settable(l, 19, v18, convert_multi, pset);
+	xllua_settable(l, 18, v17, convert_multi, pset);
+	xllua_settable(l, 17, v16, convert_multi, pset);
+	xllua_settable(l, 16, v15, convert_multi, pset);
+	xllua_settable(l, 15, v14, convert_multi, pset);
+	xllua_settable(l, 14, v13, convert_multi, pset);
+	xllua_settable(l, 13, v12, convert_multi, pset);
+	xllua_settable(l, 12, v11, convert_multi, pset);
+	xllua_settable(l, 11, v10, convert_multi, pset);
+	xllua_settable(l, 10, v9, convert_multi, pset);
+	xllua_settable(l, 9, v8, convert_multi, pset);
+	xllua_settable(l, 8, v7, convert_multi, pset);
+	xllua_settable(l, 7, v6, convert_multi, pset);
+	xllua_settable(l, 6, v5, convert_multi, pset);
+	xllua_settable(l, 5, v4, convert_multi, pset);
+	xllua_settable(l, 4, v3, convert_multi, pset);
+	xllua_settable(l, 3, v2, convert_multi, pset);
+	xllua_settable(l, 2, v1, convert_multi, pset);
+	xllua_settable(l, 1, v0, convert_multi, pset);
 	lua_pcall(l, 2, 1, 0);
 	x = xllua_popx(l, -1, TRUE);
 
@@ -212,26 +224,26 @@ LPXLOPER WINAPI LuaFc(int number, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPE
 		return NULL;
 	lua_pushinteger(l, number);
 	lua_newtable(l);
-	xllua_settable(l, 20, v19, pset);
-	xllua_settable(l, 19, v18, pset);
-	xllua_settable(l, 18, v17, pset);
-	xllua_settable(l, 17, v16, pset);
-	xllua_settable(l, 16, v15, pset);
-	xllua_settable(l, 15, v14, pset);
-	xllua_settable(l, 14, v13, pset);
-	xllua_settable(l, 13, v12, pset);
-	xllua_settable(l, 12, v11, pset);
-	xllua_settable(l, 11, v10, pset);
-	xllua_settable(l, 10, v9, pset);
-	xllua_settable(l, 9, v8, pset);
-	xllua_settable(l, 8, v7, pset);
-	xllua_settable(l, 7, v6, pset);
-	xllua_settable(l, 6, v5, pset);
-	xllua_settable(l, 5, v4, pset);
-	xllua_settable(l, 4, v3, pset);
-	xllua_settable(l, 3, v2, pset);
-	xllua_settable(l, 2, v1, pset);
-	xllua_settable(l, 1, v0, pset);
+	xllua_settable(l, 20, v19, convert_multi, pset);
+	xllua_settable(l, 19, v18, convert_multi, pset);
+	xllua_settable(l, 18, v17, convert_multi, pset);
+	xllua_settable(l, 17, v16, convert_multi, pset);
+	xllua_settable(l, 16, v15, convert_multi, pset);
+	xllua_settable(l, 15, v14, convert_multi, pset);
+	xllua_settable(l, 14, v13, convert_multi, pset);
+	xllua_settable(l, 13, v12, convert_multi, pset);
+	xllua_settable(l, 12, v11, convert_multi, pset);
+	xllua_settable(l, 11, v10, convert_multi, pset);
+	xllua_settable(l, 10, v9, convert_multi, pset);
+	xllua_settable(l, 9, v8, convert_multi, pset);
+	xllua_settable(l, 8, v7, convert_multi, pset);
+	xllua_settable(l, 7, v6, convert_multi, pset);
+	xllua_settable(l, 6, v5, convert_multi, pset);
+	xllua_settable(l, 5, v4, convert_multi, pset);
+	xllua_settable(l, 4, v3, convert_multi, pset);
+	xllua_settable(l, 3, v2, convert_multi, pset);
+	xllua_settable(l, 2, v1, convert_multi, pset);
+	xllua_settable(l, 1, v0, convert_multi, pset);
 	lua_pcall(l, 2, 1, 0);
 	x = xllua_popx(l, -1, TRUE);
 
@@ -348,7 +360,7 @@ void xllua_pushx(lua_State *l, LPXLOPER px, BOOL convert_multi)
 			lua_pushinteger(l, px->val.array.columns);
 			lua_settable(l, -3);
 			for(i = 0; i < len; i++)
-				xllua_settable(l, i+1, &px->val.array.lparray[i], NULL);
+				xllua_settable(l, i+1, &px->val.array.lparray[i], FALSE, NULL);
 		} else {
 			lua_pushlightuserdata(l, px);
 		}
@@ -369,7 +381,7 @@ void xllua_pushx(lua_State *l, LPXLOPER px, BOOL convert_multi)
 
 void xllua_getx(lua_State *l, int idx, LPXLOPER xl, BOOL convert_multi)
 {
-	int xlbit = 0, i, rows = 0, cols = 0;
+	int xlbit = 0, i, len, sz, top;
 
 	switch(lua_type(l, idx)) {
 		case LUA_TBOOLEAN:
@@ -386,22 +398,40 @@ void xllua_getx(lua_State *l, int idx, LPXLOPER xl, BOOL convert_multi)
 			break;
 		case LUA_TTABLE:
 			if(convert_multi) {
-				xllua_dump_stack(l);
 				xl->xltype            = xltypeMulti | xlbit;				
-				xl->val.array.rows    = lua_objlen(l, idx);
+				xl->val.array.rows    = sz = luaL_getn(l, idx);
 				xl->val.array.columns = 1;
-				xl->val.array.lparray = (LPXLOPER) malloc(sizeof(XLOPER) * rows);
-				for(i = 0; i < xl->val.array.rows; i++) {
-					
+				// Check for rows/cols fields
+				top = lua_gettop(l);
+				if(idx < 0)
+					idx = top + idx + 1;
+				lua_getfield(l, idx, "rows");
+				if(!lua_isnil(l, -1) && lua_isnumber(l, -1))
+					xl->val.array.rows = lua_tointeger(l, -1);
+				lua_getfield(l, idx, "cols");
+				if(!lua_isnil(l, -1) && lua_isnumber(l, -1))
+					xl->val.array.columns = lua_tointeger(l, -1);
+				lua_settop(l, top);
+				len = xl->val.array.rows * xl->val.array.columns;
+				xl->val.array.lparray = (LPXLOPER) malloc(sizeof(XLOPER) * len);
+				for(i = 0; i < len; i++) {
+					if(i < sz) {
+						top = lua_gettop(l);
+						lua_rawgeti(l, idx, i+1);
+						xllua_getx(l, top+1, &xl->val.array.lparray[i], FALSE);
+						lua_settop(l, top);
+					} else {
+						xl->val.array.lparray[i].xltype = xltypeNil | xlbit;
+					}
 				}
 			} else {
-				xl->xltype = xltypeMissing | xlbit
+				xl->xltype = xltypeNil | xlbit;
 			}
 			break;
 		case LUA_TLIGHTUSERDATA:
 		case LUA_TNIL:
 		default:
-			xl->xltype = xltypeMissing | xlbit;
+			xl->xltype = xltypeNil | xlbit;
 	}
 }
 
@@ -414,16 +444,15 @@ LPXLOPER xllua_popx(lua_State *l, int idx, BOOL convert_multi)
 	return xl;
 }
 
-void xllua_settable(lua_State *l, int idx, LPXLOPER v, BOOL *pset)
+void xllua_settable(lua_State *l, int idx, LPXLOPER v, BOOL convert_multi, BOOL *pset)
 {
 	if(v == NULL || (v->xltype & ~(xlbitXLFree | xlbitDLLFree)) == xltypeMissing && pset && !*pset)
 		return;
-	lua_pushinteger(l, idx);
 	if(v == NULL)
 		lua_pushnil(l);
 	else
-		xllua_pushx(l, v, FALSE);
-	lua_settable(l, -3);
+		xllua_pushx(l, v, convert_multi);
+	lua_rawseti(l, -2, idx);
 	if(pset)
 		*pset = TRUE;
 }
