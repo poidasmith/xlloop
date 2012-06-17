@@ -37,8 +37,13 @@ local stringit    = xllua.stringit
 local xlfRegister = 149
 local procTypes   = "RPPPPPPPPPPPPPPPPPPPP"
 
-xllua.funs = { }
+-- Index by number/name of our functions
+xllua.funn = { }
+xllua.func = { }
 
+--
+-- A utility printf that will print to the dbg monitor (eg sysinternals DebugView)
+--
 function xllua.debug_printf( fmt, ... )
 	xllua.debug_print( string.format( fmt, ... ) )
 end
@@ -46,15 +51,18 @@ end
 -- 
 -- Register a function with Excel
 --   @name is the Excel function name
---   @category is the Excel category
 --   @fn is the function implementation
+--   @options for function registration
 -- 
-function xllua.reg_fun( name, category, fn )
-	local index   = #xllua.funs + 1
-	local proc    = string.format( "LuaF%d", index )
-	local rc, res = xllua.excel4( xlfRegister, 11, xllua.dll, proc, procTypes, name, nil, "1", category, nil, nil, nil, nil );
+function xllua.reg_fun( name, fn, options )
+	local options  = options or {}
+	local category = options.category or "Lua" 
+	local index    = #xllua.func + 1
+	local proc     = string.format( "LuaF%d", index )
+	local rc, res  = xllua.excel4( xlfRegister, 11, xllua.dll, proc, procTypes, name, nil, "1", category, nil, nil, nil, nil );
 	if rc == 0 then
-		xllua.funs[ index ] = { name = name, fn = fn }
+		xllua.func[ index ] = { name = name,   fn = fn }
+		xllua.funn[ name  ] = { index = index, fn = fn }
 	end	
 	if xllua.options.debug then
 		xllua.debug_printf( "register( %s, %s, %s ) = %d, %s\n", stringit( name ), stringit( category ), stringit( proc ), rc, stringit( res ) );
@@ -68,9 +76,7 @@ end
 -- addin and call dofile on this.
 --
 function xllua.open( dll )
-	if xllua.options.debug then
-		xllua.debug_printf( "xllua.opening... (%s)\n", stringit( dll ) )
-	end
+	xllua.debug_printf( "xllua.opening... (%s)\n", stringit( dll ) )
 	xllua.dll = dll
 	local lua = string.sub( dll, 1, string.len( dll ) - 4 ) .. ".lua";
 	return xllua.file_exists( lua ) and dofile( lua ) or 0
@@ -94,6 +100,11 @@ end
 --
 function xllua.fn( name, args )
 	local res = "#Not implemented"
+	local f   = xllua.funn[ name ] or {}
+	local fn  = f.fn
+	if fn ~= nil then
+		res = fn( args )
+	end
 	if xllua.options.debug then
 		xllua.debug_printf( "xllua.fn: %s %s = %s\n", name, stringit( args ), stringit( res ) )
 	end
@@ -106,9 +117,9 @@ end
 --   @args the args passed to the function
 --
 function xllua.fc( num, args )
-	local f    = xllua.funs[ num ] or {}
+	local f    = xllua.func[ num ] or {}
 	local name = f.name
-	local fn   = f.fn
+	local fn   = f.fn 
 	local res = nil;
 	if name == nil then
 		res = "#Unknown function"

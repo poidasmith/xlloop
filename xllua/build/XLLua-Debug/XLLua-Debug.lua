@@ -1,4 +1,6 @@
 
+xllua.options.debug = true
+
 local store = {}
 
 local function myfunc( args )
@@ -12,9 +14,9 @@ local function wallaby( args )
 	return { rows = 3, cols = 2, "why", "is", "this", "so", "easy?" }
 end
 
-xllua.reg_fun( "MyFunc",  "Lua", myfunc )
-xllua.reg_fun( "Wallaby", "Lua", wallaby )
-xllua.reg_fun( "lput", "Lua", lput )
+xllua.reg_fun( "MyFunc", myfunc )
+xllua.reg_fun( "Wallaby", wallaby )
+xllua.reg_fun( "lput", lput )
 
 xllua.debug_printf( "I am in the addin man!\n" )
 
