@@ -87,7 +87,7 @@ int WINAPI xlAutoOpen(void)
 	// Get the name of this dll - we need it to register functions
 	Excel4(xlGetName, &xDLL, 0);
 
-	// Call the lua open fn (if defined)
+	// Call the lua xllua.open fn (if defined)
 	lua_settop(l, 0);
 	lua_getglobal(l, "xllua");
 	lua_getfield(l, 1, "open");
@@ -100,7 +100,7 @@ int WINAPI xlAutoOpen(void)
 	else if(lua_isboolean(l, -1))
 		res = lua_toboolean(l, -1);
 
-	// Get the runtime options
+	// Get the runtime options (from xllua.options)
 	general_fn    = xllua_get_stropt(l, "general_fn",    NULL);
 	general_fnv   = xllua_get_stropt(l, "general_fnv",   NULL);
 	convert_multi = xllua_get_intopt(l, "convert_multi", 0);
@@ -128,6 +128,7 @@ LPXLOPER WINAPI xlAutoRegister(LPXLOPER pxName)
 {
 	LPXLOPER x;
 
+	// Call the xllua.register fn (if defined)
 	lua_getglobal(l, "xllua");
 	lua_getfield(l, -1, "register");
 	if(!lua_isfunction(l, -1))
@@ -143,12 +144,14 @@ LPXLOPER WINAPI xlAutoRegister(LPXLOPER pxName)
 __declspec(dllexport) 
 int WINAPI xlAutoAdd(void)
 {
+	// Call xllua.add (if defined)
 	return xllua_calli(l, "add");
 }
 
 __declspec(dllexport) 
 int WINAPI xlAutoRemove(void)
 {
+	// Call xllua.remove (if defined)
 	return xllua_calli(l, "remove");
 }
 
@@ -165,6 +168,7 @@ LPXLOPER WINAPI xlAddInManagerInfo(LPXLOPER xAction)
 {
 	LPXLOPER x;
 
+	// Call xllua.addin_manager_info (if defined)
 	lua_getglobal(l, "xllua");
 	lua_getfield(l, -1, "addin_mananger_info");
 	if(!lua_isfunction(l, -1))
@@ -177,6 +181,8 @@ LPXLOPER WINAPI xlAddInManagerInfo(LPXLOPER xAction)
 	return x;
 }
 
+// ------ Router Functions ----------------------------------------------------
+
 __declspec(dllexport) 
 LPXLOPER WINAPI LuaFn(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, LPXLOPER v4, 
 						LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, LPXLOPER v9, LPXLOPER v10,
@@ -186,6 +192,7 @@ LPXLOPER WINAPI LuaFn(const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, L
 	LPXLOPER x;
 	BOOL set  = FALSE, *pset = &set;
 
+	// Call xllua.fn, passing in name and table of args
 	lua_getglobal(l, "xllua");
 	lua_getfield(l, -1, "fn");
 	if(!lua_isfunction(l, -1))
@@ -227,6 +234,7 @@ LPXLOPER WINAPI LuaFc(int number, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPE
 	LPXLOPER x;
 	BOOL set  = FALSE, *pset = &set;
 
+	// Call xllua.fc passing in fn number and table of args
 	lua_getglobal(l, "xllua");
 	lua_getfield(l, -1, "fc");
 	if(!lua_isfunction(l, -1))
@@ -260,7 +268,7 @@ LPXLOPER WINAPI LuaFc(int number, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPE
 	return x;
 }
 
-// ------ Lua functions -------------------------------------------------------
+// ------ Lua-exposed functions -----------------------------------------------
 
 int xllua_debug_print(lua_State *l)
 {	
@@ -286,7 +294,7 @@ int xllua_excel4(lua_State *l)
 	for(i = 0; i < num_args; i++) {
 		px[i] = &x[i];
 		xllua_getx(l, i + 3, px[i], FALSE);
-		px[i]->xltype &= ~(xlbitDLLFree | xlbitXLFree); // Must be set for Excel 2003
+		px[i]->xltype &= ~(xlbitDLLFree | xlbitXLFree); // Must be done for Excel 2003
 	}
 	rc = Excel4v(xlfn, &res, num_args, px);
 	lua_pushinteger(l, rc);

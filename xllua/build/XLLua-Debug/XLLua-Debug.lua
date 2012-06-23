@@ -1,8 +1,5 @@
 
 xllua.options.debug = true
-xllua.options.testing2 = 3434
-
-local store = {}
 
 local function myfunc( args )
 	xllua.debug_printf( "myfunc: %s\n", xllua.stringit( args ) )
@@ -14,6 +11,8 @@ local function wallaby( args )
 	xllua.debug_printf( "wallaby: %s\n", xllua.stringit( args ) )
 	return { rows = 3, cols = 2, "why", "is", "this", "so", "easy?" }
 end
+
+local store = {}
 
 local function lput( args )
 	local n = args[1] or ""
