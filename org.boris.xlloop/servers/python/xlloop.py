@@ -208,13 +208,13 @@ class FnServer(object):
         self.exposed_fns = {}
         self._get_fns = []
 
-    def add_fn(self, excel_name, fn_to_call, doc=None, arg_descrs=[], args='', register=True):
+    def add_fn(self, excel_name, fn_to_call, doc=None, arg_descrs=[], args='', register=True, category="PYTHON"):
         self.exposed_fns[excel_name] = fn_to_call
         if register:
             excel_info = [
                     ["functionName", excel_name],
                     ["functionHelp", doc],
-                    ["category", "PYTHON"],
+                    ["category", category],
                     ["argumentHelp", arg_descrs],
                     ["argumentText", args]
                 ]
@@ -236,7 +236,7 @@ class FnServer(object):
 fn_server = FnServer()
 fn_server.add_fn("org.boris.xlloop.GetFunctions", fn_server.get_fns, register=False)
 
-def expose(excel_name=None, arg_descrs=[]):
+def expose(excel_name=None, arg_descrs=[], category="PYTHON"):
     def decorator(fn):
         xln = excel_name # Need local reference, otherwise get exception
         if xln is None:
@@ -244,7 +244,7 @@ def expose(excel_name=None, arg_descrs=[]):
         d = fn.func_doc
         args = ", ".join([x.title() for x in inspect.getargspec(fn)[0]])
         argd = arg_descrs
-        fn_server.add_fn(xln, fn, doc=d, arg_descrs=argd, args=args)
+        fn_server.add_fn(xln, fn, doc=d, arg_descrs=argd, args=args, category=category)
         return fn
     return decorator
 
