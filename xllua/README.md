@@ -25,8 +25,8 @@ A simple addin that registers a new Excel function called 'MyFunc' is just:
 xllua.options.debug = true
 
 local function myfunc( args )
-	xllua.debug_printf( "myfunc: %s\\n", xllua.stringit( args ) )
-	xllua.debug_printf( "to_table: %s\\n", xllua.stringit( xllua.to_table( args[1] ) ) );
+	xllua.debug_printf( "myfunc: %s\n", xllua.stringit( args ) )
+	xllua.debug_printf( "to_table: %s\n", xllua.stringit( xllua.to_table( args[1] ) ) );
 	return "Hello Excel from Lua!"
 end
 
@@ -36,7 +36,7 @@ xllua.reg_funs( {
 } )
 
 -- log something so we can check that our addin has been loaded
-xllua.debug_printf( "testing testing...\\n" )
+xllua.debug_printf( "testing testing...\n" )
 
 return 1 
 </pre>
