@@ -10,8 +10,8 @@ It allows the developer to:
 ## How to use XLLua
 
 First download the latest version of the addin (XLLua-version.xll) at: 
- https://github.com/downloads/poidasmith/xlloop/
-
+ https://github.com/poidasmith/xlloop/downloads
+ 
 When the addin is loaded by Excel it will search for a Lua file with the same name as the addin
 and in the same directory (with just the extension as .lua instead of .xll)
 
