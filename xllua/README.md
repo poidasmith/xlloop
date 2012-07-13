@@ -41,4 +41,17 @@ xllua.debug_printf( "testing testing...\n" )
 return 1 
 </pre>
 
+## How to Install
+
+To run the example do the following:
+
+1. Download the XLL from: https://github.com/poidasmith/xlloop/downloads
+2. Save it to a folder
+3. In the same folder create a script with the same name as the XLL but with a .lua
+   extension (eg. XLLua-0.0.1.lua).
+4. Copy above code into your .lua script
+5. Open excel, go to Tools -> Addins
+6. Browse for the XLL and click ok
+
+You should now be able to invoke =MyFunc() a sheet. 
 	
