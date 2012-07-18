@@ -20,6 +20,7 @@
 #define LPXLOPER_TYPE(x) (x->xltype & ~(xlbitXLFree | xlbitDLLFree))
 
 // Our shared state
+HINSTANCE hinstance;
 lua_State *l = NULL;
 BOOL convert_multi = FALSE;
 
@@ -49,6 +50,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 	char *script, *err;
 
 	if(fdwReason == DLL_PROCESS_ATTACH) {
+		hinstance = hinstDLL;
 		l = lua_open();
 		luaL_openlibs(l); // stdlibs
 		xllua_addlibs(l);
@@ -351,12 +353,12 @@ void xllua_addlibs(lua_State *l)
 {
 	static const luaL_reg fns[] = 
 	{
-		{ "debug_print", xllua_debug_print },
-		{ "excel4",      xllua_excel4      },
-		{ "to_table",    xllua_to_table    },
-		{ "table_get",   xllua_table_get   },
-		{ "file_exists", xllua_file_exists },
-	    { NULL,          NULL              }
+		{ "debug_print",  xllua_debug_print },
+		{ "excel4",       xllua_excel4      },
+		{ "to_table",     xllua_to_table    },
+		{ "table_get",    xllua_table_get   },
+		{ "file_exists",  xllua_file_exists },
+	    { NULL,           NULL              }
 	};
 
 	lua_newtable(l);

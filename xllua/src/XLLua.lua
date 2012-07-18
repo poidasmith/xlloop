@@ -106,7 +106,19 @@ function xllua.open( dll )
 	xllua.debug_printf( "xllua.opening... ( %s )\n", stringit( dll ) )
 	xllua.dll = dll
 	local lua = string.sub( dll, 1, string.len( dll ) - 4 ) .. ".lua";
-	return xllua.file_exists( lua ) and dofile( lua ) or 0
+	if xllua.file_exists( lua ) then
+		local f, error = loadfile( lua )
+		if f ~= nil then
+			local res, err = pcall( f )
+			if not res then
+				xllua.debug_printf( "%s\n", stringit( err ) )
+			end
+			return res 
+		else
+			xllua.debug_printf( "error: %s\n", error )
+		end
+	end	
+	return 0
 end
 
 --

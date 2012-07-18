@@ -27,4 +27,6 @@ print( stringit( res ) )
 res = xllua.fc( 0, "test" )
 print( stringit( res ) )
 
+print( stringit( xllua.fn( "Ping") ) )
+
 
