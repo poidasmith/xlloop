@@ -84,6 +84,16 @@ local function pttl(svr, key)
 	return conn(svr):pttl(key)
 end
 
+-- STRINGS
+
+local function get(svr, key)
+	return conn(svr):get(key)
+end
+
+local function set(svr, key, value)
+	return conn(svr):set(key, value)
+end
+
 -- SERVER
 
 local function ping(svr)
@@ -120,6 +130,9 @@ fns = {
 	["rds.sort"]      = unpkv(sort),
 	["rds.ttl"]       = unpk(ttl),
 	["rds.type"]      = unpk(type),
+	
+	["rds.get"] = unpk(get),
+	["rds.set"] = unpk(set),
 }
 
 xllua.reg_funs( fns ) 
