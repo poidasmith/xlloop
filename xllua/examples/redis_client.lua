@@ -2,142 +2,53 @@
 package.path  = package.path .. ";F:/Development/Lua/5.1/lua/?.lua"
 package.cpath = package.cpath .. ";F:/Development/Lua/5.1/clibs/?.dll"
 
---xllua.debug_printf( "PATH: %s\n", os.getenv( "PATH" ) )
---xllua.debug_printf( "package path: %s\n", package.path )
---xllua.debug_printf( "package cpath: %s\n", package.cpath )
-
 local redis = require 'redis'
 
-local conns = {}
-local function conn(name)
-	local c = conns[name]
-	if c == nil then
-		return string.format("#Unknown server: %s", name)
-	end 
-	return c.c
-end
+-- named connections
 
-local function connection(name, host, port)
+local conns = {}
+
+local function connection(args)
+	name, host, port = unpack(args)
 	local c = conns[name]
 	if c ~= nil then
 		c.c:quit()
 	end
 		
+	host = host or "localhost"
+	port = port or 6379
+	
 	conns[name] = {
 		host = host,
 		port = port,
-		c    = redis.connect(address, port),
+		c    = redis.connect(host, port),
 	}
 		
 	return string.format("%s@%s:%d", name, host, port)
 end	
 
--- KEYS
+-- redis command wrapper
 
-local function del(svr, keys)
-	return conn(svr):del(unpack(keys))
+local function stdf(name)
+	return function(args)
+		local svr = table.remove(args, 1)
+		local c   = conns[svr];
+		if c == nil then
+			return string.format("#Unknown server: %s", xllua.stringit( name ) )
+		end 
+		local f = c.c[name]
+		return f(c.c, args)
+	end	 
 end
 
-local function dump(svr, key)
-	return conn(key):dump(key)
+fns = {}
+
+for k, v in pairs(redis.commands) do
+	fns["rds." .. k ] = stdf(k)
 end
 
-local function exists(svr, key)
-	return conn(svr):exists(key)
-end
-
-local function expire(svr, key, seconds)
-	return conn(svr):expire(key, seconds)
-end
-
-local function expireat(svr, key, timestamp)
-	return conn(svr):expireat(key, timestamp)
-end
-
-local function keys(svr, pattern)
-	return conn(svr):keys(pattern)
-end
-
-local function migrate(svr, host, port, key, dest_db, timeout)
-	return conn(svr):migrate(host, port, key, dest_db, timeout)
-end
-
-local function move(svr, key, db)
-	return conn(svr):move(key, db)
-end
-
-local function pexpire(svr, key, millis)
-	return conn(svr):pexpire(key, millis)
-end
-
-local function pexpireat(svr, key, millis_ts)
-	return conn(svr):pexpireat(key, millis_ts)
-end
-
-local function pttl(svr, key)
-	return conn(svr):pttl(key)
-end
-
-
-local function randomkey(svr)
-	return conn(svr):randomkey()
-end
-
-local function rename(svr, key, newkey)
-	return conn(svr):rename
-end
-
--- STRINGS
-
-local function get(svr, key)
-	return conn(svr):get(key)
-end
-
-local function set(svr, key, value)
-	return conn(svr):set(key, value)
-end
-
--- SERVER
-
-local function ping(svr)
-	return conn(svr):ping()
-end
-
--- wrappers to unpack args
-
-local unpk  = function(f) return function(args) return f(unpack(args)) end end
-local unpkv = function(f) return function(args) return f(args.remove(1), args) end end 
-
-fns = {
-	-- SERVER
-	["rds.connect"] = unpk(connection),
-	["rds.ping"]    = unpk(ping),
-	
-	-- KEYS
-	["rds.del"]       = unpkv(del),
-	["rds.dump"]      = unpk(dump),
-	["rds.exists"]    = unpk(rexists),
-	["rds.epxire"]    = unpk(expire),
-	["rds.expireat"]  = unpk(expireat),
-	["rds.keys"]      = unpk(keys),
-	["rds.migrate"]   = unpk(migrate),
-	["rds.move"]      = unpk(move),
-	["rds.object"]    = unpkv(object),
-	["rds.pexpire"]   = unpk(pexpire),
-	["rds.expireat"]  = unpk(pexpireat),
-	["rds.pttl"]      = unpk(pttl),
-	["rds.randomkey"] = unpk(randomkey),
-	["rds.rename"]    = unpk(rename),
-	["rds.renamenx"]  = unpk(renamenx),
-	["rds.restore"]   = unpk(restore),
-	["rds.sort"]      = unpkv(sort),
-	["rds.ttl"]       = unpk(ttl),
-	["rds.type"]      = unpk(type),
-	
-	["rds.get"] = unpk(get),
-	["rds.set"] = unpk(set),
-}
-
+fns["rds.connect"] = connection
+ 
 xllua.reg_funs( fns ) 
 
 xllua.debug_printf( "xlredis is ready...\n" )
