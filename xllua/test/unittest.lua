@@ -1,6 +1,8 @@
 
+package.path = "../src/?.lua" .. package.path
+
 xllua = {}
-dofile( "../src/xllua.lua" )
+require 'xllua'
 local stringit = xllua.stringit
 
 function xllua.debug_print( s )
@@ -17,16 +19,25 @@ function xllua.file_exists( f )
 	return true
 end
 
+function xllua.dump(...)
+	print( stringit( ... ) )
+end
+local dump = xllua.dump
+
+function test( n, ... )
+	dump( xllua.fn( n, {...} ) )
+end
+
 --dofile( "addin1.lua" )
 
-xllua.open( "../build/XLLua-Debug/XLLua-Debug.xll" )
-print( stringit( xllua.funs ) )
+xllua.open( "../examples/redis_client.lua" )
 
-res = xllua.fn( "Test", "hello" )
-print( stringit( res ) )
-res = xllua.fc( 0, "test" )
-print( stringit( res ) )
 
-print( stringit( xllua.fn( "Ping") ) )
+test( "rds.connect", "test" )
+test( "rds.ping", "test" )
+test( "rds.set", "test", "key1", "hello" )
+test( "rds.get", "test", "key1" )
+
+
 
 
