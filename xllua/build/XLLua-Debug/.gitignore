@@ -9,3 +9,5 @@
 /XLLua.obj
 /XLLua.res
 /XLLua-Debug.xll
+/redis.lua
+/XLLua-Debug.lua
