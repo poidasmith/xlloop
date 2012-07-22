@@ -2,6 +2,8 @@
 package.path  = package.path .. ";F:/Development/Lua/5.1/lua/?.lua"
 package.cpath = package.cpath .. ";F:/Development/Lua/5.1/clibs/?.dll"
 
+xllua.debug_printf( "%s\n%s\n", package.path, package.cpath );
+
 local redis = require 'redis'
 
 -- named connections
@@ -32,7 +34,7 @@ end
 local function stdf(name)
 	return function(args)
 		local svr = table.remove(args, 1)
-		local c   = conns[svr];
+		local c = conns[svr];
 		if c == nil then
 			return string.format("#Unknown server: %s", xllua.stringit( name ) )
 		end 
@@ -44,11 +46,11 @@ end
 fns = {}
 
 for k, v in pairs(redis.commands) do
-	fns["rds." .. k ] = stdf(k)
+	fns["rds." .. k] = stdf(k)
 end
 
 fns["rds.connect"] = connection
  
 xllua.reg_funs( fns ) 
 
-xllua.debug_printf( "xlredis is ready...\n" )
+xllua.debug_printf( "xlredis...\n" )
