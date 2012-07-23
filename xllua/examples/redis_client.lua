@@ -1,10 +1,22 @@
+--[[ ***************************************************************************
+* 
+* This program and the accompanying materials
+* are made available under the terms of the Common Public License v1.0
+* which accompanies this distribution, and is available at 
+* http://www.eclipse.org/legal/cpl-v10.html
+* 
+* Contributors:
+*     Peter Smith
+******************************************************************************]]
 
 package.path  = package.path .. ";F:/Development/Lua/5.1/lua/?.lua"
 package.cpath = package.cpath .. ";F:/Development/Lua/5.1/clibs/?.dll"
 
 xllua.debug_printf( "%s\n%s\n", package.path, package.cpath );
 
+local os    = require 'os'
 local redis = require 'redis'
+
 
 -- named connections
 
@@ -26,7 +38,7 @@ local function connection(args)
 		c    = redis.connect(host, port),
 	}
 		
-	return string.format("%s@%s:%d", name, host, port)
+	return string.format("%s@%s:%d (%f)", name, host, port, os.clock())
 end	
 
 -- redis command wrapper
@@ -43,6 +55,8 @@ local function stdf(name)
 	end	 
 end
 
+-- our redis commands, wrapped in a connection lookup function 
+
 fns = {}
 
 for k, v in pairs(redis.commands) do
@@ -50,7 +64,9 @@ for k, v in pairs(redis.commands) do
 end
 
 fns["rds.connect"] = connection
- 
+
+-- register all the redis commands with Excel
+
 xllua.reg_funs( fns ) 
 
 xllua.debug_printf( "xlredis...\n" )

@@ -93,8 +93,10 @@ int WINAPI xlAutoOpen(void)
 	lua_settop(l, 0);
 	lua_getglobal(l, "xllua");
 	lua_getfield(l, 1, "open");
-	if(!lua_isfunction(l, 2))
+	if(!lua_isfunction(l, 2)) {
+		OutputDebugString("xllua.open function not found\n");
 		return 1;
+	}
 	xllua_pushx(l, &xDLL, FALSE);
 	lua_pcall(l, 1, 1, 0);
 	if(lua_isnumber(l, -1))
