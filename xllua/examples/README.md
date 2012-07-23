@@ -12,7 +12,7 @@ The example script has two parts:
 To use the redis client in Excel you could do something like
 
 <pre>
-A1 =rds.connect("test", "127.0.0.1", 6739)
+A1 =rds.connect("test", "127.0.0.1", 6379)
 A2 =rds.set("test", "mykey", "helo redis")
 A3 =rds.get("test", "mykey")
 </pre>
