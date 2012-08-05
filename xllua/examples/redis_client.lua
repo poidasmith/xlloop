@@ -9,6 +9,8 @@
 *     Peter Smith
 ******************************************************************************]]
 
+-- A Redis client - connects to a redis server (or many) and can issue commands
+
 package.path  = package.path .. ";F:/Development/Lua/5.1/lua/?.lua"
 package.cpath = package.cpath .. ";F:/Development/Lua/5.1/clibs/?.dll"
 
@@ -17,21 +19,21 @@ xllua.debug_printf( "%s\n%s\n", package.path, package.cpath );
 local os    = require 'os'
 local redis = require 'redis'
 
-
 -- named connections
 
 local conns = {}
 
 local function connection(args)
 	name, host, port = unpack(args)
+	
+	host = host or "localhost"
+	port = port or 6379
+	
 	local c = conns[name]
 	if c ~= nil then
 		c.c:quit()
 	end
 		
-	host = host or "localhost"
-	port = port or 6379
-	
 	conns[name] = {
 		host = host,
 		port = port,
