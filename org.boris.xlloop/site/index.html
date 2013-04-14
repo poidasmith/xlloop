@@ -126,7 +126,7 @@ public class ServerExample
         rfh.addMethods("Reflect.", Reflect.class);
 
         // Create a function information handler to register our functions
-        FunctionInformationFunctionHandler firh = new FunctionInformationFunctionHandler();
+        FunctionInformationHandler firh = new FunctionInformationHandler();
         firh.add(rfh.getFunctions());
 
         // Set the handlers
