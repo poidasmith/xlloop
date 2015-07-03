@@ -119,12 +119,12 @@ void HttpProtocol::initialize(dictionary* ini, const char* section)
 	char* proxy = INI::GetString(ini, section, FS_PROXY, NULL);
 	if(proxy) {
 		Log::Info("Using proxy: %s", proxy);
-		int psz = MultiByteToWideChar(CP_ACP, 0, url, strlen(url), 0, 0);
+		int psz = MultiByteToWideChar(CP_ACP, 0, proxy, strlen(proxy), 0, 0);
 		wchar_t* wproxy = (wchar_t*) malloc((psz + 1) * sizeof(wchar_t));
 		MultiByteToWideChar(CP_ACP, 0, proxy, strlen(proxy), wproxy, psz);
 		wproxy[psz] = 0;
-		hSession = WinHttpOpen(USER_AGENT, WINHTTP_ACCESS_TYPE_NO_PROXY,
-			wproxy, 0, 0);
+		hSession = WinHttpOpen(USER_AGENT, WINHTTP_ACCESS_TYPE_NAMED_PROXY,
+			wproxy, WINHTTP_NO_PROXY_BYPASS, 0);
 		free(wproxy);
 	} else {
 		WINHTTP_CURRENT_USER_IE_PROXY_CONFIG proxy;
