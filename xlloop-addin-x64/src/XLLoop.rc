@@ -1,0 +1,17 @@
+
+#include "afxres.h"
+
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+
+1 689 "../resources/spinner1.gif"
+2 689 "../resources/spinner2.gif"
+3 689 "../resources/spinner3.gif"
+4 689 "../resources/spinner4.gif"
+5 689 "../resources/spinner5.gif"
+6 689 "../resources/spinner6.gif"
+7 689 "../resources/spinner7.gif"
+8 689 "../resources/spinner8.gif"
+9 689 "../resources/spinner9.gif"
+10 689 "../resources/spinner10.gif"
+11 689 "../resources/spinner11.gif"
+12 689 "../resources/spinner12.gif"
