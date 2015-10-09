@@ -21,6 +21,7 @@ import org.boris.xlloop.IBuiltinFunctions;
 import org.boris.xlloop.IFunctionContext;
 import org.boris.xlloop.IFunctionHandler;
 import org.boris.xlloop.RequestException;
+import org.boris.xlloop.util.LoggerFactory;
 import org.boris.xlloop.util.XLList;
 import org.boris.xlloop.xloper.XLoper;
 
@@ -29,6 +30,8 @@ public class FunctionInformationHandler implements IFunctionHandler, IBuiltinFun
     private ArrayList functions = new ArrayList();
     private Set functionProviders = new HashSet();
     private String category;
+    
+    private LoggerFactory logger = LoggerFactory.getLogger();
 
     public void add(FunctionInformation fi) {
         functions.add(fi);
@@ -60,7 +63,9 @@ public class FunctionInformationHandler implements IFunctionHandler, IBuiltinFun
         Map m = new TreeMap();
         for (Iterator i = functions.iterator(); i.hasNext();) {
             FunctionInformation fi = (FunctionInformation) i.next();
-            System.out.println(fi.getName());
+            
+            logger.log(fi.getName());
+            
             m.put(fi.getName(), fi);
         }
 
@@ -69,7 +74,9 @@ public class FunctionInformationHandler implements IFunctionHandler, IBuiltinFun
             FunctionInformation[] fis = fp.getFunctions();
             if (fis != null) {
                 for (int j = 0; j < fis.length; j++) {
-                    System.out.println(fis[j].getName());
+                	
+                	logger.log(fis[j].getName());
+                	
                     m.put(fis[j].getName(), fis[j]);
                 }
             }
