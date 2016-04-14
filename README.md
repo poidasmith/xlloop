@@ -1,6 +1,6 @@
 # XLLoop X64 Version, 64bit
 
-## Tested on Windows 7 64bit, Microsoft Visual Studio 2015 Community Edition, Microsoft Excel 2016 64bit
+Tested on Windows 7 64bit, Microsoft Visual Studio 2015 Community Edition, Microsoft Excel 2016 64bit
 
 Excel User-Defined Functions in Java, Javascript, Ruby, Python, Erlang
 
