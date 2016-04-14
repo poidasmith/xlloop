@@ -1,4 +1,4 @@
-# XLLoop 
+# WIP: XLLoop X64 Version, 64bit
 
 Excel User-Defined Functions in Java, Javascript, Ruby, Python, Erlang
 
