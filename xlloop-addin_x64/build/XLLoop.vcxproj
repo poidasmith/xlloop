@@ -153,7 +153,7 @@
       <CompileAsWinRT>false</CompileAsWinRT>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>winhttp.lib;Ws2_32.lib;$(SolutionDir)lib\x64\xlcall32.lib;$(SolutionDir)lib\x64\yajl_x64.lib;$(SolutionDir)lib\x64\msvcrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winhttp.lib;Ws2_32.lib;$(SolutionDir)lib\x64\xlcall32.lib;$(SolutionDir)lib\x64\yajl_x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)$(ProjectName).xll</OutputFile>
       <SuppressStartupBanner>false</SuppressStartupBanner>
       <ManifestFile>$(IntDir)$(TargetFileName).intermediate.manifest</ManifestFile>
