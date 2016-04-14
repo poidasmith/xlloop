@@ -11,7 +11,7 @@ More information and downloads can be found at: <a href="http://xlloop.sourcefor
 ## Requirements
 
 You need the following two libraries compiled for x64:
-- xlcall32.lib : Download and install the [Excel SDK](https://msdn.microsoft.com/en-us/library/office/bb687883.aspx). You'll find the lib in `Excel2013XLLSDK/Excel2013XLLSDK/lib/x64`
+- xlcall32.lib : Download and install the [Excel SDK](https://msdn.microsoft.com/en-us/library/office/bb687883.aspx). You'll find the lib in `<installdir>/Excel2013XLLSDK/Excel2013XLLSDK/lib/x64`
 - yajl.lib : Compiled via this [project](https://github.com/PATRONAS/xlloop/tree/master/yajl_x64)
 
 ## Compile the 64bit XLLoop.xll
