@@ -1,4 +1,9 @@
-# XLLoop X64 Version, 64bit
+# Introducing: Opuxl
+
+We have created an own solution to connect any user defined functions into Excel. Check out: [Opuxl](https://github.com/PATRONAS/opuxl)
+
+
+## XLLoop X64 Version, 64bit
 
 Tested on Windows 7 64bit, Microsoft Visual Studio 2015 Community Edition, Microsoft Excel 2016 64bit
 
