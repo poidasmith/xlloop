@@ -1,0 +1,3 @@
+put the following two libraries into this folder:
+- yajl_x64.lib : compiled from the yajl_x64 project
+- XLCALL32.lib : get this from within the Excel X64 SDK
