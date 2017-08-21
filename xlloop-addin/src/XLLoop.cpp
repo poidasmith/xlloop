@@ -43,6 +43,9 @@ static int g_functionCount = 0;
 // The mapping of function index to server index
 static int g_functionServer[MAX_FUNCTIONS];
 
+// The maximum number of arguments we allow in a function call
+#define MAX_ARGUMENTS 30
+
 // Our standard error message
 static XLOPER g_errorMessage;
 
@@ -196,10 +199,10 @@ void RegisterFunctions(LPXLOPER xDLL, int index)
 					argHelp[argHelpCount++] = "";
 				}
 				int size = 10 + argHelpCount;
-				static LPXLOPER input[20];
+				static LPXLOPER input[10 + MAX_ARGUMENTS];
 				input[0] = (LPXLOPER FAR) xDLL;
 				input[1] = (LPXLOPER FAR) XLUtil::MakeExcelString2(tmp);
-				input[2] = (LPXLOPER FAR) XLUtil::MakeExcelString2(isVolatile ? "RPPPPPPPPPPPPPPPPPPPP!" : "RPPPPPPPPPPPPPPPPPPPP");
+				input[2] = (LPXLOPER FAR) XLUtil::MakeExcelString2(isVolatile ? "RPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP!" : "RPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP");
 				input[3] = (LPXLOPER FAR) XLUtil::MakeExcelString3(functionText == NULL ? functionName : functionText);
 				input[4] = (LPXLOPER FAR) XLUtil::MakeExcelString3(argumentText);
 				input[5] = (LPXLOPER FAR) XLUtil::MakeExcelString2("1");
@@ -207,7 +210,7 @@ void RegisterFunctions(LPXLOPER xDLL, int index)
 				input[7] = (LPXLOPER FAR) XLUtil::MakeExcelString3(shortcutText);
 				input[8] = (LPXLOPER FAR) XLUtil::MakeExcelString3(helpTopic);
 				input[9] = (LPXLOPER FAR) XLUtil::MakeExcelString3(functionHelp);
-				for(int j = 0; j < argHelpCount && j < 20; j++) {
+				for(int j = 0; j < argHelpCount && j < MAX_ARGUMENTS; j++) {
 					input[10 + j] = (LPXLOPER FAR) XLUtil::MakeExcelString3(argHelp[j]);
 				}
 				int res = Excel4v(xlfRegister, 0, size, (LPXLOPER FAR*) input);
@@ -228,7 +231,7 @@ void RegisterFunctions(LPXLOPER xDLL, int index)
 							Log::Debug("Registered function (%d) %s", g_functionCount, tmp);
 					}
 				}
-			}		
+			}
 		}
 
 		XLUtil::FreeContents(farr);
@@ -252,7 +255,7 @@ void RegisterServer(LPXLOPER xDLL, int index)
 	if(includeGeneric) {
 		char fsExecuteFn[MAX_PATH];
 		sprintf(fsExecuteFn, "FSExecute%d", index);
-		XLUtil::RegisterFunction(xDLL, fsExecuteFn, "RCPPPPPPPPPPPPPPPPPPPP", 
+		XLUtil::RegisterFunction(xDLL, fsExecuteFn, "RCPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP",
 			function, NULL, "1", category, NULL, NULL, NULL, NULL);
 	}
 
@@ -260,7 +263,7 @@ void RegisterServer(LPXLOPER xDLL, int index)
 	if(includeVolatile) {
 		char fsExecuteVolFn[MAX_PATH];
 		sprintf(fsExecuteVolFn, "FSExecuteVolatile%d", index);
-		XLUtil::RegisterFunction(xDLL, fsExecuteVolFn, "RCPPPPPPPPPPPPPPPPPPPP!", 
+		XLUtil::RegisterFunction(xDLL, fsExecuteVolFn, "RCPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP!",
 			volatileFunction, NULL, "1", category, NULL, NULL, NULL, NULL);
 	}
 
@@ -296,8 +299,8 @@ void ParseProviders(char* providers)
 }
 
 #ifdef __cplusplus
-extern "C" {  
-#endif 
+extern "C" {
+#endif
 
 __declspec(dllexport) int WINAPI xlAutoOpen(void)
 {
@@ -352,7 +355,7 @@ __declspec(dllexport) LPXLOPER WINAPI xlAutoRegister(LPXLOPER pxName)
 	static XLOPER xDLL, xRegId;
 	xRegId.xltype = xltypeErr;
 	xRegId.val.err = xlerrValue;
-	
+
 	return (LPXLOPER) &xRegId;
 }
 
@@ -402,15 +405,17 @@ __declspec(dllexport) LPXLOPER WINAPI xlAddInManagerInfo(LPXLOPER xAction)
 		}
 		x->val.str = addinName;
 		return x;
-	} 
+	}
 
 	return (LPXLOPER) &xInfo;
 }
 
-LPXLOPER WINAPI FSExecute(int index, const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, LPXLOPER v4, 
+LPXLOPER WINAPI FSExecute(int index, const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, LPXLOPER v4,
 							LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, LPXLOPER v9, LPXLOPER v10,
 							LPXLOPER v11, LPXLOPER v12, LPXLOPER v13, LPXLOPER v14, LPXLOPER v15, LPXLOPER v16,
-							LPXLOPER v17, LPXLOPER v18, LPXLOPER v19)
+							LPXLOPER v17, LPXLOPER v18, LPXLOPER v19, LPXLOPER v20, LPXLOPER v21, LPXLOPER v22,
+							LPXLOPER v23, LPXLOPER v24, LPXLOPER v25, LPXLOPER v26, LPXLOPER v27, LPXLOPER v28,
+							LPXLOPER v29)
 {
 	// Attempt connection
 	if(!InitProtocol(index)) {
@@ -418,7 +423,7 @@ LPXLOPER WINAPI FSExecute(int index, const char* name, LPXLOPER v0, LPXLOPER v1,
 	}
 
 	// Exec function
-	LPXLOPER xres = g_protocol[index]->execute(name, g_sendCallerInfo, 20, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19);
+	LPXLOPER xres = g_protocol[index]->execute(name, g_sendCallerInfo, MAX_ARGUMENTS, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29);
 
 	// Check for error
 	if(!g_protocol[index]->isConnected()) {
@@ -431,7 +436,7 @@ LPXLOPER WINAPI FSExecute(int index, const char* name, LPXLOPER v0, LPXLOPER v1,
 
 	// Log function call
 	if(g_debugLogging) {
-		XLUtil::LogFunctionCall(g_serverSections[index], name, xres, 20, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19);
+		XLUtil::LogFunctionCall(g_serverSections[index], name, xres, MAX_ARGUMENTS, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29);
 	}
 
 	return xres;
@@ -441,10 +446,11 @@ LPXLOPER WINAPI FSExecute(int index, const char* name, LPXLOPER v0, LPXLOPER v1,
 __declspec(dllexport) LPXLOPER WINAPI FSExecute##number (const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2 \
 	,LPXLOPER v3, LPXLOPER v4, LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8 \
 	,LPXLOPER v9, LPXLOPER v10, LPXLOPER v11, LPXLOPER v12, LPXLOPER v13, LPXLOPER v14, LPXLOPER v15, LPXLOPER v16 \
-	,LPXLOPER v17, LPXLOPER v18, LPXLOPER v19) \
+	,LPXLOPER v17, LPXLOPER v18, LPXLOPER v19, LPXLOPER v20, LPXLOPER v21, LPXLOPER v22, LPXLOPER v23, LPXLOPER v24 \
+	,LPXLOPER v25, LPXLOPER v26, LPXLOPER v27, LPXLOPER v28, LPXLOPER v29) \
 { \
-	return FSExecute(number, name, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19); \
-} 
+	return FSExecute(number, name, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29); \
+}
 
 DECLARE_GENERAL_FUNCTION(0)
 DECLARE_GENERAL_FUNCTION(1)
@@ -467,23 +473,26 @@ DECLARE_GENERAL_FUNCTION(17)
 DECLARE_GENERAL_FUNCTION(18)
 DECLARE_GENERAL_FUNCTION(19)
 
-__declspec(dllexport) LPXLOPER WINAPI FSExecuteVolatile(int index, const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, LPXLOPER v4, 
+__declspec(dllexport) LPXLOPER WINAPI FSExecuteVolatile(int index, const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, LPXLOPER v4,
 												LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, LPXLOPER v9, LPXLOPER v10,
 												LPXLOPER v11, LPXLOPER v12, LPXLOPER v13, LPXLOPER v14, LPXLOPER v15, LPXLOPER v16,
-												LPXLOPER v17, LPXLOPER v18, LPXLOPER v19)
+												LPXLOPER v17, LPXLOPER v18, LPXLOPER v19, LPXLOPER v20, LPXLOPER v21, LPXLOPER v22,
+												LPXLOPER v23, LPXLOPER v24, LPXLOPER v25, LPXLOPER v26, LPXLOPER v27, LPXLOPER v28,
+												LPXLOPER v29)
 {
 	// Just call off to main function (as this should have the same behaviour only volatile)
-	return FSExecute(index, name, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19);
+	return FSExecute(index, name, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29);
 }
 
 #define DECLARE_VOLATILE_FUNCTION(number) \
 __declspec(dllexport) LPXLOPER WINAPI FSExecuteVolatile##number (const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2 \
 	,LPXLOPER v3, LPXLOPER v4, LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8 \
 	,LPXLOPER v9, LPXLOPER v10, LPXLOPER v11, LPXLOPER v12, LPXLOPER v13, LPXLOPER v14, LPXLOPER v15, LPXLOPER v16 \
-	,LPXLOPER v17, LPXLOPER v18, LPXLOPER v19) \
+	,LPXLOPER v17, LPXLOPER v18, LPXLOPER v19, LPXLOPER v20, LPXLOPER v21, LPXLOPER v22, LPXLOPER v23, LPXLOPER v24 \
+	,LPXLOPER v25, LPXLOPER v26, LPXLOPER v27, LPXLOPER v28, LPXLOPER v29) \
 { \
-	return FSExecuteVolatile(number, name, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19); \
-} 
+	return FSExecuteVolatile(number, name, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29); \
+}
 
 DECLARE_VOLATILE_FUNCTION(0)
 DECLARE_VOLATILE_FUNCTION(1)
@@ -506,24 +515,27 @@ DECLARE_VOLATILE_FUNCTION(17)
 DECLARE_VOLATILE_FUNCTION(18)
 DECLARE_VOLATILE_FUNCTION(19)
 
-LPXLOPER WINAPI FSExecuteNumber(int number, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, LPXLOPER v4, 
+LPXLOPER WINAPI FSExecuteNumber(int number, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, LPXLOPER v4,
 												LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, LPXLOPER v9, LPXLOPER v10,
 												LPXLOPER v11, LPXLOPER v12, LPXLOPER v13, LPXLOPER v14, LPXLOPER v15, LPXLOPER v16,
-												LPXLOPER v17, LPXLOPER v18, LPXLOPER v19)
+												LPXLOPER v17, LPXLOPER v18, LPXLOPER v19, LPXLOPER v20, LPXLOPER v21, LPXLOPER v22,
+												LPXLOPER v23, LPXLOPER v24, LPXLOPER v25, LPXLOPER v26, LPXLOPER v27, LPXLOPER v28,
+												LPXLOPER v29)
 {
 	if(g_functionCount < number) {
 		return &g_errorMessage;
 	}
-	return FSExecute(g_functionServer[number], g_functionNames[number], v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19);
+	return FSExecute(g_functionServer[number], g_functionNames[number], v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29);
 }
 
 #define DECLARE_EXCEL_FUNCTION(number) \
 __declspec(dllexport) LPXLOPER WINAPI FS##number (LPXLOPER v0, LPXLOPER v1, LPXLOPER v2 \
 	,LPXLOPER v3, LPXLOPER v4, LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8 \
 	,LPXLOPER v9, LPXLOPER v10, LPXLOPER v11, LPXLOPER v12, LPXLOPER v13, LPXLOPER v14, LPXLOPER v15, LPXLOPER v16 \
-	,LPXLOPER v17, LPXLOPER v18, LPXLOPER v19) \
+	,LPXLOPER v17, LPXLOPER v18, LPXLOPER v19, LPXLOPER v20, LPXLOPER v21, LPXLOPER v22, LPXLOPER v23, LPXLOPER v24 \
+	,LPXLOPER v25, LPXLOPER v26, LPXLOPER v27, LPXLOPER v28, LPXLOPER v29) \
 { \
-	return FSExecuteNumber(number, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19); \
+	return FSExecuteNumber(number, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29); \
 } 
 
 DECLARE_EXCEL_FUNCTION(0)
