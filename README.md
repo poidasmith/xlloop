@@ -21,7 +21,7 @@ It has the following features:
 * Support for hosting C++ XLLs via [JXLL](https://github.com/poidasmith/xlloop/tree/master/org.boris.jxll).
 * Reflection-based function adaptor for extremely quick deployment of java methods.
 * Bean scripting framework adaptor so functions can be written in any BSF-supported language (eg. Ruby, Python, Javascript).
-* Lisp Function Handler for evaluating Lisp expressions on the fly.
+* [Lisp Function Handler](./docs/lisp-handler.md) for evaluating Lisp expressions on the fly.
 * Functions can be dynamically added to Excel without restart.
 * Functions can be registered as Excel functions (with help information).
 * Fast binary protocol with multiple-server fail-over/scalability.
@@ -50,13 +50,13 @@ Language	|Supported?
 ------------|----------
 Java	|Yes, native server (binary and json)
 C++	|Yes, via XLLServer (included in download)
-Erlang	|Yes, native server
-Lisp	|Yes, using Jatha
-Ruby	|Yes, a native ruby server is included in the download.
-Python	|Yes, a native python server is included in the download.
-PHP	|Yes, a native server (json) is included in the download.
+[Erlang](./docs/erlang-handler.md)	|Yes, native server
+[Lisp](./docs/lisp-handler.md)	|Yes, using Jatha
+[Ruby](./docs/ruby-server.md)	|Yes, a native ruby server is included in the download.
+[Python](./python-server.md)	|Yes, a native python server is included in the download.
+[PHP](https://github.com/poidasmith/xlloop/blob/master/org.boris.xlloop/servers/php/TestServer.php)	|Yes, a native server (json) is included in the download.
 Javascript	|Yes, using Rhino
-R	|Yes, a native R server is included in the download.
+[R](./docs/r-server.md)	|Yes, a native R server is included in the download.
 Perl	|Yes, a native Perl server has been implemented here: github.com/aero/XLLoop-perl5
 
 ## Usage
