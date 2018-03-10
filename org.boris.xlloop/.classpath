@@ -12,5 +12,6 @@
 	<classpathentry kind="lib" path="lib/rupy-0.3.3.jar" sourcepath="lib/rupy-0.3.3-src.zip"/>
 	<classpathentry kind="lib" path="lib/json.jar"/>
 	<classpathentry kind="lib" path="lib/servlet-api-2.5.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.boris.jxll"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

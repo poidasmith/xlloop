@@ -108,7 +108,7 @@ function xllua.reg_dyns( dyn_table )
 end
 
 --
--- Called by the addin from xlAutoOpen (when Excel asks it to initilize)
+-- Called by the addin from xlAutoOpen (when Excel asks it to initialize)
 -- We look from a lua file with the same filename/path (sans extension) as the
 -- addin and call dofile on this.
 --
