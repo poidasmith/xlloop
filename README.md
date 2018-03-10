@@ -137,10 +137,6 @@ disable.calc.cancel	|Set this to "true" to disable to 'click to cancel' feature.
 ini.file.location	|The addin will include INI keys from the file location specified (eg "C:\Program Files\MyApp\include.ini")
 ini.registry.location	|The addin will include INI keys from the registry location specified (eg "HKEY_CURRENT_USER\Software\MyApp"). Currently only string and DWORD values are supported
 
-## Javadoc
-
-TODO
-
 ## Popup For Long Running Operations
 
 The following screenshot shows the popup in action: 
