@@ -6,7 +6,7 @@ Excel User-Defined Functions in Java, Javascript, Ruby, Python, Erlang
 
 XLLoop is an open source framework for implementing Excel user-defined functions (UDFs) on a centralised server (a function server). 
 
-![Architecture](./diag.gif)
+![Architecture](./docs/diag.gif)
 
 Why is this useful?
 * Functions can be written in any language (e.g. Java, scripting languages etc..)
@@ -145,7 +145,7 @@ TODO
 
 The following screenshot shows the popup in action: 
 
-![Busy](./busy.gif)
+![Busy](./docs/busy.gif)
 
 The popup will appear after receiving no response from the server for a couple of seconds. It will automatically disappear when the server responds. The user can click the popup to terminate the connection to the server (it will automatically reconnect on the next function call). 
 
@@ -159,7 +159,7 @@ The server responds with an array of FunctionInformation objects (which are enco
 
 The addin then calls the `Excel4(xlfRegister, ...)` function to register each function. The user will then see the help information via the Insert->Function menu. 
 
-![Function Information](./functioninfo.gif)
+![Function Information](./docs/functioninfo.gif)
 
 Note that the Java server framework has a handler called `FunctionInformationFunctionHandler`, which accepts FunctionInformation objects. This handler implements the special function above. For an example see the ServerExample class in the Java source.	
 
@@ -186,7 +186,7 @@ public class AnnotationsTest
 ```
 ## Lisp Example
 
-The following page shows an [example lisp function handler](./Lisp.md).
+The following page shows an [example lisp function handler](./docs/Lisp.md).
 
 ## Bean Scripting Framework Support
 
