@@ -1,4 +1,4 @@
-# ![XLLoop](./logo.gif) XLLoop 
+# ![XLLoop](./docs/logo.gif) XLLoop 
 
 Excel User-Defined Functions in Java, Javascript, Ruby, Python, Erlang
 
@@ -18,7 +18,7 @@ It has the following features:
 * Extensible Java server framework.
 * Native server frameworks written in many other languages (see languages section).
 * Popup for long running operations (with option to cancel)
-* Support for hosting C++ XLLs via JXLL.
+* Support for hosting C++ XLLs via [JXLL](https://github.com/poidasmith/xlloop/tree/master/org.boris.jxll).
 * Reflection-based function adaptor for extremely quick deployment of java methods.
 * Bean scripting framework adaptor so functions can be written in any BSF-supported language (eg. Ruby, Python, Javascript).
 * Lisp Function Handler for evaluating Lisp expressions on the fly.
@@ -155,7 +155,7 @@ The server responds with an array of FunctionInformation objects (which are enco
 
 The addin then calls the `Excel4(xlfRegister, ...)` function to register each function. The user will then see the help information via the Insert->Function menu. 
 
-![Function Information](./docs/functioninfo.gif)
+![Function Information](./docs/function-info.gif)
 
 Note that the Java server framework has a handler called `FunctionInformationFunctionHandler`, which accepts FunctionInformation objects. This handler implements the special function above. For an example see the ServerExample class in the Java source.	
 
