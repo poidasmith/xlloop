@@ -18,7 +18,7 @@ It has the following features:
 * Extensible Java server framework.
 * Native server frameworks written in many other languages (see languages section).
 * Popup for long running operations (with option to cancel)
-* Support for hosting C++ XLLs via [JXLL](https://github.com/poidasmith/xlloop/tree/master/org.boris.jxll).
+* Support for hosting C++ XLLs via [JXLL](./org.boris.jxll).
 * Reflection-based function adaptor for extremely quick deployment of java methods.
 * Bean scripting framework adaptor so functions can be written in any BSF-supported language (eg. Ruby, Python, Javascript).
 * [Lisp Function Handler](./docs/lisp-handler.md) for evaluating Lisp expressions on the fly.
@@ -42,22 +42,22 @@ XLLoop is licensed under the [Common Public License (CPL)](http://www.eclipse.or
 
 See [Releases](https://github.com/poidasmith/xlloop/releases) section
 
-# Language Support
+## Language Support
 
 The following table summarizes the current support for different languages.
 
 Language	|Supported?
 ------------|----------
-Java	|Yes, native server (binary and json)
-C++	|Yes, via XLLServer (included in download)
-[Erlang](./docs/erlang-handler.md)	|Yes, native server
-[Lisp](./docs/lisp-handler.md)	|Yes, using Jatha
+Java    |Yes, native server (binary and json)
+C++ |Yes, via XLLServer (included in download)
+[Erlang](./docs/erlang-server.md)   |Yes, native server
+[Lisp](./docs/lisp-handler.md)  |Yes, using Jatha
 [Ruby](./docs/ruby-server.md)	|Yes, a native ruby server is included in the download.
-[Python](./python-server.md)	|Yes, a native python server is included in the download.
-[PHP](https://github.com/poidasmith/xlloop/blob/master/org.boris.xlloop/servers/php/TestServer.php)	|Yes, a native server (json) is included in the download.
+[Python](./docs/python-server.md)	|Yes, a native python server is included in the download.
+[PHP](./org.boris.xlloop/servers/php/TestServer.php)	|Yes, a native server (json) is included in the download.
 Javascript	|Yes, using Rhino
 [R](./docs/r-server.md)	|Yes, a native R server is included in the download.
-Perl	|Yes, a native Perl server has been implemented here: github.com/aero/XLLoop-perl5
+[Perl](github.com/aero/XLLoop-perl5)	|Yes, a native Perl server has been implemented by github user aero
 
 ## Usage
 
