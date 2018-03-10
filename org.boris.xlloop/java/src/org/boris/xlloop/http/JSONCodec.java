@@ -16,6 +16,7 @@ import java.io.Writer;
 
 import org.boris.xlloop.IFunctionHandler;
 import org.boris.xlloop.RequestException;
+import org.boris.xlloop.util.LoggerFactory;
 import org.boris.xlloop.xloper.XLArray;
 import org.boris.xlloop.xloper.XLBool;
 import org.boris.xlloop.xloper.XLError;
@@ -33,14 +34,20 @@ import org.json.JSONTokener;
 
 public class JSONCodec
 {
+	private static LoggerFactory logger = LoggerFactory.getLogger();
+	
     public static void doRequest(IFunctionHandler handler, Reader input, Writer output) throws IOException,
             JSONException {
         BufferedWriter bw = new BufferedWriter(output);
         try {
             FunctionRequest fr = JSONCodec.decodeRequest(input);
-            System.out.println(JSONCodec.encodeRequest(fr).toString(4));
+            
+            logger.log(JSONCodec.encodeRequest(fr).toString(4));
+            
             XLoper res = handler.execute(null, fr.getName(), fr.getArgs());
-            System.out.println(JSONCodec.encode(res).toString(4));
+            
+            logger.log(JSONCodec.encode(res).toString(4));
+            
             JSONCodec.encodeXLoper(res, bw);
         } catch (RequestException e) {
             e.printStackTrace();

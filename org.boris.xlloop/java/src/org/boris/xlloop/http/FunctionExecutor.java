@@ -19,10 +19,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import org.boris.xlloop.util.IO;
+import org.boris.xlloop.util.LoggerFactory;
 import org.boris.xlloop.xloper.XLoper;
 
 public class FunctionExecutor
 {
+	private static LoggerFactory logger = LoggerFactory.getLogger();
+	
     public static XLoper execute(URL u, String name, XLoper[] args) throws IOException {
         HttpURLConnection huc = (HttpURLConnection) u.openConnection();
         huc.setRequestMethod("GET");
@@ -33,19 +36,25 @@ public class FunctionExecutor
         StringWriter debug = new StringWriter();
         try {
             JSONCodec.encodeRequest(fr, debug);
-            System.out.println(debug.toString());
+            
+            logger.log(debug);
+            
             JSONCodec.encodeRequest(fr, bw);
             bw.flush();
             bw.close();
             StringWriter sw = new StringWriter();
             IO.copy(new InputStreamReader(huc.getInputStream()), sw, false);
-            System.out.println(sw.toString());
+            
+            logger.log(sw);
+            
             return JSONCodec.decodeXLoper(new StringReader(sw.toString()));
         } catch (Exception e) {
             e.printStackTrace();
             StringWriter sw = new StringWriter();
             IO.copy(new InputStreamReader(huc.getErrorStream()), sw, false);
-            System.out.println(sw.toString());
+            
+            logger.log(sw);
+            
             return null;
         } finally {
             huc.disconnect();
