@@ -40,7 +40,7 @@ XLLoop is licensed under the [Common Public License (CPL)](http://www.eclipse.or
 
 ## Download 
 
-See [Releases](./releases) section
+See [Releases](https://github.com/poidasmith/xlloop/releases) section
 
 # Language Support
 
