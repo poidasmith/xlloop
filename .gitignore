@@ -1,0 +1,5 @@
+﻿# Eclipse
+.project
+.classpath
+# VS IDE files
+/.vs
