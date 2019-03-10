@@ -13,29 +13,30 @@
 #include <stdio.h>
 #include "../Common/Log.h"
 
+#define UNICODE
 #define PROTOCOL_VERSION 20
 #define MAX_SERVERS 20
-#define FS_SERVER_LIST ":server"
-#define FS_SERVER_SELECTION_MODE ":server.selection.mode"
-#define FS_SERVER_RETRY_COUNT ":server.retry.count"
+#define FS_SERVER_LIST L":server"
+#define FS_SERVER_SELECTION_MODE L":server.selection.mode"
+#define FS_SERVER_RETRY_COUNT L":server.retry.count"
 
-void BinaryProtocol::initialize(dictionary* ini, const char* section)
+void BinaryProtocol::initialize(dictionary* ini, const XCHAR* section)
 {
 	errorMessage.xltype = xltypeStr;
-	errorMessage.val.str = XLUtil::MakeExcelString("#Cannot connect to server");
-	char* server = INI::GetString(ini, section, FS_SERVER_LIST, NULL);
-	this->servers = (char**) malloc(sizeof(char*) * MAX_SERVERS);
+	errorMessage.val.str = XLUtil::MakeExcelString(L"#Cannot connect to server");
+	WCHAR* server = INI::GetString(ini, section, FS_SERVER_LIST, NULL);
+	this->servers = (WCHAR**) malloc(sizeof(WCHAR*) * MAX_SERVERS);
 	this->serverPorts = (int*) malloc(sizeof(int) * MAX_SERVERS);
 	this->selectedServer = 0;
 	this->selectionMode = SERVER_SELECT_MODE_RANDOM;
 	this->retryCount = iniparser_getint(ini, FS_SERVER_RETRY_COUNT, 0);
-	char* selMode = iniparser_getstr(ini, FS_SERVER_SELECTION_MODE);
+	WCHAR* selMode = iniparser_getstr(ini, FS_SERVER_SELECTION_MODE);
 	if(selMode) {
-		if(strcmp("round-robin", selMode) == 0) {
+		if(wcscmp(L"round-robin", selMode) == 0) {
 			this->selectionMode = SERVER_SELECT_MODE_ROUND_ROBIN;
-			Log::Info("BinaryProtocol - using round-robin server selection mode");
+			Log::Info(L"BinaryProtocol - using round-robin server selection mode");
 		} else {
-			Log::Info("BinaryProtocol - unrecognized server selection mode: %s", selMode);
+			Log::Info(L"BinaryProtocol - unrecognized server selection mode: %s", selMode);
 		}
 	}
 	ParseServerList(server);
@@ -71,16 +72,16 @@ int BinaryProtocol::connect(int selectionMode)
 		break;
 	}
 
-	char temp[MAX_PATH];
-	sprintf(temp, "#Cannot connect to server [%d] - %s:%d", selectedServer+1, 
+	WCHAR temp[MAX_PATH];
+	wsprintfW(temp, L"#Cannot connect to server [%d] - %s:%d", selectedServer+1, 
 		servers[selectedServer], serverPorts[selectedServer]);
 	if(errorMessage.val.str) free(errorMessage.val.str);
 	errorMessage.val.str= XLUtil::MakeExcelString(temp);
 
-	char* hostname = servers[selectedServer];
+	WCHAR* hostname = servers[selectedServer];
 	int port = serverPorts[selectedServer];
 
-	Log::Info("Using server: %s:%d", hostname, port);
+	Log::Info(L"Using server: %s:%d", hostname, port);
 
 	// Update the selected server for next time
 	this->selectedServer++;
@@ -88,7 +89,7 @@ int BinaryProtocol::connect(int selectionMode)
 	return connect(hostname, port);
 }
 
-int BinaryProtocol::connect(char* hostname, int port)
+int BinaryProtocol::connect(WCHAR* hostname, int port)
 {
 	WSADATA wsData;
 	int wsaret = WSAStartup(0x101, &wsData);
@@ -100,11 +101,14 @@ int BinaryProtocol::connect(char* hostname, int port)
 		return 1;
 
 	hostent* hp;
-	if(inet_addr(hostname) == INADDR_NONE) {
-		hp = gethostbyname(hostname);
+	char hs[MAX_PATH];
+	BOOL used;
+	WideCharToMultiByte(CP_UTF8, 0, hostname, wcslen(hostname), hs, MAX_PATH, " ", &used);
+	if(inet_addr(hs) == INADDR_NONE) {
+		hp = gethostbyname(hs);
 	}
 	else {
-		unsigned int addr = inet_addr(hostname);
+		unsigned int addr = inet_addr(hs);
 		hp = gethostbyaddr((char*)&addr, sizeof(addr), AF_INET);
 	}
 
@@ -148,16 +152,16 @@ void BinaryProtocol::disconnect()
 	WSACleanup();
 }
 
-LPXLOPER BinaryProtocol::execute(const char* name, bool sendCaller, int count, ...)
+LPXLOPER12 BinaryProtocol::execute(const WCHAR* name, bool sendCaller, int count, ...)
 {
 	va_list args;
 	va_start(args, count);
-	send(name, sendCaller, count, (LPXLOPER*) args);
+	send(name, sendCaller, count, (LPXLOPER12*) args);
 	va_end(args);
 	return receive(name);
 }
 
-LPXLOPER BinaryProtocol::execute(const char* name, bool sendCaller, int count, LPXLOPER far opers[])
+LPXLOPER12 BinaryProtocol::execute(const WCHAR* name, bool sendCaller, int count, LPXLOPER12 far opers[])
 {
 	send(name, sendCaller, count, opers);
 	return receive(name);
@@ -166,17 +170,17 @@ LPXLOPER BinaryProtocol::execute(const char* name, bool sendCaller, int count, L
 /*
  * Write the fulll function call to the network stream. 
  */
-int BinaryProtocol::send(const char* name, bool sendCaller, int count, LPXLOPER far opers[])
+int BinaryProtocol::send(const WCHAR* name, bool sendCaller, int count, LPXLOPER12 far opers[])
 {
 	XLCodec::encode(PROTOCOL_VERSION, os);
 	XLCodec::encode(sendCaller, os);
 	if(sendCaller) {
-		XLOPER xlRef, xlSheetName;
-		Excel4(xlfCaller, &xlRef, 0);	
-		Excel4(xlSheetNm, &xlSheetName, 1, &xlRef);
+		XLOPER12 xlRef, xlSheetName;
+		Excel12(xlfCaller, &xlRef, 0);	
+		Excel12(xlSheetNm, &xlSheetName, 1, &xlRef);
 		XLCodec::encode(&xlRef, os);
 		XLCodec::encode(&xlSheetName, os);
-		Excel4(xlFree, 0, 1, &xlSheetName);
+		Excel12(xlFree, 0, 1, &xlSheetName);
 	}
 	XLCodec::encode(name, os);
 	// Find last non-missing value
@@ -194,20 +198,20 @@ int BinaryProtocol::send(const char* name, bool sendCaller, int count, LPXLOPER 
 	return conn == NULL ? 1 : 0;
 }
 
-LPXLOPER BinaryProtocol::receive(const char* name)
+LPXLOPER12 BinaryProtocol::receive(const WCHAR* name)
 {
-	LPXLOPER xl = new XLOPER;
+	LPXLOPER12 xl = new XLOPER12;
 	XLCodec::decode(name, is, xl);
 	return xl;
 }
 
-int BinaryProtocol::ExtractPort(char* server)
+int BinaryProtocol::ExtractPort(WCHAR* server)
 {
-	int len = strlen(server);
+	int len = wcslen(server);
 	for(int i = 0; i < len; i++) {
 		if(server[i] == ':') {
 			server[i] = 0;
-			return atoi(&server[i+1]);
+			return _wtoi(&server[i+1]);
 		}
 	}
 
@@ -217,20 +221,20 @@ int BinaryProtocol::ExtractPort(char* server)
 /*
  * Extract the list of servers (and ports) from the INI property.
  */
-void BinaryProtocol::ParseServerList(char* server)
+void BinaryProtocol::ParseServerList(WCHAR* server)
 {
 	if(server==NULL) {
-		servers[0] = strdup("localhost");
+		servers[0] = wcsdup(L"localhost");
 		serverPorts[0] = 5454;
 		serverCount = 1;
 		selectedServer = 0;
 		return;
 	}
 
-	int len = strlen(server);
+	int len = wcslen(server);
 	int start = 0;
 	int pos = 0;
-	char temp[MAX_PATH];
+	WCHAR temp[MAX_PATH];
 	for(pos = 0; pos < len+1; pos++) {
 		if(serverCount >= MAX_SERVERS)
 			break;
@@ -240,10 +244,10 @@ void BinaryProtocol::ParseServerList(char* server)
 				start = pos;
 				continue;
 			}
-			memcpy(temp, &server[start], slen+1);
+			memcpy(temp, &server[start], (slen+1) * sizeof(WCHAR));
 			temp[slen]=0;
-			StrTrim(temp, ", ");
-			servers[serverCount]=strdup(temp);
+			StrTrim(temp, L", ");
+			servers[serverCount] = wcsdup(temp);
 			serverPorts[serverCount] = ExtractPort(servers[serverCount]);
 			serverCount++;
 			start = pos;

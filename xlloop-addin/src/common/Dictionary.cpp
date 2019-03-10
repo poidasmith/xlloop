@@ -14,7 +14,7 @@ iniparser is distributed under an MIT license.
 
 #define MAXVALSZ	1024
 #define DICTMINSZ	128
-#define DICT_INVALID_KEY    ((char*)-1)
+#define DICT_INVALID_KEY    ((wchar_t*)-1)
 
 static void * mem_double(void * ptr, int size)
 {
@@ -26,13 +26,13 @@ static void * mem_double(void * ptr, int size)
     return newptr ;
 }
 
-unsigned dictionary_hash(char * key)
+unsigned dictionary_hash(wchar_t * key)
 {
 	int			len ;
 	unsigned	hash ;
 	int			i ;
 
-	len = strlen(key);
+	len = wcslen(key);
 	for (hash=0, i=0 ; i<len ; i++) {
 		hash += (unsigned)key[i] ;
 		hash += (hash<<10);
@@ -51,11 +51,11 @@ dictionary * dictionary_new(int size)
 	/* If no size was specified, allocate space for DICTMINSZ */
 	if (size<DICTMINSZ) size=DICTMINSZ ;
 
-	d = (dictionary *)calloc(1, sizeof(dictionary));
+	d = (dictionary *) calloc(1, sizeof(dictionary));
 	d->size = size ;
-	d->val  = (char **)calloc(size, sizeof(char*));
-	d->key  = (char **)calloc(size, sizeof(char*));
-	d->hash = (unsigned int *)calloc(size, sizeof(unsigned));
+	d->val  = (wchar_t **) calloc(size, sizeof(wchar_t*));
+	d->key  = (wchar_t **) calloc(size, sizeof(wchar_t*));
+	d->hash = (unsigned int *) calloc(size, sizeof(unsigned));
 	return d ;
 }
 
@@ -77,7 +77,7 @@ void dictionary_del(dictionary * d)
 	return ;
 }
 
-char * dictionary_get(dictionary * d, char * key, char * def)
+wchar_t * dictionary_get(dictionary * d, wchar_t * key, wchar_t * def)
 {
 	unsigned	hash ;
 	int			i ;
@@ -89,7 +89,7 @@ char * dictionary_get(dictionary * d, char * key, char * def)
         /* Compare hash */
 		if (hash==d->hash[i]) {
             /* Compare string, to avoid hash collisions */
-            if (!strcmp(key, d->key[i])) {
+            if (!wcscmp(key, d->key[i])) {
 				return d->val[i] ;
 			}
 		}
@@ -97,40 +97,40 @@ char * dictionary_get(dictionary * d, char * key, char * def)
 	return def ;
 }
 
-char dictionary_getchar(dictionary * d, char * key, char def)
+wchar_t dictionary_getchar(dictionary * d, wchar_t * key, wchar_t def)
 {
-	char * v ;
+	wchar_t * v ;
 
-	if ((v=dictionary_get(d,key,DICT_INVALID_KEY))==DICT_INVALID_KEY) {
+	if ((v = dictionary_get(d, key, DICT_INVALID_KEY)) == DICT_INVALID_KEY) {
 		return def ;
 	} else {
 		return v[0] ;
 	}
 }
 
-int dictionary_getint(dictionary * d, char * key, int def)
+int dictionary_getint(dictionary * d, wchar_t * key, int def)
 {
-	char * v ;
+	wchar_t * v ;
 
-	if ((v=dictionary_get(d,key,DICT_INVALID_KEY))==DICT_INVALID_KEY) {
+	if ((v = dictionary_get(d, key, DICT_INVALID_KEY)) == DICT_INVALID_KEY) {
 		return def ;
 	} else {
-		return atoi(v);
+		return _wtoi(v);
 	}
 }
 
-double dictionary_getdouble(dictionary * d, char * key, double def)
+double dictionary_getdouble(dictionary * d, wchar_t * key, double def)
 {
-	char * v ;
+	wchar_t * v ;
 
-	if ((v=dictionary_get(d,key,DICT_INVALID_KEY))==DICT_INVALID_KEY) {
+	if ((v = dictionary_get(d, key, DICT_INVALID_KEY)) == DICT_INVALID_KEY) {
 		return def ;
 	} else {
-		return atof(v);
+		return _wtof(v);
 	}
 }
 
-void dictionary_set(dictionary * d, char * key, char * val)
+void dictionary_set(dictionary * d, wchar_t * key, wchar_t * val)
 {
 	int			i ;
 	unsigned	hash ;
@@ -145,11 +145,11 @@ void dictionary_set(dictionary * d, char * key, char * val)
             if (d->key[i]==NULL)
                 continue ;
 			if (hash==d->hash[i]) { /* Same hash value */
-				if (!strcmp(key, d->key[i])) {	 /* Same key */
+				if (!wcscmp(key, d->key[i])) {	 /* Same key */
 					/* Found a value: modify and return */
 					if (d->val[i]!=NULL)
 						free(d->val[i]);
-                    d->val[i] = val ? strdup(val) : NULL ;
+                    d->val[i] = val ? wcsdup(val) : NULL ;
                     /* Value has been modified: return */
 					return ;
 				}
@@ -161,9 +161,9 @@ void dictionary_set(dictionary * d, char * key, char * val)
 	if (d->n==d->size) {
 
 		/* Reached maximum size: reallocate blackboard */
-		d->val  = (char **)mem_double(d->val,  d->size * sizeof(char*)) ;
-		d->key  = (char **)mem_double(d->key,  d->size * sizeof(char*)) ;
-		d->hash = (unsigned int *)mem_double(d->hash, d->size * sizeof(unsigned)) ;
+		d->val  = (wchar_t **) mem_double(d->val,  d->size * sizeof(wchar_t*)) ;
+		d->key  = (wchar_t **) mem_double(d->key,  d->size * sizeof(wchar_t*)) ;
+		d->hash = (unsigned int *) mem_double(d->hash, d->size * sizeof(unsigned)) ;
 
 		/* Double size */
 		d->size *= 2 ;
@@ -177,14 +177,14 @@ void dictionary_set(dictionary * d, char * key, char * val)
         }
     }
 	/* Copy key */
-	d->key[i]  = strdup(key);
-    d->val[i]  = val ? strdup(val) : NULL ;
+	d->key[i]  = wcsdup(key);
+    d->val[i]  = val ? wcsdup(val) : NULL ;
 	d->hash[i] = hash;
 	d->n ++ ;
 	return ;
 }
 
-void dictionary_unset(dictionary * d, char * key)
+void dictionary_unset(dictionary * d, wchar_t * key)
 {
 	unsigned	hash ;
 	int			i ;
@@ -196,7 +196,7 @@ void dictionary_unset(dictionary * d, char * key)
         /* Compare hash */
 		if (hash==d->hash[i]) {
             /* Compare string, to avoid hash collisions */
-            if (!strcmp(key, d->key[i])) {
+            if (!wcscmp(key, d->key[i])) {
                 /* Found key */
                 break ;
 			}
@@ -217,17 +217,17 @@ void dictionary_unset(dictionary * d, char * key)
     return ;
 }
 
-void dictionary_setint(dictionary * d, char * key, int val)
+void dictionary_setint(dictionary * d, wchar_t * key, int val)
 {
-	char sval[MAXVALSZ];
-	sprintf(sval, "%d", val);
+	wchar_t sval[MAXVALSZ];
+	swprintf_s(sval, MAXVALSZ, L"%d", val);
 	dictionary_set(d, key, sval);
 }
 
-void dictionary_setdouble(dictionary * d, char * key, double val)
+void dictionary_setdouble(dictionary * d, wchar_t * key, double val)
 {
-	char	sval[MAXVALSZ];
-	sprintf(sval, "%g", val);
+	wchar_t	sval[MAXVALSZ];
+	swprintf_s(sval, MAXVALSZ, L"%g", val);
 	dictionary_set(d, key, sval);
 }
 
@@ -237,14 +237,14 @@ void dictionary_dump(dictionary * d, FILE * out)
 
 	if (d==NULL || out==NULL) return ;
 	if (d->n<1) {
-		fprintf(out, "empty dictionary\n");
+		fwprintf(out, L"empty dictionary\n");
 		return ;
 	}
 	for (i=0 ; i<d->size ; i++) {
         if (d->key[i]) {
-            fprintf(out, "%20s\t[%s]\n",
+            fwprintf(out, L"%20s\t[%s]\n",
                     d->key[i],
-                    d->val[i] ? d->val[i] : "UNDEF");
+                    d->val[i] ? d->val[i] : L"UNDEF");
         }
 	}
 	return ;
@@ -260,22 +260,22 @@ iniparser is distributed under an MIT license.
 */
 
 #define ASCIILINESZ         1024
-#define INI_INVALID_KEY     ((char*)-1)
+#define INI_INVALID_KEY     ((wchar_t*)-1)
 
 /* Private: add an entry to the dictionary */
 static void iniparser_add_entry(
     dictionary * d,
-    char * sec,
-    char * key,
-    char * val)
+	wchar_t * sec,
+	wchar_t * key,
+	wchar_t * val)
 {
-    char longkey[2*ASCIILINESZ+1];
+	wchar_t longkey[2*ASCIILINESZ+1];
 
     /* Make a key as section:keyword */
     if (key!=NULL) {
-        sprintf(longkey, "%s:%s", sec, key);
+		swprintf(longkey, L"%s:%s", sec, key);
     } else {
-        strcpy(longkey, sec);
+		swprintf(longkey, sec);
     }
 
     /* Add (key,val) to dictionary */
@@ -293,14 +293,14 @@ int iniparser_getnsec(dictionary * d)
     for (i=0 ; i<d->size ; i++) {
         if (d->key[i]==NULL)
             continue ;
-        if (strchr(d->key[i], ':')==NULL) {
+        if (wcschr(d->key[i], L':')==NULL) {
             nsec ++ ;
         }
     }
     return nsec ;
 }
 
-char * iniparser_getsecname(dictionary * d, int n)
+wchar_t * iniparser_getsecname(dictionary * d, int n)
 {
     int i ;
     int foundsec ;
@@ -310,7 +310,7 @@ char * iniparser_getsecname(dictionary * d, int n)
     for (i=0 ; i<d->size ; i++) {
         if (d->key[i]==NULL)
             continue ;
-        if (strchr(d->key[i], ':')==NULL) {
+        if (wcschr(d->key[i], L':')==NULL) {
             foundsec++ ;
             if (foundsec>n)
                 break ;
@@ -342,9 +342,9 @@ void iniparser_dump(dictionary * d, FILE * f)
 void iniparser_dump_ini(dictionary * d, FILE * f)
 {
     int     i, j ;
-    char    keym[ASCIILINESZ+1];
+	wchar_t keym[ASCIILINESZ+1];
     int     nsec ;
-    char *  secname ;
+    wchar_t *secname ;
     int     seclen ;
 
     if (d==NULL || f==NULL) return ;
@@ -362,16 +362,16 @@ void iniparser_dump_ini(dictionary * d, FILE * f)
     for (i=0 ; i<nsec ; i++) {
         secname = iniparser_getsecname(d, i) ;
         seclen  = (int)strlen(secname);
-        fprintf(f, "\n[%s]\n", secname);
-        sprintf(keym, "%s:", secname);
+		fwprintf(f, L"\n[%s]\n", secname);
+		swprintf(keym, L"%s:", secname);
         for (j=0 ; j<d->size ; j++) {
             if (d->key[j]==NULL)
                 continue ;
-            if (!strncmp(d->key[j], keym, seclen+1)) {
-                fprintf(f,
-                        "%-30s = %s\n",
+            if (!wcsncmp(d->key[j], keym, seclen+1)) {
+				fwprintf(f,
+                        L"%-30s = %s\n",
                         d->key[j]+seclen+1,
-                        d->val[j] ? d->val[j] : "");
+                        d->val[j] ? d->val[j] : L"");
             }
         }
     }
@@ -379,50 +379,52 @@ void iniparser_dump_ini(dictionary * d, FILE * f)
     return ;
 }
 
-char * iniparser_getstr(dictionary * d, const char * key)
+wchar_t * iniparser_getstr(dictionary * d, const wchar_t * key)
 {
     return iniparser_getstring(d, key, NULL);
 }
 
-char * iniparser_getstring(dictionary * d, const char * key, char * def)
+wchar_t * iniparser_getstring(dictionary * d, const wchar_t * key, wchar_t * def)
 {
-    char * lc_key ;
-    char * sval ;
+	wchar_t * lc_key ;
+	wchar_t * sval ;
 
     if (d==NULL || key==NULL)
         return def ;
 
-    lc_key = strdup(key);
+    lc_key = wcsdup(key);
     sval = dictionary_get(d, lc_key, def);
     free(lc_key);
     return sval ;
 }
 
-int iniparser_getint(dictionary * d, const char * key, int notfound)
+int iniparser_getint(dictionary * d, const wchar_t * key, int notfound)
 {
-    char    *   str ;
+	wchar_t * str ;
+	wchar_t * end;
+
+    str = iniparser_getstring(d, key, INI_INVALID_KEY);
+    if (str == INI_INVALID_KEY) return notfound ;
+
+    return (int) _wtoi(str);
+}
+
+double iniparser_getdouble(dictionary * d, wchar_t * key, double notfound)
+{
+	wchar_t * str ;
 
     str = iniparser_getstring(d, key, INI_INVALID_KEY);
     if (str==INI_INVALID_KEY) return notfound ;
-    return (int)strtol(str, NULL, 0);
+    return _wtof(str);
 }
 
-double iniparser_getdouble(dictionary * d, char * key, double notfound)
+int iniparser_getboolean(dictionary * d, const wchar_t * key, int notfound)
 {
-    char    *   str ;
-
-    str = iniparser_getstring(d, key, INI_INVALID_KEY);
-    if (str==INI_INVALID_KEY) return notfound ;
-    return atof(str);
-}
-
-int iniparser_getboolean(dictionary * d, const char * key, int notfound)
-{
-    char    *   c ;
-    int         ret ;
+	wchar_t * c ;
+    int       ret ;
 
     c = iniparser_getstring(d, key, INI_INVALID_KEY);
-    if (c==INI_INVALID_KEY) return notfound ;
+    if (c == INI_INVALID_KEY) return notfound ;
     if (c[0]=='y' || c[0]=='Y' || c[0]=='1' || c[0]=='t' || c[0]=='T') {
         ret = 1 ;
     } else if (c[0]=='n' || c[0]=='N' || c[0]=='0' || c[0]=='f' || c[0]=='F') {
@@ -433,7 +435,7 @@ int iniparser_getboolean(dictionary * d, const char * key, int notfound)
     return ret;
 }
 
-int iniparser_find_entry(dictionary * ini, char * entry)
+int iniparser_find_entry(dictionary * ini, wchar_t * entry)
 {
     int found=0 ;
     if (iniparser_getstring(ini, entry, INI_INVALID_KEY)!=INI_INVALID_KEY) {
@@ -442,59 +444,59 @@ int iniparser_find_entry(dictionary * ini, char * entry)
     return found ;
 }
 
-int iniparser_setstr(dictionary * ini, char * entry, char * val)
+int iniparser_setstr(dictionary * ini, wchar_t * entry, wchar_t * val)
 {
     dictionary_set(ini, entry, val);
     return 0 ;
 }
 
-void iniparser_unset(dictionary * ini, char * entry)
+void iniparser_unset(dictionary * ini, wchar_t * entry)
 {
     dictionary_unset(ini, entry);
 }
 
-void parse_line(char * sec, char * lin, dictionary * d)
+void parse_line(wchar_t * sec, wchar_t * lin, dictionary * d)
 {
-    char        key[ASCIILINESZ+1];
-    char        val[ASCIILINESZ+1];
-    char    *   wher ;
+	wchar_t        key[ASCIILINESZ+1];
+	wchar_t        val[ASCIILINESZ+1];
+	wchar_t    *   wher ;
 
     wher = strskp(lin); /* Skip leading spaces */
     if (*wher==';' || *wher=='#' || *wher==0)
         return ; /* Comment lines */
     else {
-        if (sscanf(wher, "[%[^]]", sec)==1) {
+        if (swscanf(wher, L"[%[^]]", sec)==1) {
             /* Valid section name */
             iniparser_add_entry(d, sec, NULL, NULL);
-        } else if (sscanf (wher, "%[^=] = \"%[^\"]\"", key, val) == 2
-               ||  sscanf (wher, "%[^=] = '%[^\']'",   key, val) == 2
-               ||  sscanf (wher, "%[^=] = %[^;#]",     key, val) == 2) {
-            strcpy(key, strcrop(key));
+        } else if (swscanf(wher, L"%[^=] = \"%[^\"]\"", key, val) == 2
+               || swscanf(wher, L"%[^=] = '%[^\']'",   key, val) == 2
+               || swscanf(wher, L"%[^=] = %[^;#]",     key, val) == 2) {
+			wcscpy(key, strcrop(key));
             /*
              * sscanf cannot handle "" or '' as empty value,
              * this is done here
              */
-            if (!strcmp(val, "\"\"") || !strcmp(val, "''")) {
+            if (!wcscmp(val, L"\"\"") || !wcscmp(val, L"''")) {
                 val[0] = (char)0;
             } else {
-                strcpy(val, strcrop(val));
+				wcscpy(val, strcrop(val));
             }
             iniparser_add_entry(d, sec, key, val);
         }
     }
 }
 
-dictionary * iniparser_load(char * ininame, bool isbuffer)
+dictionary * iniparser_load(wchar_t * ininame, bool isbuffer)
 {
     dictionary  *   d ;
-    char        sec[ASCIILINESZ+1];
-    char        lin[ASCIILINESZ+1];
+	wchar_t        sec[ASCIILINESZ+1];
+	wchar_t        lin[ASCIILINESZ+1];
     FILE    *   ini ;
     int         lineno ;
 	memset(lin, 0, ASCIILINESZ);
 	memset(sec, 0, ASCIILINESZ);
 
-    if (!isbuffer && (ini=fopen(ininame, "r"))==NULL) {
+    if (!isbuffer && (ini=_wfopen(ininame, L"r")) == NULL) {
         return NULL ;
     }
 
@@ -508,7 +510,7 @@ dictionary * iniparser_load(char * ininame, bool isbuffer)
     d = dictionary_new(0);
     lineno = 0 ;
 	int pos = 0;
-	while ((isbuffer ? sgets(ininame, &pos, lin, ASCIILINESZ) : fgets(lin, ASCIILINESZ, ini)) != NULL) {
+	while ((isbuffer ? sgets(ininame, &pos, lin, ASCIILINESZ) : fgetws(lin, ASCIILINESZ, ini)) != NULL) {
 		lineno++;
 		parse_line(sec, lin, d);
 		memset(lin, 0, ASCIILINESZ);
@@ -529,29 +531,29 @@ void iniparser_freedict(dictionary * d)
 
 #define ASCIILINESZ	1024
 
-char * strlwc(const char * s)
+wchar_t * strlwc(const wchar_t * s)
 {
-    static char l[ASCIILINESZ+1];
+    static wchar_t l[ASCIILINESZ+1];
     int i ;
 
     if (s==NULL) return NULL ;
-    memset(l, 0, ASCIILINESZ+1);
+    memset(l, 0, sizeof(l));
     i=0 ;
     while (s[i] && i<ASCIILINESZ) {
-        l[i] = (char)tolower((int)s[i]);
+        l[i] = (wchar_t)tolower((int)s[i]);
         i++ ;
     }
-    l[ASCIILINESZ]=(char)0;
+    l[ASCIILINESZ]=(wchar_t)0;
     return l ;
 }
 
-char * strupc(char * s)
+wchar_t * strupc(wchar_t * s)
 {
-    static char l[ASCIILINESZ+1];
+    static wchar_t l[ASCIILINESZ+1];
     int i ;
 
     if (s==NULL) return NULL ;
-    memset(l, 0, ASCIILINESZ+1);
+    memset(l, 0, sizeof(l));
     i=0 ;
     while (s[i] && i<ASCIILINESZ) {
         l[i] = (char)toupper((int)s[i]);
@@ -561,63 +563,63 @@ char * strupc(char * s)
     return l ;
 }
 
-char * strskp(char * s)
+wchar_t * strskp(wchar_t * s)
 {
-    char * skip = s;
+	wchar_t * skip = s;
 	if (s==NULL) return NULL ;
-    while (isspace((int)*skip) && *skip) skip++;
+    while (iswspace((int)*skip) && *skip) skip++;
     return skip ;
 } 
 
-char * strcrop(char * s)
+wchar_t * strcrop(wchar_t * s)
 {
-    static char l[ASCIILINESZ+1];
-	char * last ;
+    static wchar_t l[ASCIILINESZ+1];
+	wchar_t * last ;
 
     if (s==NULL) return NULL ;
-    memset(l, 0, ASCIILINESZ+1);
-	strcpy(l, s);
-	last = l + strlen(l);
+    memset(l, 0, sizeof(l));
+	wcscpy(l, s);
+	last = l + wcslen(l);
 	while (last > l) {
-		if (!isspace((int)*(last-1)))
+		if (!iswspace((int)*(last-1)))
 			break ;
 		last -- ;
 	}
-	*last = (char)0;
+	*last = (wchar_t)0;
     return l ;
 }
 
-char * strstrip(char * s)
+wchar_t * strstrip(wchar_t * s)
 {
-    static char l[ASCIILINESZ+1];
-	char * last ;
+    static wchar_t l[ASCIILINESZ+1];
+	wchar_t * last ;
 	
     if (s==NULL) return NULL ;
     
-	while (isspace((int)*s) && *s) s++;
+	while (iswspace((int)*s) && *s) s++;
 	
 	memset(l, 0, ASCIILINESZ+1);
-	strcpy(l, s);
-	last = l + strlen(l);
+	wcscpy(l, s);
+	last = l + wcslen(l);
 	while (last > l) {
-		if (!isspace((int)*(last-1)))
+		if (!iswspace((int)*(last-1)))
 			break ;
 		last -- ;
 	}
-	*last = (char)0;
+	*last = (wchar_t) 0;
 
-	return (char*)l ;
+	return (wchar_t*) l ;
 }
 
-char* sgets(char* buffer, int* pos, char * line, int maxsize)
+wchar_t* sgets(wchar_t* buffer, int* pos, wchar_t * line, int maxsize)
 {
 	if(buffer[*pos] == 0) return NULL;
 	int i = *pos;
 	for(; i < maxsize; i++) {
-		if(buffer[i] == '\n' || buffer[i] == 0)
+		if(buffer[i] == L'\n' || buffer[i] == 0)
 			break;
 	}
-	memcpy(line, &buffer[*pos], i - (*pos));
+	memcpy(line, &buffer[*pos], (i - (*pos)) * sizeof(wchar_t));
 	line[i - (*pos)] = 0;
 	*pos = i + (buffer[i] == 0 ? 0 : 1);
 	return line;

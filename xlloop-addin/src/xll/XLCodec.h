@@ -12,7 +12,7 @@
 #define XL_CODEC_H
 
 #include <windows.h>
-#include "../xll/xlcall.h"
+#include <xlcall.h>
 
 #define STREAM_BUF_SIZE 4096
 
@@ -29,8 +29,8 @@
 class XOStream {
 public:
 	XOStream(SOCKET& s) : s(s), pos(0) {}
-	void put(char c);
-	void write(const char* s, UINT n);
+	void put(WCHAR c);
+	void write(const WCHAR* s, UINT n);
 	void flush();
 	void reset();
 
@@ -44,7 +44,7 @@ class XIStream {
 public:
 	XIStream(SOCKET& s) : s(s), pos(0), len(0) {}
 	int get();
-	void read(char* s, UINT n);
+	void read(WCHAR* s, UINT n);
 	inline bool valid() { return s != NULL; }
 	void reset();
 
@@ -60,11 +60,11 @@ private:
 
 class XLCodec {
 public:
-	static void encode(const LPXLOPER xl, XOStream& os);
-	static void encode(const char* str, XOStream& os);
+	static void encode(const LPXLOPER12 xl, XOStream& os);
+	static void encode(const WCHAR* str, XOStream& os);
 	static void encode(bool b, XOStream& os);
 	static void encode(int w, XOStream& os);
-	static void decode(const char* name, XIStream& is, LPXLOPER xl);
+	static void decode(const WCHAR* WCHAR, XIStream& is, LPXLOPER12 xl);
 };
 
 #endif // XL_CODEC_H

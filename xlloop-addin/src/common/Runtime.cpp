@@ -26,20 +26,20 @@ extern void _cdecl StrTruncate(LPSTR target, LPSTR source, size_t len)
 	target[i] = 0;
 }
 
-extern bool _cdecl StartsWith(LPSTR str, LPSTR substr)
+extern bool _cdecl StartsWith(WCHAR* str, WCHAR* substr)
 {
-	return strncmp(str, substr, strlen(substr)) == 0;
+	return wcsncmp(str, substr, wcslen(substr)) == 0;
 }
 
-extern LPSTR _cdecl StripArg0(LPSTR lpCmdLine)
+extern WCHAR* _cdecl StripArg0(WCHAR* lpCmdLine)
 {
-	int len = strlen(lpCmdLine);
+	int len = wcslen(lpCmdLine);
 	int point = FindNextArg(lpCmdLine, 0, len);
 
 	return &lpCmdLine[point];
 }
 
-extern size_t _cdecl FindNextArg(LPSTR lpCmdLine, size_t start, size_t len)
+extern size_t _cdecl FindNextArg(WCHAR* lpCmdLine, size_t start, size_t len)
 {
 	bool found = false;
 
@@ -54,9 +54,9 @@ extern size_t _cdecl FindNextArg(LPSTR lpCmdLine, size_t start, size_t len)
 	return start == len ? start : start + 1;
 }
 
-extern bool _cdecl StrContains(LPSTR str, char c)
+extern bool _cdecl StrContains(WCHAR* str, WCHAR c)
 {
-	unsigned int len = strlen(str);
+	unsigned int len = wcslen(str);
 	for(unsigned int i = 0; i < len; i++) {
 		if(c == str[i]) {
 			return true;
@@ -65,10 +65,10 @@ extern bool _cdecl StrContains(LPSTR str, char c)
 	return false;
 }
 
-extern void _cdecl StrTrim(LPSTR str, LPSTR trimChars)
+extern void _cdecl StrTrim(WCHAR* str, WCHAR* trimChars)
 {
 	unsigned int start = 0;
-	unsigned int end = strlen(str) - 1;
+	unsigned int end = wcslen(str) - 1;
 	for(unsigned int i = 0; i < end; i++) {
 		char c = str[i];
 		if(!StrContains(trimChars, c)) {
@@ -83,7 +83,7 @@ extern void _cdecl StrTrim(LPSTR str, LPSTR trimChars)
 			break;
 		}
 	}
-	if(start != 0 || end != strlen(str) - 1) {
+	if(start != 0 || end != wcslen(str) - 1) {
 		int k = 0;
 		for(unsigned int i = start; i <= end; i++, k++) {
 			str[k] = str[i];
@@ -92,13 +92,13 @@ extern void _cdecl StrTrim(LPSTR str, LPSTR trimChars)
 	}
 }
 
-extern void _cdecl ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, UINT& count, bool includeFirst)
+extern void _cdecl ParseCommandLine(WCHAR* lpCmdLine, WCHAR** args, UINT& count, bool includeFirst)
 {
 	// Bug fix here provided by Frederic.Canut@kxen.com 
 	if(lpCmdLine == NULL || *lpCmdLine == 0) return;
 
-	StrTrim(lpCmdLine, " ");
-	int len = strlen(lpCmdLine);
+	StrTrim(lpCmdLine, L" ");
+	int len = wcslen(lpCmdLine);
 	if(len == 0) {
 		return;
 	}
@@ -118,9 +118,9 @@ extern void _cdecl ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, UINT& count, 
 					arg[k] = lpCmdLine[j];
 				}
 				arg[k] = 0;
-				args[count] = strdup(arg);
-				StrTrim(args[count], " ");
-				StrTrim(args[count], "\"");
+				args[count] = wcsdup(arg);
+				StrTrim(args[count], L" ");
+				StrTrim(args[count], L"\"");
 				count++;
 			}
 			start = i;
@@ -135,16 +135,16 @@ extern void _cdecl ParseCommandLine(LPSTR lpCmdLine, TCHAR** args, UINT& count, 
 			arg[k] = lpCmdLine[j];
 		}
 		arg[k] = 0;
-		args[count] = _strdup(arg);
-		StrTrim(args[count], " ");
-		StrTrim(args[count], "\"");
+		args[count] = wcsdup(arg);
+		StrTrim(args[count], L" ");
+		StrTrim(args[count], L"\"");
 		count++;
 	}
 }
 
-extern void _cdecl GetFileDirectory(LPSTR filename, LPSTR output)
+extern void _cdecl GetFileDirectory(WCHAR* filename, WCHAR* output)
 {
-	int len = strlen(filename);
+	int len = wcslen(filename);
 	if(len == 0) {
 		output[0] = 0;
 		return;
@@ -170,9 +170,9 @@ extern void _cdecl GetFileDirectory(LPSTR filename, LPSTR output)
 	}
 }
 
-extern void _cdecl GetFileName(LPSTR filename, LPSTR output)
+extern void _cdecl GetFileName(WCHAR* filename, WCHAR* output)
 {
-	int len = strlen(filename);
+	int len = wcslen(filename);
 	if(len == 0) {
 		output[0] = 0;
 		return;
@@ -190,12 +190,12 @@ extern void _cdecl GetFileName(LPSTR filename, LPSTR output)
 	}
 
 	if(found) i++;
-	strcpy(output, &filename[i]);
+	wcscpy(output, &filename[i]);
 }
 
-extern void _cdecl GetFileExtension(LPSTR filename, LPSTR output)
+extern void _cdecl GetFileExtension(WCHAR* filename, WCHAR* output)
 {
-	int len = strlen(filename);
+	int len = wcslen(filename);
 	if(len == 0) {
 		output[0] = 0;
 		return;
@@ -213,14 +213,14 @@ extern void _cdecl GetFileExtension(LPSTR filename, LPSTR output)
 	}
 
 	if(found)
-		strcpy(output, &filename[i]);
+		wcscpy(output, &filename[i]);
 	else
 		output[0] = 0;
 }
 
-extern void _cdecl GetFileNameSansExtension(LPSTR filename, LPSTR output)
+extern void _cdecl GetFileNameSansExtension(WCHAR* filename, WCHAR* output)
 {
-	int len = strlen(filename);
+	int len = wcslen(filename);
 	int i = len-1;
 	if(len == 0) {
 		output[0] = 0;
@@ -243,37 +243,10 @@ extern void _cdecl GetFileNameSansExtension(LPSTR filename, LPSTR output)
 		output[dotPos - i] = 0;
 	} else {
 		if(i > 0) i++;
-		strcpy(output, &filename[i]);
+		wcscpy(output, &filename[i]);
 	}
 }
 
-extern "C" char * _cdecl strrev(char *str)
-{
-	if(!str) return 0;
-	char* rstr = str + strlen(str) - 1;
-	char c;
-	while(str<rstr) {
-		c=*str;
-		*str=*rstr;
-		*rstr=c;
-		str++;
-		rstr--;
-	}
-	return str;
-}
-
-extern "C" char * _cdecl strdup(const char *str)
-{
-    char *r;
-    if ((r = (char *)malloc(strlen(str) + 1)) == NULL)
-		return 0;
-    return strcpy (r, str);
-}
-
-extern "C" char * _cdecl _strdup(const char *src)
-{
-	return strdup(src);
-}
 
 extern "C" void __cdecl _wassert(int e)
 {

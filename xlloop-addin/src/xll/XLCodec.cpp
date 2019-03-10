@@ -16,17 +16,17 @@
 
 namespace 
 {
-	const char* g_CurrentFunction;
+	const WCHAR* g_CurrentFunction;
 }
 
-inline void XOStream::put(char c)
+inline void XOStream::put(WCHAR c)
 {
 	if(pos >= STREAM_BUF_SIZE)
 		flush();
 	buf[pos++] = c;
 }
 
-inline void XOStream::write(const char* s, unsigned int n)
+inline void XOStream::write(const WCHAR* s, unsigned int n)
 {
 	if(n <= 0) return;
 	if(n > STREAM_BUF_SIZE) {
@@ -79,7 +79,7 @@ inline int XIStream::get()
 	return buf[pos++] & 0xff;
 }
 
-inline void XIStream::read(char* s, UINT n)
+inline void XIStream::read(WCHAR* s, UINT n)
 {
 	if(s == 0 || n <= 0)
 		return;
@@ -171,7 +171,7 @@ inline double readDouble(XIStream& is)
 	return val;
 }
 
-void XLCodec::encode(const LPXLOPER xl, XOStream& os)
+void XLCodec::encode(const LPXLOPER12 xl, XOStream& os)
 {
 	int type = xl->xltype & ~(xlbitXLFree | xlbitDLLFree);
 	UINT len;
@@ -224,11 +224,11 @@ void XLCodec::encode(const LPXLOPER xl, XOStream& os)
 	}
 }
 
-void XLCodec::encode(const char* str, XOStream& os)
+void XLCodec::encode(const WCHAR* str, XOStream& os)
 {
 	os.put(XL_CODEC_TYPE_STR);
 	if(str) {
-		int len = strlen(str);
+		int len = wcslen(str);
 		os.put(len);
 		os.write(str, len);
 	} else {
@@ -248,7 +248,7 @@ void XLCodec::encode(int w, XOStream& os)
 	writeDoubleWord(w, os);
 }
 
-void XLCodec::decode(const char* name, XIStream& is, LPXLOPER xl) 
+void XLCodec::decode(const WCHAR* name, XIStream& is, LPXLOPER12 xl)
 {
 	g_CurrentFunction = name;
 	int type = is.get();
@@ -272,7 +272,7 @@ void XLCodec::decode(const char* name, XIStream& is, LPXLOPER xl)
 			xl->val.array.columns = readDoubleWord(is);
 			if(is.valid()) {
 				len = xl->val.array.rows * xl->val.array.columns;
-				xl->val.array.lparray = (LPXLOPER) malloc(sizeof(XLOPER) * len);
+				xl->val.array.lparray = (LPXLOPER12) malloc(sizeof(XLOPER12) * len);
 				for(UINT i = 0; i < len; i++) {
 					decode(name, is, &xl->val.array.lparray[i]);
 				}
@@ -286,8 +286,8 @@ void XLCodec::decode(const char* name, XIStream& is, LPXLOPER xl)
 			xl->xltype = xltypeStr;
 			len = is.get();
 			if(is.valid()) {
-				xl->val.str = new char[len+1];
-				xl->val.str[0] = (char) len;
+				xl->val.str = new WCHAR[len+1];
+				xl->val.str[0] = (WCHAR) len;
 				if(len > 0)
 					is.read(&xl->val.str[1], len);
 			}

@@ -11,9 +11,8 @@
 #include "common/INI.h"
 #include "common/Log.h"
 #include "xll/XLUtil.h"
-#include "xll/xlcall.h"
+#include <xlcall.h>
 #include "xll/BinaryProtocol.h"
-#include "xll/HttpProtocol.h"
 #include "xll/Timeout.h"
 #include "xll/SheetGenerator.h"
 
@@ -27,7 +26,7 @@ static dictionary* g_ini = NULL;
 #define MAX_SERVERS 20
 
 // The mapping of section names to server
-static char* g_serverSections[MAX_SERVERS];
+static WCHAR* g_serverSections[MAX_SERVERS];
 
 // The protocol manager(s)
 static Protocol* g_protocol[MAX_SERVERS];
@@ -37,7 +36,7 @@ static bool g_sendCallerInfo = false;
 
 // The list of static function names
 #define MAX_FUNCTIONS 512
-static char* g_functionNames[MAX_FUNCTIONS];
+static WCHAR* g_functionNames[MAX_FUNCTIONS];
 static int g_functionCount = 0;
 
 // The mapping of function index to server index
@@ -47,29 +46,29 @@ static int g_functionServer[MAX_FUNCTIONS];
 #define MAX_ARGUMENTS 30
 
 // Our standard error message
-static XLOPER g_errorMessage;
+static XLOPER12 g_errorMessage;
 
 // Cache the log level as we will use it a lot
 static bool g_debugLogging = false;
 
 // INI keys
-#define FS_PROTOCOL ":protocol"
-#define FS_URL ":url"
-#define FS_ADDIN_NAME ":addin.name"
-#define FS_INCLUDE_GENERIC ":include.generic"
-#define FS_FUNCTION_NAME ":function.name"
-#define FS_INCLUDE_VOLATILE ":include.volatile"
-#define FS_FUNCTION_NAME_VOLATILE ":function.name.volatile"
-#define FS_FUNCTION_CATEGORY ":generic.function.category"
-#define FS_DISABLE_FUNCTION_LIST ":disable.function.list"
-#define FS_SEND_USER_INFO ":send.user.info"
-#define FS_USER_KEY ":user.key"
-#define FS_SEND_CALLER_INFO ":send.caller.info"
-#define FS_PROVIDERS ":providers"
+#define FS_PROTOCOL L":protocol"
+#define FS_URL L":url"
+#define FS_ADDIN_NAME L":addin.name"
+#define FS_INCLUDE_GENERIC L":include.generic"
+#define FS_FUNCTION_NAME L":function.name"
+#define FS_INCLUDE_VOLATILE L":include.volatile"
+#define FS_FUNCTION_NAME_VOLATILE L":function.name.volatile"
+#define FS_FUNCTION_CATEGORY L":generic.function.category"
+#define FS_DISABLE_FUNCTION_LIST L":disable.function.list"
+#define FS_SEND_USER_INFO L":send.user.info"
+#define FS_USER_KEY L":user.key"
+#define FS_SEND_CALLER_INFO L":send.caller.info"
+#define FS_PROVIDERS L":providers"
 
 // Admin function names
-#define AF_GET_FUNCTIONS "org.boris.xlloop.GetFunctions"
-#define AF_INITIALIZE "org.boris.xlloop.Initialize"
+#define AF_GET_FUNCTIONS L"org.boris.xlloop.GetFunctions"
+#define AF_INITIALIZE L"org.boris.xlloop.Initialize"
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 {
@@ -84,8 +83,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 		g_ini = INI::LoadIniFile(hinstDLL);
 
 		// Init error message
+
 		g_errorMessage.xltype = xltypeStr;
-		g_errorMessage.val.str = XLUtil::MakeExcelString("#Unknown function");
+		g_errorMessage.val.str = XLUtil::MakeExcelString(L"#Unknown function");
 
 		// Read config
 		g_sendCallerInfo = iniparser_getboolean(g_ini, FS_SEND_CALLER_INFO, 0) != 0;
@@ -109,15 +109,17 @@ void InitializeSession(int index)
 {
 	bool sendUserInfo = iniparser_getboolean(g_ini, FS_SEND_USER_INFO, 1) != 0;
 	if(sendUserInfo) {
-		char username[MAX_PATH];
-		DWORD usize= MAX_PATH;
-		GetUserName(username, &usize);
-		LPXLOPER uname = XLUtil::MakeExcelString2(username);
-		gethostname(username, MAX_PATH);
-		LPXLOPER hostname = XLUtil::MakeExcelString2(username);
-		char* userKey = iniparser_getstr(g_ini, FS_USER_KEY);
+		WCHAR buf[MAX_PATH];
+		DWORD usize = MAX_PATH;
+		GetUserName(buf, &usize);
+		LPXLOPER12 uname = XLUtil::MakeExcelString2(buf);
+		char hs[MAX_PATH];
+		gethostname(hs, MAX_PATH);
+		MultiByteToWideChar(CP_UTF8, 0, hs, MAX_PATH, buf, MAX_PATH);
+		LPXLOPER12 hostname = XLUtil::MakeExcelString2(buf);
+		WCHAR* userKey = iniparser_getstr(g_ini, FS_USER_KEY);
 		if(userKey) {
-			LPXLOPER ukey = XLUtil::MakeExcelString2(userKey);
+			LPXLOPER12 ukey = XLUtil::MakeExcelString2(userKey);
 			g_protocol[index]->execute(AF_INITIALIZE, false, 3, uname, hostname, ukey);
 			XLUtil::FreeContents(ukey);
 			free(ukey);
@@ -138,10 +140,11 @@ bool InitProtocol(int index)
 {
 	// Create our protocol manager
 	if(g_protocol[index] == NULL) {
-		char* section = g_serverSections[index];
-		char* protocol = INI::GetString(g_ini, section, FS_PROTOCOL, NULL);
-		if(protocol && strcmp(protocol, "http") == 0) {
-			g_protocol[index] = new HttpProtocol();
+		WCHAR* section = g_serverSections[index];
+		WCHAR* protocol = INI::GetString(g_ini, section, FS_PROTOCOL, NULL);
+		if(protocol && wcscmp(protocol, L"http") == 0) {
+			// throw
+			//g_protocol[index] = new HttpProtocol();
 		} else {
 			g_protocol[index] = new BinaryProtocol();
 		}
@@ -161,59 +164,59 @@ bool InitProtocol(int index)
 /*
  * Requests the function list from the server and registers each function with excel.
  */
-void RegisterFunctions(LPXLOPER xDLL, int index)
+void RegisterFunctions(LPXLOPER12 xDLL, int index)
 {
 	if(!InitProtocol(index)) {
 		return;
 	}
 
 	// Ask the server for a list of functions and register them
-	LPXLOPER farr = g_protocol[index]->execute(AF_GET_FUNCTIONS, false, 0);
+	LPXLOPER12 farr = g_protocol[index]->execute(AF_GET_FUNCTIONS, false, 0);
 	int t = farr->xltype & ~(xlbitXLFree | xlbitDLLFree);
 	int rows = farr->val.array.rows;
 	int cols = farr->val.array.columns;
 	if(farr != NULL && t == xltypeMulti && cols == 1 && rows > 0) {
 		for(int i = 0; i < rows; i++) {
-			LPXLOPER earr = &farr->val.array.lparray[i];
+			LPXLOPER12 earr = &farr->val.array.lparray[i];
 			t = earr->xltype & ~(xlbitXLFree | xlbitDLLFree);
 			if(t != xltypeMulti)
 				continue;
-			char* functionName = XLMap::getString(earr, "functionName");
-			char* functionText = XLMap::getString(earr, "functionText");
-			char* argumentText = XLMap::getString(earr, "argumentText");
-			char* category = XLMap::getString(earr, "category");
-			char* shortcutText = XLMap::getString(earr, "shortcutText");
-			char* helpTopic = XLMap::getString(earr, "helpTopic");
-			char* functionHelp = XLMap::getString(earr, "functionHelp");
-			LPXLOPER argumentHelp = XLMap::get(earr, "argumentHelp");
-			bool isVolatile = XLMap::getBoolean(earr, "isVolatile");
+			WCHAR* functionName = XLMap::getString(earr, L"functionName");
+			WCHAR* functionText = XLMap::getString(earr, L"functionText");
+			WCHAR* argumentText = XLMap::getString(earr, L"argumentText");
+			WCHAR* category = XLMap::getString(earr, L"category");
+			WCHAR* shortcutText = XLMap::getString(earr, L"shortcutText");
+			WCHAR* helpTopic = XLMap::getString(earr, L"helpTopic");
+			WCHAR* functionHelp = XLMap::getString(earr, L"functionHelp");
+			LPXLOPER12 argumentHelp = XLMap::get(earr, L"argumentHelp");
+			bool isVolatile = XLMap::getBoolean(earr, L"isVolatile");
 			if(functionName != NULL) {
-				char tmp[MAX_PATH];
-				sprintf(tmp, "FS%d", g_functionCount);
-				char* argHelp[100];
+				WCHAR tmp[MAX_PATH];
+				wsprintf(tmp, L"FS%d", g_functionCount);
+				WCHAR* argHelp[100];
 				int argHelpCount=0;
 				if(argumentHelp != NULL) {
 					for(int j = 0; j < argumentHelp->val.array.rows; j++) {
 						argHelp[argHelpCount++] = argumentHelp->val.array.lparray[j].val.str;
 					}
-					argHelp[argHelpCount++] = "";
+					argHelp[argHelpCount++] = L"";
 				}
 				int size = 10 + argHelpCount;
-				static LPXLOPER input[10 + MAX_ARGUMENTS];
-				input[0] = (LPXLOPER FAR) xDLL;
-				input[1] = (LPXLOPER FAR) XLUtil::MakeExcelString2(tmp);
-				input[2] = (LPXLOPER FAR) XLUtil::MakeExcelString2(isVolatile ? "RPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP!" : "RPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP");
-				input[3] = (LPXLOPER FAR) XLUtil::MakeExcelString3(functionText == NULL ? functionName : functionText);
-				input[4] = (LPXLOPER FAR) XLUtil::MakeExcelString3(argumentText);
-				input[5] = (LPXLOPER FAR) XLUtil::MakeExcelString2("1");
-				input[6] = (LPXLOPER FAR) XLUtil::MakeExcelString3(category);
-				input[7] = (LPXLOPER FAR) XLUtil::MakeExcelString3(shortcutText);
-				input[8] = (LPXLOPER FAR) XLUtil::MakeExcelString3(helpTopic);
-				input[9] = (LPXLOPER FAR) XLUtil::MakeExcelString3(functionHelp);
+				static LPXLOPER12 input[10 + MAX_ARGUMENTS];
+				input[0] = (LPXLOPER12 FAR) xDLL;
+				input[1] = (LPXLOPER12 FAR) XLUtil::MakeExcelString2(tmp);
+				input[2] = (LPXLOPER12 FAR) XLUtil::MakeExcelString2(isVolatile ? L"RPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP!" : L"RPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP");
+				input[3] = (LPXLOPER12 FAR) XLUtil::MakeExcelString3(functionText == NULL ? functionName : functionText);
+				input[4] = (LPXLOPER12 FAR) XLUtil::MakeExcelString3(argumentText);
+				input[5] = (LPXLOPER12 FAR) XLUtil::MakeExcelString2(L"1");
+				input[6] = (LPXLOPER12 FAR) XLUtil::MakeExcelString3(category);
+				input[7] = (LPXLOPER12 FAR) XLUtil::MakeExcelString3(shortcutText);
+				input[8] = (LPXLOPER12 FAR) XLUtil::MakeExcelString3(helpTopic);
+				input[9] = (LPXLOPER12 FAR) XLUtil::MakeExcelString3(functionHelp);
 				for(int j = 0; j < argHelpCount && j < MAX_ARGUMENTS; j++) {
-					input[10 + j] = (LPXLOPER FAR) XLUtil::MakeExcelString3(argHelp[j]);
+					input[10 + j] = (LPXLOPER12 FAR) XLUtil::MakeExcelString3(argHelp[j]);
 				}
-				int res = Excel4v(xlfRegister, 0, size, (LPXLOPER FAR*) input);
+				int res = Excel12v(xlfRegister, 0, size, (LPXLOPER12 FAR*) input);
 				for(int j = 1; j < size; j++) {
 					free(input[j]);
 				}
@@ -221,14 +224,14 @@ void RegisterFunctions(LPXLOPER xDLL, int index)
 					memcpy(tmp, &functionName[1], functionName[0]);
 					tmp[functionName[0]] = 0;
 					g_functionServer[g_functionCount] = index;
-					g_functionNames[g_functionCount++] = strdup(tmp);
+					g_functionNames[g_functionCount++] = wcsdup(tmp);
 
 					if(g_debugLogging) {
-						char* provider = g_serverSections[index];
+						WCHAR* provider = g_serverSections[index];
 						if(provider)
-							Log::Debug("Registered function (%d) %s for server %s", g_functionCount, tmp, provider);
+							Log::Debug(L"Registered function (%d) %s for server %s", g_functionCount, tmp, provider);
 						else
-							Log::Debug("Registered function (%d) %s", g_functionCount, tmp);
+							Log::Debug(L"Registered function (%d) %s", g_functionCount, tmp);
 					}
 				}
 			}
@@ -241,30 +244,30 @@ void RegisterFunctions(LPXLOPER xDLL, int index)
 /*
  * Registers all the functions & commands for a server with excel.
  */
-void RegisterServer(LPXLOPER xDLL, int index)
+void RegisterServer(LPXLOPER12 xDLL, int index)
 {
-	char* section = g_serverSections[index];
+	WCHAR* section = g_serverSections[index];
 
 	bool includeGeneric = INI::GetBoolean(g_ini, section, FS_INCLUDE_GENERIC, true);
-	char* function = INI::GetString(g_ini, section, FS_FUNCTION_NAME, "FS");
-	char* category = INI::GetString(g_ini, section, FS_FUNCTION_CATEGORY, "General");
+	WCHAR* function = INI::GetString(g_ini, section, FS_FUNCTION_NAME, L"FS");
+	WCHAR* category = INI::GetString(g_ini, section, FS_FUNCTION_CATEGORY, L"General");
 	bool includeVolatile = INI::GetBoolean(g_ini, section, FS_INCLUDE_VOLATILE, true);
-	char* volatileFunction = INI::GetString(g_ini, section, FS_FUNCTION_NAME_VOLATILE, "FSV");
+	WCHAR* volatileFunction = INI::GetString(g_ini, section, FS_FUNCTION_NAME_VOLATILE, L"LFSV");
 
 	// Register execute function (if requested)
 	if(includeGeneric) {
-		char fsExecuteFn[MAX_PATH];
-		sprintf(fsExecuteFn, "FSExecute%d", index);
-		XLUtil::RegisterFunction(xDLL, fsExecuteFn, "RCPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP",
-			function, NULL, "1", category, NULL, NULL, NULL, NULL);
+		WCHAR fsExecuteFn[MAX_PATH];
+		wsprintf(fsExecuteFn, L"FSExecute%d", index);
+		XLUtil::RegisterFunction(xDLL, fsExecuteFn, L"RCPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP",
+			function, NULL, L"1", category, NULL, NULL, NULL, NULL);
 	}
 
 	// Register execute function - volatile version (if requested)
 	if(includeVolatile) {
-		char fsExecuteVolFn[MAX_PATH];
-		sprintf(fsExecuteVolFn, "FSExecuteVolatile%d", index);
-		XLUtil::RegisterFunction(xDLL, fsExecuteVolFn, "RCPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP!",
-			volatileFunction, NULL, "1", category, NULL, NULL, NULL, NULL);
+		WCHAR fsExecuteVolFn[MAX_PATH];
+		wsprintf(fsExecuteVolFn, L"FSExecuteVolatile%d", index);
+		XLUtil::RegisterFunction(xDLL, fsExecuteVolFn, L"RCPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP!",
+			volatileFunction, NULL, L"1", category, NULL, NULL, NULL, NULL);
 	}
 
 	// Now ask server for a list of functions to register
@@ -272,25 +275,22 @@ void RegisterServer(LPXLOPER xDLL, int index)
 	if(!disableFunctionList) {
 		RegisterFunctions(xDLL, index);
 	}
-
-	// Sheet Generator - currently disabled
-	//SheetGenerator::Register(xDLL, g_protocol[index], g_ini);
 }
 
 /*
  * The providers arg is a CSV of section names pointing to settings for each server
  */
-void ParseProviders(char* providers)
+void ParseProviders(WCHAR* providers)
 {
-	char section[MAX_PATH];
+	WCHAR section[MAX_PATH];
 	for(int i = 0, pos = 0;; i++) {
 		char c = providers[i];
 		if(c == 0 || c == ',') {
 			int len = i - pos;
-			memcpy(section, &providers[pos], len);
+			memcpy(section, &providers[pos], len * sizeof(WCHAR));
 			section[len] = 0;
-			StrTrim(section, " ");
-			g_serverSections[g_serverCount++] = strdup(section);
+			StrTrim(section, L" ");
+			g_serverSections[g_serverCount++] = wcsdup(section);
 			pos = i + 1;
 		}
 		if(c == 0 || g_serverCount == MAX_SERVERS)
@@ -304,15 +304,15 @@ extern "C" {
 
 __declspec(dllexport) int WINAPI xlAutoOpen(void)
 {
-	static XLOPER xDLL;
-	Excel4(xlGetName, &xDLL, 0);
+	static XLOPER12 xDLL;
+	Excel12(xlGetName, &xDLL, 0);
 
 	// Clear out and existing function names and reset function count
 	g_functionCount = 0;
 	g_serverCount = 0;
 
 	// Check for providers key (a list of section names with server settings)
-	char* providers = iniparser_getstring(g_ini, FS_PROVIDERS, NULL);
+	WCHAR* providers = iniparser_getstring(g_ini, FS_PROVIDERS, NULL);
 
 	if(providers) {
 		// Grab the list of providers and register each
@@ -328,7 +328,7 @@ __declspec(dllexport) int WINAPI xlAutoOpen(void)
 	}
 
 	// Free the XLL filename
-	Excel4(xlFree, 0, 1, (LPXLOPER) &xDLL);
+	Excel12(xlFree, 0, 1, (LPXLOPER12) &xDLL);
 
 	// OK
 	return 1;
@@ -350,13 +350,13 @@ __declspec(dllexport) int WINAPI xlAutoClose(void)
 	return 1;
 }
 
-__declspec(dllexport) LPXLOPER WINAPI xlAutoRegister(LPXLOPER pxName)
+__declspec(dllexport) LPXLOPER12 WINAPI xlAutoRegister(LPXLOPER12 pxName)
 {
-	static XLOPER xDLL, xRegId;
+	static XLOPER12 xDLL, xRegId;
 	xRegId.xltype = xltypeErr;
 	xRegId.val.err = xlerrValue;
 
-	return (LPXLOPER) &xRegId;
+	return (LPXLOPER12) &xRegId;
 }
 
 __declspec(dllexport) int WINAPI xlAutoAdd(void)
@@ -369,35 +369,35 @@ __declspec(dllexport) int WINAPI xlAutoRemove(void)
 	return 1;
 }
 
-__declspec(dllexport) void WINAPI xlAutoFree(LPXLOPER px)
+__declspec(dllexport) void WINAPI xlAutoFree(LPXLOPER12 px)
 {
 	if(!px) return;
 	XLUtil::FreeContents(px);
 	free(px);
 }
 
-__declspec(dllexport) LPXLOPER WINAPI xlAddInManagerInfo(LPXLOPER xAction)
+__declspec(dllexport) LPXLOPER12 WINAPI xlAddInManagerInfo(LPXLOPER12 xAction)
 {
-	static XLOPER xInfo, xIntAction, xIntType;
+	static XLOPER12 xInfo, xIntAction, xIntType;
 	xIntType.xltype = xltypeInt;
 	xIntType.val.w = xltypeInt;
 	xInfo.xltype = xltypeErr;
 	xInfo.val.err = xlerrValue;
 
-	Excel4(xlCoerce, &xIntAction, 2, xAction, &xIntType);
+	Excel12(xlCoerce, &xIntAction, 2, xAction, &xIntType);
 
 	// Set addin name
 	if(xIntAction.val.w == 1) {
-		LPXLOPER x = (LPXLOPER) malloc(sizeof(XLOPER));
+		LPXLOPER12 x = (LPXLOPER12) malloc(sizeof(XLOPER12));
 		x->xltype = xltypeStr | xlbitDLLFree;
-		char* addinName = iniparser_getstr(g_ini, FS_ADDIN_NAME);
+		WCHAR* addinName = iniparser_getstr(g_ini, FS_ADDIN_NAME);
 		if(addinName == NULL) {
-			char filename[MAX_PATH];
-			char name[MAX_PATH];
+			WCHAR filename[MAX_PATH];
+			WCHAR name[MAX_PATH];
 			GetModuleFileName(g_hinstance, filename, MAX_PATH);
 			GetFileNameSansExtension(filename, name);
 #ifdef DEBUG_LOG
-			strcat(name, " (Debug)");
+			wcscat(name, L" (Debug)");
 #endif
 			addinName = XLUtil::MakeExcelString(name);
 		} else {
@@ -407,15 +407,15 @@ __declspec(dllexport) LPXLOPER WINAPI xlAddInManagerInfo(LPXLOPER xAction)
 		return x;
 	}
 
-	return (LPXLOPER) &xInfo;
+	return (LPXLOPER12) &xInfo;
 }
 
-LPXLOPER WINAPI FSExecute(int index, const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, LPXLOPER v4,
-							LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, LPXLOPER v9, LPXLOPER v10,
-							LPXLOPER v11, LPXLOPER v12, LPXLOPER v13, LPXLOPER v14, LPXLOPER v15, LPXLOPER v16,
-							LPXLOPER v17, LPXLOPER v18, LPXLOPER v19, LPXLOPER v20, LPXLOPER v21, LPXLOPER v22,
-							LPXLOPER v23, LPXLOPER v24, LPXLOPER v25, LPXLOPER v26, LPXLOPER v27, LPXLOPER v28,
-							LPXLOPER v29)
+LPXLOPER12 WINAPI FSExecute(int index, const WCHAR* name, LPXLOPER12 v0, LPXLOPER12 v1, LPXLOPER12 v2, LPXLOPER12 v3, LPXLOPER12 v4,
+							LPXLOPER12 v5, LPXLOPER12 v6, LPXLOPER12 v7, LPXLOPER12 v8, LPXLOPER12 v9, LPXLOPER12 v10,
+							LPXLOPER12 v11, LPXLOPER12 v12, LPXLOPER12 v13, LPXLOPER12 v14, LPXLOPER12 v15, LPXLOPER12 v16,
+							LPXLOPER12 v17, LPXLOPER12 v18, LPXLOPER12 v19, LPXLOPER12 v20, LPXLOPER12 v21, LPXLOPER12 v22,
+							LPXLOPER12 v23, LPXLOPER12 v24, LPXLOPER12 v25, LPXLOPER12 v26, LPXLOPER12 v27, LPXLOPER12 v28,
+							LPXLOPER12 v29)
 {
 	// Attempt connection
 	if(!InitProtocol(index)) {
@@ -423,7 +423,7 @@ LPXLOPER WINAPI FSExecute(int index, const char* name, LPXLOPER v0, LPXLOPER v1,
 	}
 
 	// Exec function
-	LPXLOPER xres = g_protocol[index]->execute(name, g_sendCallerInfo, MAX_ARGUMENTS, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29);
+	LPXLOPER12 xres = g_protocol[index]->execute(name, g_sendCallerInfo, MAX_ARGUMENTS, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29);
 
 	// Check for error
 	if(!g_protocol[index]->isConnected()) {
@@ -443,11 +443,11 @@ LPXLOPER WINAPI FSExecute(int index, const char* name, LPXLOPER v0, LPXLOPER v1,
 }
 
 #define DECLARE_GENERAL_FUNCTION(number) \
-__declspec(dllexport) LPXLOPER WINAPI FSExecute##number (const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2 \
-	,LPXLOPER v3, LPXLOPER v4, LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8 \
-	,LPXLOPER v9, LPXLOPER v10, LPXLOPER v11, LPXLOPER v12, LPXLOPER v13, LPXLOPER v14, LPXLOPER v15, LPXLOPER v16 \
-	,LPXLOPER v17, LPXLOPER v18, LPXLOPER v19, LPXLOPER v20, LPXLOPER v21, LPXLOPER v22, LPXLOPER v23, LPXLOPER v24 \
-	,LPXLOPER v25, LPXLOPER v26, LPXLOPER v27, LPXLOPER v28, LPXLOPER v29) \
+__declspec(dllexport) LPXLOPER12 WINAPI FSExecute##number (const WCHAR* name, LPXLOPER12 v0, LPXLOPER12 v1, LPXLOPER12 v2 \
+	,LPXLOPER12 v3, LPXLOPER12 v4, LPXLOPER12 v5, LPXLOPER12 v6, LPXLOPER12 v7, LPXLOPER12 v8 \
+	,LPXLOPER12 v9, LPXLOPER12 v10, LPXLOPER12 v11, LPXLOPER12 v12, LPXLOPER12 v13, LPXLOPER12 v14, LPXLOPER12 v15, LPXLOPER12 v16 \
+	,LPXLOPER12 v17, LPXLOPER12 v18, LPXLOPER12 v19, LPXLOPER12 v20, LPXLOPER12 v21, LPXLOPER12 v22, LPXLOPER12 v23, LPXLOPER12 v24 \
+	,LPXLOPER12 v25, LPXLOPER12 v26, LPXLOPER12 v27, LPXLOPER12 v28, LPXLOPER12 v29) \
 { \
 	return FSExecute(number, name, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29); \
 }
@@ -473,23 +473,23 @@ DECLARE_GENERAL_FUNCTION(17)
 DECLARE_GENERAL_FUNCTION(18)
 DECLARE_GENERAL_FUNCTION(19)
 
-__declspec(dllexport) LPXLOPER WINAPI FSExecuteVolatile(int index, const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, LPXLOPER v4,
-												LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, LPXLOPER v9, LPXLOPER v10,
-												LPXLOPER v11, LPXLOPER v12, LPXLOPER v13, LPXLOPER v14, LPXLOPER v15, LPXLOPER v16,
-												LPXLOPER v17, LPXLOPER v18, LPXLOPER v19, LPXLOPER v20, LPXLOPER v21, LPXLOPER v22,
-												LPXLOPER v23, LPXLOPER v24, LPXLOPER v25, LPXLOPER v26, LPXLOPER v27, LPXLOPER v28,
-												LPXLOPER v29)
+__declspec(dllexport) LPXLOPER12 WINAPI FSExecuteVolatile(int index, const WCHAR* name, LPXLOPER12 v0, LPXLOPER12 v1, LPXLOPER12 v2, LPXLOPER12 v3, LPXLOPER12 v4,
+												LPXLOPER12 v5, LPXLOPER12 v6, LPXLOPER12 v7, LPXLOPER12 v8, LPXLOPER12 v9, LPXLOPER12 v10,
+												LPXLOPER12 v11, LPXLOPER12 v12, LPXLOPER12 v13, LPXLOPER12 v14, LPXLOPER12 v15, LPXLOPER12 v16,
+												LPXLOPER12 v17, LPXLOPER12 v18, LPXLOPER12 v19, LPXLOPER12 v20, LPXLOPER12 v21, LPXLOPER12 v22,
+												LPXLOPER12 v23, LPXLOPER12 v24, LPXLOPER12 v25, LPXLOPER12 v26, LPXLOPER12 v27, LPXLOPER12 v28,
+												LPXLOPER12 v29)
 {
 	// Just call off to main function (as this should have the same behaviour only volatile)
 	return FSExecute(index, name, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29);
 }
 
 #define DECLARE_VOLATILE_FUNCTION(number) \
-__declspec(dllexport) LPXLOPER WINAPI FSExecuteVolatile##number (const char* name, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2 \
-	,LPXLOPER v3, LPXLOPER v4, LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8 \
-	,LPXLOPER v9, LPXLOPER v10, LPXLOPER v11, LPXLOPER v12, LPXLOPER v13, LPXLOPER v14, LPXLOPER v15, LPXLOPER v16 \
-	,LPXLOPER v17, LPXLOPER v18, LPXLOPER v19, LPXLOPER v20, LPXLOPER v21, LPXLOPER v22, LPXLOPER v23, LPXLOPER v24 \
-	,LPXLOPER v25, LPXLOPER v26, LPXLOPER v27, LPXLOPER v28, LPXLOPER v29) \
+__declspec(dllexport) LPXLOPER12 WINAPI FSExecuteVolatile##number (const WCHAR* name, LPXLOPER12 v0, LPXLOPER12 v1, LPXLOPER12 v2 \
+	,LPXLOPER12 v3, LPXLOPER12 v4, LPXLOPER12 v5, LPXLOPER12 v6, LPXLOPER12 v7, LPXLOPER12 v8 \
+	,LPXLOPER12 v9, LPXLOPER12 v10, LPXLOPER12 v11, LPXLOPER12 v12, LPXLOPER12 v13, LPXLOPER12 v14, LPXLOPER12 v15, LPXLOPER12 v16 \
+	,LPXLOPER12 v17, LPXLOPER12 v18, LPXLOPER12 v19, LPXLOPER12 v20, LPXLOPER12 v21, LPXLOPER12 v22, LPXLOPER12 v23, LPXLOPER12 v24 \
+	,LPXLOPER12 v25, LPXLOPER12 v26, LPXLOPER12 v27, LPXLOPER12 v28, LPXLOPER12 v29) \
 { \
 	return FSExecuteVolatile(number, name, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29); \
 }
@@ -515,12 +515,12 @@ DECLARE_VOLATILE_FUNCTION(17)
 DECLARE_VOLATILE_FUNCTION(18)
 DECLARE_VOLATILE_FUNCTION(19)
 
-LPXLOPER WINAPI FSExecuteNumber(int number, LPXLOPER v0, LPXLOPER v1, LPXLOPER v2, LPXLOPER v3, LPXLOPER v4,
-												LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8, LPXLOPER v9, LPXLOPER v10,
-												LPXLOPER v11, LPXLOPER v12, LPXLOPER v13, LPXLOPER v14, LPXLOPER v15, LPXLOPER v16,
-												LPXLOPER v17, LPXLOPER v18, LPXLOPER v19, LPXLOPER v20, LPXLOPER v21, LPXLOPER v22,
-												LPXLOPER v23, LPXLOPER v24, LPXLOPER v25, LPXLOPER v26, LPXLOPER v27, LPXLOPER v28,
-												LPXLOPER v29)
+LPXLOPER12 WINAPI FSExecuteNumber(int number, LPXLOPER12 v0, LPXLOPER12 v1, LPXLOPER12 v2, LPXLOPER12 v3, LPXLOPER12 v4,
+												LPXLOPER12 v5, LPXLOPER12 v6, LPXLOPER12 v7, LPXLOPER12 v8, LPXLOPER12 v9, LPXLOPER12 v10,
+												LPXLOPER12 v11, LPXLOPER12 v12, LPXLOPER12 v13, LPXLOPER12 v14, LPXLOPER12 v15, LPXLOPER12 v16,
+												LPXLOPER12 v17, LPXLOPER12 v18, LPXLOPER12 v19, LPXLOPER12 v20, LPXLOPER12 v21, LPXLOPER12 v22,
+												LPXLOPER12 v23, LPXLOPER12 v24, LPXLOPER12 v25, LPXLOPER12 v26, LPXLOPER12 v27, LPXLOPER12 v28,
+												LPXLOPER12 v29)
 {
 	if(g_functionCount < number) {
 		return &g_errorMessage;
@@ -529,11 +529,11 @@ LPXLOPER WINAPI FSExecuteNumber(int number, LPXLOPER v0, LPXLOPER v1, LPXLOPER v
 }
 
 #define DECLARE_EXCEL_FUNCTION(number) \
-__declspec(dllexport) LPXLOPER WINAPI FS##number (LPXLOPER v0, LPXLOPER v1, LPXLOPER v2 \
-	,LPXLOPER v3, LPXLOPER v4, LPXLOPER v5, LPXLOPER v6, LPXLOPER v7, LPXLOPER v8 \
-	,LPXLOPER v9, LPXLOPER v10, LPXLOPER v11, LPXLOPER v12, LPXLOPER v13, LPXLOPER v14, LPXLOPER v15, LPXLOPER v16 \
-	,LPXLOPER v17, LPXLOPER v18, LPXLOPER v19, LPXLOPER v20, LPXLOPER v21, LPXLOPER v22, LPXLOPER v23, LPXLOPER v24 \
-	,LPXLOPER v25, LPXLOPER v26, LPXLOPER v27, LPXLOPER v28, LPXLOPER v29) \
+__declspec(dllexport) LPXLOPER12 WINAPI FS##number (LPXLOPER12 v0, LPXLOPER12 v1, LPXLOPER12 v2 \
+	,LPXLOPER12 v3, LPXLOPER12 v4, LPXLOPER12 v5, LPXLOPER12 v6, LPXLOPER12 v7, LPXLOPER12 v8 \
+	,LPXLOPER12 v9, LPXLOPER12 v10, LPXLOPER12 v11, LPXLOPER12 v12, LPXLOPER12 v13, LPXLOPER12 v14, LPXLOPER12 v15, LPXLOPER12 v16 \
+	,LPXLOPER12 v17, LPXLOPER12 v18, LPXLOPER12 v19, LPXLOPER12 v20, LPXLOPER12 v21, LPXLOPER12 v22, LPXLOPER12 v23, LPXLOPER12 v24 \
+	,LPXLOPER12 v25, LPXLOPER12 v26, LPXLOPER12 v27, LPXLOPER12 v28, LPXLOPER12 v29) \
 { \
 	return FSExecuteNumber(number, v0, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19, v20, v21, v22, v23, v24, v25, v26, v27, v28, v29); \
 } 

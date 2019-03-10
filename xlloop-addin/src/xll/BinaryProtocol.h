@@ -21,38 +21,38 @@
 class Protocol {
 public:
 	virtual ~Protocol() {}
-	virtual void initialize(dictionary* ini, const char* section) = 0;
+	virtual void initialize(dictionary* ini, const XCHAR* section) = 0;
 	virtual int connect() = 0;
 	virtual void disconnect() = 0;
 	virtual bool isConnected() = 0;
-	virtual LPXLOPER getLastError() = 0;
-	virtual LPXLOPER execute(const char* name, bool sendCaller, int count, ...) = 0;
-	virtual LPXLOPER execute(const char* name, bool sendCaller, int count, LPXLOPER far opers[]) = 0;
+	virtual LPXLOPER12 getLastError() = 0;
+	virtual LPXLOPER12 execute(const XCHAR* name, bool sendCaller, int count, ...) = 0;
+	virtual LPXLOPER12 execute(const XCHAR* name, bool sendCaller, int count, LPXLOPER12 far opers[]) = 0;
 };
 
 class BinaryProtocol : public Protocol {
 public:
 	BinaryProtocol() : servers(0), serverPorts(0), serverCount(0), conn(0), is(conn), os(conn) {}
 	virtual ~BinaryProtocol() { disconnect(); }
-	void initialize(dictionary* ini, const char* section);
+	void initialize(dictionary* ini, const WCHAR* section);
 	int connect();
 	void disconnect();
 	bool isConnected() { return conn != NULL; }
-	LPXLOPER getLastError() { return &errorMessage; }
-	LPXLOPER execute(const char* name, bool sendCaller, int count, ...);
-	LPXLOPER execute(const char* name, bool sendCaller, int count, LPXLOPER far opers[]);
+	LPXLOPER12 getLastError() { return &errorMessage; }
+	LPXLOPER12 execute(const XCHAR* name, bool sendCaller, int count, ...);
+	LPXLOPER12 execute(const XCHAR* name, bool sendCaller, int count, LPXLOPER12 far opers[]);
 
 private:
 	int connect(int selectionMode);
-	int connect(char* hostname, int port);
-	int send(const char* name, bool sendSource, int count, LPXLOPER far opers[]);
-	LPXLOPER receive(const char* name);
-	void ParseServerList(char* server);
-	int ExtractPort(char* server);
+	int connect(XCHAR* hostname, int port);
+	int send(const XCHAR* name, bool sendSource, int count, LPXLOPER12 far opers[]);
+	LPXLOPER12 receive(const XCHAR* name);
+	void ParseServerList(XCHAR* server);
+	int ExtractPort(XCHAR* server);
 
 private:
 	// The list of available servers
-	char** servers;
+	WCHAR** servers;
 	int* serverPorts;
 	int serverCount;
 	int selectedServer;
@@ -61,7 +61,7 @@ private:
 	SOCKET conn;
 	XIStream is;
 	XOStream os;
-	XLOPER errorMessage;
+	XLOPER12 errorMessage;
 };
 
 #endif // PROTOCOL_H

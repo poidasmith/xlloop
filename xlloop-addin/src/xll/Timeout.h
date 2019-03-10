@@ -18,7 +18,7 @@ class Timeout
 {
 public:
 	static void Init();
-	static void Show(const char* function);
+	static void Show(const WCHAR* function);
 	static bool UserCancelled();
 	static void Cleanup();
 	static void Draw();

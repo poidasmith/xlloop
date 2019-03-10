@@ -12,56 +12,52 @@
 #define XLUTIL_H
 
 #include "../common/Runtime.h"
-#include "xlcall.h"
-
-#ifndef NO_JAVA
-#include <jni.h>
-#endif
+#include <xlcall.h>
 
 typedef struct {
-	char* menuName;
-	char* menuCommand;
-	char* helpText;
+	XCHAR* menuName;
+	XCHAR* menuCommand;
+	XCHAR* helpText;
 } MENU_ITEM;
 
 class XLUtil {
 public:
-	static LPSTR MakeExcelString(const char* string);
-	static LPXLOPER MakeExcelString2(const char* string);
-	static LPXLOPER MakeExcelString3(char* lcstr);
+	static XCHAR* MakeExcelString(const XCHAR* string);
+	static LPXLOPER12 MakeExcelString2(const XCHAR* string);
+	static LPXLOPER12 MakeExcelString3(XCHAR* lcstr);
 
-	static int RegisterFunction(LPXLOPER xllName, 
-			  const char* procedure, const char* typeText, const char* functionText,
-			  const char* argumentText, const char* macroType, const char* category,
-			  const char* shortcutText, const char* helpTopic, 
-			  const char* functionHelp, const char* argumentHelp,
+	static int RegisterFunction(LPXLOPER12 xllName, 
+			  const XCHAR* procedure, const XCHAR* typeText, const XCHAR* functionText,
+			  const XCHAR* argumentText, const XCHAR* macroType, const XCHAR* category,
+			  const XCHAR* shortcutText, const XCHAR* helpTopic,
+			  const XCHAR* functionHelp, const XCHAR* argumentHelp,
 			  bool command = false);
 
-	static int RegisterCommand(LPXLOPER xllName, 
-					  const char* procedure, const char* typeText, const char* functionText,
-					  const char* argumentText, const char* macroType, const char* category,
-					  const char* shortcutText);
+	static int RegisterCommand(LPXLOPER12 xllName, 
+					  const XCHAR* procedure, const XCHAR* typeText, const XCHAR* functionText,
+					  const XCHAR* argumentText, const XCHAR* macroType, const XCHAR* category,
+					  const XCHAR* shortcutText);
 
-	static int AddMenu(LPXLOPER xllName, MENU_ITEM* items, int itemCount, 
-		char* menuPosition, char* subMenuPosition = NULL);
+	static int AddMenu(LPXLOPER12 xllName, MENU_ITEM* items, int itemCount, 
+		XCHAR* menuPosition, XCHAR* subMenuPosition = NULL);
 
-	static void CopyValue(LPXLOPER xloperSrc, LPXLOPER xloperDst);
-	static void FreeContents(LPXLOPER px);
+	static void CopyValue(LPXLOPER12 xloperSrc, LPXLOPER12 xloperDst);
+	static void FreeContents(LPXLOPER12 px);
 	//static char* GetCurrentSheetName();
 	//static char* GetCurrentCellName();
 
-	static void LogFunctionCall(const char* serverName, const char* name, LPXLOPER res, int count, ...);
-	static void ToString(LPXLOPER px, char* dst);
-	static int FindLastArg(LPXLOPER* opers, int count);
+	static void LogFunctionCall(const XCHAR* serverName, const XCHAR* name, LPXLOPER12 res, int count, ...);
+	static void ToString(LPXLOPER12 px, XCHAR* dst);
+	static int FindLastArg(LPXLOPER12* opers, int count);
 };
 
 class XLMap {
 public:
-	static LPXLOPER get(LPXLOPER pmap, const char* key);
-	static char* getString(LPXLOPER pmap, const char* key);
-	static char* getNTString(LPXLOPER pmap, const char* key);
-	static bool getBoolean(LPXLOPER pmap, const char* key, const bool defValue = false);
-	static int getInteger(LPXLOPER pmap, const char* key, const int defValue = -1);
+	static LPXLOPER12 get(LPXLOPER12 pmap, const XCHAR* key);
+	static XCHAR* getString(LPXLOPER12 pmap, const XCHAR* key);
+	static XCHAR* getNTString(LPXLOPER12 pmap, const XCHAR* key);
+	static bool getBoolean(LPXLOPER12 pmap, const XCHAR* key, const bool defValue = false);
+	static int getInteger(LPXLOPER12 pmap, const XCHAR* key, const int defValue = -1);
 };
 
 #endif // XLUTIL_H

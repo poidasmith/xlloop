@@ -12,17 +12,17 @@
 #include <ocidl.h>
 #include <olectl.h>
 #include <stdio.h>
-#include "xlcall.h"
+#include <xlcall.h>
 #include "../common/Log.h"
 
-#define XLLOOP_WND_CLASS "XLLoop.BusyClass"
-#define XLLOOP_WND_NAME "XLLoop.BusyWindow"
-#define CLICK_MESSAGE "click to cancel"
+#define XLLOOP_WND_CLASS L"XLLoop.BusyClass"
+#define XLLOOP_WND_NAME L"XLLoop.BusyWindow"
+#define CLICK_MESSAGE L"click to cancel"
 #define CLICK_MESSAGE_LEN 15
 #define IMG_SIZE 40
 
-#define DISABLE_OPTION ":disable.calc.popup"
-#define DISABLE_CANCEL ":disable.calc.cancel"
+#define DISABLE_OPTION L":disable.calc.popup"
+#define DISABLE_CANCEL L":disable.calc.cancel"
 
 namespace 
 {
@@ -34,7 +34,7 @@ namespace
 	HWND g_Parent;
 	volatile bool g_Started = false;
 	volatile bool g_Shutdown = false;
-	char g_Message[MAX_PATH];
+	WCHAR g_Message[MAX_PATH];
 	int g_MessageLength;
 	int g_CurrentImage;
 	int g_Width;
@@ -123,9 +123,9 @@ typedef struct
 
 BOOL CALLBACK EnumProc(HWND hwnd, WindowInfo* pInfo)
 {
-	char buf[MAX_PATH];
+	WCHAR buf[MAX_PATH];
 	GetClassName(hwnd, buf, MAX_PATH);
-	if(strcmp(buf, "XLMAIN") == 0) {
+	if(wcscmp(buf, L"XLMAIN") == 0) {
 		if(LOWORD((DWORD) hwnd) == pInfo->lo) {
 			pInfo->hwnd = hwnd;
 			return FALSE;
@@ -149,25 +149,25 @@ void ToColumnName(int column, char* target)
 	*target=0;
 }
 
-void Timeout::Show(const char* function)
+void Timeout::Show(const WCHAR* function)
 {
 	if(!g_Initialised) return;
 	if(g_Started) return;
 
 	// Find the excel hwnd
-	XLOPER x;
-	Excel4(xlGetHwnd, &x, 0);
+	XLOPER12 x;
+	Excel12(xlGetHwnd, &x, 0);
 	WindowInfo info;
 	info.lo = x.val.w;
 	EnumWindows((WNDENUMPROC) EnumProc, (LPARAM) &info);
 
 	// Find the active cell
-	Excel4(xlfCaller, &x, 0);
+	Excel12(xlfCaller, &x, 0);
 
 	// Get the sheet name
-	XLOPER xlSheetName;
-	int res = Excel4(xlSheetNm, &xlSheetName, 1, &x);
-	char sheetName[MAX_PATH];
+	XLOPER12 xlSheetName;
+	int res = Excel12(xlSheetNm, &xlSheetName, 1, &x);
+	WCHAR sheetName[MAX_PATH];
 	sheetName[0] = 0;
 
 	// Temp disable showing timer on startup calls
@@ -175,31 +175,31 @@ void Timeout::Show(const char* function)
 		return;
 
 	if(res == 0) {
-		memcpy(sheetName, &xlSheetName.val.str[1], xlSheetName.val.str[0]);
+		memcpy(sheetName, &xlSheetName.val.str[1], xlSheetName.val.str[0] * sizeof(WCHAR));
 		sheetName[xlSheetName.val.str[0]] = 0;
-		Excel4(xlFree, 0, 1, &xlSheetName);
+		Excel12(xlFree, 0, 1, &xlSheetName);
 	}
 
 	// Now format the message 
 	if(res) {
-		sprintf(g_Message, "Calculating %s()", function);
+		wsprintf(g_Message, L"Calculating %s()", function);
 	} else if(x.val.sref.ref.rwLast > x.val.sref.ref.rwFirst || x.val.sref.ref.colLast > x.val.sref.ref.colFirst) {
 		char c1[5], c2[5];
 		ToColumnName(x.val.sref.ref.colFirst, c1);
 		ToColumnName(x.val.sref.ref.colLast, c2);
-		sprintf(g_Message, "Calculating %s %s%d:%s%d: %s()", sheetName, c1, 
+		wsprintf(g_Message, L"Calculating %s %s%d:%s%d: %s()", sheetName, c1, 
 			x.val.sref.ref.rwFirst + 1, c2, x.val.sref.ref.rwLast + 1, function);
 	} else {
 		char c1[5];
 		ToColumnName(x.val.sref.ref.colFirst, c1);
-		sprintf(g_Message, "Calculating %s %s%d: %s()", sheetName, c1, 
+		wsprintf(g_Message, L"Calculating %s %s%d: %s()", sheetName, c1, 
 			x.val.sref.ref.rwFirst + 1, function);
 	}
 
 	g_CurrentImage = 0;
 	g_Shutdown = false;
 	g_Parent = info.hwnd;
-	g_MessageLength = strlen(g_Message);
+	g_MessageLength = wcslen(g_Message);
 	CreateThread(0, 0, ShowInternal, 0, 0, 0);
 }
 
@@ -262,7 +262,7 @@ void Timeout::Initialise(HINSTANCE hInstance, dictionary* ini)
 	// Create our font
 	HDC hDC = GetDC(NULL);
 	DWORD h = -MulDiv(10, GetDeviceCaps(hDC, LOGPIXELSY), 72);
-	g_Font = CreateFont(h, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "Arial");
+	g_Font = CreateFont(h, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, L"Arial");
 	g_hInstance = hInstance;
 	g_Initialised = true;
 }
@@ -294,7 +294,7 @@ void Timeout::LoadBitmaps(HINSTANCE hInstance)
 		LPVOID data = LockResource(hgbl);
 		if(!data) {
 			DWORD err = GetLastError();
-			Log::Error("Error loading bitmap: %d", err);
+			Log::Error(L"Error loading bitmap: %d", err);
 			continue;
 		}
 		HGLOBAL hcopy = GlobalAlloc(GMEM_MOVEABLE, size);

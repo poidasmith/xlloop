@@ -19,16 +19,16 @@
 enum LoggingLevel { debug = -1, info = 0, warning = 1, error = 2, none = 3 };
 
 struct Log {
-	static void Init(HINSTANCE hInstance, const char* logfile, const char* loglevel, dictionary* ini);
+	static void Init(HINSTANCE hInstance, const WCHAR* logfile, const WCHAR* loglevel, dictionary* ini);
 	static void SetLevel(LoggingLevel level);
 	static void SetLogFileAndConsole(bool logAndConsole);
 	static LoggingLevel GetLevel();
-	static void Debug(const char* format, ...);
-	static void Info(const char* format, ...);
-	static void Warning(const char* format, ...);
-	static void Error(const char* format, ...);
+	static void Debug(const WCHAR* format, ...);
+	static void Info(const WCHAR* format, ...);
+	static void Warning(const WCHAR* format, ...);
+	static void Error(const WCHAR* format, ...);
 	static void Close();
-	static void LogIt(LoggingLevel loggingLevel, const char* marker, const char* format, va_list args);
+	static void LogIt(LoggingLevel loggingLevel, const WCHAR* marker, const WCHAR* format, va_list args);
 
 private:
 	static void RedirectIOToConsole();

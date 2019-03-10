@@ -11,9 +11,9 @@
 #ifndef JSON_CODEC_H
 #define JSON_CODEC_H
 
-#include "../yajl/yajl_common.h"
-#include "../yajl/yajl_parse.h"
-#include "../yajl/yajl_gen.h"
+#include <yajl/yajl_common.h>
+#include <yajl/yajl_parse.h>
+#include <yajl/yajl_gen.h>
 #include <windows.h>
 #include "xlcall.h"
 
