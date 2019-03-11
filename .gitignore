@@ -3,6 +3,10 @@
 .classpath
 # Intellij
 *.iml
-.idea
+.idea/
 # VS IDE files
 .vs
+*.vcxproj
+*.vcxproj.*
+Debug/
+Release/
