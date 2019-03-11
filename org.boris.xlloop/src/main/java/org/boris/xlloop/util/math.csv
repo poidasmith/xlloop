@@ -1,0 +1,3 @@
+name,help,category,shortcut,topic,isVolatile,arg1,argHelp1,arg2,argHelp2...
+Math.sin,Returns the trigonometric sine of an angle,Math & Trig,,,FALSE,a,"an angle, in radians",,
+Math.cos,Returns the trigonometric cosine of an angle,Math & Trig,,,FALSE,a,"an angle, in radians",,

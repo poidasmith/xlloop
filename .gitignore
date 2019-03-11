@@ -1,5 +1,8 @@
 ﻿# Eclipse
 .project
 .classpath
+# Intellij
+*.iml
+.idea
 # VS IDE files
-/.vs
+.vs
