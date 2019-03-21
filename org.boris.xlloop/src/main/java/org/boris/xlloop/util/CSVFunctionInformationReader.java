@@ -32,7 +32,8 @@ public class CSVFunctionInformationReader
             boolean hasQuotes) throws IOException {
         ArrayList l = new ArrayList();
         BufferedReader br = new BufferedReader(r);
-        String line = br.readLine(); // skip first line (assume its a header)
+        String line;
+        br.readLine(); // skip first line (assume its a header)
         while ((line = br.readLine()) != null) {
             String[] s = CSV.parseLine(line, delim, hasQuotes);
             l.add(fromArray(s));
@@ -54,7 +55,7 @@ public class CSVFunctionInformationReader
         if (sa.length > 4)
             fi.setHelpTopic(sa[4]);
         if (sa.length > 5)
-            fi.setVolatile(Boolean.valueOf(sa[5]).booleanValue());
+            fi.setVolatile(Boolean.valueOf(sa[5]));
         for (int i = 6; i < sa.length; i += 2) {
             String name = sa[i];
             if (name == null || name.trim().length() == 0)

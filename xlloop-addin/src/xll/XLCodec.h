@@ -29,8 +29,8 @@
 class XOStream {
 public:
 	XOStream(SOCKET& s) : s(s), pos(0) {}
-	void put(WCHAR c);
-	void write(const WCHAR* s, UINT n);
+	void put(char c);
+	void write(const char* utf8, UINT n);
 	void flush();
 	void reset();
 
@@ -44,7 +44,7 @@ class XIStream {
 public:
 	XIStream(SOCKET& s) : s(s), pos(0), len(0) {}
 	int get();
-	void read(WCHAR* s, UINT n);
+	void read(char* utf8, UINT n);
 	inline bool valid() { return s != NULL; }
 	void reset();
 
@@ -61,10 +61,10 @@ private:
 class XLCodec {
 public:
 	static void encode(const LPXLOPER12 xl, XOStream& os);
-	static void encode(const WCHAR* str, XOStream& os);
+	static void encode(const char* utf8, XOStream& os);
 	static void encode(bool b, XOStream& os);
 	static void encode(int w, XOStream& os);
-	static void decode(const WCHAR* WCHAR, XIStream& is, LPXLOPER12 xl);
+	static void decode(const WCHAR* name, XIStream& is, LPXLOPER12 xl);
 };
 
 #endif // XL_CODEC_H

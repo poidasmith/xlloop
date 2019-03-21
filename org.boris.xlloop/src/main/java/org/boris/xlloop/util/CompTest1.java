@@ -96,7 +96,7 @@ public class CompTest1 implements IFunctionHandler
         }
     }
 
-    private static String makeRandomString(int len) {
+    public static String makeRandomString(int len) {
         char[] c = new char[len];
         int cl = characters.length();
         for (int i = 0; i < len; i++) {

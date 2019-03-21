@@ -3,7 +3,7 @@
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at 
  * http://www.eclipse.org/legal/cpl-v10.html
- * 
+ *
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
@@ -16,15 +16,14 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class FileSystemWatcher
-{
+public class FileSystemWatcher {
     private File baseDir;
     private boolean isStopped;
     private int pauseMillis = 60000; // one minute
     private Callback callback;
     private Thread thread;
-    private Map files = new HashMap();
-    private Map fileModificationTimes = new HashMap();
+    private Map<File, Set<File>> files = new HashMap<>();
+    private Map<File, Long> fileModificationTimes = new HashMap<>();
 
     public FileSystemWatcher(File baseDir, Callback callback) {
         this.thread = new Thread(new Runnable() {
@@ -61,64 +60,46 @@ public class FileSystemWatcher
     }
 
     private void searchDir(File dir) {
-        Set fileSet = (Set) files.get(dir);
-        if (fileSet == null) {
-            fileSet = new HashSet();
-            files.put(dir, fileSet);
-        }
-        Set fileCopy = new HashSet(fileSet);
+        Set<File> fileSet = files.computeIfAbsent(dir, k -> new HashSet<>());
+        Set<File> fileCopy = new HashSet<>(fileSet);
         File[] flist = dir.listFiles();
         if (flist == null)
             return;
-        for (int i = 0; i < flist.length; i++) {
-            File f = flist[i];
+        for (File f : flist) {
             if (f.isDirectory()) {
                 searchDir(f);
             } else {
                 if (!fileSet.contains(f)) {
                     callback.fileAdded(f);
-                    fileModificationTimes.put(f, new Long(f.lastModified()));
+                    fileModificationTimes.put(f, f.lastModified());
                     fileSet.add(f);
-                    continue;
                 } else {
                     fileCopy.remove(f);
-                    Long mod = (Long) fileModificationTimes.get(f);
-                    if (mod != null && mod.longValue() != f.lastModified()) {
+                    Long mod = fileModificationTimes.get(f);
+                    if (mod != null && mod != f.lastModified()) {
                         fileModificationTimes
-                                .put(f, new Long(f.lastModified()));
+                                .put(f, f.lastModified());
                         callback.fileChanged(f);
-                        continue;
                     }
                 }
             }
         }
 
         // Now look for removed files
-        for (Iterator i = fileCopy.iterator(); i.hasNext();) {
-            File f = (File) i.next();
+        for (File f : fileCopy) {
             callback.fileRemoved(f);
             fileSet.remove(f);
         }
     }
 
-    public interface Callback
-    {
-        void fileAdded(File f);
-
-        void fileChanged(File f);
-
-        void fileRemoved(File f);
-    }
-
-    public static class CallbackAdaptor implements Callback
-    {
-        public void fileAdded(File f) {
+    public interface Callback {
+        default void fileAdded(File f) {
         }
 
-        public void fileChanged(File f) {
+        default void fileChanged(File f) {
         }
 
-        public void fileRemoved(File f) {
+        default void fileRemoved(File f) {
         }
     }
 }

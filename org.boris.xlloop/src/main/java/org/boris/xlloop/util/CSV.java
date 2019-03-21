@@ -31,7 +31,7 @@ public class CSV
     /**
      * Parse a line.
      * 
-     * @param line.
+     * @param line
      * 
      * @return String[].
      */
@@ -62,7 +62,7 @@ public class CSV
     /**
      * Try to open the given url as a file or url.
      * 
-     * @param url.
+     * @param url
      * 
      * @return BufferedReader.
      */
@@ -86,7 +86,7 @@ public class CSV
     /**
      * Read a CSV from a file or URL.
      * 
-     * @param url.
+     * @param url
      * 
      * @return String[][] (as the csv array).
      */

@@ -45,8 +45,7 @@ public class XLArray extends XLoper
     }
 
     public void set(int row, int column, Integer value) {
-        set(row, column, value == null ? (XLoper) XLNil.NIL : new XLInt(value
-                .intValue()));
+        set(row, column, value == null ? XLNil.NIL : new XLInt(value));
     }
 
     public void set(int row, int column, double value) {
@@ -54,8 +53,7 @@ public class XLArray extends XLoper
     }
 
     public void set(int row, int column, Double value) {
-        set(row, column, value == null ? (XLoper) XLNil.NIL : new XLNum(value
-                .doubleValue()));
+        set(row, column, value == null ? XLNil.NIL : new XLNum(value));
     }
 
     public void set(int row, int column, boolean value) {
@@ -63,8 +61,7 @@ public class XLArray extends XLoper
     }
 
     public void set(int row, int column, Boolean value) {
-        set(row, column, value == null ? (XLoper) XLNil.NIL : new XLBool(value
-                .booleanValue()));
+        set(row, column, value == null ? XLNil.NIL : new XLBool(value));
     }
 
     public XLoper get(int index) {
@@ -86,11 +83,11 @@ public class XLArray extends XLoper
     public Double getDouble(int index) {
         XLoper xl = array[index];
         if (xl.type == xlTypeNum) {
-            return new Double(((XLNum) xl).num);
+            return ((XLNum) xl).num;
         } else if (xl.type == xlTypeInt) {
-            return new Double(((XLInt) xl).w);
+            return (double) ((XLInt) xl).w;
         } else if (xl.type == xlTypeBool) {
-            return new Double(((XLBool) xl).bool ? 1 : 0);
+            return (double) (((XLBool) xl).bool ? 1 : 0);
         }
         return null;
     }
@@ -98,11 +95,11 @@ public class XLArray extends XLoper
     public Integer getInteger(int index) {
         XLoper xl = array[index];
         if (xl.type == xlTypeNum) {
-            return new Integer((int) ((XLNum) xl).num);
+            return (int) ((XLNum) xl).num;
         } else if (xl.type == xlTypeInt) {
-            return new Integer((int) ((XLInt) xl).w);
+            return ((XLInt) xl).w;
         } else if (xl.type == xlTypeBool) {
-            return new Integer(((XLBool) xl).bool ? 1 : 0);
+            return ((XLBool) xl).bool ? 1 : 0;
         }
         return null;
     }
@@ -112,11 +109,11 @@ public class XLArray extends XLoper
         if (xl == null)
             return null;
         if (xl.type == xlTypeBool) {
-            return new Boolean(((XLBool) xl).bool);
+            return ((XLBool) xl).bool;
         } else if (xl.type == xlTypeNum) {
-            return new Boolean(((int) ((XLNum) xl).num) != 0);
+            return ((int) ((XLNum) xl).num) != 0;
         } else if (xl.type == xlTypeInt) {
-            return new Boolean(((XLInt) xl).w != 0);
+            return ((XLInt) xl).w != 0;
         }
         return null;
     }

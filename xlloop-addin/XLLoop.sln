@@ -5,6 +5,10 @@ VisualStudioVersion = 15.0.26228.73
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XLLoop", "build\XLLoop.vcxproj", "{930CC50F-F2EF-486E-BDDB-9B6867177A4C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TestHarness", "TestHarness\TestHarness.vcxproj", "{F4B3BC9B-DE96-438B-A8AE-8134DD59D380}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "test\Test.vcxproj", "{C3808CAA-D320-415E-BD00-3D71CE9A2341}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -21,6 +25,22 @@ Global
 		{930CC50F-F2EF-486E-BDDB-9B6867177A4C}.Release|Win32.Build.0 = Release|Win32
 		{930CC50F-F2EF-486E-BDDB-9B6867177A4C}.Release|x64.ActiveCfg = Debug|x64
 		{930CC50F-F2EF-486E-BDDB-9B6867177A4C}.Release|x64.Build.0 = Debug|x64
+		{F4B3BC9B-DE96-438B-A8AE-8134DD59D380}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F4B3BC9B-DE96-438B-A8AE-8134DD59D380}.Debug|Win32.Build.0 = Debug|Win32
+		{F4B3BC9B-DE96-438B-A8AE-8134DD59D380}.Debug|x64.ActiveCfg = Debug|x64
+		{F4B3BC9B-DE96-438B-A8AE-8134DD59D380}.Debug|x64.Build.0 = Debug|x64
+		{F4B3BC9B-DE96-438B-A8AE-8134DD59D380}.Release|Win32.ActiveCfg = Release|Win32
+		{F4B3BC9B-DE96-438B-A8AE-8134DD59D380}.Release|Win32.Build.0 = Release|Win32
+		{F4B3BC9B-DE96-438B-A8AE-8134DD59D380}.Release|x64.ActiveCfg = Release|x64
+		{F4B3BC9B-DE96-438B-A8AE-8134DD59D380}.Release|x64.Build.0 = Release|x64
+		{C3808CAA-D320-415E-BD00-3D71CE9A2341}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C3808CAA-D320-415E-BD00-3D71CE9A2341}.Debug|Win32.Build.0 = Debug|Win32
+		{C3808CAA-D320-415E-BD00-3D71CE9A2341}.Debug|x64.ActiveCfg = Debug|x64
+		{C3808CAA-D320-415E-BD00-3D71CE9A2341}.Debug|x64.Build.0 = Debug|x64
+		{C3808CAA-D320-415E-BD00-3D71CE9A2341}.Release|Win32.ActiveCfg = Release|Win32
+		{C3808CAA-D320-415E-BD00-3D71CE9A2341}.Release|Win32.Build.0 = Release|Win32
+		{C3808CAA-D320-415E-BD00-3D71CE9A2341}.Release|x64.ActiveCfg = Release|x64
+		{C3808CAA-D320-415E-BD00-3D71CE9A2341}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

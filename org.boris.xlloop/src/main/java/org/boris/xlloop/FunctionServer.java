@@ -3,27 +3,25 @@
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at 
  * http://www.eclipse.org/legal/cpl-v10.html
- * 
+ *
  * Contributors:
  *     Peter Smith
  *******************************************************************************/
 package org.boris.xlloop;
 
+import org.boris.xlloop.codec.BinaryRequestProtocol;
+import org.boris.xlloop.util.XLList;
+import org.boris.xlloop.xloper.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import org.boris.xlloop.codec.BinaryRequestProtocol;
-import org.boris.xlloop.util.XLList;
-import org.boris.xlloop.xloper.XLBool;
-import org.boris.xlloop.xloper.XLError;
-import org.boris.xlloop.xloper.XLInt;
-import org.boris.xlloop.xloper.XLSRef;
-import org.boris.xlloop.xloper.XLString;
-import org.boris.xlloop.xloper.XLoper;
+public class FunctionServer implements IBuiltinFunctions {
+    private static final Logger logger = LoggerFactory.getLogger(FunctionServer.class);
 
-public class FunctionServer implements IBuiltinFunctions
-{
     protected int port;
     protected IFunctionHandler handler;
     protected ServerSocket socket;
@@ -68,13 +66,11 @@ public class FunctionServer implements IBuiltinFunctions
         if (socket != null)
             return;
 
-        Thread t = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    FunctionServer.this.run();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+        Thread t = new Thread(() -> {
+            try {
+                FunctionServer.this.run();
+            } catch (IOException e) {
+                logger.error("Unknown error in function server", e);
             }
         });
         t.setName("XLLoop Function Server");
@@ -86,7 +82,7 @@ public class FunctionServer implements IBuiltinFunctions
         if (socket == null)
             socket = new ServerSocket(port);
 
-        while (true) {
+        while (socket != null) {
             HandlerThread ht = new HandlerThread(handler, socket.accept());
             ht.start();
             if (listener != null)
@@ -163,20 +159,19 @@ public class FunctionServer implements IBuiltinFunctions
         XLList l = new XLList(args);
         int size = l.size();
         switch (size) {
-        default:
-        case 3:
-            session.key = l.getString(2);
-        case 2:
-            session.host = l.getString(1);
-        case 1:
-            session.user = l.getString(0);
-        case 0:
-            break;
+            default:
+            case 3:
+                session.key = l.getString(2);
+            case 2:
+                session.host = l.getString(1);
+            case 1:
+                session.user = l.getString(0);
+            case 0:
+                break;
         }
     }
 
-    public static class HandlerThread extends Thread
-    {
+    public static class HandlerThread extends Thread {
         private Socket socket;
         private IRequestProtocol protocol = new BinaryRequestProtocol();
         private IFunctionHandler handler;
@@ -192,9 +187,17 @@ public class FunctionServer implements IBuiltinFunctions
             try {
                 protocol.initialise(socket);
             } catch (IOException e) {
+                logger.error("Error initialising protocol", e);
+                close();
+
             }
             while (!socket.isClosed()) {
-                handleRequest(handler, protocol, socket, session);
+                try {
+                    handleRequest(handler, protocol, socket, session);
+                } catch (Exception e) {
+                    logger.error("Error handling request", e);
+                    close();
+                }
             }
         }
 
@@ -204,13 +207,11 @@ public class FunctionServer implements IBuiltinFunctions
                 socket.getOutputStream().close();
                 socket.close();
             } catch (IOException e) {
-                e.printStackTrace();
             }
         }
     }
 
-    public static class FunctionContext implements IFunctionContext
-    {
+    public static class FunctionContext implements IFunctionContext {
         private IFunctionHandler handler;
         private Session session;
         private XLSRef caller;
@@ -248,8 +249,7 @@ public class FunctionServer implements IBuiltinFunctions
         }
     }
 
-    private static class Session
-    {
+    private static class Session {
         private String user;
         private String host;
         private String key;

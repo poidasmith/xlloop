@@ -19,14 +19,14 @@ namespace
 	const WCHAR* g_CurrentFunction;
 }
 
-inline void XOStream::put(WCHAR c)
+inline void XOStream::put(char c)
 {
 	if(pos >= STREAM_BUF_SIZE)
 		flush();
 	buf[pos++] = c;
 }
 
-inline void XOStream::write(const WCHAR* s, unsigned int n)
+inline void XOStream::write(const char* utf8, unsigned int n)
 {
 	if(n <= 0) return;
 	if(n > STREAM_BUF_SIZE) {
@@ -35,7 +35,7 @@ inline void XOStream::write(const WCHAR* s, unsigned int n)
 			unsigned int size = STREAM_BUF_SIZE - pos;
 			if(size > n)
 				size = n;
-			memcpy(&buf[pos], &s[i], size);
+			memcpy(&buf[pos], &utf8[i], size);
 			i += size;
 			if(pos >= STREAM_BUF_SIZE)
 				flush();
@@ -43,7 +43,7 @@ inline void XOStream::write(const WCHAR* s, unsigned int n)
 	} else {
 		if(pos + n >= STREAM_BUF_SIZE)
 			flush();
-		memcpy(&buf[pos], s, n);
+		memcpy(&buf[pos], utf8, n);
 		pos += n;
 	}
 }
@@ -79,21 +79,21 @@ inline int XIStream::get()
 	return buf[pos++] & 0xff;
 }
 
-inline void XIStream::read(WCHAR* s, UINT n)
+inline void XIStream::read(char* utf8, UINT n)
 {
-	if(s == 0 || n <= 0)
+	if(utf8 == 0 || n <= 0)
 		return;
 
 	if(pos >= len)
 		fill();
 
 	int i = 0;
-	while(n > 0 && s) {
+	while(n > 0 && utf8) {
 		UINT size = len-pos;
 		if(size > n)
 			size = n;
 		if(size > 0) {
-			memcpy(&s[i], &buf[pos], size);
+			memcpy(&utf8[i], &buf[pos], size);
 			pos += size;
 		}
 		n -= size;
@@ -175,6 +175,7 @@ void XLCodec::encode(const LPXLOPER12 xl, XOStream& os)
 {
 	int type = xl->xltype & ~(xlbitXLFree | xlbitDLLFree);
 	UINT len;
+	WCHAR* str;
 	int t = 0;
 	switch(type) {
 		case xltypeBool:
@@ -204,8 +205,19 @@ void XLCodec::encode(const LPXLOPER12 xl, XOStream& os)
 			break;
 		case xltypeStr:
 			os.put(XL_CODEC_TYPE_STR);
-			os.put(xl->val.str[0]);
-			os.write(&xl->val.str[1], (unsigned char) xl->val.str[0]);
+			// Convert to UTF8
+			str = xl->val.str;
+			len = (unsigned short) str[0];
+			if (len > 0)
+			{
+				char* utf8 = (char*) malloc(len * 2);
+				memset(utf8, 0, len * 2);
+				len = WideCharToMultiByte(CP_UTF8, 0, &str[1], len, utf8, len * 2, 0, 0);
+				os.put(len);
+				os.write(utf8, len);
+			}
+			else
+				os.put(len);
 			break;
 		case xltypeNil:
 			os.put(XL_CODEC_TYPE_NIL);
@@ -224,13 +236,13 @@ void XLCodec::encode(const LPXLOPER12 xl, XOStream& os)
 	}
 }
 
-void XLCodec::encode(const WCHAR* str, XOStream& os)
+void XLCodec::encode(const char* utf8, XOStream& os)
 {
 	os.put(XL_CODEC_TYPE_STR);
-	if(str) {
-		int len = wcslen(str);
+	if(utf8) {
+		int len = strlen(utf8);
 		os.put(len);
-		os.write(str, len);
+		os.write(utf8, len);
 	} else {
 		os.put(0);
 	}
@@ -285,11 +297,16 @@ void XLCodec::decode(const WCHAR* name, XIStream& is, LPXLOPER12 xl)
 		case XL_CODEC_TYPE_STR:
 			xl->xltype = xltypeStr;
 			len = is.get();
-			if(is.valid()) {
-				xl->val.str = new WCHAR[len+1];
-				xl->val.str[0] = (WCHAR) len;
-				if(len > 0)
-					is.read(&xl->val.str[1], len);
+			if (is.valid()) {
+				if (len > 0) {
+					// Read UTF8 and convert to WCHAR
+					char* utf8 = new char[len];
+					is.read(utf8, len);
+					int wlen = MultiByteToWideChar(CP_UTF8, 0, utf8, len, NULL, 0);
+					xl->val.str = new WCHAR[len + 1];
+					xl->val.str[0] = (WCHAR) wlen;
+					MultiByteToWideChar(CP_UTF8, 0, utf8, len, &xl->val.str[1], len);
+				}
 			}
 			break;
 		case XL_CODEC_TYPE_MISSING:

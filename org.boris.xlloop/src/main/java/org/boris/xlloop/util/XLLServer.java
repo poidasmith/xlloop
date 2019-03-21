@@ -18,7 +18,6 @@ import org.boris.xlloop.handler.AddinFunctionHandler;
 import org.boris.xlloop.handler.CompositeFunctionHandler;
 import org.boris.xlloop.handler.DebugFunctionHandler;
 import org.boris.xlloop.handler.FunctionInformationHandler;
-import org.boris.xlloop.util.FileSystemWatcher.CallbackAdaptor;
 
 public class XLLServer
 {
@@ -31,7 +30,7 @@ public class XLLServer
         final CompositeFunctionHandler cfh = new CompositeFunctionHandler();
         final FunctionInformationHandler fifh = new FunctionInformationHandler();
         FileSystemWatcher fsw = new FileSystemWatcher(new File(DIR),
-                new CallbackAdaptor() {
+                new FileSystemWatcher.Callback() {
                     public void fileAdded(File f) {
                         registerAddin(f, fifh, cfh);
                     }
@@ -47,7 +46,7 @@ public class XLLServer
             FunctionInformationHandler fifh,
             CompositeFunctionHandler cfh) {
         String n = f.getName().toLowerCase();
-        if (n.indexOf("xlloop-") == -1 && n.endsWith("xll")) {
+        if (!n.contains("xlloop-") && n.endsWith("xll")) {
             Addin a = JXLL.load(f.getAbsolutePath());
             if (a == null) {
                 System.out.println("Could not load addin: " + f);

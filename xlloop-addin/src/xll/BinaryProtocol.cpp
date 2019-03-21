@@ -102,6 +102,7 @@ int BinaryProtocol::connect(WCHAR* hostname, int port)
 
 	hostent* hp;
 	char hs[MAX_PATH];
+	memset(hs, 0, MAX_PATH);
 	BOOL used;
 	WideCharToMultiByte(CP_UTF8, 0, hostname, wcslen(hostname), hs, MAX_PATH, " ", &used);
 	if(inet_addr(hs) == INADDR_NONE) {

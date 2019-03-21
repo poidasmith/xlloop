@@ -57,15 +57,15 @@ public class XLoperObjectConverter
         if (obj instanceof String) {
             return new XLString((String) obj);
         } else if (obj instanceof Boolean) {
-            return new XLBool(((Boolean) obj).booleanValue());
+            return new XLBool((Boolean) obj);
         } else if (obj instanceof Integer) {
-            return new XLNum(((Integer) obj).intValue());
+            return new XLNum(((Integer) obj).doubleValue());
         } else if (obj instanceof Long) {
-            return new XLNum(((Long) obj).longValue());
+            return new XLNum(((Long) obj).doubleValue());
         } else if (obj instanceof Float) {
-            return new XLNum(((Float) obj).floatValue());
+            return new XLNum((Float) obj);
         } else if (obj instanceof Double) {
-            return new XLNum(((Double) obj).doubleValue());
+            return new XLNum((Double) obj);
         } else if (obj instanceof String[]) {
             String[] arr = (String[]) obj;
             XLoper[] array = new XLoper[arr.length];
@@ -256,8 +256,8 @@ public class XLoperObjectConverter
     /**
      * Creates a java object from an XLObject.
      * 
-     * @param obj.
-     * @param hint.
+     * @param obj
+     * @param hint
      * 
      * @return Object.
      */
@@ -526,8 +526,8 @@ public class XLoperObjectConverter
     /**
      * Convert an array into the desired object.
      * 
-     * @param arr.
-     * @param hint.
+     * @param arr
+     * @param hint
      * 
      * @return Object.
      */

@@ -13,6 +13,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
 import org.boris.xlloop.xloper.XLArray;
 import org.boris.xlloop.xloper.XLBool;
@@ -28,7 +29,7 @@ import org.boris.xlloop.xloper.XLoper;
 public class BinaryCodec
 {
     public static XLoper decode(InputStream is) throws IOException {
-        int type = (int) is.read();
+        int type = is.read();
         switch (type) {
         case XLoper.xlTypeBool:
             return decodeBool(is);
@@ -74,11 +75,11 @@ public class BinaryCodec
                 throw new EOFException();
             r += s;
         }
-        return new XLString(new String(b));
+        return new XLString(new String(b, StandardCharsets.UTF_8));
     }
 
     private static XLoper decodeNum(InputStream is) throws IOException {
-        return new XLNum(Double.longBitsToDouble(((long) readDoubleWord(is) << 32) | (long) readDoubleWord(is)));
+        return new XLNum(Double.longBitsToDouble((readDoubleWord(is) << 32) | readDoubleWord(is)));
     }
 
     private static XLoper decodeNil() {
@@ -120,7 +121,7 @@ public class BinaryCodec
             return;
         }
 
-        os.write((int) xloper.type);
+        os.write(xloper.type);
         switch (xloper.type) {
         case XLoper.xlTypeBool:
             encodeBoolean((XLBool) xloper, os);
@@ -158,7 +159,7 @@ public class BinaryCodec
 
     private static void encodeString(XLString xloper, OutputStream os) throws IOException {
         String str = xloper.str;
-        byte[] b = str.getBytes();
+        byte[] b = str.getBytes(StandardCharsets.UTF_8);
         if (b.length > 255) {
             os.write(255);
             os.write(b, 0, 255);
