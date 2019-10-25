@@ -515,7 +515,14 @@ public class XLoperObjectConverter
             }
 
             val = darr;
-        } else {
+        } else if (clazz.isArray()) {
+			Class underlyingType = clazz.getComponentType();
+			Object objectArray = Array.newInstance(underlyingType, xlArray.rows);
+			for (int i = 0; i < xlArray.rows; ++i) {
+				Array.set(objectArray, i, this.createFrom(xlArray.get(i), underlyingType));
+			}
+			value = objectArray;
+		} else {
             String str = arr.getString(0);
             val = registry.get(str);
         }
