@@ -1,2 +1,5 @@
-/XLLoop.ncb
-/XLLoop.suo
+*.ncb
+*.suo
+*.user
+build/
+.vs/

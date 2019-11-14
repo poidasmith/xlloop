@@ -52,7 +52,7 @@ public:
 	static void Encode(yajl_gen g, LPXLOPER x);
 	static void FreeJsonValue(json_value* v);
 	static bool Decode(json_value* v, LPXLOPER x);
-	static yajl_handle AllocateHandle(yajl_parser_config* cfg, json_ctx* ctx);
+	static yajl_handle AllocateHandle(json_ctx* ctx);
 };
 
 #endif // JSON_CODEC_H

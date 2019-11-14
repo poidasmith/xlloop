@@ -31,7 +31,6 @@ typedef struct _ctx {
 	HINTERNET hConnect;
 	HINTERNET hRequest;
 	HANDLE hEvent;
-	yajl_gen_config conf;
 	yajl_gen g;
 	LPXLOPER px;
 } REQUEST_CONTEXT;
@@ -156,9 +155,8 @@ LPXLOPER HttpProtocol::execute(const char* name, bool sendCaller, int count, LPX
 VOID ReadData(REQUEST_CONTEXT* context)
 {
 	yajl_handle hand;
-	yajl_parser_config cfg = { 1, 1 };
 	json_ctx ctx = { 0, 0 };
-	hand = JSONCodec::AllocateHandle(&cfg, &ctx);
+	hand = JSONCodec::AllocateHandle(&ctx);
 
 	unsigned char temp[BUFFER_SIZE];
 	DWORD read = 0;
@@ -180,8 +178,8 @@ VOID ReadData(REQUEST_CONTEXT* context)
 		}
 	}
 
-	yajl_parse_complete(hand);
-    yajl_free(hand);
+	yajl_complete_parse(hand);
+	yajl_free(hand);
 	JSONCodec::Decode(ctx.current, context->px);
 	JSONCodec::FreeJsonValue(ctx.current);
 }
@@ -196,15 +194,15 @@ LPXLOPER HttpProtocol::Execute(const char* name, bool sendCaller, LPXLOPER* args
 		flags |= WINHTTP_FLAG_SECURE;
 	context.hRequest = WinHttpOpenRequest(context.hConnect, L"POST", path, 0, 0, 0, 
 		flags);
-	context.conf.beautify = 0;
-	context.conf.indentString = "";
-	context.g = yajl_gen_alloc(&context.conf, 0);
+	context.g = yajl_gen_alloc(NULL);
+	yajl_gen_config(context.g, yajl_gen_beautify, 1);
+	yajl_gen_config(context.g, yajl_gen_indent_string, "");
 	context.px = (LPXLOPER) malloc(sizeof(XLOPER));
 	context.px->xltype = xltypeNil | xlbitDLLFree;
 	GenerateRequest(context.g, name, sendCaller, args, argc);
 	const unsigned char * buf;
-    unsigned int len = 0;
-    yajl_gen_get_buf(context.g, &buf, &len);
+	size_t len = 0;
+	yajl_gen_get_buf(context.g, &buf, &len);
 	BOOL res = FALSE;
 	res = WinHttpSendRequest(context.hRequest, 0, 0, (LPVOID) buf, len, len, (DWORD_PTR) &context);
 	if(!res) {
@@ -244,7 +242,7 @@ LPXLOPER HttpProtocol::Execute(const char* name, bool sendCaller, LPXLOPER* args
 	ReadData(&context);
 	WinHttpCloseHandle(context.hRequest);
 	WinHttpCloseHandle(context.hConnect);
-    yajl_gen_clear(context.g);
+	yajl_gen_clear(context.g);
 	yajl_gen_free(context.g);
 	context.px->xltype |= xlbitDLLFree;
 	return context.px;

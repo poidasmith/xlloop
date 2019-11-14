@@ -111,7 +111,7 @@ static int cb_boolean(void * ctx, int boolean)
     return 1;
 }
 
-static int cb_integer(void * ctx, long l)
+static int cb_integer(void * ctx, long long l)
 {
 	json_ctx* c = (json_ctx*) ctx;
 	json_value* v = to_apply(c);
@@ -131,7 +131,7 @@ static int cb_double(void * ctx, double d)
 	return 1;
 }
 
-static int cb_string(void * ctx, const unsigned char * s, unsigned int len)
+static int cb_string(void * ctx, const unsigned char * s, size_t len)
 {
 	json_ctx* c = (json_ctx*) ctx;
 	json_value* v = to_apply(c);
@@ -143,7 +143,7 @@ static int cb_string(void * ctx, const unsigned char * s, unsigned int len)
     return 1;
 }
 
-static int cb_map_key(void * ctx, const unsigned char * s, unsigned int len)
+static int cb_map_key(void * ctx, const unsigned char * s, size_t len)
 {
 	json_ctx* c = (json_ctx*) ctx;
 	if(c->key)
@@ -201,7 +201,7 @@ static yajl_callbacks callbacks =
     cb_end_array
 };
 
-void* malloc_func(void *ctx, unsigned int sz)
+void* malloc_func(void *ctx, size_t sz)
 {
 	return malloc(sz);
 }
@@ -211,7 +211,7 @@ void free_func(void *ctx, void * ptr)
 	free(ptr);
 }
 
-void* realloc_func(void *ctx, void * ptr, unsigned int sz)
+void* realloc_func(void *ctx, void * ptr, size_t sz)
 {
 	return realloc(ptr, sz);
 }
@@ -223,9 +223,9 @@ static yajl_alloc_funcs allocs =
 	free_func
 };
 
-yajl_handle JSONCodec::AllocateHandle(yajl_parser_config* cfg, json_ctx* ctx)
+yajl_handle JSONCodec::AllocateHandle(json_ctx* ctx)
 {
-    return yajl_alloc(&callbacks, cfg, &allocs, (void *) ctx);
+    return yajl_alloc(&callbacks, &allocs, (void *) ctx);
 }
 
 static char* typeStr = "type";
